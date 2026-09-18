@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Build and test
+    # ubuntu-latest, not the self-hosted pool: this module has no AWS or cluster
+    # dependency, and a hosted runner avoids the org runner-group grant that new
+    # repositories do not get by default.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.27"
+          cache-dependency-path: go.sum
+
+      - name: Build
+        run: go build ./...
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "These files are not gofmt'd:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: Test
+        run: go test -count=1 -race ./...
+
+      - name: Contract stays dependency-light
+        # ADR-017: this module must not acquire database, handler, credential, or
+        # provider-execution dependencies. It is imported by every service, so a
+        # dependency here propagates everywhere.
+        run: |
+          if grep -qE '^\s*require' go.mod; then
+            echo "ERROR: go.mod gained a require block."
+            echo "The connector contract is deliberately stdlib-only."
+            cat go.mod
+            exit 1
+          fi
+          echo "OK: no third-party dependencies"
