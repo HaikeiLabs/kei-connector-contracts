@@ -36,6 +36,16 @@ const (
 	ProviderNotion  Provider = "notion"
 	ProviderS3      Provider = "s3"
 	ProviderHTTPAPI Provider = "http_api"
+
+	// ProviderFreshBooks is the bookkeeping provider. Its capability surface
+	// is read-only: invoices, expenses, payments and clients are read to
+	// reconcile and report, never created or altered through Kei.
+	ProviderFreshBooks Provider = "freshbooks"
+
+	// ProviderMercury is the banking provider. Its capability surface is
+	// read-only by construction, matching the provider's own read-only
+	// token and MCP surface: no capability here can move money.
+	ProviderMercury Provider = "mercury"
 )
 
 type Status string
@@ -79,6 +89,13 @@ var definitions = map[Provider][]Capability{
 	ProviderNotion:  {{Name: "search", Action: ActionRead}, {Name: "page.read", Action: ActionRead}, {Name: "database.query", Action: ActionRead}},
 	ProviderS3:      {{Name: "object.list", Action: ActionRead}, {Name: "object.read", Action: ActionRead}},
 	ProviderHTTPAPI: {{Name: "http.get", Action: ActionRead}, {Name: "http.head", Action: ActionRead}},
+	// Finance providers declare reads only. There is deliberately no
+	// payment, transfer, invoice.create or expense.update capability: a
+	// name absent from this catalog cannot be invoked at all, so the
+	// read-only guarantee does not depend on policy being configured
+	// correctly. See read_only_test.go.
+	ProviderFreshBooks: {{Name: "invoice.read", Action: ActionRead}, {Name: "expense.read", Action: ActionRead}, {Name: "payment.read", Action: ActionRead}, {Name: "client.read", Action: ActionRead}},
+	ProviderMercury:    {{Name: "account.read", Action: ActionRead}, {Name: "transaction.read", Action: ActionRead}, {Name: "balance.read", Action: ActionRead}},
 }
 
 func CapabilitiesFor(provider Provider) []Capability {
@@ -209,7 +226,8 @@ func definedCapability(provider Provider, candidate Capability) bool {
 }
 
 func validProvider(p Provider) bool {
-	return p == ProviderCRM || p == ProviderLinear || p == ProviderGitHub || p == ProviderGoogle || p == ProviderNotion || p == ProviderS3 || p == ProviderHTTPAPI
+	return p == ProviderCRM || p == ProviderLinear || p == ProviderGitHub || p == ProviderGoogle || p == ProviderNotion || p == ProviderS3 || p == ProviderHTTPAPI ||
+		p == ProviderFreshBooks || p == ProviderMercury
 }
 func validStatus(s Status) bool {
 	return s == StatusPending || s == StatusActive || s == StatusSuspended || s == StatusRevoked || s == StatusFailed

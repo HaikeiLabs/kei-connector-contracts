@@ -60,7 +60,7 @@ func TestCapabilitiesForProviderCopiesAndRejectsUnknown(t *testing.T) {
 
 func TestProvidersSortedAndComplete(t *testing.T) {
 	got := Providers()
-	want := []Provider{ProviderCRM, ProviderGitHub, ProviderGoogle, ProviderHTTPAPI, ProviderLinear, ProviderNotion, ProviderS3}
+	want := []Provider{ProviderCRM, ProviderFreshBooks, ProviderGitHub, ProviderGoogle, ProviderHTTPAPI, ProviderLinear, ProviderMercury, ProviderNotion, ProviderS3}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("Providers() = %v, want %v", got, want)
 	}
