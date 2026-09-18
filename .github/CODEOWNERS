@@ -1,0 +1,7 @@
+# Code Owners
+#
+# The connector contract is a frozen, versioned interface consumed by every Kei
+# service and by third-party connector authors. A change here is a change to a
+# published API, so every path requires review from the contract owners.
+
+* @Soypete @Colinso

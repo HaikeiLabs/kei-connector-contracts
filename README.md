@@ -35,3 +35,19 @@ envelope version rather than an edit in place.
 
 Tagged with semver. Consumers require a released version; no `replace`
 directives.
+
+## Building a connector
+
+The contract is public and Apache 2.0 licensed so that anyone can implement a
+connector against it without going through Haikei. Model the provider's shapes
+in `providers/`, declare capabilities, and the runtime enforces policy over them.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the rules that keep the contract
+safe to depend on — chiefly that it stays metadata-only, stdlib-only, and that
+breaking changes take a new version rather than an edit in place.
+
+## Licence
+
+[Apache License 2.0](LICENSE). Every Go file carries the header; CI enforces it
+via `scripts/license-header.sh --check`, and running the script without
+arguments adds it to new files.

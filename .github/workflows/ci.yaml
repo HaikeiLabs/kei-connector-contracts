@@ -46,6 +46,13 @@ jobs:
       - name: Test
         run: go test -count=1 -race ./...
 
+      - name: License headers present
+        # Apache 2.0 does not strictly require per-file headers, but this
+        # repository is public and its files are meant to be read and copied by
+        # third-party connector authors. A file that travels on its own should
+        # carry its licence with it.
+        run: bash scripts/license-header.sh --check
+
       - name: Contract stays dependency-light
         # ADR-017: this module must not acquire database, handler, credential, or
         # provider-execution dependencies. It is imported by every service, so a
