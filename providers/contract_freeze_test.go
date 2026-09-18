@@ -91,4 +91,37 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 			t.Errorf("Notion resource %q rejected: %v", tc.resource, err)
 		}
 	}
+
+	freshbooks := NewFreshBooks(freshBooksStore())
+	fm := metaFor(t, connectors.ProviderFreshBooks, []string{"accounts/acct-TEST-1"}, nil)
+	for _, tc := range []struct {
+		resource string
+		payload  Payload
+	}{
+		{"accounts/acct-TEST-1/invoices/inv-TEST-1", InvoiceReadPayload{}},
+		{"accounts/acct-TEST-1/expenses/exp-TEST-1", ExpenseReadPayload{}},
+		{"accounts/acct-TEST-1/payments/pay-TEST-1", PaymentReadPayload{}},
+		{"accounts/acct-TEST-1/clients/cli-TEST-1", ClientReadPayload{}},
+	} {
+		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		if _, err := freshbooks.Invoke(ctx, fm, inv, tc.payload); err != nil {
+			t.Errorf("FreshBooks resource %q rejected: %v", tc.resource, err)
+		}
+	}
+
+	mercury := NewMercury(mercuryStore())
+	mm := metaFor(t, connectors.ProviderMercury, []string{"accounts/acct-TEST-1"}, nil)
+	for _, tc := range []struct {
+		resource string
+		payload  Payload
+	}{
+		{"accounts/acct-TEST-1", AccountReadPayload{}},
+		{"accounts/acct-TEST-1", BalanceReadPayload{}},
+		{"accounts/acct-TEST-1/transactions/txn-TEST-1", TransactionReadPayload{}},
+	} {
+		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		if _, err := mercury.Invoke(ctx, mm, inv, tc.payload); err != nil {
+			t.Errorf("Mercury resource %q rejected: %v", tc.resource, err)
+		}
+	}
 }

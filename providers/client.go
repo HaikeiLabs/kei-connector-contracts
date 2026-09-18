@@ -140,6 +140,10 @@ func New(provider connectors.Provider) (Client, error) {
 		return NewNotion(MemoryNotion{}), nil
 	case connectors.ProviderCRM:
 		return NewCRM(MemoryCRM{}), nil
+	case connectors.ProviderFreshBooks:
+		return NewFreshBooks(MemoryFreshBooks{}), nil
+	case connectors.ProviderMercury:
+		return NewMercury(MemoryMercury{}), nil
 	default:
 		return nil, fmt.Errorf("unsupported provider %q", provider)
 	}
