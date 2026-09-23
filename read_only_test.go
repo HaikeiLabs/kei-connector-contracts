@@ -66,6 +66,14 @@ func readOnlyConnector(t *testing.T, provider Provider) (Metadata, string, strin
 		m.Capabilities = []Capability{{Name: "issue.read", Action: ActionRead}}
 		m.Policy = PolicyAttributes{AllowedActions: []Action{ActionRead}, AllowedResources: []string{"linear/issue"}}
 		return m, "issue.read", "linear/issue/KEI-42"
+	case ProviderFreshBooks:
+		m.Capabilities = []Capability{{Name: "invoice.read", Action: ActionRead}}
+		m.Policy = PolicyAttributes{AllowedActions: []Action{ActionRead}, AllowedResources: []string{"accounts/acct-1"}}
+		return m, "invoice.read", "accounts/acct-1/invoices/inv-1"
+	case ProviderMercury:
+		m.Capabilities = []Capability{{Name: "account.read", Action: ActionRead}}
+		m.Policy = PolicyAttributes{AllowedActions: []Action{ActionRead}, AllowedResources: []string{"accounts/acct-1"}}
+		return m, "account.read", "accounts/acct-1"
 	default:
 		t.Fatalf("unexpected provider %q", provider)
 		return Metadata{}, "", ""
@@ -186,5 +194,94 @@ func TestDeclaredMutationRemainsReachable(t *testing.T) {
 				t.Fatalf("declared mutation %q rejected: %v", tc.capability, err)
 			}
 		})
+	}
+}
+
+// financeProviders are the providers whose catalogs deliberately contain no
+// mutation at all.
+var financeProviders = []Provider{ProviderFreshBooks, ProviderMercury}
+
+// financeMutations are operations a caller might plausibly ask a bookkeeping
+// or banking agent to perform. None is defined for either provider, which is
+// the point: the guarantee for money movement is stronger than the opt-in
+// default the tests above pin. For GitHub or Linear a connector may opt in to
+// a write; for FreshBooks and Mercury there is no capability to opt in to.
+var financeMutations = []struct {
+	capability string
+	action     Action
+}{
+	{"payment.create", ActionCreate},
+	{"invoice.create", ActionCreate},
+	{"invoice.update", ActionUpdate},
+	{"expense.update", ActionUpdate},
+	{"transfer.create", ActionCreate},
+	{"transaction.create", ActionCreate},
+	{"recipient.create", ActionCreate},
+	{"account.update", ActionUpdate},
+}
+
+// TestFinanceCatalogsDefineNoMutation proves money movement is absent from the
+// catalog rather than merely disabled by policy. A capability that is not
+// defined cannot be declared by a connector, so no configuration mistake can
+// make it reachable.
+func TestFinanceCatalogsDefineNoMutation(t *testing.T) {
+	for _, provider := range financeProviders {
+		for _, capability := range CapabilitiesFor(provider) {
+			if capability.Action != ActionRead {
+				t.Errorf("%s capability %q has action %q; finance providers are read-only",
+					provider, capability.Name, capability.Action)
+			}
+		}
+		for _, tc := range financeMutations {
+			if _, ok := LookupCapability(provider, tc.capability); ok {
+				t.Errorf("%s defines mutation capability %q; finance providers are read-only",
+					provider, tc.capability)
+			}
+		}
+	}
+}
+
+// TestFinanceMutationsRejectedEvenWhenDeclared is the belt-and-braces case: a
+// connector that forges a mutation capability in its own metadata, with a
+// permissive policy and an approval id, is still refused. ValidateCall checks
+// the capability against the provider catalog, so metadata cannot invent a
+// payment.
+func TestFinanceMutationsRejectedEvenWhenDeclared(t *testing.T) {
+	for _, provider := range financeProviders {
+		for _, tc := range financeMutations {
+			t.Run(string(provider)+"/"+tc.capability, func(t *testing.T) {
+				meta, _, resource := readOnlyConnector(t, provider)
+				meta.Capabilities = append(meta.Capabilities, Capability{Name: tc.capability, Action: tc.action})
+				meta.Policy.AllowedActions = []Action{ActionRead, ActionCreate, ActionUpdate, ActionDelete}
+				meta.Policy.DestructiveEnabled = true
+
+				in := Invocation{
+					TenantID: meta.TenantID, WorkspaceID: meta.WorkspaceID, Subject: "u-1",
+					AgentID: "a-1", ConnectorID: meta.ID, Capability: tc.capability,
+					Action: tc.action, Resource: resource, TraceID: "trace-1",
+					ApprovalID: "approval-1",
+				}
+				if err := ValidateCall(meta, in); err == nil {
+					t.Fatalf("%s accepted forged mutation %q", provider, tc.capability)
+				}
+			})
+		}
+	}
+}
+
+// TestFinanceReadsRemainReachable guards against the tests above passing
+// because finance connectors are broken rather than because writes are
+// absent. Every declared read capability must still validate.
+func TestFinanceReadsRemainReachable(t *testing.T) {
+	for _, provider := range financeProviders {
+		meta, capability, resource := readOnlyConnector(t, provider)
+		in := Invocation{
+			TenantID: meta.TenantID, WorkspaceID: meta.WorkspaceID, Subject: "u-1",
+			AgentID: "a-1", ConnectorID: meta.ID, Capability: capability,
+			Action: ActionRead, Resource: resource, TraceID: "trace-1",
+		}
+		if err := ValidateCall(meta, in); err != nil {
+			t.Fatalf("%s read %q rejected: %v", provider, capability, err)
+		}
 	}
 }
