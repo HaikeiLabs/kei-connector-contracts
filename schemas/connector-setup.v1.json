@@ -172,6 +172,28 @@
   },
   {
     "schema": "kei.connector-setup/v1",
+    "provider": "notion",
+    "auth": [
+      {
+        "credential_source": "opaque_ref"
+      }
+    ],
+    "fields": [
+      {
+        "name": "api_token",
+        "label": "Notion internal integration token",
+        "type": "string",
+        "location": "credential",
+        "required": true,
+        "secret": true,
+        "pattern": "^(ntn|secret)_[A-Za-z0-9]+$",
+        "min_length": 20,
+        "max_length": 256
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-setup/v1",
     "provider": "crm",
     "auth": [
       {
