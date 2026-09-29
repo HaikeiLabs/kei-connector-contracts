@@ -55,6 +55,10 @@ func TestConnectorContractFreezeProviderCatalog(t *testing.T) {
 		// has to justify letting an agent write to a ledger or a bank.
 		ProviderFreshBooks: {"invoice.read": ActionRead, "expense.read": ActionRead, "payment.read": ActionRead, "client.read": ActionRead},
 		ProviderMercury:    {"account.read": ActionRead, "transaction.read": ActionRead, "balance.read": ActionRead},
+		// HAI-202: Gmail is a deliberate, read-only addition to the freeze.
+		ProviderGmail: {"message.search": ActionRead, "message.get": ActionRead},
+		// HAI-203: Tito is a deliberate, read-only addition to the freeze.
+		ProviderTito: {"event.list": ActionRead, "event.get": ActionRead, "release.list": ActionRead, "ticket.summary": ActionRead},
 	}
 	for provider, expected := range want {
 		got := CapabilitiesFor(provider)

@@ -144,6 +144,10 @@ func New(provider connectors.Provider) (Client, error) {
 		return NewFreshBooks(MemoryFreshBooks{}), nil
 	case connectors.ProviderMercury:
 		return NewMercury(MemoryMercury{}), nil
+	case connectors.ProviderGmail:
+		return NewAuthenticatedGmail(RuntimeConfig{}), nil
+	case connectors.ProviderTito:
+		return NewAuthenticatedTito(RuntimeConfig{}), nil
 	default:
 		return nil, fmt.Errorf("unsupported provider %q", provider)
 	}

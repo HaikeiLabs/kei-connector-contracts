@@ -124,4 +124,40 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 			t.Errorf("Mercury resource %q rejected: %v", tc.resource, err)
 		}
 	}
+
+	// HAI-202: Gmail resources are gmail/messages (search) and
+	// gmail/messages/<message_id> (get).
+	gmail := NewGmail(gmailStore())
+	gmm := metaFor(t, connectors.ProviderGmail, []string{"gmail/messages"}, nil)
+	for _, tc := range []struct {
+		resource string
+		payload  Payload
+	}{
+		{"gmail/messages", MessageSearchPayload{}},
+		{"gmail/messages/m-1", MessageGetPayload{}},
+	} {
+		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		if _, err := gmail.Invoke(ctx, gmm, inv, tc.payload); err != nil {
+			t.Errorf("Gmail resource %q rejected: %v", tc.resource, err)
+		}
+	}
+
+	// HAI-203: Tito resources are tito/<account>/events and the event,
+	// releases, and ticket-summary resources beneath one event.
+	tito := NewTito(titoStore())
+	tm := metaFor(t, connectors.ProviderTito, []string{"tito/acme/events"}, nil)
+	for _, tc := range []struct {
+		resource string
+		payload  Payload
+	}{
+		{"tito/acme/events", EventListPayload{}},
+		{"tito/acme/events/conf-2026", EventGetPayload{}},
+		{"tito/acme/events/conf-2026/releases", ReleaseListPayload{}},
+		{"tito/acme/events/conf-2026/ticket-summary", TicketSummaryPayload{}},
+	} {
+		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		if _, err := tito.Invoke(ctx, tm, inv, tc.payload); err != nil {
+			t.Errorf("Tito resource %q rejected: %v", tc.resource, err)
+		}
+	}
 }
