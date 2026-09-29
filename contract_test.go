@@ -114,3 +114,59 @@ func TestHTTPAPIContractRejectsDisallowedInvocation(t *testing.T) {
 		}
 	}
 }
+
+// HAI-202: Gmail is read-only. The catalog defines no write capability, so a
+// connector that declares one (send, modify, trash, draft) fails validation.
+func TestGmailContractIsReadOnly(t *testing.T) {
+	m := frozenMetadata(ProviderGmail, CapabilitiesFor(ProviderGmail))
+	if err := m.Validate(); err != nil {
+		t.Fatalf("gmail metadata rejected: %v", err)
+	}
+	for _, c := range CapabilitiesFor(ProviderGmail) {
+		if c.Action != ActionRead {
+			t.Errorf("gmail capability %q has action %q, want read", c.Name, c.Action)
+		}
+	}
+	for _, write := range []Capability{
+		{Name: "message.send", Action: ActionCreate},
+		{Name: "message.modify", Action: ActionUpdate},
+		{Name: "message.trash", Action: ActionDelete},
+		{Name: "draft.create", Action: ActionCreate},
+		{Name: "message.get", Action: ActionUpdate},
+	} {
+		m := frozenMetadata(ProviderGmail, []Capability{write})
+		if err := m.Validate(); err == nil {
+			t.Errorf("gmail write capability %q/%q was accepted", write.Name, write.Action)
+		}
+	}
+}
+
+// HAI-203: Tito is read-only and authenticates with an API token that only
+// an opaque credential reference may point at.
+func TestTitoContractIsReadOnlyWithOpaqueCredential(t *testing.T) {
+	m := frozenMetadata(ProviderTito, CapabilitiesFor(ProviderTito))
+	if err := m.Validate(); err != nil {
+		t.Fatalf("tito metadata rejected: %v", err)
+	}
+	for _, c := range CapabilitiesFor(ProviderTito) {
+		if c.Action != ActionRead {
+			t.Errorf("tito capability %q has action %q, want read", c.Name, c.Action)
+		}
+	}
+	for _, write := range []Capability{
+		{Name: "ticket.create", Action: ActionCreate},
+		{Name: "registration.create", Action: ActionCreate},
+		{Name: "event.update", Action: ActionUpdate},
+		{Name: "ticket.void", Action: ActionDelete},
+		{Name: "event.get", Action: ActionUpdate},
+	} {
+		if err := frozenMetadata(ProviderTito, []Capability{write}).Validate(); err == nil {
+			t.Errorf("tito write capability %q/%q was accepted", write.Name, write.Action)
+		}
+	}
+	oauth := frozenMetadata(ProviderTito, CapabilitiesFor(ProviderTito))
+	oauth.CredentialSource, oauth.Subject = CredentialSourceOAuth, "subject-1"
+	if err := oauth.Validate(); err == nil {
+		t.Error("tito connector with an oauth credential source was accepted")
+	}
+}

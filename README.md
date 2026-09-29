@@ -31,6 +31,28 @@ envelope version rather than an edit in place.
 - `kei-policy-catalog` — connector metadata and registrations
 - `kei` — integration tests
 
+## Credential source, account models, and setup (v0.2.0)
+
+- `Metadata.CredentialSource` is `oauth` or `opaque_ref`. Empty means
+  `opaque_ref`, so v0.1.0-shaped metadata stays valid.
+- `Metadata.AccountModel` says whose account an OAuth-style connector acts as:
+  `per_user` (the invoking user's token; no subject), `shared` (one account
+  for the connector; subject `connector:<id>`), or `domain_delegation`
+  (Google Workspace service account over `opaque_ref`, with an
+  `impersonate_email` config field). `AccountModelsFor` lists what each
+  provider allows. `CredentialSubject` names whose credential an invocation
+  uses, for audit.
+- `SetupSchemaFor` / `SetupSchemas` describe each buildable connector's setup
+  fields (type, pattern, which are secret, which account models they apply
+  to), and `ValidateConfig` checks `Metadata.Config`. The JSON export for the
+  web UI and CLI is `schemas/connector-setup.v1.json`; a test keeps it in
+  sync with the Go data.
+- New providers `gmail` and `tito` (read-only), moved from
+  `kei-policy-catalog`'s in-tree fork, along with the legacy `kei-oauth`
+  reference rejection.
+
+Contract: `docs/connector-execution-contract.md` in `kei-connector-runtime`.
+
 ## Versioning
 
 Tagged with semver. Consumers require a released version; no `replace`

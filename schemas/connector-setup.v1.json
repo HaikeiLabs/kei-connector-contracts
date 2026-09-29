@@ -1,0 +1,268 @@
+[
+  {
+    "schema": "kei.connector-setup/v1",
+    "provider": "gmail",
+    "auth": [
+      {
+        "credential_source": "oauth",
+        "account_models": [
+          "per_user",
+          "shared"
+        ],
+        "default_account_model": "per_user"
+      },
+      {
+        "credential_source": "opaque_ref",
+        "account_models": [
+          "domain_delegation"
+        ]
+      }
+    ],
+    "fields": [
+      {
+        "name": "include_body",
+        "label": "Return message bodies from message.get",
+        "type": "bool",
+        "location": "config",
+        "required": false,
+        "secret": false,
+        "default": false
+      },
+      {
+        "name": "impersonate_email",
+        "label": "Mailbox to impersonate",
+        "type": "email",
+        "location": "config",
+        "required": true,
+        "secret": false,
+        "max_length": 254,
+        "account_models": [
+          "domain_delegation"
+        ]
+      },
+      {
+        "name": "service_account_key",
+        "label": "Service account key (JSON)",
+        "type": "service_account_json",
+        "location": "credential",
+        "required": true,
+        "secret": true,
+        "max_length": 16384,
+        "account_models": [
+          "domain_delegation"
+        ]
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-setup/v1",
+    "provider": "google_drive",
+    "auth": [
+      {
+        "credential_source": "oauth",
+        "account_models": [
+          "per_user",
+          "shared"
+        ],
+        "default_account_model": "per_user"
+      },
+      {
+        "credential_source": "opaque_ref",
+        "account_models": [
+          "domain_delegation"
+        ]
+      }
+    ],
+    "fields": [
+      {
+        "name": "drive_id",
+        "label": "Drive ID",
+        "type": "string",
+        "location": "config",
+        "required": false,
+        "secret": false,
+        "pattern": "^[A-Za-z0-9_-]{1,128}$"
+      },
+      {
+        "name": "impersonate_email",
+        "label": "Mailbox to impersonate",
+        "type": "email",
+        "location": "config",
+        "required": true,
+        "secret": false,
+        "max_length": 254,
+        "account_models": [
+          "domain_delegation"
+        ]
+      },
+      {
+        "name": "service_account_key",
+        "label": "Service account key (JSON)",
+        "type": "service_account_json",
+        "location": "credential",
+        "required": true,
+        "secret": true,
+        "max_length": 16384,
+        "account_models": [
+          "domain_delegation"
+        ]
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-setup/v1",
+    "provider": "linear",
+    "auth": [
+      {
+        "credential_source": "oauth",
+        "account_models": [
+          "per_user",
+          "shared"
+        ],
+        "default_account_model": "per_user"
+      }
+    ],
+    "fields": []
+  },
+  {
+    "schema": "kei.connector-setup/v1",
+    "provider": "github",
+    "auth": [
+      {
+        "credential_source": "oauth",
+        "account_models": [
+          "per_user",
+          "shared"
+        ],
+        "default_account_model": "per_user"
+      }
+    ],
+    "fields": []
+  },
+  {
+    "schema": "kei.connector-setup/v1",
+    "provider": "tito",
+    "auth": [
+      {
+        "credential_source": "opaque_ref"
+      }
+    ],
+    "fields": [
+      {
+        "name": "account_slug",
+        "label": "Tito account slug",
+        "type": "string",
+        "location": "config",
+        "required": true,
+        "secret": false,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$"
+      },
+      {
+        "name": "api_token",
+        "label": "Tito API token",
+        "type": "string",
+        "location": "credential",
+        "required": true,
+        "secret": true,
+        "pattern": "^\\S+$",
+        "min_length": 20,
+        "max_length": 256
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-setup/v1",
+    "provider": "crm",
+    "auth": [
+      {
+        "credential_source": "opaque_ref"
+      }
+    ],
+    "fields": [
+      {
+        "name": "base_url",
+        "label": "CRM Worker origin",
+        "type": "https_url",
+        "location": "config",
+        "required": true,
+        "secret": false,
+        "max_length": 2048
+      },
+      {
+        "name": "assertion_audience",
+        "label": "Service assertion audience",
+        "type": "string",
+        "location": "config",
+        "required": true,
+        "secret": false,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$"
+      },
+      {
+        "name": "allowed_actions",
+        "label": "Allowed actions",
+        "type": "string_list",
+        "location": "config",
+        "required": false,
+        "secret": false,
+        "pattern": "^(read|create|update)$",
+        "default": [
+          "read"
+        ]
+      },
+      {
+        "name": "allowed_resources",
+        "label": "Allowed resources",
+        "type": "string_list",
+        "location": "config",
+        "required": false,
+        "secret": false,
+        "pattern": "^(leads|customers)(/\\*)?$",
+        "default": [
+          "leads",
+          "customers"
+        ]
+      },
+      {
+        "name": "api_key",
+        "label": "CRM connector API key",
+        "type": "string",
+        "location": "credential",
+        "required": true,
+        "secret": true,
+        "pattern": "^\\S+$",
+        "min_length": 32,
+        "max_length": 512
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-setup/v1",
+    "provider": "http_api",
+    "auth": [
+      {
+        "credential_source": "opaque_ref"
+      }
+    ],
+    "fields": [
+      {
+        "name": "http_api",
+        "label": "HTTP API registration",
+        "type": "http_api",
+        "location": "http_api",
+        "required": true,
+        "secret": false
+      },
+      {
+        "name": "api_key",
+        "label": "API key",
+        "type": "string",
+        "location": "credential",
+        "required": true,
+        "secret": true,
+        "pattern": "^\\S+$",
+        "min_length": 1,
+        "max_length": 4096
+      }
+    ]
+  }
+]

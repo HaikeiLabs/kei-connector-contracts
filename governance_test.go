@@ -339,3 +339,142 @@ func TestValidateCallDoesNotConsultPrefixes(t *testing.T) {
 		t.Fatalf("dormant AllowedPrefixes enforced by the contract: %v", err)
 	}
 }
+
+// TestValidateCredentialRefRejectsKeiOAuthNamespace pins that the legacy
+// kei-oauth connector namespace is not part of the contract. The credential
+// type/source is typed metadata (CredentialSource + Subject), so both the
+// colon form (kei-oauth:<id>) and the hyphen form (kei-oauth-<random>) are
+// rejected. Other scheme-bearing references stay rejected, and a normal opaque
+// reference is still accepted.
+func TestValidateCredentialRefRejectsKeiOAuthNamespace(t *testing.T) {
+	rejected := []string{
+		"kei-oauth:github",
+		"kei-oauth:google_drive",
+		"kei-oauth:github:tenant-1:workspace-1:user-1",
+		"kei-oauth:",
+		"kei-oauth://host.example/secret",
+		"kei-oauth:ghp_1234567890",
+		"kei-oauth:token=abc",
+		"KEI-OAUTH:github",
+		"kei-oauth-abc123",
+		"kei-oauth-0123456789abcdef0123456789abcdef",
+		"KEI-OAUTH-abc123",
+		"https://example.com/token",
+		"postgres://user:pass@db.example.com/prod",
+		"aws-secrets-manager://us-east-1/secret",
+		"customscheme:opaque",
+	}
+	for _, ref := range rejected {
+		t.Run(ref, func(t *testing.T) {
+			if err := ValidateCredentialRef(ref); err == nil {
+				t.Errorf("accepted credential_ref %q", ref)
+			}
+		})
+	}
+	if err := ValidateCredentialRef("vault/tenant/t-1/crm"); err != nil {
+		t.Errorf("rejected valid opaque credential_ref: %v", err)
+	}
+}
+
+// TestTypedCredentialSourceContract pins the typed credential-source contract:
+// the source is a closed-set field, never derived from credential_ref. A legacy
+// oauth connector (no account model) must declare the subject it acts for.
+//
+// Unlike the catalog's in-tree copy, an empty credential_source is accepted and
+// means opaque_ref, so metadata built against v0.1.0 (which had no such field)
+// stays valid. The catalog's column is NOT NULL, so it never stores an empty
+// source.
+func TestTypedCredentialSourceContract(t *testing.T) {
+	base := fixture()
+
+	t.Run("oauth without subject is rejected", func(t *testing.T) {
+		m := base
+		m.CredentialSource = CredentialSourceOAuth
+		m.CredentialRef = "vault/tenant/t-1/github"
+		if err := m.Validate(); err == nil {
+			t.Fatal("oauth connector without subject was accepted")
+		}
+	})
+
+	t.Run("oauth with subject is valid", func(t *testing.T) {
+		m := base
+		m.CredentialSource = CredentialSourceOAuth
+		m.Provider = ProviderGitHub
+		m.Capabilities = []Capability{{Name: "repository.read", Action: ActionRead}}
+		m.CredentialRef = "vault/tenant/t-1/github"
+		m.Subject = "gh:12345"
+		if err := m.Validate(); err != nil {
+			t.Fatalf("valid oauth connector rejected: %v", err)
+		}
+	})
+
+	t.Run("opaque_ref without subject is valid", func(t *testing.T) {
+		m := base
+		m.CredentialSource = CredentialSourceOpaqueRef
+		if err := m.Validate(); err != nil {
+			t.Fatalf("valid opaque_ref connector rejected: %v", err)
+		}
+	})
+
+	t.Run("unknown credential_source is rejected", func(t *testing.T) {
+		m := base
+		m.CredentialSource = CredentialSource("vault")
+		if err := m.Validate(); err == nil {
+			t.Fatal("unknown credential_source was accepted")
+		}
+	})
+
+	t.Run("empty credential_source means opaque_ref", func(t *testing.T) {
+		m := base
+		m.CredentialSource = ""
+		if err := m.Validate(); err != nil {
+			t.Fatalf("v0.1.0-shaped metadata rejected: %v", err)
+		}
+		if got := m.EffectiveCredentialSource(); got != CredentialSourceOpaqueRef {
+			t.Fatalf("EffectiveCredentialSource() = %q, want opaque_ref", got)
+		}
+	})
+
+	t.Run("malformed subject is rejected", func(t *testing.T) {
+		m := base
+		m.CredentialSource = CredentialSourceOAuth
+		m.Provider = ProviderGitHub
+		m.Capabilities = []Capability{{Name: "repository.read", Action: ActionRead}}
+		m.CredentialRef = "vault/tenant/t-1/github"
+		m.Subject = "bad subject with spaces"
+		if err := m.Validate(); err == nil {
+			t.Fatal("malformed subject was accepted")
+		}
+	})
+}
+
+// TestValidateCallEnforcesOAuthSubjectBinding pins the fail-closed rule for a
+// legacy oauth connector (no account model): its credential is bound to the
+// subject it declared, so an invocation for any other subject is denied. An
+// opaque_ref connector is not subject-bound.
+func TestValidateCallEnforcesOAuthSubjectBinding(t *testing.T) {
+	m := fixture()
+	m.CredentialSource = CredentialSourceOAuth
+	m.Provider = ProviderGitHub
+	m.CredentialRef = "vault/tenant/t-1/github"
+	m.Subject = "gh:12345"
+	m.Capabilities = []Capability{{Name: "repository.read", Action: ActionRead}}
+	if err := m.Validate(); err != nil {
+		t.Fatalf("valid oauth connector rejected: %v", err)
+	}
+	in := Invocation{TenantID: "t-1", WorkspaceID: "w-1", Subject: "gh:12345", AgentID: "a-1", ConnectorID: "c-1", Capability: "repository.read", Action: ActionRead, Resource: "repos/acme/kei", TraceID: "trace-1"}
+	if err := ValidateCall(m, in); err != nil {
+		t.Fatalf("matching-subject invocation rejected: %v", err)
+	}
+	in.Subject = "gh:99999"
+	if err := ValidateCall(m, in); err == nil || err.Error() != "invoking subject does not match the connector's declared subject" {
+		t.Fatalf("mismatched-subject invocation error = %v", err)
+	}
+
+	sr := fixture()
+	sr.CredentialSource = CredentialSourceOpaqueRef
+	in2 := Invocation{TenantID: "t-1", WorkspaceID: "w-1", Subject: "anyone", AgentID: "a-1", ConnectorID: "c-1", Capability: "lead.read", Action: ActionRead, Resource: "leads/42", TraceID: "trace-1"}
+	if err := ValidateCall(sr, in2); err != nil {
+		t.Fatalf("opaque_ref invocation rejected: %v", err)
+	}
+}
