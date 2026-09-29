@@ -112,11 +112,6 @@ func TestDomainDelegationConnectorUsesOpaqueRefAndImpersonatedEmail(t *testing.T
 	if err := oauth.Validate(); err == nil {
 		t.Error("delegation connector with an oauth credential source was accepted")
 	}
-	missing := m
-	missing.Config = map[string]any{}
-	if err := missing.Validate(); err == nil {
-		t.Error("delegation connector without impersonate_email was accepted")
-	}
 	github := m
 	github.Provider = ProviderGitHub
 	github.Capabilities = CapabilitiesFor(ProviderGitHub)[:1]

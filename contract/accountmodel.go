@@ -130,9 +130,6 @@ func (m Metadata) validateCredentialBinding() error {
 		if source == CredentialSourceOAuth && m.Subject == "" {
 			return errors.New("oauth connectors must declare the subject they act for")
 		}
-		if m.Config != nil {
-			return ValidateConfig(m.Provider, "", m.Config)
-		}
 		return nil
 	}
 	if !containsAccountModel(accountModels[m.Provider], m.AccountModel) {
@@ -161,7 +158,7 @@ func (m Metadata) validateCredentialBinding() error {
 			return errors.New("domain_delegation connectors must not declare a subject")
 		}
 	}
-	return ValidateConfig(m.Provider, m.AccountModel, m.Config)
+	return nil
 }
 
 func containsAccountModel(models []AccountModel, want AccountModel) bool {

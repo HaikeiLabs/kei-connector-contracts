@@ -33,12 +33,14 @@ envelope version rather than an edit in place.
 
 ## Packages
 
-Dependencies point one way: `contract` ← `capability`, `envelope` ←
-`governance` ← `audit` ← `invoke`; `providers` imports `contract`.
+Dependencies point one way: `contract` ← `capability`, `envelope`, `setup`;
+`envelope` ← `governance` ← `audit` ← `invoke`; `providers` imports
+`contract`.
 
 | Import path | Contents |
 | --- | --- |
-| `github.com/HaikeiLabs/kei-connector-contracts/contract` | Provider, Status, Action, Capability, and the capability definitions; `Metadata`, `Invocation`, and the `http_api` types; `Validate`, `ValidateCall`, `ValidateInvocation`, `ValidateCredentialRef`; credential source and account models (`accountmodel.go`); the setup schema and `ValidateConfig` (`setup.go`) |
+| `github.com/HaikeiLabs/kei-connector-contracts/contract` | Provider, Status, Action, Capability, and the capability definitions; `Metadata`, `Invocation`, and the `http_api` types; `Validate`, `ValidateCall`, `ValidateInvocation`, `ValidateCredentialRef`; credential source and account models (`accountmodel.go`) |
+| `.../setup` | the setup schema (`SetupSchema`, `SetupSchemas`, `SetupSchemaFor`), `ValidateConfig`, and `ValidateMetadata` (the complete connector check: `Metadata.Validate`, then config) |
 | `.../capability` | `LookupCapability`, `CapabilityFor`, `CapabilitiesForProvider`, `Providers` |
 | `.../envelope` | `Envelope`, `EnvelopeVersion1`, `MintedByControlPlane` |
 | `.../governance` | `Decision`, `PolicyDecision`, `Decide` |
@@ -46,10 +48,13 @@ Dependencies point one way: `contract` ← `capability`, `envelope` ←
 | `.../invoke` | `Client`, `NewClient`, `InvokeOutcome` (envelope + decision + audit record) |
 | `.../providers` | provider payloads, results, and read-only clients |
 
-Account models and the setup schema are files in `contract`, not packages of
-their own: `Metadata.Validate` enforces both, and a Go method must live with
-its type, so moving them out would force either an import cycle or a weaker
-`Validate`. `schemas/connector-setup.v1.json` stays at the repository root.
+Account models are a file in `contract`, not a package: `Metadata.AccountModel`
+is a contract field and `Metadata.Validate` enforces the account-model rules,
+so the code must live with the `Metadata` type. The setup schema is its own
+package; because `setup` imports `contract`, `Metadata.Validate` does not
+check config fields. Validate a connector with `setup.ValidateMetadata`,
+which runs `Metadata.Validate` and then the config rules.
+`schemas/connector-setup.v1.json` stays at the repository root.
 
 The root import path `github.com/HaikeiLabs/kei-connector-contracts` has no Go
 package from v0.2.0 on. v0.1.0 consumers change `connectors.X` to the package
