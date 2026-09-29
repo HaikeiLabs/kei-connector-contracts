@@ -27,10 +27,10 @@ import (
 
 var updateSetupGolden = flag.Bool("update-setup", false, "rewrite schemas/connector-setup.v1.json")
 
-// Only the connectors we build are configurable: s3, notion, and the finance
+// Only the connectors we build are configurable: s3 and the finance
 // providers have no setup schema.
 func TestSetupSchemasCoverExactlyTheSupportedProviders(t *testing.T) {
-	want := []contract.Provider{contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderLinear, contract.ProviderGitHub, contract.ProviderTito, contract.ProviderCRM, contract.ProviderHTTPAPI}
+	want := []contract.Provider{contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderLinear, contract.ProviderGitHub, contract.ProviderTito, contract.ProviderNotion, contract.ProviderCRM, contract.ProviderHTTPAPI}
 	got := SetupSchemas()
 	if len(got) != len(want) {
 		t.Fatalf("SetupSchemas() has %d providers, want %d", len(got), len(want))
@@ -40,7 +40,7 @@ func TestSetupSchemasCoverExactlyTheSupportedProviders(t *testing.T) {
 			t.Fatalf("schema %d = %s/%s, want %s/%s", i, got[i].Provider, got[i].Schema, p, SetupSchemaVersion)
 		}
 	}
-	for _, p := range []contract.Provider{contract.ProviderS3, contract.ProviderNotion, contract.ProviderFreshBooks, contract.ProviderMercury} {
+	for _, p := range []contract.Provider{contract.ProviderS3, contract.ProviderFreshBooks, contract.ProviderMercury} {
 		if _, ok := SetupSchemaFor(p); ok {
 			t.Errorf("%s has a setup schema", p)
 		}
@@ -92,6 +92,29 @@ func TestSetupSchemasDeclareAtMostOneSecretPerModel(t *testing.T) {
 	}
 }
 
+// Notion is set up with an internal integration token and nothing else: the
+// pages the integration can read are the ones shared with it in Notion.
+func TestNotionSetupIsOneIntegrationToken(t *testing.T) {
+	s, ok := SetupSchemaFor(contract.ProviderNotion)
+	if !ok || len(s.Auth) != 1 || s.Auth[0].CredentialSource != contract.CredentialSourceOpaqueRef || len(s.Auth[0].AccountModels) != 0 {
+		t.Fatalf("notion schema = %+v", s)
+	}
+	if len(s.Fields) != 1 || s.Fields[0].Name != "api_token" || !s.Fields[0].Secret || !s.Fields[0].Required || s.Fields[0].Location != SetupLocationCredential {
+		t.Fatalf("notion fields = %+v", s.Fields)
+	}
+	token := s.Fields[0]
+	for _, v := range []string{"ntn_" + strings.Repeat("a1B2", 11), "secret_" + strings.Repeat("Zz9", 14)} {
+		if !validSetupString(token, v) {
+			t.Errorf("token %q rejected", v)
+		}
+	}
+	for _, v := range []string{"", "ntn_", "Bearer ntn_" + strings.Repeat("a", 40), "ntn_" + strings.Repeat("a", 20) + " x", "sk_" + strings.Repeat("a", 40), "ntn_" + strings.Repeat("a", 300)} {
+		if validSetupString(token, v) {
+			t.Errorf("token %q accepted", v)
+		}
+	}
+}
+
 func TestValidateConfigAcceptsValidNonSecretFields(t *testing.T) {
 	cases := []struct {
 		provider contract.Provider
@@ -99,6 +122,8 @@ func TestValidateConfigAcceptsValidNonSecretFields(t *testing.T) {
 		config   map[string]any
 	}{
 		{contract.ProviderTito, "", map[string]any{"account_slug": "acme"}},
+		{contract.ProviderNotion, "", nil},
+		{contract.ProviderNotion, "", map[string]any{}},
 		{contract.ProviderGmail, contract.AccountModelPerUser, map[string]any{"include_body": true}},
 		{contract.ProviderGmail, contract.AccountModelPerUser, map[string]any{}},
 		{contract.ProviderGmail, contract.AccountModelDomainDelegation, map[string]any{"impersonate_email": "events@example.com"}},
@@ -131,6 +156,9 @@ func TestValidateConfigRejectsInvalidConfigWithoutEchoingValues(t *testing.T) {
 		{"url with userinfo", contract.ProviderCRM, "", map[string]any{"base_url": "https://u:VALUE@example.com", "assertion_audience": "kei-crm"}},
 		{"model not allowed", contract.ProviderGitHub, contract.AccountModelDomainDelegation, map[string]any{}},
 		{"no schema", contract.ProviderS3, "", map[string]any{}},
+		{"notion token in config", contract.ProviderNotion, "", map[string]any{"api_token": "ntn_VALUE0000000000000000"}},
+		{"notion has no config fields", contract.ProviderNotion, "", map[string]any{"workspace_id": "VALUE"}},
+		{"notion has no account models", contract.ProviderNotion, contract.AccountModelShared, map[string]any{}},
 	}
 	for _, tc := range cases {
 		err := ValidateConfig(tc.provider, tc.model, tc.config)

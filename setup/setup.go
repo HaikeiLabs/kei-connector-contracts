@@ -127,7 +127,7 @@ func delegationFields() []SetupField {
 }
 
 // setupSchemas lists the connectors Kei builds, in display order. Providers
-// absent here (s3, notion, and the finance providers) cannot be set up.
+// absent here (s3 and the finance providers) cannot be set up.
 var setupSchemas = []SetupSchema{
 	{Schema: SetupSchemaVersion, Provider: contract.ProviderGmail, Auth: googleAuth(), Fields: append([]SetupField{
 		{Name: "include_body", Label: "Return message bodies from message.get", Type: SetupFieldBool, Location: SetupLocationConfig, Default: false},
@@ -140,6 +140,12 @@ var setupSchemas = []SetupSchema{
 	{Schema: SetupSchemaVersion, Provider: contract.ProviderTito, Auth: sharedSecretAuth(), Fields: []SetupField{
 		{Name: "account_slug", Label: "Tito account slug", Type: SetupFieldString, Location: SetupLocationConfig, Required: true, Pattern: `^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$`},
 		{Name: "api_token", Label: "Tito API token", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 20, MaxLength: 256},
+	}},
+	// Notion: an internal integration token (ntn_…, or secret_… for older
+	// integrations). What it can read is the pages shared with the
+	// integration in Notion, so there is no non-secret config.
+	{Schema: SetupSchemaVersion, Provider: contract.ProviderNotion, Auth: sharedSecretAuth(), Fields: []SetupField{
+		{Name: "api_token", Label: "Notion internal integration token", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^(ntn|secret)_[A-Za-z0-9]+$`, MinLength: 20, MaxLength: 256},
 	}},
 	{Schema: SetupSchemaVersion, Provider: contract.ProviderCRM, Auth: sharedSecretAuth(), Fields: []SetupField{
 		{Name: "base_url", Label: "CRM Worker origin", Type: SetupFieldHTTPSURL, Location: SetupLocationConfig, Required: true, MaxLength: 2048},
