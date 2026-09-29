@@ -125,6 +125,23 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 		}
 	}
 
+	// HAI-210: investor resources are investors (list) and investors/<id>
+	// (read).
+	crm := NewCRM(crmStore())
+	cm := metaFor(t, contract.ProviderCRM, []string{"investors"}, nil)
+	for _, tc := range []struct {
+		resource string
+		payload  Payload
+	}{
+		{"investors", InvestorListPayload{}},
+		{"investors/i-1", InvestorReadPayload{}},
+	} {
+		inv := invocation(tc.payload.Capability(), contract.ActionRead, tc.resource)
+		if _, err := crm.Invoke(ctx, cm, inv, tc.payload); err != nil {
+			t.Errorf("CRM resource %q rejected: %v", tc.resource, err)
+		}
+	}
+
 	// HAI-202: Gmail resources are gmail/messages (search) and
 	// gmail/messages/<message_id> (get).
 	gmail := NewGmail(gmailStore())
