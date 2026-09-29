@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package contract
+package setup
 
 import (
 	"fmt"
 	"net/mail"
 	"net/url"
 	"regexp"
+
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 // SetupSchemaVersion identifies the connector setup schema that the CLI and the
@@ -38,8 +40,8 @@ const (
 	// client checks that it is JSON with type=service_account, client_email,
 	// and private_key before sealing it.
 	SetupFieldServiceAccountJSON SetupFieldType = "service_account_json"
-	// SetupFieldHTTPAPI is the http_api block, stored in Metadata.HTTPAPI and
-	// validated by HTTPAPI.Validate.
+	// SetupFieldHTTPAPI is the http_api block, stored in contract.Metadata.HTTPAPI and
+	// validated by contract.HTTPAPI.Validate.
 	SetupFieldHTTPAPI SetupFieldType = "http_api"
 )
 
@@ -47,13 +49,13 @@ const (
 type SetupFieldLocation string
 
 const (
-	// SetupLocationConfig: non-secret, stored in Metadata.Config.
+	// SetupLocationConfig: non-secret, stored in contract.Metadata.Config.
 	SetupLocationConfig SetupFieldLocation = "config"
 	// SetupLocationCredential: secret. It is sealed to the runtime
 	// installation and written to the tenant secret manager; the connector
 	// keeps only CredentialRef. The control plane never stores the value.
 	SetupLocationCredential SetupFieldLocation = "credential"
-	// SetupLocationHTTPAPI: stored in Metadata.HTTPAPI.
+	// SetupLocationHTTPAPI: stored in contract.Metadata.HTTPAPI.
 	SetupLocationHTTPAPI SetupFieldLocation = "http_api"
 )
 
@@ -71,26 +73,26 @@ type SetupField struct {
 	MaxLength int    `json:"max_length,omitempty"`
 	Default   any    `json:"default,omitempty"`
 	// AccountModels limits the field to these models; empty means every model.
-	AccountModels []AccountModel `json:"account_models,omitempty"`
+	AccountModels []contract.AccountModel `json:"account_models,omitempty"`
 }
 
 // SetupAuth is one way a connector can authenticate.
 type SetupAuth struct {
-	CredentialSource    CredentialSource `json:"credential_source"`
-	AccountModels       []AccountModel   `json:"account_models,omitempty"`
-	DefaultAccountModel AccountModel     `json:"default_account_model,omitempty"`
+	CredentialSource    contract.CredentialSource `json:"credential_source"`
+	AccountModels       []contract.AccountModel   `json:"account_models,omitempty"`
+	DefaultAccountModel contract.AccountModel     `json:"default_account_model,omitempty"`
 }
 
 // SetupSchema is everything a setup screen needs for one provider.
 type SetupSchema struct {
-	Schema   string       `json:"schema"`
-	Provider Provider     `json:"provider"`
-	Auth     []SetupAuth  `json:"auth"`
-	Fields   []SetupField `json:"fields"`
+	Schema   string            `json:"schema"`
+	Provider contract.Provider `json:"provider"`
+	Auth     []SetupAuth       `json:"auth"`
+	Fields   []SetupField      `json:"fields"`
 }
 
 // FieldsFor returns the fields that apply to an account model.
-func (s SetupSchema) FieldsFor(model AccountModel) []SetupField {
+func (s SetupSchema) FieldsFor(model contract.AccountModel) []SetupField {
 	var fields []SetupField
 	for _, f := range s.Fields {
 		if len(f.AccountModels) == 0 || containsAccountModel(f.AccountModels, model) {
@@ -100,21 +102,21 @@ func (s SetupSchema) FieldsFor(model AccountModel) []SetupField {
 	return fields
 }
 
-var delegationOnly = []AccountModel{AccountModelDomainDelegation}
+var delegationOnly = []contract.AccountModel{contract.AccountModelDomainDelegation}
 
 func googleAuth() []SetupAuth {
 	return []SetupAuth{
-		{CredentialSource: CredentialSourceOAuth, AccountModels: []AccountModel{AccountModelPerUser, AccountModelShared}, DefaultAccountModel: AccountModelPerUser},
-		{CredentialSource: CredentialSourceOpaqueRef, AccountModels: delegationOnly},
+		{CredentialSource: contract.CredentialSourceOAuth, AccountModels: []contract.AccountModel{contract.AccountModelPerUser, contract.AccountModelShared}, DefaultAccountModel: contract.AccountModelPerUser},
+		{CredentialSource: contract.CredentialSourceOpaqueRef, AccountModels: delegationOnly},
 	}
 }
 
 func oauthOnlyAuth() []SetupAuth {
-	return []SetupAuth{{CredentialSource: CredentialSourceOAuth, AccountModels: []AccountModel{AccountModelPerUser, AccountModelShared}, DefaultAccountModel: AccountModelPerUser}}
+	return []SetupAuth{{CredentialSource: contract.CredentialSourceOAuth, AccountModels: []contract.AccountModel{contract.AccountModelPerUser, contract.AccountModelShared}, DefaultAccountModel: contract.AccountModelPerUser}}
 }
 
 func sharedSecretAuth() []SetupAuth {
-	return []SetupAuth{{CredentialSource: CredentialSourceOpaqueRef}}
+	return []SetupAuth{{CredentialSource: contract.CredentialSourceOpaqueRef}}
 }
 
 func delegationFields() []SetupField {
@@ -127,26 +129,26 @@ func delegationFields() []SetupField {
 // setupSchemas lists the connectors Kei builds, in display order. Providers
 // absent here (s3, notion, and the finance providers) cannot be set up.
 var setupSchemas = []SetupSchema{
-	{Schema: SetupSchemaVersion, Provider: ProviderGmail, Auth: googleAuth(), Fields: append([]SetupField{
+	{Schema: SetupSchemaVersion, Provider: contract.ProviderGmail, Auth: googleAuth(), Fields: append([]SetupField{
 		{Name: "include_body", Label: "Return message bodies from message.get", Type: SetupFieldBool, Location: SetupLocationConfig, Default: false},
 	}, delegationFields()...)},
-	{Schema: SetupSchemaVersion, Provider: ProviderGoogle, Auth: googleAuth(), Fields: append([]SetupField{
+	{Schema: SetupSchemaVersion, Provider: contract.ProviderGoogle, Auth: googleAuth(), Fields: append([]SetupField{
 		{Name: "drive_id", Label: "Drive ID", Type: SetupFieldString, Location: SetupLocationConfig, Pattern: `^[A-Za-z0-9_-]{1,128}$`},
 	}, delegationFields()...)},
-	{Schema: SetupSchemaVersion, Provider: ProviderLinear, Auth: oauthOnlyAuth(), Fields: []SetupField{}},
-	{Schema: SetupSchemaVersion, Provider: ProviderGitHub, Auth: oauthOnlyAuth(), Fields: []SetupField{}},
-	{Schema: SetupSchemaVersion, Provider: ProviderTito, Auth: sharedSecretAuth(), Fields: []SetupField{
+	{Schema: SetupSchemaVersion, Provider: contract.ProviderLinear, Auth: oauthOnlyAuth(), Fields: []SetupField{}},
+	{Schema: SetupSchemaVersion, Provider: contract.ProviderGitHub, Auth: oauthOnlyAuth(), Fields: []SetupField{}},
+	{Schema: SetupSchemaVersion, Provider: contract.ProviderTito, Auth: sharedSecretAuth(), Fields: []SetupField{
 		{Name: "account_slug", Label: "Tito account slug", Type: SetupFieldString, Location: SetupLocationConfig, Required: true, Pattern: `^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$`},
 		{Name: "api_token", Label: "Tito API token", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 20, MaxLength: 256},
 	}},
-	{Schema: SetupSchemaVersion, Provider: ProviderCRM, Auth: sharedSecretAuth(), Fields: []SetupField{
+	{Schema: SetupSchemaVersion, Provider: contract.ProviderCRM, Auth: sharedSecretAuth(), Fields: []SetupField{
 		{Name: "base_url", Label: "CRM Worker origin", Type: SetupFieldHTTPSURL, Location: SetupLocationConfig, Required: true, MaxLength: 2048},
 		{Name: "assertion_audience", Label: "Service assertion audience", Type: SetupFieldString, Location: SetupLocationConfig, Required: true, Pattern: `^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$`},
 		{Name: "allowed_actions", Label: "Allowed actions", Type: SetupFieldStringList, Location: SetupLocationConfig, Pattern: `^(read|create|update)$`, Default: []string{"read"}},
 		{Name: "allowed_resources", Label: "Allowed resources", Type: SetupFieldStringList, Location: SetupLocationConfig, Pattern: `^(leads|customers)(/\*)?$`, Default: []string{"leads", "customers"}},
 		{Name: "api_key", Label: "CRM connector API key", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 32, MaxLength: 512},
 	}},
-	{Schema: SetupSchemaVersion, Provider: ProviderHTTPAPI, Auth: sharedSecretAuth(), Fields: []SetupField{
+	{Schema: SetupSchemaVersion, Provider: contract.ProviderHTTPAPI, Auth: sharedSecretAuth(), Fields: []SetupField{
 		{Name: "http_api", Label: "HTTP API registration", Type: SetupFieldHTTPAPI, Location: SetupLocationHTTPAPI, Required: true},
 		{Name: "api_key", Label: "API key", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 1, MaxLength: 4096},
 	}},
@@ -161,7 +163,7 @@ func SetupSchemas() []SetupSchema {
 
 // SetupSchemaFor returns a provider's setup schema, or false when the provider
 // cannot be set up.
-func SetupSchemaFor(provider Provider) (SetupSchema, bool) {
+func SetupSchemaFor(provider contract.Provider) (SetupSchema, bool) {
 	for _, s := range setupSchemas {
 		if s.Provider == provider {
 			return s, true
@@ -175,12 +177,12 @@ func SetupSchemaFor(provider Provider) (SetupSchema, bool) {
 // fields placed in config, fields for another account model, missing required
 // fields, and type or pattern violations are all rejected. Errors name the
 // field and never echo a submitted value.
-func ValidateConfig(provider Provider, model AccountModel, config map[string]any) error {
+func ValidateConfig(provider contract.Provider, model contract.AccountModel, config map[string]any) error {
 	schema, ok := SetupSchemaFor(provider)
 	if !ok {
 		return fmt.Errorf("provider %q has no setup schema", provider)
 	}
-	allowed := AccountModelsFor(provider)
+	allowed := contract.AccountModelsFor(provider)
 	if model != "" && !containsAccountModel(allowed, model) {
 		return fmt.Errorf("account_model %q is not allowed for provider %q", model, provider)
 	}
@@ -209,6 +211,21 @@ func ValidateConfig(provider Provider, model AccountModel, config map[string]any
 		}
 	}
 	return nil
+}
+
+// ValidateMetadata is the complete connector check: the contract's
+// structural, credential-source, and account-model rules (Metadata.Validate),
+// then the provider's setup-schema rules for Metadata.Config. Use it wherever a
+// connector is created or loaded. A legacy connector (no account model)
+// without config has nothing to check beyond Validate.
+func ValidateMetadata(m contract.Metadata) error {
+	if err := m.Validate(); err != nil {
+		return err
+	}
+	if m.AccountModel == "" && m.Config == nil {
+		return nil
+	}
+	return ValidateConfig(m.Provider, m.AccountModel, m.Config)
 }
 
 func isSchemaField(schema SetupSchema, name string) bool {
@@ -282,4 +299,13 @@ func stringList(value any) ([]string, bool) {
 		return items, len(items) > 0
 	}
 	return nil, false
+}
+
+func containsAccountModel(models []contract.AccountModel, want contract.AccountModel) bool {
+	for _, model := range models {
+		if model == want {
+			return true
+		}
+	}
+	return false
 }
