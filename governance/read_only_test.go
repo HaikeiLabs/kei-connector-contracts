@@ -12,11 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectors
+package governance
 
 import (
 	"testing"
 	"time"
+
+	"github.com/HaikeiLabs/kei-connector-contracts/capability"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
+	"github.com/HaikeiLabs/kei-connector-contracts/envelope"
 )
 
 // The connector catalog is a credential surface, not an authorization grant
@@ -32,51 +36,51 @@ import (
 // This is the fail-closed guarantee that keeps "the catalog lists writes" from
 // silently becoming "connectors can write".
 var catalogMutations = []struct {
-	provider   Provider
+	provider   contract.Provider
 	capability string
-	action     Action
+	action     contract.Action
 }{
-	{ProviderGitHub, "issue.create", ActionCreate},
-	{ProviderGitHub, "issue.update", ActionUpdate},
-	{ProviderGitHub, "pull_request.create", ActionCreate},
-	{ProviderGitHub, "pull_request.update", ActionUpdate},
-	{ProviderGitHub, "issue.comment", ActionComment},
-	{ProviderCRM, "lead.create", ActionCreate},
-	{ProviderCRM, "lead.update", ActionUpdate},
-	{ProviderLinear, "issue.create", ActionCreate},
-	{ProviderLinear, "issue.update", ActionUpdate},
+	{contract.ProviderGitHub, "issue.create", contract.ActionCreate},
+	{contract.ProviderGitHub, "issue.update", contract.ActionUpdate},
+	{contract.ProviderGitHub, "pull_request.create", contract.ActionCreate},
+	{contract.ProviderGitHub, "pull_request.update", contract.ActionUpdate},
+	{contract.ProviderGitHub, "issue.comment", contract.ActionComment},
+	{contract.ProviderCRM, "lead.create", contract.ActionCreate},
+	{contract.ProviderCRM, "lead.update", contract.ActionUpdate},
+	{contract.ProviderLinear, "issue.create", contract.ActionCreate},
+	{contract.ProviderLinear, "issue.update", contract.ActionUpdate},
 }
 
 // readOnlyConnector returns an active connector whose metadata declares only a
 // read capability, plus that capability and an in-scope resource.
-func readOnlyConnector(t *testing.T, provider Provider) (Metadata, string, string) {
+func readOnlyConnector(t *testing.T, provider contract.Provider) (contract.Metadata, string, string) {
 	t.Helper()
 	m := fixture()
 	m.Provider = provider
 	switch provider {
-	case ProviderCRM:
-		m.Capabilities = []Capability{{Name: "lead.read", Action: ActionRead}}
-		m.Policy = PolicyAttributes{AllowedActions: []Action{ActionRead}, AllowedResources: []string{"leads"}}
+	case contract.ProviderCRM:
+		m.Capabilities = []contract.Capability{{Name: "lead.read", Action: contract.ActionRead}}
+		m.Policy = contract.PolicyAttributes{AllowedActions: []contract.Action{contract.ActionRead}, AllowedResources: []string{"leads"}}
 		return m, "lead.read", "leads/42"
-	case ProviderGitHub:
-		m.Capabilities = []Capability{{Name: "issue.read", Action: ActionRead}}
-		m.Policy = PolicyAttributes{AllowedActions: []Action{ActionRead}, AllowedResources: []string{"repos/acme/kei"}}
+	case contract.ProviderGitHub:
+		m.Capabilities = []contract.Capability{{Name: "issue.read", Action: contract.ActionRead}}
+		m.Policy = contract.PolicyAttributes{AllowedActions: []contract.Action{contract.ActionRead}, AllowedResources: []string{"repos/acme/kei"}}
 		return m, "issue.read", "repos/acme/kei/issues/7"
-	case ProviderLinear:
-		m.Capabilities = []Capability{{Name: "issue.read", Action: ActionRead}}
-		m.Policy = PolicyAttributes{AllowedActions: []Action{ActionRead}, AllowedResources: []string{"linear/issue"}}
+	case contract.ProviderLinear:
+		m.Capabilities = []contract.Capability{{Name: "issue.read", Action: contract.ActionRead}}
+		m.Policy = contract.PolicyAttributes{AllowedActions: []contract.Action{contract.ActionRead}, AllowedResources: []string{"linear/issue"}}
 		return m, "issue.read", "linear/issue/KEI-42"
-	case ProviderFreshBooks:
-		m.Capabilities = []Capability{{Name: "invoice.read", Action: ActionRead}}
-		m.Policy = PolicyAttributes{AllowedActions: []Action{ActionRead}, AllowedResources: []string{"accounts/acct-1"}}
+	case contract.ProviderFreshBooks:
+		m.Capabilities = []contract.Capability{{Name: "invoice.read", Action: contract.ActionRead}}
+		m.Policy = contract.PolicyAttributes{AllowedActions: []contract.Action{contract.ActionRead}, AllowedResources: []string{"accounts/acct-1"}}
 		return m, "invoice.read", "accounts/acct-1/invoices/inv-1"
-	case ProviderMercury:
-		m.Capabilities = []Capability{{Name: "account.read", Action: ActionRead}}
-		m.Policy = PolicyAttributes{AllowedActions: []Action{ActionRead}, AllowedResources: []string{"accounts/acct-1"}}
+	case contract.ProviderMercury:
+		m.Capabilities = []contract.Capability{{Name: "account.read", Action: contract.ActionRead}}
+		m.Policy = contract.PolicyAttributes{AllowedActions: []contract.Action{contract.ActionRead}, AllowedResources: []string{"accounts/acct-1"}}
 		return m, "account.read", "accounts/acct-1"
 	default:
 		t.Fatalf("unexpected provider %q", provider)
-		return Metadata{}, "", ""
+		return contract.Metadata{}, "", ""
 	}
 }
 
@@ -88,17 +92,17 @@ func TestReadOnlyConnectorRejectsCatalogMutations(t *testing.T) {
 		t.Run(string(tc.provider)+"/"+tc.capability, func(t *testing.T) {
 			// The capability exists in the catalog: this test is about the
 			// connector's declared surface, not about the name being unknown.
-			if _, ok := LookupCapability(tc.provider, tc.capability); !ok {
+			if _, ok := capability.LookupCapability(tc.provider, tc.capability); !ok {
 				t.Fatalf("precondition: %q should be in the %q catalog", tc.capability, tc.provider)
 			}
 
 			meta, _, resource := readOnlyConnector(t, tc.provider)
-			in := Invocation{
+			in := contract.Invocation{
 				TenantID: meta.TenantID, WorkspaceID: meta.WorkspaceID, Subject: "u-1",
 				AgentID: "a-1", ConnectorID: meta.ID, Capability: tc.capability,
 				Action: tc.action, Resource: resource, TraceID: "trace-1",
 			}
-			if err := ValidateCall(meta, in); err == nil {
+			if err := contract.ValidateCall(meta, in); err == nil {
 				t.Fatalf("read-only connector accepted mutation %q", tc.capability)
 			}
 		})
@@ -112,15 +116,15 @@ func TestApprovalIDCannotUnlockUndeclaredMutation(t *testing.T) {
 	for _, tc := range catalogMutations {
 		t.Run(string(tc.provider)+"/"+tc.capability, func(t *testing.T) {
 			meta, _, resource := readOnlyConnector(t, tc.provider)
-			meta.Policy.AllowedActions = []Action{ActionRead, ActionCreate, ActionUpdate, ActionComment}
+			meta.Policy.AllowedActions = []contract.Action{contract.ActionRead, contract.ActionCreate, contract.ActionUpdate, contract.ActionComment}
 
-			in := Invocation{
+			in := contract.Invocation{
 				TenantID: meta.TenantID, WorkspaceID: meta.WorkspaceID, Subject: "u-1",
 				AgentID: "a-1", ConnectorID: meta.ID, Capability: tc.capability,
 				Action: tc.action, Resource: resource, TraceID: "trace-1",
 				ApprovalID: "approval-1",
 			}
-			if err := ValidateCall(meta, in); err == nil {
+			if err := contract.ValidateCall(meta, in); err == nil {
 				t.Fatalf("mutation %q was authorized with an approval id", tc.capability)
 			}
 		})
@@ -134,17 +138,17 @@ func TestDecideDeniesUndeclaredMutation(t *testing.T) {
 	for _, tc := range catalogMutations {
 		t.Run(string(tc.provider)+"/"+tc.capability, func(t *testing.T) {
 			meta, _, resource := readOnlyConnector(t, tc.provider)
-			meta.Policy.AllowedActions = []Action{ActionRead, ActionCreate, ActionUpdate, ActionComment}
+			meta.Policy.AllowedActions = []contract.Action{contract.ActionRead, contract.ActionCreate, contract.ActionUpdate, contract.ActionComment}
 
-			env := Envelope{
-				Version: EnvelopeVersion1,
-				Invocation: Invocation{
+			env := envelope.Envelope{
+				Version: envelope.EnvelopeVersion1,
+				Invocation: contract.Invocation{
 					TenantID: meta.TenantID, WorkspaceID: meta.WorkspaceID, Subject: "u-1",
 					AgentID: "a-1", ConnectorID: meta.ID, Capability: tc.capability,
 					Action: tc.action, Resource: resource, TraceID: "trace-1",
 					ApprovalID: "approval-1",
 				},
-				MintedBy: MintedByControlPlane,
+				MintedBy: envelope.MintedByControlPlane,
 				IssuedAt: time.Now().UTC(),
 			}
 			if d := Decide(meta, env); d.Decision != DecisionDeny {
@@ -157,15 +161,15 @@ func TestDecideDeniesUndeclaredMutation(t *testing.T) {
 // TestReadCallNeedsNoApprovalID proves the read path stays usable: a governed
 // read against a read-only connector is valid with an empty approval id.
 func TestReadCallNeedsNoApprovalID(t *testing.T) {
-	for _, provider := range []Provider{ProviderCRM, ProviderGitHub, ProviderLinear} {
+	for _, provider := range []contract.Provider{contract.ProviderCRM, contract.ProviderGitHub, contract.ProviderLinear} {
 		t.Run(string(provider), func(t *testing.T) {
 			meta, readCap, resource := readOnlyConnector(t, provider)
-			in := Invocation{
+			in := contract.Invocation{
 				TenantID: meta.TenantID, WorkspaceID: meta.WorkspaceID, Subject: "u-1",
 				AgentID: "a-1", ConnectorID: meta.ID, Capability: readCap,
-				Action: ActionRead, Resource: resource, TraceID: "trace-1",
+				Action: contract.ActionRead, Resource: resource, TraceID: "trace-1",
 			}
-			if err := ValidateCall(meta, in); err != nil {
+			if err := contract.ValidateCall(meta, in); err != nil {
 				t.Fatalf("read call without an approval id rejected: %v", err)
 			}
 		})
@@ -181,16 +185,16 @@ func TestDeclaredMutationRemainsReachable(t *testing.T) {
 	for _, tc := range catalogMutations {
 		t.Run(string(tc.provider)+"/"+tc.capability, func(t *testing.T) {
 			meta, _, resource := readOnlyConnector(t, tc.provider)
-			meta.Capabilities = []Capability{{Name: tc.capability, Action: tc.action}}
-			meta.Policy.AllowedActions = []Action{tc.action}
+			meta.Capabilities = []contract.Capability{{Name: tc.capability, Action: tc.action}}
+			meta.Policy.AllowedActions = []contract.Action{tc.action}
 
-			in := Invocation{
+			in := contract.Invocation{
 				TenantID: meta.TenantID, WorkspaceID: meta.WorkspaceID, Subject: "u-1",
 				AgentID: "a-1", ConnectorID: meta.ID, Capability: tc.capability,
 				Action: tc.action, Resource: resource, TraceID: "trace-1",
 				ApprovalID: "approval-1",
 			}
-			if err := ValidateCall(meta, in); err != nil {
+			if err := contract.ValidateCall(meta, in); err != nil {
 				t.Fatalf("declared mutation %q rejected: %v", tc.capability, err)
 			}
 		})
@@ -199,7 +203,7 @@ func TestDeclaredMutationRemainsReachable(t *testing.T) {
 
 // financeProviders are the providers whose catalogs deliberately contain no
 // mutation at all.
-var financeProviders = []Provider{ProviderFreshBooks, ProviderMercury}
+var financeProviders = []contract.Provider{contract.ProviderFreshBooks, contract.ProviderMercury}
 
 // financeMutations are operations a caller might plausibly ask a bookkeeping
 // or banking agent to perform. None is defined for either provider, which is
@@ -208,16 +212,16 @@ var financeProviders = []Provider{ProviderFreshBooks, ProviderMercury}
 // a write; for FreshBooks and Mercury there is no capability to opt in to.
 var financeMutations = []struct {
 	capability string
-	action     Action
+	action     contract.Action
 }{
-	{"payment.create", ActionCreate},
-	{"invoice.create", ActionCreate},
-	{"invoice.update", ActionUpdate},
-	{"expense.update", ActionUpdate},
-	{"transfer.create", ActionCreate},
-	{"transaction.create", ActionCreate},
-	{"recipient.create", ActionCreate},
-	{"account.update", ActionUpdate},
+	{"payment.create", contract.ActionCreate},
+	{"invoice.create", contract.ActionCreate},
+	{"invoice.update", contract.ActionUpdate},
+	{"expense.update", contract.ActionUpdate},
+	{"transfer.create", contract.ActionCreate},
+	{"transaction.create", contract.ActionCreate},
+	{"recipient.create", contract.ActionCreate},
+	{"account.update", contract.ActionUpdate},
 }
 
 // TestFinanceCatalogsDefineNoMutation proves money movement is absent from the
@@ -226,14 +230,14 @@ var financeMutations = []struct {
 // make it reachable.
 func TestFinanceCatalogsDefineNoMutation(t *testing.T) {
 	for _, provider := range financeProviders {
-		for _, capability := range CapabilitiesFor(provider) {
-			if capability.Action != ActionRead {
+		for _, capability := range contract.CapabilitiesFor(provider) {
+			if capability.Action != contract.ActionRead {
 				t.Errorf("%s capability %q has action %q; finance providers are read-only",
 					provider, capability.Name, capability.Action)
 			}
 		}
 		for _, tc := range financeMutations {
-			if _, ok := LookupCapability(provider, tc.capability); ok {
+			if _, ok := capability.LookupCapability(provider, tc.capability); ok {
 				t.Errorf("%s defines mutation capability %q; finance providers are read-only",
 					provider, tc.capability)
 			}
@@ -243,7 +247,7 @@ func TestFinanceCatalogsDefineNoMutation(t *testing.T) {
 
 // TestFinanceMutationsRejectedEvenWhenDeclared is the belt-and-braces case: a
 // connector that forges a mutation capability in its own metadata, with a
-// permissive policy and an approval id, is still refused. ValidateCall checks
+// permissive policy and an approval id, is still refused. contract.ValidateCall checks
 // the capability against the provider catalog, so metadata cannot invent a
 // payment.
 func TestFinanceMutationsRejectedEvenWhenDeclared(t *testing.T) {
@@ -251,17 +255,17 @@ func TestFinanceMutationsRejectedEvenWhenDeclared(t *testing.T) {
 		for _, tc := range financeMutations {
 			t.Run(string(provider)+"/"+tc.capability, func(t *testing.T) {
 				meta, _, resource := readOnlyConnector(t, provider)
-				meta.Capabilities = append(meta.Capabilities, Capability{Name: tc.capability, Action: tc.action})
-				meta.Policy.AllowedActions = []Action{ActionRead, ActionCreate, ActionUpdate, ActionDelete}
+				meta.Capabilities = append(meta.Capabilities, contract.Capability{Name: tc.capability, Action: tc.action})
+				meta.Policy.AllowedActions = []contract.Action{contract.ActionRead, contract.ActionCreate, contract.ActionUpdate, contract.ActionDelete}
 				meta.Policy.DestructiveEnabled = true
 
-				in := Invocation{
+				in := contract.Invocation{
 					TenantID: meta.TenantID, WorkspaceID: meta.WorkspaceID, Subject: "u-1",
 					AgentID: "a-1", ConnectorID: meta.ID, Capability: tc.capability,
 					Action: tc.action, Resource: resource, TraceID: "trace-1",
 					ApprovalID: "approval-1",
 				}
-				if err := ValidateCall(meta, in); err == nil {
+				if err := contract.ValidateCall(meta, in); err == nil {
 					t.Fatalf("%s accepted forged mutation %q", provider, tc.capability)
 				}
 			})
@@ -275,12 +279,12 @@ func TestFinanceMutationsRejectedEvenWhenDeclared(t *testing.T) {
 func TestFinanceReadsRemainReachable(t *testing.T) {
 	for _, provider := range financeProviders {
 		meta, capability, resource := readOnlyConnector(t, provider)
-		in := Invocation{
+		in := contract.Invocation{
 			TenantID: meta.TenantID, WorkspaceID: meta.WorkspaceID, Subject: "u-1",
 			AgentID: "a-1", ConnectorID: meta.ID, Capability: capability,
-			Action: ActionRead, Resource: resource, TraceID: "trace-1",
+			Action: contract.ActionRead, Resource: resource, TraceID: "trace-1",
 		}
-		if err := ValidateCall(meta, in); err != nil {
+		if err := contract.ValidateCall(meta, in); err != nil {
 			t.Fatalf("%s read %q rejected: %v", provider, capability, err)
 		}
 	}

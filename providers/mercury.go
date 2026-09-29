@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 // Mercury is the banking provider. Its contract surface is read-only:
@@ -144,11 +144,11 @@ func NewMercury(backend MercuryBackend) *MercuryClientConn {
 	return &MercuryClientConn{backend: backend}
 }
 
-func (c *MercuryClientConn) Provider() connectors.Provider {
-	return connectors.ProviderMercury
+func (c *MercuryClientConn) Provider() contract.Provider {
+	return contract.ProviderMercury
 }
 
-func (c *MercuryClientConn) Invoke(ctx context.Context, meta connectors.Metadata, inv connectors.Invocation, payload Payload) (Result, error) {
+func (c *MercuryClientConn) Invoke(ctx context.Context, meta contract.Metadata, inv contract.Invocation, payload Payload) (Result, error) {
 	if err := checkProvider(meta, c.Provider()); err != nil {
 		return Result{}, err
 	}

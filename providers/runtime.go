@@ -19,7 +19,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 // CredentialResolver resolves an opaque reference for one governed
@@ -60,7 +60,7 @@ type invocationScope struct {
 
 type invocationScopeKey struct{}
 
-func withInvocationScope(ctx context.Context, meta connectors.Metadata, inv connectors.Invocation) context.Context {
+func withInvocationScope(ctx context.Context, meta contract.Metadata, inv contract.Invocation) context.Context {
 	return context.WithValue(ctx, invocationScopeKey{}, invocationScope{
 		tenantID:    inv.TenantID,
 		workspaceID: inv.WorkspaceID,
@@ -74,7 +74,7 @@ func scopeFromContext(ctx context.Context) (invocationScope, error) {
 	if !ok || scope.tenantID == "" || scope.workspaceID == "" || scope.subject == "" || scope.credential == "" {
 		return invocationScope{}, errors.New("invocation scope is required")
 	}
-	if err := connectors.ValidateCredentialRef(scope.credential); err != nil {
+	if err := contract.ValidateCredentialRef(scope.credential); err != nil {
 		return invocationScope{}, errors.New("credential reference is invalid")
 	}
 	return scope, nil

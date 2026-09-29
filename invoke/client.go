@@ -12,9 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectors
+package invoke
 
-import "time"
+import (
+	"time"
+
+	"github.com/HaikeiLabs/kei-connector-contracts/audit"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
+	"github.com/HaikeiLabs/kei-connector-contracts/envelope"
+	"github.com/HaikeiLabs/kei-connector-contracts/governance"
+)
 
 // Client is the Kei-only connector client. It is the single governed entry
 // point for a connector call: it mints the typed envelope, runs the fail-closed
@@ -29,9 +36,9 @@ type Client struct {
 // persists the audit record and, on allow, proceeds to the provider using the
 // connector's credential reference — never inline secret material.
 type InvokeOutcome struct {
-	Envelope    Envelope
-	Decision    PolicyDecision
-	AuditRecord AuditRecord
+	Envelope    envelope.Envelope
+	Decision    governance.PolicyDecision
+	AuditRecord audit.AuditRecord
 }
 
 // NewClient returns a connector client minting envelopes with the real clock.
@@ -42,17 +49,17 @@ func NewClient() *Client {
 // Invoke mints the governed envelope for an invocation and evaluates it
 // fail-closed. It performs no external I/O: the caller resolves connector
 // metadata from its store, invokes the client, and persists the audit record.
-func (c *Client) Invoke(m Metadata, in Invocation) InvokeOutcome {
-	envelope := Envelope{
-		Version:    EnvelopeVersion1,
+func (c *Client) Invoke(m contract.Metadata, in contract.Invocation) InvokeOutcome {
+	envelope := envelope.Envelope{
+		Version:    envelope.EnvelopeVersion1,
 		Invocation: in,
-		MintedBy:   MintedByControlPlane,
+		MintedBy:   envelope.MintedByControlPlane,
 		IssuedAt:   c.now().UTC(),
 	}
-	decision := Decide(m, envelope)
+	decision := governance.Decide(m, envelope)
 	return InvokeOutcome{
 		Envelope:    envelope,
 		Decision:    decision,
-		AuditRecord: BuildAuditRecord(envelope, decision, envelope.IssuedAt),
+		AuditRecord: audit.BuildAuditRecord(envelope, decision, envelope.IssuedAt),
 	}
 }

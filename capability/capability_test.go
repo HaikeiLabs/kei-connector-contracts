@@ -12,23 +12,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectors
+package capability
 
 import (
 	"reflect"
 	"testing"
+
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 func TestLookupCapability(t *testing.T) {
-	cap, ok := LookupCapability(ProviderCRM, "lead.read")
+	cap, ok := LookupCapability(contract.ProviderCRM, "lead.read")
 	if !ok {
 		t.Fatal("expected lead.read to be defined for crm")
 	}
-	if cap.Name != "lead.read" || cap.Action != ActionRead {
+	if cap.Name != "lead.read" || cap.Action != contract.ActionRead {
 		t.Fatalf("unexpected capability: %+v", cap)
 	}
 
-	if _, ok := LookupCapability(ProviderCRM, "admin.raw_sql"); ok {
+	if _, ok := LookupCapability(contract.ProviderCRM, "admin.raw_sql"); ok {
 		t.Fatal("undefined capability must not be found")
 	}
 	if _, ok := LookupCapability("unknown", "lead.read"); ok {
@@ -37,16 +39,16 @@ func TestLookupCapability(t *testing.T) {
 }
 
 func TestCapabilityForErrors(t *testing.T) {
-	if _, err := CapabilityFor(ProviderGitHub, "repository.read"); err != nil {
+	if _, err := CapabilityFor(contract.ProviderGitHub, "repository.read"); err != nil {
 		t.Fatalf("defined capability errored: %v", err)
 	}
-	if _, err := CapabilityFor(ProviderGitHub, "repository.purge"); err == nil {
+	if _, err := CapabilityFor(contract.ProviderGitHub, "repository.purge"); err == nil {
 		t.Fatal("undefined capability must error")
 	}
 }
 
 func TestCapabilitiesForProviderCopiesAndRejectsUnknown(t *testing.T) {
-	got, err := CapabilitiesForProvider(ProviderGoogle)
+	got, err := CapabilitiesForProvider(contract.ProviderGoogle)
 	if err != nil {
 		t.Fatalf("CapabilitiesForProvider(google_drive): %v", err)
 	}
@@ -60,7 +62,7 @@ func TestCapabilitiesForProviderCopiesAndRejectsUnknown(t *testing.T) {
 
 func TestProvidersSortedAndComplete(t *testing.T) {
 	got := Providers()
-	want := []Provider{ProviderCRM, ProviderFreshBooks, ProviderGitHub, ProviderGmail, ProviderGoogle, ProviderHTTPAPI, ProviderLinear, ProviderMercury, ProviderNotion, ProviderS3, ProviderTito}
+	want := []contract.Provider{contract.ProviderCRM, contract.ProviderFreshBooks, contract.ProviderGitHub, contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderHTTPAPI, contract.ProviderLinear, contract.ProviderMercury, contract.ProviderNotion, contract.ProviderS3, contract.ProviderTito}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("Providers() = %v, want %v", got, want)
 	}

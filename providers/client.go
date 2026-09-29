@@ -30,13 +30,13 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 // Client is the provider-neutral seam invoked by the control plane.
 type Client interface {
-	Provider() connectors.Provider
-	Invoke(ctx context.Context, meta connectors.Metadata, inv connectors.Invocation, payload Payload) (Result, error)
+	Provider() contract.Provider
+	Invoke(ctx context.Context, meta contract.Metadata, inv contract.Invocation, payload Payload) (Result, error)
 }
 
 // Payload is a provider-specific, read-only request. Each payload declares
@@ -57,8 +57,8 @@ type Result struct {
 // capability), rejects path-traversal resources that would normalize outside
 // the resource boundary, and keeps the destructive-operation lock. Resource,
 // prefix, and action policy are decided by the ABAC policy layer, not here.
-func Guard(meta connectors.Metadata, inv connectors.Invocation) error {
-	if err := connectors.ValidateCall(meta, inv); err != nil {
+func Guard(meta contract.Metadata, inv contract.Invocation) error {
+	if err := contract.ValidateCall(meta, inv); err != nil {
 		return err
 	}
 	if !traversalSafe(inv.Resource) {
@@ -74,8 +74,8 @@ func Guard(meta connectors.Metadata, inv connectors.Invocation) error {
 // connector policy explicitly enables them and an approval reference is
 // present. The initial capability surface defines no delete capabilities, so
 // this is defense in depth for the contract's fail-closed default.
-func DestructiveAllowed(meta connectors.Metadata, inv connectors.Invocation) error {
-	if inv.Action != connectors.ActionDelete {
+func DestructiveAllowed(meta contract.Metadata, inv contract.Invocation) error {
+	if inv.Action != contract.ActionDelete {
 		return nil
 	}
 	if !meta.Policy.DestructiveEnabled {
@@ -109,14 +109,14 @@ func hasDotDotSegment(path string) bool {
 	return false
 }
 
-func checkProvider(meta connectors.Metadata, provider connectors.Provider) error {
+func checkProvider(meta contract.Metadata, provider contract.Provider) error {
 	if meta.Provider != provider {
 		return fmt.Errorf("connector provider %q does not match client %q", meta.Provider, provider)
 	}
 	return nil
 }
 
-func matchCapability(inv connectors.Invocation, payload Payload) error {
+func matchCapability(inv contract.Invocation, payload Payload) error {
 	if payload.Capability() != inv.Capability {
 		return fmt.Errorf("payload capability %q does not match invocation capability %q", payload.Capability(), inv.Capability)
 	}
@@ -126,27 +126,27 @@ func matchCapability(inv connectors.Invocation, payload Payload) error {
 // New returns a read-only client. Linear is wired to its authenticated
 // GraphQL runtime; credential resolution must be injected by the runtime
 // integration before an invocation can succeed.
-func New(provider connectors.Provider) (Client, error) {
+func New(provider contract.Provider) (Client, error) {
 	switch provider {
-	case connectors.ProviderGoogle:
+	case contract.ProviderGoogle:
 		return NewAuthenticatedGoogle(RuntimeConfig{}), nil
-	case connectors.ProviderLinear:
+	case contract.ProviderLinear:
 		return NewLinearRuntime(HTTPLinearGraphQLTransport{}, nil), nil
-	case connectors.ProviderGitHub:
+	case contract.ProviderGitHub:
 		return NewAuthenticatedGitHub(RuntimeConfig{}), nil
-	case connectors.ProviderS3:
+	case contract.ProviderS3:
 		return NewS3(MemoryS3{}), nil
-	case connectors.ProviderNotion:
+	case contract.ProviderNotion:
 		return NewNotion(MemoryNotion{}), nil
-	case connectors.ProviderCRM:
+	case contract.ProviderCRM:
 		return NewCRM(MemoryCRM{}), nil
-	case connectors.ProviderFreshBooks:
+	case contract.ProviderFreshBooks:
 		return NewFreshBooks(MemoryFreshBooks{}), nil
-	case connectors.ProviderMercury:
+	case contract.ProviderMercury:
 		return NewMercury(MemoryMercury{}), nil
-	case connectors.ProviderGmail:
+	case contract.ProviderGmail:
 		return NewAuthenticatedGmail(RuntimeConfig{}), nil
-	case connectors.ProviderTito:
+	case contract.ProviderTito:
 		return NewAuthenticatedTito(RuntimeConfig{}), nil
 	default:
 		return nil, fmt.Errorf("unsupported provider %q", provider)

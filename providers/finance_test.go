@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 // Fixtures are deliberately synthetic: TEST-prefixed identifiers, example.test
@@ -88,7 +88,7 @@ func mercuryStore() MemoryMercury {
 func TestFreshBooksReadsResolve(t *testing.T) {
 	ctx := context.Background()
 	client := NewFreshBooks(freshBooksStore())
-	meta := metaFor(t, connectors.ProviderFreshBooks, []string{"accounts/acct-TEST-1"}, nil)
+	meta := metaFor(t, contract.ProviderFreshBooks, []string{"accounts/acct-TEST-1"}, nil)
 
 	for _, tc := range []struct {
 		resource string
@@ -99,7 +99,7 @@ func TestFreshBooksReadsResolve(t *testing.T) {
 		{"accounts/acct-TEST-1/payments/pay-TEST-1", PaymentReadPayload{}},
 		{"accounts/acct-TEST-1/clients/cli-TEST-1", ClientReadPayload{}},
 	} {
-		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		inv := invocation(tc.payload.Capability(), contract.ActionRead, tc.resource)
 		res, err := client.Invoke(ctx, meta, inv, tc.payload)
 		if err != nil {
 			t.Fatalf("resource %q rejected: %v", tc.resource, err)
@@ -113,7 +113,7 @@ func TestFreshBooksReadsResolve(t *testing.T) {
 func TestMercuryReadsResolve(t *testing.T) {
 	ctx := context.Background()
 	client := NewMercury(mercuryStore())
-	meta := metaFor(t, connectors.ProviderMercury, []string{"accounts/acct-TEST-1"}, nil)
+	meta := metaFor(t, contract.ProviderMercury, []string{"accounts/acct-TEST-1"}, nil)
 
 	for _, tc := range []struct {
 		resource string
@@ -123,7 +123,7 @@ func TestMercuryReadsResolve(t *testing.T) {
 		{"accounts/acct-TEST-1", BalanceReadPayload{}},
 		{"accounts/acct-TEST-1/transactions/txn-TEST-1", TransactionReadPayload{}},
 	} {
-		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		inv := invocation(tc.payload.Capability(), contract.ActionRead, tc.resource)
 		res, err := client.Invoke(ctx, meta, inv, tc.payload)
 		if err != nil {
 			t.Fatalf("resource %q rejected: %v", tc.resource, err)
@@ -141,7 +141,7 @@ func TestMercuryReadsResolve(t *testing.T) {
 func TestFinanceResourceShapeIsEnforced(t *testing.T) {
 	ctx := context.Background()
 	fb := NewFreshBooks(freshBooksStore())
-	fbMeta := metaFor(t, connectors.ProviderFreshBooks, []string{"accounts/acct-TEST-1"}, nil)
+	fbMeta := metaFor(t, contract.ProviderFreshBooks, []string{"accounts/acct-TEST-1"}, nil)
 
 	for _, resource := range []string{
 		"accounts/acct-TEST-1/invoices/inv-TEST-1/extra",
@@ -150,20 +150,20 @@ func TestFinanceResourceShapeIsEnforced(t *testing.T) {
 		"invoices/inv-TEST-1",
 		"accounts/acct-TEST-1/payments/pay-TEST-1", // wrong collection for this payload
 	} {
-		inv := invocation("invoice.read", connectors.ActionRead, resource)
+		inv := invocation("invoice.read", contract.ActionRead, resource)
 		if _, err := fb.Invoke(ctx, fbMeta, inv, InvoiceReadPayload{}); err == nil {
 			t.Errorf("freshbooks accepted malformed resource %q", resource)
 		}
 	}
 
 	mc := NewMercury(mercuryStore())
-	mcMeta := metaFor(t, connectors.ProviderMercury, []string{"accounts/acct-TEST-1"}, nil)
+	mcMeta := metaFor(t, contract.ProviderMercury, []string{"accounts/acct-TEST-1"}, nil)
 	for _, resource := range []string{
 		"accounts/acct-TEST-1/transactions/txn-TEST-1", // not an account resource
 		"accounts/",
 		"acct-TEST-1",
 	} {
-		inv := invocation("account.read", connectors.ActionRead, resource)
+		inv := invocation("account.read", contract.ActionRead, resource)
 		if _, err := mc.Invoke(ctx, mcMeta, inv, AccountReadPayload{}); err == nil {
 			t.Errorf("mercury accepted malformed resource %q", resource)
 		}
@@ -176,9 +176,9 @@ func TestFinanceResourceShapeIsEnforced(t *testing.T) {
 func TestFinanceCrossAccountReadIsRefused(t *testing.T) {
 	ctx := context.Background()
 	client := NewFreshBooks(freshBooksStore())
-	meta := metaFor(t, connectors.ProviderFreshBooks, []string{"accounts/acct-TEST-2"}, nil)
+	meta := metaFor(t, contract.ProviderFreshBooks, []string{"accounts/acct-TEST-2"}, nil)
 
-	inv := invocation("invoice.read", connectors.ActionRead, "accounts/acct-TEST-2/invoices/inv-TEST-1")
+	inv := invocation("invoice.read", contract.ActionRead, "accounts/acct-TEST-2/invoices/inv-TEST-1")
 	if _, err := client.Invoke(ctx, meta, inv, InvoiceReadPayload{}); err == nil {
 		t.Fatal("invoice from another account was returned")
 	}
@@ -188,15 +188,15 @@ func TestFinanceCrossAccountReadIsRefused(t *testing.T) {
 // cannot serve a banking connector's metadata, or vice versa.
 func TestFinanceClientsRejectMismatchedProvider(t *testing.T) {
 	ctx := context.Background()
-	fbMeta := metaFor(t, connectors.ProviderFreshBooks, []string{"accounts/acct-TEST-1"}, nil)
-	mcMeta := metaFor(t, connectors.ProviderMercury, []string{"accounts/acct-TEST-1"}, nil)
+	fbMeta := metaFor(t, contract.ProviderFreshBooks, []string{"accounts/acct-TEST-1"}, nil)
+	mcMeta := metaFor(t, contract.ProviderMercury, []string{"accounts/acct-TEST-1"}, nil)
 
-	inv := invocation("account.read", connectors.ActionRead, "accounts/acct-TEST-1")
+	inv := invocation("account.read", contract.ActionRead, "accounts/acct-TEST-1")
 	if _, err := NewMercury(mercuryStore()).Invoke(ctx, fbMeta, inv, AccountReadPayload{}); err == nil {
 		t.Error("mercury client served freshbooks metadata")
 	}
 
-	inv = invocation("invoice.read", connectors.ActionRead, "accounts/acct-TEST-1/invoices/inv-TEST-1")
+	inv = invocation("invoice.read", contract.ActionRead, "accounts/acct-TEST-1/invoices/inv-TEST-1")
 	if _, err := NewFreshBooks(freshBooksStore()).Invoke(ctx, mcMeta, inv, InvoiceReadPayload{}); err == nil {
 		t.Error("freshbooks client served mercury metadata")
 	}
@@ -208,9 +208,9 @@ func TestFinanceClientsRejectMismatchedProvider(t *testing.T) {
 func TestFinancePayloadCannotBeReplayedAcrossCapabilities(t *testing.T) {
 	ctx := context.Background()
 	client := NewMercury(mercuryStore())
-	meta := metaFor(t, connectors.ProviderMercury, []string{"accounts/acct-TEST-1"}, nil)
+	meta := metaFor(t, contract.ProviderMercury, []string{"accounts/acct-TEST-1"}, nil)
 
-	inv := invocation("account.read", connectors.ActionRead, "accounts/acct-TEST-1")
+	inv := invocation("account.read", contract.ActionRead, "accounts/acct-TEST-1")
 	if _, err := client.Invoke(ctx, meta, inv, BalanceReadPayload{}); err == nil {
 		t.Fatal("balance payload accepted on an account.read invocation")
 	}
@@ -221,13 +221,13 @@ func TestFinancePayloadCannotBeReplayedAcrossCapabilities(t *testing.T) {
 func TestFinanceTraversalResourcesRefused(t *testing.T) {
 	ctx := context.Background()
 	client := NewFreshBooks(freshBooksStore())
-	meta := metaFor(t, connectors.ProviderFreshBooks, []string{"accounts/acct-TEST-1"}, nil)
+	meta := metaFor(t, contract.ProviderFreshBooks, []string{"accounts/acct-TEST-1"}, nil)
 
 	for _, resource := range []string{
 		"accounts/acct-TEST-1/invoices/../../acct-TEST-2/invoices/inv-TEST-1",
 		"accounts/acct-TEST-1/invoices/%2e%2e",
 	} {
-		inv := invocation("invoice.read", connectors.ActionRead, resource)
+		inv := invocation("invoice.read", contract.ActionRead, resource)
 		if _, err := client.Invoke(ctx, meta, inv, InvoiceReadPayload{}); err == nil {
 			t.Errorf("traversal resource %q accepted", resource)
 		}
@@ -238,7 +238,7 @@ func TestFinanceTraversalResourcesRefused(t *testing.T) {
 // returns a finance client backed by a memory store, so nothing in this module
 // can reach a provider network.
 func TestFinanceProvidersAreConstructibleFromNew(t *testing.T) {
-	for _, provider := range []connectors.Provider{connectors.ProviderFreshBooks, connectors.ProviderMercury} {
+	for _, provider := range []contract.Provider{contract.ProviderFreshBooks, contract.ProviderMercury} {
 		client, err := New(provider)
 		if err != nil {
 			t.Fatalf("New(%q): %v", provider, err)

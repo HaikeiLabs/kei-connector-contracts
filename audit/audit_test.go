@@ -12,16 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectors
+package audit
 
 import (
 	"testing"
 	"time"
+
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
+	"github.com/HaikeiLabs/kei-connector-contracts/governance"
 )
 
 func TestBuildAuditRecordAttribution(t *testing.T) {
 	env := decisionEnvelope()
-	decision := PolicyDecision{Decision: DecisionAllow, Capability: Capability{Name: "lead.read", Action: ActionRead}}
+	decision := governance.PolicyDecision{Decision: governance.DecisionAllow, Capability: contract.Capability{Name: "lead.read", Action: contract.ActionRead}}
 	invokedAt := time.Date(2026, 9, 7, 12, 0, 0, 0, time.UTC)
 
 	rec := BuildAuditRecord(env, decision, invokedAt)
@@ -44,7 +47,7 @@ func TestBuildAuditRecordAttribution(t *testing.T) {
 	if len(rec.ResourcesTouched) != 1 || rec.ResourcesTouched[0] != "leads/42" {
 		t.Fatalf("resources_touched = %v", rec.ResourcesTouched)
 	}
-	if rec.Decision != string(DecisionAllow) {
+	if rec.Decision != string(governance.DecisionAllow) {
 		t.Fatalf("decision = %q", rec.Decision)
 	}
 	if rec.OrgID == nil || *rec.OrgID != "t-1" {
@@ -59,13 +62,13 @@ func TestBuildAuditRecordFallsBackToTraceAndRecordsDenyReason(t *testing.T) {
 	env := decisionEnvelope()
 	env.Invocation.IdempotencyKey = ""
 	env.Invocation.TraceID = "trace-9"
-	decision := PolicyDecision{Decision: DecisionDeny, Reason: "approval required"}
+	decision := governance.PolicyDecision{Decision: governance.DecisionDeny, Reason: "approval required"}
 
 	rec := BuildAuditRecord(env, decision, time.Now())
 	if rec.SpanID != "trace-9" {
 		t.Fatalf("span_id = %q, want the trace id when no idempotency key", rec.SpanID)
 	}
-	if rec.Decision != string(DecisionDeny) {
+	if rec.Decision != string(governance.DecisionDeny) {
 		t.Fatalf("decision = %q, want deny", rec.Decision)
 	}
 	if rec.PolicyReason == nil || *rec.PolicyReason != "approval required" {
@@ -74,7 +77,7 @@ func TestBuildAuditRecordFallsBackToTraceAndRecordsDenyReason(t *testing.T) {
 }
 
 func TestBuildAuditRecordDenyCarriesNoCapability(t *testing.T) {
-	rec := BuildAuditRecord(decisionEnvelope(), PolicyDecision{Decision: DecisionDeny, Reason: "connector is not active"}, time.Now())
+	rec := BuildAuditRecord(decisionEnvelope(), governance.PolicyDecision{Decision: governance.DecisionDeny, Reason: "connector is not active"}, time.Now())
 	if rec.ToolName != "connector/c-1/lead.read" {
 		t.Fatalf("tool_name = %q; a deny must still be attributable", rec.ToolName)
 	}

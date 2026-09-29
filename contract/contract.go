@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package connectors contains the provider-neutral contract used by Kei's
+// Package contract contains the provider-neutral contract used by Kei's
 // control plane and connector clients.  It intentionally contains references
 // to credentials, never credential material.
-package connectors
+package contract
 
 import (
 	"errors"
@@ -74,82 +74,6 @@ const (
 	// reject credential-like terms do not flag this metadata field.
 	CredentialSourceOpaqueRef CredentialSource = "opaque_ref"
 )
-
-// AccountModel says whose account an OAuth-style connector acts as. It is an
-// explicit, per-connector choice.
-type AccountModel string
-
-const (
-	// AccountModelPerUser: each Kei user connects their own account, and an
-	// invocation uses the invoking user's token. The connector declares no
-	// subject.
-	AccountModelPerUser AccountModel = "per_user"
-	// AccountModelShared: an admin connects one account for the connector
-	// instance, and every user the policy allows reads it. The connector's
-	// subject is SharedSubject(connector id).
-	AccountModelShared AccountModel = "shared"
-	// AccountModelDomainDelegation: Google Workspace domain-wide delegation.
-	// A service-account key is the connector's opaque_ref credential and the
-	// impersonated mailbox is the impersonate_email config field.
-	AccountModelDomainDelegation AccountModel = "domain_delegation"
-)
-
-var accountModels = map[Provider][]AccountModel{
-	ProviderGmail:  {AccountModelPerUser, AccountModelShared, AccountModelDomainDelegation},
-	ProviderGoogle: {AccountModelPerUser, AccountModelShared, AccountModelDomainDelegation},
-	ProviderLinear: {AccountModelPerUser, AccountModelShared},
-	ProviderGitHub: {AccountModelPerUser, AccountModelShared},
-}
-
-// AccountModelsFor returns the account models a provider allows, in the order
-// a setup screen offers them; the first is the default. Providers without
-// user-delegated accounts return nil.
-func AccountModelsFor(provider Provider) []AccountModel {
-	models := accountModels[provider]
-	if len(models) == 0 {
-		return nil
-	}
-	result := make([]AccountModel, len(models))
-	copy(result, models)
-	return result
-}
-
-// SharedSubject is the service subject a shared or delegated connector's
-// credential is bound to: the connector itself, not the admin who set it up.
-func SharedSubject(connectorID string) string {
-	return "connector:" + connectorID
-}
-
-type Status string
-
-const (
-	StatusPending   Status = "pending"
-	StatusActive    Status = "active"
-	StatusSuspended Status = "suspended"
-	StatusRevoked   Status = "revoked"
-	StatusFailed    Status = "failed"
-)
-
-type Action string
-
-const (
-	ActionRead    Action = "read"
-	ActionCreate  Action = "create"
-	ActionUpdate  Action = "update"
-	ActionDelete  Action = "delete"
-	ActionComment Action = "comment"
-)
-
-// Capability is the only provider operation a connector client may expose.
-// It describes the credential surface: which operations a connector's
-// credential can perform. Data-access and tool-call authorization — including
-// which capabilities require an approval — are decided by ABAC policies, not
-// by capability flags on the connector.
-type Capability struct {
-	Name        string `json:"name"`
-	Action      Action `json:"action"`
-	Description string `json:"description"`
-}
 
 // Definitions are the deliberately small initial provider surface. New
 // operations must be added here before an agent can request them.
@@ -236,21 +160,6 @@ func (m Metadata) EffectiveCredentialSource() CredentialSource {
 	return m.CredentialSource
 }
 
-// CredentialSubject is whose credential an invocation uses, for audit: the
-// invoking user for per_user, the connector's service subject for shared,
-// delegated, and opaque_ref connectors, and the declared subject for a legacy
-// oauth connector.
-func CredentialSubject(m Metadata, in Invocation) string {
-	switch {
-	case m.AccountModel == AccountModelPerUser:
-		return in.Subject
-	case m.AccountModel == "" && m.EffectiveCredentialSource() == CredentialSourceOAuth:
-		return m.Subject
-	default:
-		return SharedSubject(m.ID)
-	}
-}
-
 type Invocation struct {
 	TenantID       string          `json:"tenant_id"`
 	WorkspaceID    string          `json:"workspace_id"`
@@ -324,69 +233,6 @@ func (m Metadata) Validate() error {
 		}
 	}
 	return nil
-}
-
-// validateCredentialBinding enforces the typed credential source, the subject
-// binding, and the account model. It never derives any of them from
-// credential_ref.
-func (m Metadata) validateCredentialBinding() error {
-	source := m.EffectiveCredentialSource()
-	if source != CredentialSourceOAuth && source != CredentialSourceOpaqueRef {
-		return fmt.Errorf("unsupported credential_source %q", m.CredentialSource)
-	}
-	if m.Subject != "" {
-		if err := validID("subject", m.Subject); err != nil {
-			return err
-		}
-	}
-	if m.Provider == ProviderTito && source != CredentialSourceOpaqueRef {
-		return errors.New("tito connectors must use an opaque_ref credential source")
-	}
-	if m.AccountModel == "" {
-		if source == CredentialSourceOAuth && m.Subject == "" {
-			return errors.New("oauth connectors must declare the subject they act for")
-		}
-		if m.Config != nil {
-			return ValidateConfig(m.Provider, "", m.Config)
-		}
-		return nil
-	}
-	if !containsAccountModel(accountModels[m.Provider], m.AccountModel) {
-		return fmt.Errorf("account_model %q is not allowed for provider %q", m.AccountModel, m.Provider)
-	}
-	switch m.AccountModel {
-	case AccountModelPerUser:
-		if source != CredentialSourceOAuth {
-			return errors.New("per_user connectors must use an oauth credential source")
-		}
-		if m.Subject != "" {
-			return errors.New("per_user connectors act for the invoking user and must not declare a subject")
-		}
-	case AccountModelShared:
-		if source != CredentialSourceOAuth {
-			return errors.New("shared connectors must use an oauth credential source")
-		}
-		if m.Subject != SharedSubject(m.ID) {
-			return errors.New("shared connectors must be bound to their connector subject")
-		}
-	case AccountModelDomainDelegation:
-		if source != CredentialSourceOpaqueRef {
-			return errors.New("domain_delegation connectors must use an opaque_ref credential source")
-		}
-		if m.Subject != "" {
-			return errors.New("domain_delegation connectors must not declare a subject")
-		}
-	}
-	return ValidateConfig(m.Provider, m.AccountModel, m.Config)
-}
-
-func containsAccountModel(models []AccountModel, want AccountModel) bool {
-	for _, model := range models {
-		if model == want {
-			return true
-		}
-	}
-	return false
 }
 
 func containsSecretMaterial(value string) bool {
@@ -491,4 +337,52 @@ func ValidateCredentialRef(ref string) error {
 		return errors.New("credential_ref must not contain credential material")
 	}
 	return nil
+}
+
+// ValidateInvocation checks an invocation's identifiers, action, and
+// resource. Envelope validation applies it to the invocation it carries.
+func ValidateInvocation(in Invocation) error {
+	for name, value := range map[string]string{
+		"tenant_id":    in.TenantID,
+		"workspace_id": in.WorkspaceID,
+		"subject":      in.Subject,
+		"agent_id":     in.AgentID,
+		"connector_id": in.ConnectorID,
+		"capability":   in.Capability,
+		"trace_id":     in.TraceID,
+	} {
+		if err := validID(name, value); err != nil {
+			return err
+		}
+	}
+	if !validAction(in.Action) {
+		return fmt.Errorf("invalid action %q", in.Action)
+	}
+	if in.Resource == "" {
+		return errors.New("resource is required")
+	}
+	if in.IdempotencyKey != "" {
+		if err := validID("idempotency_key", in.IdempotencyKey); err != nil {
+			return err
+		}
+	}
+	if in.ApprovalID != "" {
+		if err := validID("approval_id", in.ApprovalID); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ValidProvider reports whether p is a provider the contract defines.
+func ValidProvider(p Provider) bool { return validProvider(p) }
+
+// DefinedProviders returns every provider with a capability definition, in no
+// particular order.
+func DefinedProviders() []Provider {
+	out := make([]Provider, 0, len(definitions))
+	for p := range definitions {
+		out = append(out, p)
+	}
+	return out
 }

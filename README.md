@@ -31,6 +31,30 @@ envelope version rather than an edit in place.
 - `kei-policy-catalog` — connector metadata and registrations
 - `kei` — integration tests
 
+## Packages
+
+Dependencies point one way: `contract` ← `capability`, `envelope` ←
+`governance` ← `audit` ← `invoke`; `providers` imports `contract`.
+
+| Import path | Contents |
+| --- | --- |
+| `github.com/HaikeiLabs/kei-connector-contracts/contract` | Provider, Status, Action, Capability, and the capability definitions; `Metadata`, `Invocation`, and the `http_api` types; `Validate`, `ValidateCall`, `ValidateInvocation`, `ValidateCredentialRef`; credential source and account models (`accountmodel.go`); the setup schema and `ValidateConfig` (`setup.go`) |
+| `.../capability` | `LookupCapability`, `CapabilityFor`, `CapabilitiesForProvider`, `Providers` |
+| `.../envelope` | `Envelope`, `EnvelopeVersion1`, `MintedByControlPlane` |
+| `.../governance` | `Decision`, `PolicyDecision`, `Decide` |
+| `.../audit` | `AuditRecord`, `BuildAuditRecord` |
+| `.../invoke` | `Client`, `NewClient`, `InvokeOutcome` (envelope + decision + audit record) |
+| `.../providers` | provider payloads, results, and read-only clients |
+
+Account models and the setup schema are files in `contract`, not packages of
+their own: `Metadata.Validate` enforces both, and a Go method must live with
+its type, so moving them out would force either an import cycle or a weaker
+`Validate`. `schemas/connector-setup.v1.json` stays at the repository root.
+
+The root import path `github.com/HaikeiLabs/kei-connector-contracts` has no Go
+package from v0.2.0 on. v0.1.0 consumers change `connectors.X` to the package
+above that now holds `X`.
+
 ## Credential source, account models, and setup (v0.2.0)
 
 - `Metadata.CredentialSource` is `oauth` or `opaque_ref`. Empty means

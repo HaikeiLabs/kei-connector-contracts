@@ -21,7 +21,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 type linearTestResolver struct {
@@ -54,8 +54,8 @@ func TestLinearRuntimeAuthenticatesWithInvocationScope(t *testing.T) {
 	resolver := &linearTestResolver{token: "linear-access-token"}
 	transport := &linearTestTransport{data: json.RawMessage(`{"team":{"key":"KEI","name":"Kei Engineering"}}`)}
 	client := NewLinearRuntime(transport, resolver)
-	meta := metaFor(t, connectors.ProviderLinear, []string{"linear/team/KEI"}, nil)
-	inv := invocation("team.read", connectors.ActionRead, "linear/team/KEI")
+	meta := metaFor(t, contract.ProviderLinear, []string{"linear/team/KEI"}, nil)
+	inv := invocation("team.read", contract.ActionRead, "linear/team/KEI")
 	inv.Subject = "subject-7"
 
 	result, err := client.Invoke(context.Background(), meta, inv, TeamReadPayload{})
@@ -75,8 +75,8 @@ func TestLinearRuntimeAuthenticatesWithInvocationScope(t *testing.T) {
 
 func TestLinearRuntimeFailsClosedWithoutDependencies(t *testing.T) {
 	client := NewLinearRuntime(nil, nil)
-	meta := metaFor(t, connectors.ProviderLinear, []string{"linear/team/KEI"}, nil)
-	_, err := client.Invoke(context.Background(), meta, invocation("team.read", connectors.ActionRead, "linear/team/KEI"), TeamReadPayload{})
+	meta := metaFor(t, contract.ProviderLinear, []string{"linear/team/KEI"}, nil)
+	_, err := client.Invoke(context.Background(), meta, invocation("team.read", contract.ActionRead, "linear/team/KEI"), TeamReadPayload{})
 	if err == nil || err.Error() != "linear runtime dependencies are unavailable" {
 		t.Fatalf("error = %v", err)
 	}
@@ -87,8 +87,8 @@ func TestLinearRuntimeRejectsMalformedResponseWithoutLeakingToken(t *testing.T) 
 	resolver := &linearTestResolver{token: secret}
 	transport := &linearTestTransport{data: json.RawMessage(`{"team":{"key":"KEI","name":"Kei Engineering","unexpected":"leak"}}`)}
 	client := NewLinearRuntime(transport, resolver)
-	meta := metaFor(t, connectors.ProviderLinear, []string{"linear/team/KEI"}, nil)
-	_, err := client.Invoke(context.Background(), meta, invocation("team.read", connectors.ActionRead, "linear/team/KEI"), TeamReadPayload{})
+	meta := metaFor(t, contract.ProviderLinear, []string{"linear/team/KEI"}, nil)
+	_, err := client.Invoke(context.Background(), meta, invocation("team.read", contract.ActionRead, "linear/team/KEI"), TeamReadPayload{})
 	if err == nil || strings.Contains(err.Error(), secret) || strings.Contains(err.Error(), "unexpected") {
 		t.Fatalf("error = %v", err)
 	}
@@ -98,8 +98,8 @@ func TestLinearRuntimeDoesNotExposeResolverErrors(t *testing.T) {
 	secret := "linear-secret-value"
 	resolver := &linearTestResolver{token: secret, err: errors.New("backend included " + secret)}
 	client := NewLinearRuntime(&linearTestTransport{}, resolver)
-	meta := metaFor(t, connectors.ProviderLinear, []string{"linear/team/KEI"}, nil)
-	_, err := client.Invoke(context.Background(), meta, invocation("team.read", connectors.ActionRead, "linear/team/KEI"), TeamReadPayload{})
+	meta := metaFor(t, contract.ProviderLinear, []string{"linear/team/KEI"}, nil)
+	_, err := client.Invoke(context.Background(), meta, invocation("team.read", contract.ActionRead, "linear/team/KEI"), TeamReadPayload{})
 	if err == nil || err.Error() != "linear credential is unavailable" || strings.Contains(err.Error(), secret) {
 		t.Fatalf("error = %v", err)
 	}

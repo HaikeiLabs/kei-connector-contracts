@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectors
+package envelope
 
 import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 // EnvelopeVersion is the schema version of the governed invocation envelope.
@@ -37,15 +39,15 @@ const (
 )
 
 // Envelope is the typed, governed invocation envelope for a connector call.
-// It wraps the contract Invocation with minting provenance, so every call
+// It wraps the contract contract.Invocation with minting provenance, so every call
 // carries the full propagation chain — tenant, workspace, subject, agent,
 // connector, capability, resource, trace id, and idempotency key — plus who
 // minted it and when. The envelope is the unit of authorization and audit.
 type Envelope struct {
-	Version    EnvelopeVersion `json:"version"`
-	Invocation Invocation      `json:"invocation"`
-	MintedBy   string          `json:"minted_by"`
-	IssuedAt   time.Time       `json:"issued_at"`
+	Version    EnvelopeVersion     `json:"version"`
+	Invocation contract.Invocation `json:"invocation"`
+	MintedBy   string              `json:"minted_by"`
+	IssuedAt   time.Time           `json:"issued_at"`
 }
 
 // Validate is fail-closed: every boundary is explicit and a missing or
@@ -60,41 +62,9 @@ func (e Envelope) Validate() error {
 	if e.IssuedAt.IsZero() {
 		return errors.New("envelope is missing an issued_at timestamp")
 	}
-	return validateInvocation(e.Invocation)
+	return contract.ValidateInvocation(e.Invocation)
 }
 
 // validateInvocation enforces the propagation fields shared by the envelope
-// and the contract's ValidateCall, so a malformed envelope is rejected before
+// and the contract's contract.ValidateCall, so a malformed envelope is rejected before
 // policy evaluation.
-func validateInvocation(in Invocation) error {
-	for name, value := range map[string]string{
-		"tenant_id":    in.TenantID,
-		"workspace_id": in.WorkspaceID,
-		"subject":      in.Subject,
-		"agent_id":     in.AgentID,
-		"connector_id": in.ConnectorID,
-		"capability":   in.Capability,
-		"trace_id":     in.TraceID,
-	} {
-		if err := validID(name, value); err != nil {
-			return err
-		}
-	}
-	if !validAction(in.Action) {
-		return fmt.Errorf("invalid action %q", in.Action)
-	}
-	if in.Resource == "" {
-		return errors.New("resource is required")
-	}
-	if in.IdempotencyKey != "" {
-		if err := validID("idempotency_key", in.IdempotencyKey); err != nil {
-			return err
-		}
-	}
-	if in.ApprovalID != "" {
-		if err := validID("approval_id", in.ApprovalID); err != nil {
-			return err
-		}
-	}
-	return nil
-}

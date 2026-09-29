@@ -12,39 +12,42 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectors
+package governance
 
 import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
+	"github.com/HaikeiLabs/kei-connector-contracts/envelope"
 )
 
-func decisionFixture() Metadata {
+func decisionFixture() contract.Metadata {
 	m := fixture()
-	m.Capabilities = []Capability{
-		{Name: "lead.read", Action: ActionRead},
-		{Name: "lead.update", Action: ActionUpdate},
+	m.Capabilities = []contract.Capability{
+		{Name: "lead.read", Action: contract.ActionRead},
+		{Name: "lead.update", Action: contract.ActionUpdate},
 	}
 	return m
 }
 
-func decisionEnvelope() Envelope {
-	return Envelope{
-		Version: EnvelopeVersion1,
-		Invocation: Invocation{
+func decisionEnvelope() envelope.Envelope {
+	return envelope.Envelope{
+		Version: envelope.EnvelopeVersion1,
+		Invocation: contract.Invocation{
 			TenantID:       "t-1",
 			WorkspaceID:    "w-1",
 			Subject:        "u-1",
 			AgentID:        "a-1",
 			ConnectorID:    "c-1",
 			Capability:     "lead.read",
-			Action:         ActionRead,
+			Action:         contract.ActionRead,
 			Resource:       "leads/42",
 			TraceID:        "trace-1",
 			IdempotencyKey: "idem-1",
 		},
-		MintedBy: MintedByControlPlane,
+		MintedBy: envelope.MintedByControlPlane,
 		IssuedAt: time.Now().UTC(),
 	}
 }
@@ -65,22 +68,22 @@ func TestDecideDeniesInsteadOfErroring(t *testing.T) {
 
 	cases := []struct {
 		name   string
-		mutate func(*Metadata, *Envelope)
+		mutate func(*contract.Metadata, *envelope.Envelope)
 		want   string
 	}{
-		{"inactive connector", func(m *Metadata, _ *Envelope) { m.Status = StatusSuspended }, "connector is not active"},
-		{"cross-tenant", func(_ *Metadata, e *Envelope) { e.Invocation.TenantID = "other" }, "connector not found"},
-		{"cross-workspace", func(_ *Metadata, e *Envelope) { e.Invocation.WorkspaceID = "other" }, "connector not found"},
-		{"wrong connector", func(_ *Metadata, e *Envelope) { e.Invocation.ConnectorID = "other" }, "connector not found"},
-		{"undefined capability", func(_ *Metadata, e *Envelope) { e.Invocation.Capability = "admin.raw_sql" }, "not defined for provider"},
-		{"undeclared capability", func(m *Metadata, e *Envelope) {
-			m.Capabilities = []Capability{{Name: "lead.read", Action: ActionRead}}
+		{"inactive connector", func(m *contract.Metadata, _ *envelope.Envelope) { m.Status = contract.StatusSuspended }, "connector is not active"},
+		{"cross-tenant", func(_ *contract.Metadata, e *envelope.Envelope) { e.Invocation.TenantID = "other" }, "connector not found"},
+		{"cross-workspace", func(_ *contract.Metadata, e *envelope.Envelope) { e.Invocation.WorkspaceID = "other" }, "connector not found"},
+		{"wrong connector", func(_ *contract.Metadata, e *envelope.Envelope) { e.Invocation.ConnectorID = "other" }, "connector not found"},
+		{"undefined capability", func(_ *contract.Metadata, e *envelope.Envelope) { e.Invocation.Capability = "admin.raw_sql" }, "not defined for provider"},
+		{"undeclared capability", func(m *contract.Metadata, e *envelope.Envelope) {
+			m.Capabilities = []contract.Capability{{Name: "lead.read", Action: contract.ActionRead}}
 			e.Invocation.Capability = "lead.update"
 		}, "capability is not allowed"},
-		{"capability action mismatch", func(_ *Metadata, e *Envelope) {
+		{"capability action mismatch", func(_ *contract.Metadata, e *envelope.Envelope) {
 			e.Invocation.Capability = "lead.update"
 		}, "capability action mismatch"},
-		{"malformed envelope", func(_ *Metadata, e *Envelope) { e.Invocation.TraceID = "" }, "invalid invocation envelope"},
+		{"malformed envelope", func(_ *contract.Metadata, e *envelope.Envelope) { e.Invocation.TraceID = "" }, "invalid invocation envelope"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
@@ -106,7 +109,7 @@ func TestDecideDeniesInsteadOfErroring(t *testing.T) {
 func TestDecideAllowsMutationWithoutApproval(t *testing.T) {
 	env := decisionEnvelope()
 	env.Invocation.Capability = "lead.update"
-	env.Invocation.Action = ActionUpdate
+	env.Invocation.Action = contract.ActionUpdate
 
 	decision := Decide(decisionFixture(), env)
 	if decision.Decision != DecisionAllow {

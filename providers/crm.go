@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 type CRMLead struct {
@@ -90,9 +90,9 @@ type CRMClient struct {
 
 func NewCRM(backend CRMBackend) *CRMClient { return &CRMClient{backend: backend} }
 
-func (c *CRMClient) Provider() connectors.Provider { return connectors.ProviderCRM }
+func (c *CRMClient) Provider() contract.Provider { return contract.ProviderCRM }
 
-func (c *CRMClient) Invoke(ctx context.Context, meta connectors.Metadata, inv connectors.Invocation, payload Payload) (Result, error) {
+func (c *CRMClient) Invoke(ctx context.Context, meta contract.Metadata, inv contract.Invocation, payload Payload) (Result, error) {
 	if err := checkProvider(meta, c.Provider()); err != nil {
 		return Result{}, err
 	}

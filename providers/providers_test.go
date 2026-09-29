@@ -20,25 +20,25 @@ import (
 	"testing"
 	"time"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
-func metaFor(t *testing.T, provider connectors.Provider, resources, prefixes []string, caps ...connectors.Capability) connectors.Metadata {
+func metaFor(t *testing.T, provider contract.Provider, resources, prefixes []string, caps ...contract.Capability) contract.Metadata {
 	t.Helper()
 	if len(caps) == 0 {
-		caps = connectors.CapabilitiesFor(provider)
+		caps = contract.CapabilitiesFor(provider)
 	}
-	m := connectors.Metadata{
+	m := contract.Metadata{
 		ID:            "c-1",
 		TenantID:      "t-1",
 		WorkspaceID:   "w-1",
 		Name:          "test",
 		Provider:      provider,
-		Status:        connectors.StatusActive,
+		Status:        contract.StatusActive,
 		CredentialRef: "vault/tenant/t-1/test",
 		Scopes:        []string{"read"},
 		Resources:     resources,
-		Policy:        connectors.PolicyAttributes{AllowedActions: []connectors.Action{connectors.ActionRead}, AllowedResources: resources, AllowedPrefixes: prefixes},
+		Policy:        contract.PolicyAttributes{AllowedActions: []contract.Action{contract.ActionRead}, AllowedResources: resources, AllowedPrefixes: prefixes},
 		Capabilities:  caps,
 		CreatedBy:     "u-1",
 	}
@@ -48,13 +48,13 @@ func metaFor(t *testing.T, provider connectors.Provider, resources, prefixes []s
 	return m
 }
 
-func invocation(capability string, action connectors.Action, resource string) connectors.Invocation {
-	return connectors.Invocation{TenantID: "t-1", WorkspaceID: "w-1", Subject: "u-1", AgentID: "a-1", ConnectorID: "c-1", Capability: capability, Action: action, Resource: resource, TraceID: "trace-1"}
+func invocation(capability string, action contract.Action, resource string) contract.Invocation {
+	return contract.Invocation{TenantID: "t-1", WorkspaceID: "w-1", Subject: "u-1", AgentID: "a-1", ConnectorID: "c-1", Capability: capability, Action: action, Resource: resource, TraceID: "trace-1"}
 }
 
 func TestGuardEnforcesWorkspaceAndTenant(t *testing.T) {
-	m := metaFor(t, connectors.ProviderS3, []string{"s3://bucket-a"}, nil)
-	inv := invocation("object.list", connectors.ActionRead, "s3://bucket-a")
+	m := metaFor(t, contract.ProviderS3, []string{"s3://bucket-a"}, nil)
+	inv := invocation("object.list", contract.ActionRead, "s3://bucket-a")
 	if err := Guard(m, inv); err != nil {
 		t.Fatalf("valid call rejected: %v", err)
 	}
@@ -62,43 +62,43 @@ func TestGuardEnforcesWorkspaceAndTenant(t *testing.T) {
 	if err := Guard(m, inv); err == nil || err.Error() != "connector not found" {
 		t.Fatalf("cross-workspace call error = %v", err)
 	}
-	inv = invocation("object.list", connectors.ActionRead, "s3://bucket-a")
+	inv = invocation("object.list", contract.ActionRead, "s3://bucket-a")
 	inv.TenantID = "t-2"
 	if err := Guard(m, inv); err == nil || err.Error() != "connector not found" {
 		t.Fatalf("cross-tenant call error = %v", err)
 	}
-	m.Status = connectors.StatusSuspended
-	if err := Guard(m, invocation("object.list", connectors.ActionRead, "s3://bucket-a")); err == nil || err.Error() != "connector is not active" {
+	m.Status = contract.StatusSuspended
+	if err := Guard(m, invocation("object.list", contract.ActionRead, "s3://bucket-a")); err == nil || err.Error() != "connector is not active" {
 		t.Fatalf("suspended connector error = %v", err)
 	}
 }
 
 func TestGuardRejectsPathTraversal(t *testing.T) {
-	m := metaFor(t, connectors.ProviderCRM, []string{"leads"}, nil)
+	m := metaFor(t, contract.ProviderCRM, []string{"leads"}, nil)
 	// "leads/../../customers" passes the contract's raw prefix check but
 	// normalizes outside the leads boundary; the provider guard rejects it.
-	inv := invocation("lead.read", connectors.ActionRead, "leads/../../customers")
+	inv := invocation("lead.read", contract.ActionRead, "leads/../../customers")
 	if err := Guard(m, inv); err == nil || err.Error() != "resource contains a path traversal segment" {
 		t.Fatalf("traversal resource error = %v", err)
 	}
 	// A trailing traversal segment is rejected too.
-	if err := Guard(m, invocation("lead.read", connectors.ActionRead, "leads/..")); err == nil {
+	if err := Guard(m, invocation("lead.read", contract.ActionRead, "leads/..")); err == nil {
 		t.Fatal("trailing traversal segment was allowed")
 	}
 	// A bare ".." resource is rejected.
-	if err := Guard(m, invocation("lead.read", connectors.ActionRead, "..")); err == nil {
+	if err := Guard(m, invocation("lead.read", contract.ActionRead, "..")); err == nil {
 		t.Fatal("bare .. resource was allowed")
 	}
 	// A name that merely contains ".." is not a traversal segment.
-	if err := Guard(m, invocation("lead.read", connectors.ActionRead, "leads/foo..bar")); err != nil {
+	if err := Guard(m, invocation("lead.read", contract.ActionRead, "leads/foo..bar")); err != nil {
 		t.Fatalf("benign resource rejected: %v", err)
 	}
 }
 
 func TestGuardRejectsEncodedPathTraversal(t *testing.T) {
-	m := metaFor(t, connectors.ProviderCRM, []string{"leads"}, nil)
+	m := metaFor(t, contract.ProviderCRM, []string{"leads"}, nil)
 	for _, resource := range []string{"leads/%2e%2e/customers", "leads/%2E%2E/customers", "leads/..%2fcustomers"} {
-		inv := invocation("lead.read", connectors.ActionRead, resource)
+		inv := invocation("lead.read", contract.ActionRead, resource)
 		if err := Guard(m, inv); err == nil || err.Error() != "resource contains a path traversal segment" {
 			t.Fatalf("encoded traversal %q error = %v", resource, err)
 		}
@@ -107,18 +107,18 @@ func TestGuardRejectsEncodedPathTraversal(t *testing.T) {
 
 func TestS3ClientRejectsPathTraversal(t *testing.T) {
 	c := NewS3(s3Store())
-	m := metaFor(t, connectors.ProviderS3, []string{"s3://bucket-a"}, nil)
+	m := metaFor(t, contract.ProviderS3, []string{"s3://bucket-a"}, nil)
 	// A key that traverses out of the sanctioned scope is rejected at the
 	// guard even though it passes the raw prefix check.
-	inv := invocation("object.read", connectors.ActionRead, "s3://bucket-a/exports/../../secrets/keys.pem")
+	inv := invocation("object.read", contract.ActionRead, "s3://bucket-a/exports/../../secrets/keys.pem")
 	if _, err := c.Invoke(context.Background(), m, inv, ObjectReadPayload{Key: "exports/../../secrets/keys.pem"}); err == nil || err.Error() != "resource contains a path traversal segment" {
 		t.Fatalf("s3 traversal error = %v", err)
 	}
 }
 
 func TestDestructiveOperationsDisabledWithoutApproval(t *testing.T) {
-	m := metaFor(t, connectors.ProviderS3, []string{"s3://bucket-a"}, nil)
-	del := invocation("object.list", connectors.ActionDelete, "s3://bucket-a")
+	m := metaFor(t, contract.ProviderS3, []string{"s3://bucket-a"}, nil)
+	del := invocation("object.list", contract.ActionDelete, "s3://bucket-a")
 	if err := DestructiveAllowed(m, del); err == nil {
 		t.Fatal("delete allowed without destructive_enabled")
 	}
@@ -130,7 +130,7 @@ func TestDestructiveOperationsDisabledWithoutApproval(t *testing.T) {
 	if err := DestructiveAllowed(m, del); err != nil {
 		t.Fatalf("approved delete rejected: %v", err)
 	}
-	if err := DestructiveAllowed(m, invocation("object.list", connectors.ActionRead, "s3://bucket-a")); err != nil {
+	if err := DestructiveAllowed(m, invocation("object.list", contract.ActionRead, "s3://bucket-a")); err != nil {
 		t.Fatalf("read gated by destructive check: %v", err)
 	}
 }
@@ -140,10 +140,10 @@ func TestDestructiveOperationsDisabledWithoutApproval(t *testing.T) {
 // capabilities; approval is decided by the ABAC policy layer. The client still
 // fails closed on a payload/capability mismatch.
 func TestClientAcceptsMutationWithoutContractApproval(t *testing.T) {
-	m := metaFor(t, connectors.ProviderGitHub, []string{"repos/acme/kei"}, nil)
-	m.Policy.AllowedActions = []connectors.Action{connectors.ActionRead, connectors.ActionCreate}
+	m := metaFor(t, contract.ProviderGitHub, []string{"repos/acme/kei"}, nil)
+	m.Policy.AllowedActions = []contract.Action{contract.ActionRead, contract.ActionCreate}
 	c := NewGitHub(githubStore())
-	inv := invocation("issue.create", connectors.ActionCreate, "repos/acme/kei")
+	inv := invocation("issue.create", contract.ActionCreate, "repos/acme/kei")
 	if _, err := c.Invoke(context.Background(), m, inv, RepositoryReadPayload{}); err == nil || !strings.Contains(err.Error(), "does not match invocation capability") {
 		t.Fatalf("mutation without approval should fail only on payload mismatch, got %v", err)
 	}
@@ -160,10 +160,10 @@ func googleStore() MemoryGoogle {
 
 func TestGoogleDriveSearchMetadataAndDocsRead(t *testing.T) {
 	c := NewGoogle(googleStore())
-	m := metaFor(t, connectors.ProviderGoogle, []string{"drive/d-1"}, nil)
+	m := metaFor(t, contract.ProviderGoogle, []string{"drive/d-1"}, nil)
 	ctx := context.Background()
 
-	files, err := c.Invoke(ctx, m, invocation("drive.search", connectors.ActionRead, "drive/d-1"), DriveSearchPayload{Query: "plan"})
+	files, err := c.Invoke(ctx, m, invocation("drive.search", contract.ActionRead, "drive/d-1"), DriveSearchPayload{Query: "plan"})
 	if err != nil {
 		t.Fatalf("search failed: %v", err)
 	}
@@ -171,7 +171,7 @@ func TestGoogleDriveSearchMetadataAndDocsRead(t *testing.T) {
 		t.Fatalf("search results = %+v", got)
 	}
 
-	meta, err := c.Invoke(ctx, m, invocation("drive.metadata.read", connectors.ActionRead, "drive/d-1/files/f-1"), DriveMetadataPayload{})
+	meta, err := c.Invoke(ctx, m, invocation("drive.metadata.read", contract.ActionRead, "drive/d-1/files/f-1"), DriveMetadataPayload{})
 	if err != nil {
 		t.Fatalf("metadata failed: %v", err)
 	}
@@ -179,7 +179,7 @@ func TestGoogleDriveSearchMetadataAndDocsRead(t *testing.T) {
 		t.Fatalf("metadata = %+v", got)
 	}
 
-	doc, err := c.Invoke(ctx, m, invocation("docs.read", connectors.ActionRead, "drive/d-1/files/f-1"), DocsReadPayload{})
+	doc, err := c.Invoke(ctx, m, invocation("docs.read", contract.ActionRead, "drive/d-1/files/f-1"), DocsReadPayload{})
 	if err != nil {
 		t.Fatalf("docs read failed: %v", err)
 	}
@@ -187,10 +187,10 @@ func TestGoogleDriveSearchMetadataAndDocsRead(t *testing.T) {
 		t.Fatalf("doc content = %q", doc.Data)
 	}
 
-	if _, err := c.Invoke(ctx, m, invocation("docs.read", connectors.ActionRead, "drive/d-1/files/f-2"), DocsReadPayload{}); err == nil {
+	if _, err := c.Invoke(ctx, m, invocation("docs.read", contract.ActionRead, "drive/d-1/files/f-2"), DocsReadPayload{}); err == nil {
 		t.Fatal("non-document read was allowed")
 	}
-	if _, err := c.Invoke(ctx, m, invocation("drive.metadata.read", connectors.ActionRead, "drive/d-1/files"), DriveMetadataPayload{}); err == nil {
+	if _, err := c.Invoke(ctx, m, invocation("drive.metadata.read", contract.ActionRead, "drive/d-1/files"), DriveMetadataPayload{}); err == nil {
 		t.Fatal("malformed file resource was accepted")
 	}
 }
@@ -200,19 +200,19 @@ func TestGoogleDriveIsolationAndPrefixBoundary(t *testing.T) {
 	ctx := context.Background()
 
 	// A file that lives in another drive cannot be read through this connector.
-	m := metaFor(t, connectors.ProviderGoogle, []string{"drive/d-1"}, nil)
-	if _, err := c.Invoke(ctx, m, invocation("drive.metadata.read", connectors.ActionRead, "drive/d-1/files/f-3"), DriveMetadataPayload{}); err == nil {
+	m := metaFor(t, contract.ProviderGoogle, []string{"drive/d-1"}, nil)
+	if _, err := c.Invoke(ctx, m, invocation("drive.metadata.read", contract.ActionRead, "drive/d-1/files/f-3"), DriveMetadataPayload{}); err == nil {
 		t.Fatal("cross-drive file read was allowed")
 	}
 
 	// Prefix policy is dormant on the provider client: boundary decisions live
 	// in the ABAC policy layer, so a drive outside the declared prefixes is
 	// still reachable structurally.
-	scoped := metaFor(t, connectors.ProviderGoogle, []string{"drive/d-1", "drive/d-2"}, []string{"drive/d-1"})
-	if _, err := c.Invoke(ctx, scoped, invocation("drive.search", connectors.ActionRead, "drive/d-2"), DriveSearchPayload{}); err != nil {
+	scoped := metaFor(t, contract.ProviderGoogle, []string{"drive/d-1", "drive/d-2"}, []string{"drive/d-1"})
+	if _, err := c.Invoke(ctx, scoped, invocation("drive.search", contract.ActionRead, "drive/d-2"), DriveSearchPayload{}); err != nil {
 		t.Fatalf("drive outside the dormant prefix policy rejected: %v", err)
 	}
-	if _, err := c.Invoke(ctx, scoped, invocation("drive.search", connectors.ActionRead, "drive/d-1"), DriveSearchPayload{}); err != nil {
+	if _, err := c.Invoke(ctx, scoped, invocation("drive.search", contract.ActionRead, "drive/d-1"), DriveSearchPayload{}); err != nil {
 		t.Fatalf("in-prefix drive rejected: %v", err)
 	}
 }
@@ -229,30 +229,30 @@ func linearStore() MemoryLinear {
 
 func TestLinearReads(t *testing.T) {
 	c := NewLinear(linearStore())
-	m := metaFor(t, connectors.ProviderLinear, []string{"linear/team/KEI", "linear/project/p-1", "linear/cycle/cy-1", "linear/issue/i-1"}, nil)
+	m := metaFor(t, contract.ProviderLinear, []string{"linear/team/KEI", "linear/project/p-1", "linear/cycle/cy-1", "linear/issue/i-1"}, nil)
 	ctx := context.Background()
 
-	team, err := c.Invoke(ctx, m, invocation("team.read", connectors.ActionRead, "linear/team/KEI"), TeamReadPayload{})
+	team, err := c.Invoke(ctx, m, invocation("team.read", contract.ActionRead, "linear/team/KEI"), TeamReadPayload{})
 	if err != nil || team.Data.(LinearTeam).Key != "KEI" {
 		t.Fatalf("team read = %+v, %v", team.Data, err)
 	}
-	project, err := c.Invoke(ctx, m, invocation("project.read", connectors.ActionRead, "linear/project/p-1"), ProjectReadPayload{})
+	project, err := c.Invoke(ctx, m, invocation("project.read", contract.ActionRead, "linear/project/p-1"), ProjectReadPayload{})
 	if err != nil || project.Data.(LinearProject).Name != "Connectors" {
 		t.Fatalf("project read = %+v, %v", project.Data, err)
 	}
-	cycle, err := c.Invoke(ctx, m, invocation("cycle.read", connectors.ActionRead, "linear/cycle/cy-1"), CycleReadPayload{})
+	cycle, err := c.Invoke(ctx, m, invocation("cycle.read", contract.ActionRead, "linear/cycle/cy-1"), CycleReadPayload{})
 	if err != nil || cycle.Data.(LinearCycle).Name != "Cycle 12" {
 		t.Fatalf("cycle read = %+v, %v", cycle.Data, err)
 	}
-	issue, err := c.Invoke(ctx, m, invocation("issue.read", connectors.ActionRead, "linear/issue/i-1"), LinearIssueReadPayload{})
+	issue, err := c.Invoke(ctx, m, invocation("issue.read", contract.ActionRead, "linear/issue/i-1"), LinearIssueReadPayload{})
 	if err != nil || issue.Data.(LinearIssue).Identifier != "KEI-42" {
 		t.Fatalf("issue read = %+v, %v", issue.Data, err)
 	}
 
-	if _, err := c.Invoke(ctx, m, invocation("issue.read", connectors.ActionRead, "linear/project/p-1"), LinearIssueReadPayload{}); err == nil {
+	if _, err := c.Invoke(ctx, m, invocation("issue.read", contract.ActionRead, "linear/project/p-1"), LinearIssueReadPayload{}); err == nil {
 		t.Fatal("issue read against a project resource was allowed")
 	}
-	if _, err := c.Invoke(ctx, m, invocation("team.read", connectors.ActionRead, "linear/team/KEI"), LinearIssueReadPayload{}); err == nil {
+	if _, err := c.Invoke(ctx, m, invocation("team.read", contract.ActionRead, "linear/team/KEI"), LinearIssueReadPayload{}); err == nil {
 		t.Fatal("payload/capability mismatch was accepted")
 	}
 }
@@ -269,36 +269,36 @@ func githubStore() MemoryGitHub {
 
 func TestGitHubReads(t *testing.T) {
 	c := NewGitHub(githubStore())
-	m := metaFor(t, connectors.ProviderGitHub, []string{"repos/acme/kei", "repos/acme/kei/issues/7", "repos/acme/kei/pulls/8", "repos/acme/kei/checks/chk-1", "repos/acme/kei/workflows/wf-1"}, nil)
+	m := metaFor(t, contract.ProviderGitHub, []string{"repos/acme/kei", "repos/acme/kei/issues/7", "repos/acme/kei/pulls/8", "repos/acme/kei/checks/chk-1", "repos/acme/kei/workflows/wf-1"}, nil)
 	ctx := context.Background()
 
-	repo, err := c.Invoke(ctx, m, invocation("repository.read", connectors.ActionRead, "repos/acme/kei"), RepositoryReadPayload{})
+	repo, err := c.Invoke(ctx, m, invocation("repository.read", contract.ActionRead, "repos/acme/kei"), RepositoryReadPayload{})
 	if err != nil || repo.Data.(GitHubRepository).DefaultBranch != "main" {
 		t.Fatalf("repository read = %+v, %v", repo.Data, err)
 	}
-	issue, err := c.Invoke(ctx, m, invocation("issue.read", connectors.ActionRead, "repos/acme/kei/issues/7"), GitHubIssueReadPayload{})
+	issue, err := c.Invoke(ctx, m, invocation("issue.read", contract.ActionRead, "repos/acme/kei/issues/7"), GitHubIssueReadPayload{})
 	if err != nil || issue.Data.(GitHubIssue).Number != 7 {
 		t.Fatalf("issue read = %+v, %v", issue.Data, err)
 	}
-	pr, err := c.Invoke(ctx, m, invocation("pull_request.read", connectors.ActionRead, "repos/acme/kei/pulls/8"), PullRequestReadPayload{})
+	pr, err := c.Invoke(ctx, m, invocation("pull_request.read", contract.ActionRead, "repos/acme/kei/pulls/8"), PullRequestReadPayload{})
 	if err != nil || pr.Data.(GitHubPullRequest).HeadBranch != "feat/seams" {
 		t.Fatalf("pull request read = %+v, %v", pr.Data, err)
 	}
-	check, err := c.Invoke(ctx, m, invocation("check.read", connectors.ActionRead, "repos/acme/kei/checks/chk-1"), CheckReadPayload{})
+	check, err := c.Invoke(ctx, m, invocation("check.read", contract.ActionRead, "repos/acme/kei/checks/chk-1"), CheckReadPayload{})
 	if err != nil || check.Data.(GitHubCheck).Conclusion != "success" {
 		t.Fatalf("check read = %+v, %v", check.Data, err)
 	}
-	workflow, err := c.Invoke(ctx, m, invocation("workflow.read", connectors.ActionRead, "repos/acme/kei/workflows/wf-1"), WorkflowReadPayload{})
+	workflow, err := c.Invoke(ctx, m, invocation("workflow.read", contract.ActionRead, "repos/acme/kei/workflows/wf-1"), WorkflowReadPayload{})
 	if err != nil || workflow.Data.(GitHubWorkflow).Name != "build" {
 		t.Fatalf("workflow read = %+v, %v", workflow.Data, err)
 	}
 
 	// Issue numbers under a sanctioned repository are in scope; a missing
 	// issue fails at the backend.
-	if _, err := c.Invoke(ctx, m, invocation("issue.read", connectors.ActionRead, "repos/acme/kei/issues/9"), GitHubIssueReadPayload{}); err == nil || err.Error() != "issue not found" {
+	if _, err := c.Invoke(ctx, m, invocation("issue.read", contract.ActionRead, "repos/acme/kei/issues/9"), GitHubIssueReadPayload{}); err == nil || err.Error() != "issue not found" {
 		t.Fatalf("missing issue error = %v", err)
 	}
-	if _, err := c.Invoke(ctx, m, invocation("repository.read", connectors.ActionRead, "repos/evil/kei"), RepositoryReadPayload{}); err == nil {
+	if _, err := c.Invoke(ctx, m, invocation("repository.read", contract.ActionRead, "repos/evil/kei"), RepositoryReadPayload{}); err == nil {
 		t.Fatal("out-of-scope repository was read")
 	}
 }
@@ -320,10 +320,10 @@ func s3Store() MemoryS3 {
 
 func TestS3ScopedListAndGet(t *testing.T) {
 	c := NewS3(s3Store())
-	m := metaFor(t, connectors.ProviderS3, []string{"s3://bucket-a"}, []string{"s3://bucket-a/exports"})
+	m := metaFor(t, contract.ProviderS3, []string{"s3://bucket-a"}, []string{"s3://bucket-a/exports"})
 	ctx := context.Background()
 
-	list, err := c.Invoke(ctx, m, invocation("object.list", connectors.ActionRead, "s3://bucket-a/exports"), ObjectListPayload{Prefix: "exports"})
+	list, err := c.Invoke(ctx, m, invocation("object.list", contract.ActionRead, "s3://bucket-a/exports"), ObjectListPayload{Prefix: "exports"})
 	if err != nil {
 		t.Fatalf("scoped list failed: %v", err)
 	}
@@ -331,7 +331,7 @@ func TestS3ScopedListAndGet(t *testing.T) {
 		t.Fatalf("scoped list returned %d objects: %+v", len(got), got)
 	}
 
-	get, err := c.Invoke(ctx, m, invocation("object.read", connectors.ActionRead, "s3://bucket-a/exports/2026/report.json"), ObjectReadPayload{Key: "exports/2026/report.json"})
+	get, err := c.Invoke(ctx, m, invocation("object.read", contract.ActionRead, "s3://bucket-a/exports/2026/report.json"), ObjectReadPayload{Key: "exports/2026/report.json"})
 	if err != nil {
 		t.Fatalf("get failed: %v", err)
 	}
@@ -342,19 +342,19 @@ func TestS3ScopedListAndGet(t *testing.T) {
 	// Resource and prefix boundaries are decided by the ABAC policy layer, not
 	// the provider client, so structurally valid reads outside the declared
 	// prefix are no longer denied here.
-	if _, err := c.Invoke(ctx, m, invocation("object.read", connectors.ActionRead, "s3://bucket-a/secrets/keys.pem"), ObjectReadPayload{Key: "secrets/keys.pem"}); err != nil {
+	if _, err := c.Invoke(ctx, m, invocation("object.read", contract.ActionRead, "s3://bucket-a/secrets/keys.pem"), ObjectReadPayload{Key: "secrets/keys.pem"}); err != nil {
 		t.Fatalf("structurally valid read outside the dormant prefix rejected: %v", err)
 	}
 	// A whole-bucket list is still structurally valid.
-	if _, err := c.Invoke(ctx, m, invocation("object.list", connectors.ActionRead, "s3://bucket-a"), ObjectListPayload{}); err != nil {
+	if _, err := c.Invoke(ctx, m, invocation("object.list", contract.ActionRead, "s3://bucket-a"), ObjectListPayload{}); err != nil {
 		t.Fatalf("whole-bucket list rejected: %v", err)
 	}
 	// The payload cannot point at a different target than the resource.
-	if _, err := c.Invoke(ctx, m, invocation("object.read", connectors.ActionRead, "s3://bucket-a/exports/2026/report.json"), ObjectReadPayload{Key: "secrets/keys.pem"}); err == nil {
+	if _, err := c.Invoke(ctx, m, invocation("object.read", contract.ActionRead, "s3://bucket-a/exports/2026/report.json"), ObjectReadPayload{Key: "secrets/keys.pem"}); err == nil {
 		t.Fatal("payload/resource key mismatch was accepted")
 	}
 	// Other buckets are structurally valid too.
-	if _, err := c.Invoke(ctx, m, invocation("object.list", connectors.ActionRead, "s3://bucket-b"), ObjectListPayload{}); err != nil {
+	if _, err := c.Invoke(ctx, m, invocation("object.list", contract.ActionRead, "s3://bucket-b"), ObjectListPayload{}); err != nil {
 		t.Fatalf("list in another bucket rejected: %v", err)
 	}
 }
@@ -372,10 +372,10 @@ func crmStore() MemoryCRM {
 
 func TestCRMLeadReadsRequireAuthentication(t *testing.T) {
 	c := NewCRM(crmStore())
-	m := metaFor(t, connectors.ProviderCRM, []string{"leads"}, nil)
+	m := metaFor(t, contract.ProviderCRM, []string{"leads"}, nil)
 	ctx := context.Background()
 
-	list, err := c.Invoke(ctx, m, invocation("lead.read", connectors.ActionRead, "leads"), LeadReadPayload{})
+	list, err := c.Invoke(ctx, m, invocation("lead.read", contract.ActionRead, "leads"), LeadReadPayload{})
 	if err != nil {
 		t.Fatalf("lead list failed: %v", err)
 	}
@@ -383,26 +383,26 @@ func TestCRMLeadReadsRequireAuthentication(t *testing.T) {
 		t.Fatalf("lead list returned %d leads: %+v", len(got), got)
 	}
 
-	lead, err := c.Invoke(ctx, m, invocation("lead.read", connectors.ActionRead, "leads/l-1"), LeadReadPayload{ID: "l-1"})
+	lead, err := c.Invoke(ctx, m, invocation("lead.read", contract.ActionRead, "leads/l-1"), LeadReadPayload{ID: "l-1"})
 	if err != nil || lead.Data.(CRMLead).Name != "Ada" {
 		t.Fatalf("lead read = %+v, %v", lead.Data, err)
 	}
 
 	// A connector whose credential reference does not resolve to an
 	// authenticated session is rejected by the backend.
-	unauth := metaFor(t, connectors.ProviderCRM, []string{"leads"}, nil)
+	unauth := metaFor(t, contract.ProviderCRM, []string{"leads"}, nil)
 	unauth.CredentialRef = "vault/tenant/other/crm"
-	if _, err := c.Invoke(ctx, unauth, invocation("lead.read", connectors.ActionRead, "leads"), LeadReadPayload{}); err == nil || err.Error() != "crm session is not authenticated" {
+	if _, err := c.Invoke(ctx, unauth, invocation("lead.read", contract.ActionRead, "leads"), LeadReadPayload{}); err == nil || err.Error() != "crm session is not authenticated" {
 		t.Fatalf("unauthenticated lead list error = %v", err)
 	}
 
 	// The payload cannot point at a different lead than the resource.
-	if _, err := c.Invoke(ctx, m, invocation("lead.read", connectors.ActionRead, "leads/l-1"), LeadReadPayload{ID: "l-2"}); err == nil {
+	if _, err := c.Invoke(ctx, m, invocation("lead.read", contract.ActionRead, "leads/l-1"), LeadReadPayload{ID: "l-2"}); err == nil {
 		t.Fatal("payload/resource id mismatch was accepted")
 	}
 	// Customer reads are not part of the contract surface: the provider client
 	// enforces resource shape (structural), not policy boundaries.
-	if _, err := c.Invoke(ctx, m, invocation("lead.read", connectors.ActionRead, "customers"), LeadReadPayload{}); err == nil || err.Error() != "resource must be leads or leads/<id>" {
+	if _, err := c.Invoke(ctx, m, invocation("lead.read", contract.ActionRead, "customers"), LeadReadPayload{}); err == nil || err.Error() != "resource must be leads or leads/<id>" {
 		t.Fatalf("customer resource error = %v", err)
 	}
 }
@@ -424,26 +424,26 @@ func notionStore() MemoryNotion {
 
 func TestNotionPageRead(t *testing.T) {
 	c := NewNotion(notionStore())
-	m := metaFor(t, connectors.ProviderNotion, []string{"pages/p-1", "pages/p-2", "databases/d-1"}, nil)
+	m := metaFor(t, contract.ProviderNotion, []string{"pages/p-1", "pages/p-2", "databases/d-1"}, nil)
 	ctx := context.Background()
 
-	page, err := c.Invoke(ctx, m, invocation("page.read", connectors.ActionRead, "pages/p-1"), PageReadPayload{})
+	page, err := c.Invoke(ctx, m, invocation("page.read", contract.ActionRead, "pages/p-1"), PageReadPayload{})
 	if err != nil || page.Data.(NotionPage).Title != "Onboarding Guide" {
 		t.Fatalf("page read = %+v, %v", page.Data, err)
 	}
 
 	// Missing page is rejected.
-	if _, err := c.Invoke(ctx, m, invocation("page.read", connectors.ActionRead, "pages/p-99"), PageReadPayload{}); err == nil || err.Error() != "page not found" {
+	if _, err := c.Invoke(ctx, m, invocation("page.read", contract.ActionRead, "pages/p-99"), PageReadPayload{}); err == nil || err.Error() != "page not found" {
 		t.Fatalf("missing page error = %v", err)
 	}
 }
 
 func TestNotionDatabaseQuery(t *testing.T) {
 	c := NewNotion(notionStore())
-	m := metaFor(t, connectors.ProviderNotion, []string{"databases/d-1"}, nil)
+	m := metaFor(t, contract.ProviderNotion, []string{"databases/d-1"}, nil)
 	ctx := context.Background()
 
-	pages, err := c.Invoke(ctx, m, invocation("database.query", connectors.ActionRead, "databases/d-1"), DatabaseQueryPayload{})
+	pages, err := c.Invoke(ctx, m, invocation("database.query", contract.ActionRead, "databases/d-1"), DatabaseQueryPayload{})
 	if err != nil {
 		t.Fatalf("database query failed: %v", err)
 	}
@@ -453,18 +453,18 @@ func TestNotionDatabaseQuery(t *testing.T) {
 	}
 
 	// Missing database is rejected.
-	if _, err := c.Invoke(ctx, m, invocation("database.query", connectors.ActionRead, "databases/d-99"), DatabaseQueryPayload{}); err == nil || err.Error() != "database not found" {
+	if _, err := c.Invoke(ctx, m, invocation("database.query", contract.ActionRead, "databases/d-99"), DatabaseQueryPayload{}); err == nil || err.Error() != "database not found" {
 		t.Fatalf("missing database error = %v", err)
 	}
 }
 
 func TestNotionSearch(t *testing.T) {
 	c := NewNotion(notionStore())
-	m := metaFor(t, connectors.ProviderNotion, []string{"search"}, nil)
+	m := metaFor(t, contract.ProviderNotion, []string{"search"}, nil)
 	ctx := context.Background()
 
 	// Search across all content.
-	result, err := c.Invoke(ctx, m, invocation("search", connectors.ActionRead, "search"), SearchPayload{Query: "Onboarding"})
+	result, err := c.Invoke(ctx, m, invocation("search", contract.ActionRead, "search"), SearchPayload{Query: "Onboarding"})
 	if err != nil {
 		t.Fatalf("search failed: %v", err)
 	}
@@ -474,7 +474,7 @@ func TestNotionSearch(t *testing.T) {
 	}
 
 	// Empty query returns all.
-	result, err = c.Invoke(ctx, m, invocation("search", connectors.ActionRead, "search"), SearchPayload{})
+	result, err = c.Invoke(ctx, m, invocation("search", contract.ActionRead, "search"), SearchPayload{})
 	if err != nil {
 		t.Fatalf("empty search failed: %v", err)
 	}
@@ -484,40 +484,40 @@ func TestNotionSearch(t *testing.T) {
 	}
 
 	// Payload capability mismatch is rejected.
-	if _, err := c.Invoke(ctx, m, invocation("search", connectors.ActionRead, "search"), PageReadPayload{}); err == nil {
+	if _, err := c.Invoke(ctx, m, invocation("search", contract.ActionRead, "search"), PageReadPayload{}); err == nil {
 		t.Fatal("payload mismatch was accepted")
 	}
 }
 
 func TestNotionStructuralBoundary(t *testing.T) {
 	c := NewNotion(notionStore())
-	m := metaFor(t, connectors.ProviderNotion, []string{"pages/p-1", "databases/d-1"}, nil)
+	m := metaFor(t, contract.ProviderNotion, []string{"pages/p-1", "databases/d-1"}, nil)
 	ctx := context.Background()
 
 	// Malformed resource paths are rejected at the structural level.
-	if _, err := c.Invoke(ctx, m, invocation("page.read", connectors.ActionRead, "pages"), PageReadPayload{}); err == nil {
+	if _, err := c.Invoke(ctx, m, invocation("page.read", contract.ActionRead, "pages"), PageReadPayload{}); err == nil {
 		t.Fatal("bare pages resource was accepted")
 	}
-	if _, err := c.Invoke(ctx, m, invocation("database.query", connectors.ActionRead, "databases"), DatabaseQueryPayload{}); err == nil {
+	if _, err := c.Invoke(ctx, m, invocation("database.query", contract.ActionRead, "databases"), DatabaseQueryPayload{}); err == nil {
 		t.Fatal("bare databases resource was accepted")
 	}
-	if _, err := c.Invoke(ctx, m, invocation("page.read", connectors.ActionRead, "databases/d-1"), PageReadPayload{}); err == nil {
+	if _, err := c.Invoke(ctx, m, invocation("page.read", contract.ActionRead, "databases/d-1"), PageReadPayload{}); err == nil {
 		t.Fatal("cross-capability resource format was accepted")
 	}
 
 	// A missing page returns a backend error.
-	if _, err := c.Invoke(ctx, m, invocation("page.read", connectors.ActionRead, "pages/p-99"), PageReadPayload{}); err == nil || err.Error() != "page not found" {
+	if _, err := c.Invoke(ctx, m, invocation("page.read", contract.ActionRead, "pages/p-99"), PageReadPayload{}); err == nil || err.Error() != "page not found" {
 		t.Fatalf("missing page error = %v", err)
 	}
 
 	// Payload/capability mismatch is rejected.
-	if _, err := c.Invoke(ctx, m, invocation("page.read", connectors.ActionRead, "pages/p-1"), SearchPayload{}); err == nil {
+	if _, err := c.Invoke(ctx, m, invocation("page.read", contract.ActionRead, "pages/p-1"), SearchPayload{}); err == nil {
 		t.Fatal("payload mismatch was accepted")
 	}
 }
 
 func TestRegistryAndProviderMismatch(t *testing.T) {
-	for _, p := range []connectors.Provider{connectors.ProviderCRM, connectors.ProviderLinear, connectors.ProviderGitHub, connectors.ProviderGoogle, connectors.ProviderNotion, connectors.ProviderS3} {
+	for _, p := range []contract.Provider{contract.ProviderCRM, contract.ProviderLinear, contract.ProviderGitHub, contract.ProviderGoogle, contract.ProviderNotion, contract.ProviderS3} {
 		c, err := New(p)
 		if err != nil {
 			t.Fatalf("New(%s) failed: %v", p, err)
@@ -526,21 +526,21 @@ func TestRegistryAndProviderMismatch(t *testing.T) {
 			t.Fatalf("New(%s).Provider() = %s", p, c.Provider())
 		}
 	}
-	if _, err := New(connectors.Provider("slack")); err == nil {
+	if _, err := New(contract.Provider("slack")); err == nil {
 		t.Fatal("unknown provider was accepted")
 	}
 
 	c := NewS3(s3Store())
-	foreign := metaFor(t, connectors.ProviderGitHub, []string{"repos/acme/kei"}, nil)
-	if _, err := c.Invoke(context.Background(), foreign, invocation("repository.read", connectors.ActionRead, "repos/acme/kei"), RepositoryReadPayload{}); err == nil || !strings.Contains(err.Error(), "does not match client") {
+	foreign := metaFor(t, contract.ProviderGitHub, []string{"repos/acme/kei"}, nil)
+	if _, err := c.Invoke(context.Background(), foreign, invocation("repository.read", contract.ActionRead, "repos/acme/kei"), RepositoryReadPayload{}); err == nil || !strings.Contains(err.Error(), "does not match client") {
 		t.Fatalf("foreign connector error = %v", err)
 	}
 }
 
 func TestPayloadCapabilityMismatchRejected(t *testing.T) {
 	c := NewGoogle(googleStore())
-	m := metaFor(t, connectors.ProviderGoogle, []string{"drive/d-1"}, nil)
-	inv := invocation("docs.read", connectors.ActionRead, "drive/d-1/files/f-1")
+	m := metaFor(t, contract.ProviderGoogle, []string{"drive/d-1"}, nil)
+	inv := invocation("docs.read", contract.ActionRead, "drive/d-1/files/f-1")
 	if _, err := c.Invoke(context.Background(), m, inv, DriveSearchPayload{}); err == nil || !strings.Contains(err.Error(), "does not match invocation capability") {
 		t.Fatalf("payload mismatch error = %v", err)
 	}
