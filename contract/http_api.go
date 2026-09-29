@@ -139,6 +139,17 @@ func (h HTTPAPI) Validate() error {
 	return nil
 }
 
+// httpCapabilityMethod reads the HTTP method an http_api capability performs
+// from its name (http.get -> GET), so no capability table is needed. Whether
+// that method is allowed is the connector's configured AllowedMethods.
+func httpCapabilityMethod(capability string) (HTTPMethod, bool) {
+	verb, ok := strings.CutPrefix(capability, "http.")
+	if !ok || verb == "" {
+		return "", false
+	}
+	return HTTPMethod(strings.ToUpper(verb)), true
+}
+
 func (h HTTPAPI) ValidateInvocation(in HTTPInvocation) error {
 	if (in.Method != HTTPMethodGet && in.Method != HTTPMethodHead) || !containsHTTPMethod(h.AllowedMethods, in.Method) {
 		return errors.New("HTTP method is not allowed")

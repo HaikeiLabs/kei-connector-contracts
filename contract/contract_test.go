@@ -32,9 +32,9 @@ func TestValidateCallEnforcesTenantWorkspaceAndCapability(t *testing.T) {
 	}
 }
 
-// TestValidateCallMutationsAreStructurallyAllowed verifies the decoupling: the
-// connector contract no longer requires an approval for mutating capabilities.
-// Approval gating moved to the ABAC policy layer (governance pivot).
+// TestValidateCallMutationsAreStructurallyAllowed verifies that the connector
+// contract makes no authorization decision for a declared mutating capability:
+// authorization happens in the control plane before the runtime.
 func TestValidateCallMutationsAreStructurallyAllowed(t *testing.T) {
 	m := fixture()
 	m.Capabilities = []Capability{{Name: "lead.update", Action: ActionUpdate}}
@@ -55,7 +55,7 @@ func TestCredentialRefRejectsInlineAndURLs(t *testing.T) {
 func TestProviderDefinitionsRejectUnknownCapabilities(t *testing.T) {
 	m := fixture()
 	m.Capabilities = []Capability{{Name: "admin.raw_sql", Action: ActionRead}}
-	if err := m.Validate(); err == nil {
+	if err := m.ValidateExecutable(); err == nil {
 		t.Fatal("unknown provider capability was accepted")
 	}
 }
@@ -135,7 +135,7 @@ func TestGmailContractIsReadOnly(t *testing.T) {
 		{Name: "message.get", Action: ActionUpdate},
 	} {
 		m := frozenMetadata(ProviderGmail, []Capability{write})
-		if err := m.Validate(); err == nil {
+		if err := m.ValidateExecutable(); err == nil {
 			t.Errorf("gmail write capability %q/%q was accepted", write.Name, write.Action)
 		}
 	}
@@ -160,7 +160,7 @@ func TestTitoContractIsReadOnlyWithOpaqueCredential(t *testing.T) {
 		{Name: "ticket.void", Action: ActionDelete},
 		{Name: "event.get", Action: ActionUpdate},
 	} {
-		if err := frozenMetadata(ProviderTito, []Capability{write}).Validate(); err == nil {
+		if err := frozenMetadata(ProviderTito, []Capability{write}).ValidateExecutable(); err == nil {
 			t.Errorf("tito write capability %q/%q was accepted", write.Name, write.Action)
 		}
 	}

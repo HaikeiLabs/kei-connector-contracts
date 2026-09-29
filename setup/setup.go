@@ -145,7 +145,7 @@ var setupSchemas = []SetupSchema{
 		{Name: "base_url", Label: "CRM Worker origin", Type: SetupFieldHTTPSURL, Location: SetupLocationConfig, Required: true, MaxLength: 2048},
 		{Name: "assertion_audience", Label: "Service assertion audience", Type: SetupFieldString, Location: SetupLocationConfig, Required: true, Pattern: `^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$`},
 		{Name: "allowed_actions", Label: "Allowed actions", Type: SetupFieldStringList, Location: SetupLocationConfig, Pattern: `^(read|create|update)$`, Default: []string{"read"}},
-		{Name: "allowed_resources", Label: "Allowed resources", Type: SetupFieldStringList, Location: SetupLocationConfig, Pattern: `^(leads|customers)(/\*)?$`, Default: []string{"leads", "customers"}},
+		{Name: "allowed_resources", Label: "Allowed resources", Type: SetupFieldStringList, Location: SetupLocationConfig, Pattern: `^(leads|customers|investors)(/\*)?$`, Default: []string{"leads", "customers"}},
 		{Name: "api_key", Label: "CRM connector API key", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 32, MaxLength: 512},
 	}},
 	{Schema: SetupSchemaVersion, Provider: contract.ProviderHTTPAPI, Auth: sharedSecretAuth(), Fields: []SetupField{
@@ -213,13 +213,19 @@ func ValidateConfig(provider contract.Provider, model contract.AccountModel, con
 	return nil
 }
 
-// ValidateMetadata is the complete connector check: the contract's
-// structural, credential-source, and account-model rules (Metadata.Validate),
-// then the provider's setup-schema rules for Metadata.Config. Use it wherever a
-// connector is created or loaded. A legacy connector (no account model)
-// without config has nothing to check beyond Validate.
+// ValidateMetadata is the complete connector check the tenant runtime runs
+// before executing: the contract's structural, credential-source, and
+// account-model rules (Metadata.Validate), the executable check that every
+// declared capability is one the runtime has code for
+// (Metadata.ValidateExecutable), then the provider's setup-schema rules for
+// Metadata.Config. A control plane that must only store connectors the runtime
+// can execute runs it on create. A legacy connector (no account model)
+// without config has nothing to check beyond the capabilities.
 func ValidateMetadata(m contract.Metadata) error {
 	if err := m.Validate(); err != nil {
+		return err
+	}
+	if err := m.ValidateExecutable(); err != nil {
 		return err
 	}
 	if m.AccountModel == "" && m.Config == nil {

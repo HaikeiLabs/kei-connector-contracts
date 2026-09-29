@@ -48,7 +48,7 @@ func TestLinearReadAllowed(t *testing.T) {
 	}
 }
 
-func TestLinearMutationsPassContractWithoutApproval(t *testing.T) {
+func TestLinearMutationsPassContract(t *testing.T) {
 	m := linearFixture()
 	for _, tc := range []struct {
 		capability string
@@ -56,16 +56,15 @@ func TestLinearMutationsPassContractWithoutApproval(t *testing.T) {
 	}{{"issue.create", contract.ActionCreate}, {"issue.update", contract.ActionUpdate}} {
 		t.Run(tc.capability, func(t *testing.T) {
 			in := linearInvocation(tc.capability, tc.action)
-			// contract.ValidateCall does not check ApprovalID — that is the
-			// ABAC policy layer's job (connector_policy.go).
+			// Authorization is the control plane's ABAC policy, decided
+			// before the runtime; the contract checks structure only.
 			if err := contract.ValidateCall(m, in); err != nil {
-				t.Fatalf("contract rejected mutation without approval: %v", err)
+				t.Fatalf("contract rejected declared mutation: %v", err)
 			}
-			// governance.Decide also does not check ApprovalID.
 			env := envelope.Envelope{Version: envelope.EnvelopeVersion1, Invocation: in,
 				MintedBy: envelope.MintedByControlPlane, IssuedAt: time.Now()}
 			if got := governance.Decide(m, env); got.Decision != governance.DecisionAllow {
-				t.Fatalf("governance.Decide without approval = %+v, want allow", got)
+				t.Fatalf("governance.Decide = %+v, want allow", got)
 			}
 		})
 	}

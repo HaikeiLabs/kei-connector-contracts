@@ -116,36 +116,17 @@ func TestS3ClientRejectsPathTraversal(t *testing.T) {
 	}
 }
 
-func TestDestructiveOperationsDisabledWithoutApproval(t *testing.T) {
-	m := metaFor(t, contract.ProviderS3, []string{"s3://bucket-a"}, nil)
-	del := invocation("object.list", contract.ActionDelete, "s3://bucket-a")
-	if err := DestructiveAllowed(m, del); err == nil {
-		t.Fatal("delete allowed without destructive_enabled")
-	}
-	m.Policy.DestructiveEnabled = true
-	if err := DestructiveAllowed(m, del); err == nil {
-		t.Fatal("delete allowed without approval")
-	}
-	del.ApprovalID = "approval-1"
-	if err := DestructiveAllowed(m, del); err != nil {
-		t.Fatalf("approved delete rejected: %v", err)
-	}
-	if err := DestructiveAllowed(m, invocation("object.list", contract.ActionRead, "s3://bucket-a")); err != nil {
-		t.Fatalf("read gated by destructive check: %v", err)
-	}
-}
-
-// TestClientAcceptsMutationWithoutContractApproval documents the decoupling:
-// the provider client no longer demands an approval reference for mutating
-// capabilities; approval is decided by the ABAC policy layer. The client still
-// fails closed on a payload/capability mismatch.
-func TestClientAcceptsMutationWithoutContractApproval(t *testing.T) {
+// TestClientAcceptsDeclaredMutation documents that the provider client makes
+// no authorization decision for a mutating capability: authorization happens
+// in the control plane before the runtime. The client still fails closed on a
+// payload/capability mismatch.
+func TestClientAcceptsDeclaredMutation(t *testing.T) {
 	m := metaFor(t, contract.ProviderGitHub, []string{"repos/acme/kei"}, nil)
 	m.Policy.AllowedActions = []contract.Action{contract.ActionRead, contract.ActionCreate}
 	c := NewGitHub(githubStore())
 	inv := invocation("issue.create", contract.ActionCreate, "repos/acme/kei")
 	if _, err := c.Invoke(context.Background(), m, inv, RepositoryReadPayload{}); err == nil || !strings.Contains(err.Error(), "does not match invocation capability") {
-		t.Fatalf("mutation without approval should fail only on payload mismatch, got %v", err)
+		t.Fatalf("declared mutation should fail only on payload mismatch, got %v", err)
 	}
 }
 

@@ -86,9 +86,9 @@ const (
 
 // Capability is the only provider operation a connector client may expose.
 // It describes the credential surface: which operations a connector's
-// credential can perform. Data-access and tool-call authorization — including
-// which capabilities require an approval — are decided by ABAC policies, not
-// by capability flags on the connector.
+// credential can perform. Data-access and tool-call authorization are decided
+// by ABAC policy in the control plane before the runtime, not by capability
+// flags on the connector.
 type Capability struct {
 	Name        string `json:"name"`
 	Action      Action `json:"action"`

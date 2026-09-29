@@ -75,8 +75,11 @@ const (
 	CredentialSourceOpaqueRef CredentialSource = "opaque_ref"
 )
 
-// Definitions are the deliberately small initial provider surface. New
-// operations must be added here before an agent can request them.
+// Definitions are the operations the tenant runtime has code to execute for
+// each provider. They are the executable check (ValidateExecutable), which the
+// runtime runs before executing a call; the control plane does not consult
+// them. It authorizes any well-formed capability a connector declares and
+// leaves access to ABAC policy (HAI-258).
 var definitions = map[Provider][]Capability{
 	// Investor reads serve fundraising (HAI-210). Investor stage changes are
 	// agent action tools, never CRM capabilities.
@@ -89,7 +92,7 @@ var definitions = map[Provider][]Capability{
 	ProviderHTTPAPI: {{Name: "http.get", Action: ActionRead}, {Name: "http.head", Action: ActionRead}},
 	// Finance providers declare reads only. There is deliberately no
 	// payment, transfer, invoice.create or expense.update capability: a
-	// name absent from this catalog cannot be invoked at all, so the
+	// name absent from this catalog is never executed by the runtime, so the
 	// read-only guarantee does not depend on policy being configured
 	// correctly. See read_only_test.go.
 	ProviderFreshBooks: {{Name: "invoice.read", Action: ActionRead}, {Name: "expense.read", Action: ActionRead}, {Name: "payment.read", Action: ActionRead}, {Name: "client.read", Action: ActionRead}},
@@ -110,10 +113,9 @@ func CapabilitiesFor(provider Provider) []Capability {
 // (governance pivot), so these fields round-trip for compatibility but are
 // not consulted by ValidateCall or Decide.
 type PolicyAttributes struct {
-	AllowedActions     []Action `json:"allowed_actions"`
-	AllowedResources   []string `json:"allowed_resources"`
-	AllowedPrefixes    []string `json:"allowed_prefixes,omitempty"`
-	DestructiveEnabled bool     `json:"destructive_enabled"`
+	AllowedActions   []Action `json:"allowed_actions"`
+	AllowedResources []string `json:"allowed_resources"`
+	AllowedPrefixes  []string `json:"allowed_prefixes,omitempty"`
 	// GmailIncludeBody is the explicit opt-in for message.get to return the
 	// message body. Unlike the fields above it is consulted, by the Gmail
 	// client: without it, results carry metadata and snippet only.
@@ -173,7 +175,6 @@ type Invocation struct {
 	Resource       string          `json:"resource"`
 	TraceID        string          `json:"trace_id"`
 	IdempotencyKey string          `json:"idempotency_key,omitempty"`
-	ApprovalID     string          `json:"approval_id,omitempty"`
 	HTTP           *HTTPInvocation `json:"http,omitempty"`
 }
 
@@ -186,6 +187,11 @@ func validID(name, value string) error {
 	return nil
 }
 
+// Validate is the structural check the control plane uses: identifiers, a
+// known provider and status, the credential binding and account model, the
+// http_api destination policy, and each declared capability's shape (a
+// well-formed name, a known action, no secret material). It keeps no
+// capability list; see ValidateExecutable.
 func (m Metadata) Validate() error {
 	for name, value := range map[string]string{
 		"id": m.ID, "tenant_id": m.TenantID, "workspace_id": m.WorkspaceID,
@@ -230,6 +236,17 @@ func (m Metadata) Validate() error {
 		if !validAction(c.Action) {
 			return fmt.Errorf("invalid capability action %q", c.Action)
 		}
+	}
+	return nil
+}
+
+// ValidateExecutable is the executable check: every capability the connector
+// declares is one the tenant runtime has code for (a name and action in the
+// provider's definitions). Validate does not include it, so the control plane
+// can store and authorize connector-declared capabilities; the runtime runs it
+// through setup.ValidateMetadata and ValidateCall before executing.
+func (m Metadata) ValidateExecutable() error {
+	for _, c := range m.Capabilities {
 		if !definedCapability(m.Provider, c) {
 			return fmt.Errorf("capability %q is not defined for provider %q", c.Name, m.Provider)
 		}
@@ -267,15 +284,84 @@ func validAction(a Action) bool {
 	return a == ActionRead || a == ActionCreate || a == ActionUpdate || a == ActionDelete || a == ActionComment
 }
 
-// ValidateCall is fail-closed: every boundary is explicit, and a missing
-// tenant/workspace, inactive connector, undeclared capability, or action
-// mismatch is denied. Connector policy — allowed resources, actions, and
-// approvals — is decided by the ABAC policy layer, not by the connector's
-// credential surface.
+// ValidateCall is the runtime's check before it executes a call. It checks
+// structure and executability only: the metadata is well formed (Validate),
+// every declared capability is one the runtime can execute
+// (ValidateExecutable), the invocation is for this active connector in its
+// tenant and workspace, the capability is declared with a matching action, and
+// an http_api call carries its full HTTP request. It fails closed on any of
+// these. It makes no authorization decision: whether a user or agent may make
+// the call is decided before the runtime, by ABAC policy in the control plane.
+// At the connector level every structurally valid call is permitted, because
+// its credential comes from the OIDC/runtime token bound to the workspace.
 func ValidateCall(m Metadata, in Invocation) error {
 	if err := m.Validate(); err != nil {
 		return err
 	}
+	if err := m.ValidateExecutable(); err != nil {
+		return err
+	}
+	if m.Provider == ProviderHTTPAPI && in.HTTP == nil {
+		if err := validateCallBoundary(m, in); err != nil {
+			return err
+		}
+		return errors.New("http invocation is required")
+	}
+	return validateCallBoundary(m, in)
+}
+
+// AuthorizeCall is the control plane's check before it allows a call. It is
+// ValidateCall without the executable check: any well-formed capability the
+// connector declares can be authorized, and ABAC policy decides access
+// (HAI-258). The tenant runtime keeps an http_api request local (ADR-011), so
+// an invocation without one is authorized on the method its capability names
+// (http.get -> GET) and its resource, which is the request path, against the
+// connector's configured methods and path patterns (HAI-256). The runtime
+// re-checks the full request with ValidateCall before executing.
+func AuthorizeCall(m Metadata, in Invocation) error {
+	if err := m.Validate(); err != nil {
+		return err
+	}
+	if m.Provider == ProviderHTTPAPI && in.HTTP == nil {
+		method, ok := httpCapabilityMethod(in.Capability)
+		if !ok {
+			if err := validateCallScope(m, in); err != nil {
+				return err
+			}
+			return errors.New("capability has no HTTP method")
+		}
+		in.HTTP = &HTTPInvocation{Method: method, Path: in.Resource}
+	}
+	return validateCallBoundary(m, in)
+}
+
+// validateCallBoundary checks an invocation against metadata that has
+// already passed Validate: scope, subject binding, the HTTP request for
+// http_api, and the declared capability and action.
+func validateCallBoundary(m Metadata, in Invocation) error {
+	if err := validateCallScope(m, in); err != nil {
+		return err
+	}
+	if m.Provider == ProviderHTTPAPI && in.HTTP != nil {
+		if err := m.HTTPAPI.ValidateInvocation(*in.HTTP); err != nil {
+			return err
+		}
+	}
+	for _, c := range m.Capabilities {
+		if c.Name == in.Capability {
+			if c.Action != in.Action {
+				return errors.New("capability action mismatch")
+			}
+			return nil
+		}
+	}
+	return errors.New("capability is not allowed")
+}
+
+// validateCallScope checks the invocation identifiers, the connector's
+// status and tenant/workspace scope, the resource, and the legacy oauth
+// subject binding.
+func validateCallScope(m Metadata, in Invocation) error {
 	for name, value := range map[string]string{"tenant_id": in.TenantID, "workspace_id": in.WorkspaceID, "subject": in.Subject, "agent_id": in.AgentID, "connector_id": in.ConnectorID, "capability": in.Capability, "trace_id": in.TraceID} {
 		if err := validID(name, value); err != nil {
 			return err
@@ -296,23 +382,7 @@ func ValidateCall(m Metadata, in Invocation) error {
 	if m.AccountModel == "" && m.EffectiveCredentialSource() == CredentialSourceOAuth && in.Subject != m.Subject {
 		return errors.New("invoking subject does not match the connector's declared subject")
 	}
-	if m.Provider == ProviderHTTPAPI {
-		if in.HTTP == nil {
-			return errors.New("http invocation is required")
-		}
-		if err := m.HTTPAPI.ValidateInvocation(*in.HTTP); err != nil {
-			return err
-		}
-	}
-	for _, c := range m.Capabilities {
-		if c.Name == in.Capability {
-			if c.Action != in.Action {
-				return errors.New("capability action mismatch")
-			}
-			return nil
-		}
-	}
-	return errors.New("capability is not allowed")
+	return nil
 }
 
 // ValidateCredentialRef accepts opaque references only. URLs and inline
@@ -325,15 +395,17 @@ func ValidateCredentialRef(ref string) error {
 	if ref == "" || len(ref) > 512 {
 		return errors.New("credential_ref is required")
 	}
+	// The legacy namespace is checked first so its colon form is reported
+	// as the namespace rather than as a URL scheme.
+	lower := strings.ToLower(ref)
+	if strings.HasPrefix(lower, "kei-oauth:") || strings.HasPrefix(lower, "kei-oauth-") {
+		return errors.New("credential_ref must not use the legacy kei-oauth namespace")
+	}
 	if u, err := url.Parse(ref); err == nil && u.Scheme != "" {
 		return errors.New("credential_ref must be an opaque reference")
 	}
 	if strings.ContainsAny(ref, "\r\n\t") {
 		return errors.New("credential_ref contains invalid characters")
-	}
-	lower := strings.ToLower(ref)
-	if strings.HasPrefix(lower, "kei-oauth:") || strings.HasPrefix(lower, "kei-oauth-") {
-		return errors.New("credential_ref must not use the legacy kei-oauth namespace")
 	}
 	if strings.Contains(ref, "=") || strings.HasPrefix(lower, "bearer ") || strings.HasPrefix(lower, "sk_") || strings.HasPrefix(lower, "ghp_") || strings.HasPrefix(lower, "gho_") || strings.HasPrefix(lower, "xoxb-") {
 		return errors.New("credential_ref must not contain credential material")
@@ -365,11 +437,6 @@ func ValidateInvocation(in Invocation) error {
 	}
 	if in.IdempotencyKey != "" {
 		if err := validID("idempotency_key", in.IdempotencyKey); err != nil {
-			return err
-		}
-	}
-	if in.ApprovalID != "" {
-		if err := validID("approval_id", in.ApprovalID); err != nil {
 			return err
 		}
 	}
