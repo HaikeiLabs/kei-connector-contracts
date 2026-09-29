@@ -367,6 +367,11 @@ func crmStore() MemoryCRM {
 			"l-1": {ID: "l-1", Name: "Ada", Email: "ada@example.com", Company: "Acme", Stage: "qualified", CreatedAt: now},
 			"l-2": {ID: "l-2", Name: "Grace", Email: "grace@example.com", Company: "Bolt", Stage: "contacted", CreatedAt: now},
 		},
+		Investors: map[string]CRMInvestor{
+			"i-1": {ID: "i-1", Name: "Ada Lovelace", Firm: "Analytical Capital", Email: "ada@example.com", Stage: "prospect", CreatedAt: now, UpdatedAt: now},
+			"i-2": {ID: "i-2", Name: "Grace Hopper", Firm: "Compiler Ventures", Email: "grace@example.com", Stage: "diligence", CreatedAt: now, UpdatedAt: now},
+			"i-3": {ID: "i-3", Name: "Katherine Johnson", Firm: "Northstar Partners", Email: "kj@example.com", Stage: "meeting", CreatedAt: now, UpdatedAt: now},
+		},
 	}
 }
 
