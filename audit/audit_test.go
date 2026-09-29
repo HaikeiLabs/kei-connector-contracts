@@ -76,6 +76,26 @@ func TestBuildAuditRecordFallsBackToTraceAndRecordsDenyReason(t *testing.T) {
 	}
 }
 
+func TestBuildAuditRecordPreservesCanonicalPlainTextValues(t *testing.T) {
+	env := decisionEnvelope()
+	env.Invocation.Subject = "user:U-17"
+	env.Invocation.AgentID = "agent:ReviewBot"
+	env.Invocation.ConnectorID = "inst-7"
+	env.Invocation.Capability = "pull_request.read"
+	env.Invocation.Resource = "repos/Acme/Kei/pulls/17"
+
+	rec := BuildAuditRecord(env, PolicyDecision{Decision: DecisionAllow}, time.Now())
+	if rec.InvokingSubject != "user:U-17" || rec.AgentID != "agent:ReviewBot" {
+		t.Fatalf("principal values changed: subject=%q agent=%q", rec.InvokingSubject, rec.AgentID)
+	}
+	if want := "connector/inst-7/pull_request.read"; rec.ToolName != want {
+		t.Fatalf("tool_name = %q, want %q", rec.ToolName, want)
+	}
+	if len(rec.ResourcesTouched) != 1 || rec.ResourcesTouched[0] != "repos/Acme/Kei/pulls/17" {
+		t.Fatalf("resources_touched = %v; resource identifier must remain verbatim", rec.ResourcesTouched)
+	}
+}
+
 func TestBuildAuditRecordDenyCarriesNoCapability(t *testing.T) {
 	rec := BuildAuditRecord(decisionEnvelope(), governance.PolicyDecision{Decision: governance.DecisionDeny, Reason: "connector is not active"}, time.Now())
 	if rec.ToolName != "connector/c-1/lead.read" {
