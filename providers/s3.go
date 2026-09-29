@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 type S3Object struct {
@@ -93,9 +93,9 @@ type S3Client struct {
 
 func NewS3(backend S3Backend) *S3Client { return &S3Client{backend: backend} }
 
-func (c *S3Client) Provider() connectors.Provider { return connectors.ProviderS3 }
+func (c *S3Client) Provider() contract.Provider { return contract.ProviderS3 }
 
-func (c *S3Client) Invoke(ctx context.Context, meta connectors.Metadata, inv connectors.Invocation, payload Payload) (Result, error) {
+func (c *S3Client) Invoke(ctx context.Context, meta contract.Metadata, inv contract.Invocation, payload Payload) (Result, error) {
 	if err := checkProvider(meta, c.Provider()); err != nil {
 		return Result{}, err
 	}

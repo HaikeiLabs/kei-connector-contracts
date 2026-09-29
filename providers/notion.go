@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 type NotionPage struct {
@@ -140,9 +140,9 @@ type NotionClient struct {
 
 func NewNotion(backend NotionBackend) *NotionClient { return &NotionClient{backend: backend} }
 
-func (c *NotionClient) Provider() connectors.Provider { return connectors.ProviderNotion }
+func (c *NotionClient) Provider() contract.Provider { return contract.ProviderNotion }
 
-func (c *NotionClient) Invoke(ctx context.Context, meta connectors.Metadata, inv connectors.Invocation, payload Payload) (Result, error) {
+func (c *NotionClient) Invoke(ctx context.Context, meta contract.Metadata, inv contract.Invocation, payload Payload) (Result, error) {
 	if err := checkProvider(meta, c.Provider()); err != nil {
 		return Result{}, err
 	}

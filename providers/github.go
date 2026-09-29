@@ -21,7 +21,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 type GitHubRepository struct {
@@ -159,9 +159,9 @@ type GitHubClient struct {
 
 func NewGitHub(backend GitHubBackend) *GitHubClient { return &GitHubClient{backend: backend} }
 
-func (c *GitHubClient) Provider() connectors.Provider { return connectors.ProviderGitHub }
+func (c *GitHubClient) Provider() contract.Provider { return contract.ProviderGitHub }
 
-func (c *GitHubClient) Invoke(ctx context.Context, meta connectors.Metadata, inv connectors.Invocation, payload Payload) (Result, error) {
+func (c *GitHubClient) Invoke(ctx context.Context, meta contract.Metadata, inv contract.Invocation, payload Payload) (Result, error) {
 	if err := checkProvider(meta, c.Provider()); err != nil {
 		return Result{}, err
 	}

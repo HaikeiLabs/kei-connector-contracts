@@ -18,13 +18,13 @@ import (
 	"context"
 	"testing"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 	ctx := context.Background()
 	github := NewGitHub(githubStore())
-	gm := metaFor(t, connectors.ProviderGitHub, []string{"repos/acme/kei"}, nil)
+	gm := metaFor(t, contract.ProviderGitHub, []string{"repos/acme/kei"}, nil)
 	githubCases := []struct {
 		resource string
 		payload  Payload
@@ -36,14 +36,14 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 		{"repos/acme/kei/workflows/wf-1", WorkflowReadPayload{}},
 	}
 	for _, tc := range githubCases {
-		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		inv := invocation(tc.payload.Capability(), contract.ActionRead, tc.resource)
 		if _, err := github.Invoke(ctx, gm, inv, tc.payload); err != nil {
 			t.Errorf("GitHub resource %q rejected: %v", tc.resource, err)
 		}
 	}
 
 	google := NewGoogle(googleStore())
-	drive := metaFor(t, connectors.ProviderGoogle, []string{"drive/d-1"}, nil)
+	drive := metaFor(t, contract.ProviderGoogle, []string{"drive/d-1"}, nil)
 	for _, tc := range []struct {
 		resource string
 		payload  Payload
@@ -52,14 +52,14 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 		{"drive/d-1/files/f-1", DriveMetadataPayload{}},
 		{"drive/d-1/files/f-1", DocsReadPayload{}},
 	} {
-		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		inv := invocation(tc.payload.Capability(), contract.ActionRead, tc.resource)
 		if _, err := google.Invoke(ctx, drive, inv, tc.payload); err != nil {
 			t.Errorf("Google Drive resource %q rejected: %v", tc.resource, err)
 		}
 	}
 
 	linear := NewLinear(linearStore())
-	lm := metaFor(t, connectors.ProviderLinear, []string{"linear/team/KEI"}, nil)
+	lm := metaFor(t, contract.ProviderLinear, []string{"linear/team/KEI"}, nil)
 	for _, tc := range []struct {
 		resource string
 		payload  Payload
@@ -69,14 +69,14 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 		{"linear/cycle/cy-1", CycleReadPayload{}},
 		{"linear/issue/i-1", LinearIssueReadPayload{}},
 	} {
-		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		inv := invocation(tc.payload.Capability(), contract.ActionRead, tc.resource)
 		if _, err := linear.Invoke(ctx, lm, inv, tc.payload); err != nil {
 			t.Errorf("Linear resource %q rejected: %v", tc.resource, err)
 		}
 	}
 
 	notion := NewNotion(notionStore())
-	nm := metaFor(t, connectors.ProviderNotion, []string{"pages/p-1", "databases/d-1"}, nil)
+	nm := metaFor(t, contract.ProviderNotion, []string{"pages/p-1", "databases/d-1"}, nil)
 	notionCases := []struct {
 		resource string
 		payload  Payload
@@ -86,14 +86,14 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 		{"search", SearchPayload{Query: "test"}},
 	}
 	for _, tc := range notionCases {
-		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		inv := invocation(tc.payload.Capability(), contract.ActionRead, tc.resource)
 		if _, err := notion.Invoke(ctx, nm, inv, tc.payload); err != nil {
 			t.Errorf("Notion resource %q rejected: %v", tc.resource, err)
 		}
 	}
 
 	freshbooks := NewFreshBooks(freshBooksStore())
-	fm := metaFor(t, connectors.ProviderFreshBooks, []string{"accounts/acct-TEST-1"}, nil)
+	fm := metaFor(t, contract.ProviderFreshBooks, []string{"accounts/acct-TEST-1"}, nil)
 	for _, tc := range []struct {
 		resource string
 		payload  Payload
@@ -103,14 +103,14 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 		{"accounts/acct-TEST-1/payments/pay-TEST-1", PaymentReadPayload{}},
 		{"accounts/acct-TEST-1/clients/cli-TEST-1", ClientReadPayload{}},
 	} {
-		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		inv := invocation(tc.payload.Capability(), contract.ActionRead, tc.resource)
 		if _, err := freshbooks.Invoke(ctx, fm, inv, tc.payload); err != nil {
 			t.Errorf("FreshBooks resource %q rejected: %v", tc.resource, err)
 		}
 	}
 
 	mercury := NewMercury(mercuryStore())
-	mm := metaFor(t, connectors.ProviderMercury, []string{"accounts/acct-TEST-1"}, nil)
+	mm := metaFor(t, contract.ProviderMercury, []string{"accounts/acct-TEST-1"}, nil)
 	for _, tc := range []struct {
 		resource string
 		payload  Payload
@@ -119,7 +119,7 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 		{"accounts/acct-TEST-1", BalanceReadPayload{}},
 		{"accounts/acct-TEST-1/transactions/txn-TEST-1", TransactionReadPayload{}},
 	} {
-		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		inv := invocation(tc.payload.Capability(), contract.ActionRead, tc.resource)
 		if _, err := mercury.Invoke(ctx, mm, inv, tc.payload); err != nil {
 			t.Errorf("Mercury resource %q rejected: %v", tc.resource, err)
 		}
@@ -128,7 +128,7 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 	// HAI-202: Gmail resources are gmail/messages (search) and
 	// gmail/messages/<message_id> (get).
 	gmail := NewGmail(gmailStore())
-	gmm := metaFor(t, connectors.ProviderGmail, []string{"gmail/messages"}, nil)
+	gmm := metaFor(t, contract.ProviderGmail, []string{"gmail/messages"}, nil)
 	for _, tc := range []struct {
 		resource string
 		payload  Payload
@@ -136,7 +136,7 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 		{"gmail/messages", MessageSearchPayload{}},
 		{"gmail/messages/m-1", MessageGetPayload{}},
 	} {
-		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		inv := invocation(tc.payload.Capability(), contract.ActionRead, tc.resource)
 		if _, err := gmail.Invoke(ctx, gmm, inv, tc.payload); err != nil {
 			t.Errorf("Gmail resource %q rejected: %v", tc.resource, err)
 		}
@@ -145,7 +145,7 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 	// HAI-203: Tito resources are tito/<account>/events and the event,
 	// releases, and ticket-summary resources beneath one event.
 	tito := NewTito(titoStore())
-	tm := metaFor(t, connectors.ProviderTito, []string{"tito/acme/events"}, nil)
+	tm := metaFor(t, contract.ProviderTito, []string{"tito/acme/events"}, nil)
 	for _, tc := range []struct {
 		resource string
 		payload  Payload
@@ -155,7 +155,7 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 		{"tito/acme/events/conf-2026/releases", ReleaseListPayload{}},
 		{"tito/acme/events/conf-2026/ticket-summary", TicketSummaryPayload{}},
 	} {
-		inv := invocation(tc.payload.Capability(), connectors.ActionRead, tc.resource)
+		inv := invocation(tc.payload.Capability(), contract.ActionRead, tc.resource)
 		if _, err := tito.Invoke(ctx, tm, inv, tc.payload); err != nil {
 			t.Errorf("Tito resource %q rejected: %v", tc.resource, err)
 		}

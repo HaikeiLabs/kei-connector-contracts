@@ -12,9 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectors
+package governance
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/HaikeiLabs/kei-connector-contracts/capability"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
+	"github.com/HaikeiLabs/kei-connector-contracts/envelope"
+)
 
 // Decision is the outcome of a governed connector invocation. It is
 // deliberately two-state for now; the NIST four-state
@@ -32,9 +38,9 @@ const (
 // deny it carries a reason. It never carries an error: every invalid boundary
 // is a deny.
 type PolicyDecision struct {
-	Decision   Decision   `json:"decision"`
-	Reason     string     `json:"reason,omitempty"`
-	Capability Capability `json:"capability,omitempty"`
+	Decision   Decision            `json:"decision"`
+	Reason     string              `json:"reason,omitempty"`
+	Capability contract.Capability `json:"capability,omitempty"`
 }
 
 // Decide evaluates a governed envelope against connector metadata. It is
@@ -43,14 +49,14 @@ type PolicyDecision struct {
 // undeclared capability are all explicit denies. Only an explicit allow is an
 // allow. Data-access and approval policy are decided by the ABAC policy layer,
 // not here.
-func Decide(m Metadata, env Envelope) PolicyDecision {
+func Decide(m contract.Metadata, env envelope.Envelope) PolicyDecision {
 	if err := m.Validate(); err != nil {
 		return PolicyDecision{Decision: DecisionDeny, Reason: "invalid connector metadata: " + err.Error()}
 	}
 	if err := env.Validate(); err != nil {
 		return PolicyDecision{Decision: DecisionDeny, Reason: "invalid invocation envelope: " + err.Error()}
 	}
-	if m.Status != StatusActive {
+	if m.Status != contract.StatusActive {
 		return PolicyDecision{Decision: DecisionDeny, Reason: "connector is not active"}
 	}
 	if env.Invocation.TenantID != m.TenantID ||
@@ -60,12 +66,12 @@ func Decide(m Metadata, env Envelope) PolicyDecision {
 	}
 	// The capability must be both defined for the provider and declared on the
 	// connector; either boundary failing is a deny.
-	if _, ok := LookupCapability(m.Provider, env.Invocation.Capability); !ok {
+	if _, ok := capability.LookupCapability(m.Provider, env.Invocation.Capability); !ok {
 		return PolicyDecision{Decision: DecisionDeny, Reason: fmt.Sprintf("capability %q is not defined for provider %q", env.Invocation.Capability, m.Provider)}
 	}
-	if err := ValidateCall(m, env.Invocation); err != nil {
+	if err := contract.ValidateCall(m, env.Invocation); err != nil {
 		return PolicyDecision{Decision: DecisionDeny, Reason: err.Error()}
 	}
-	cap, _ := LookupCapability(m.Provider, env.Invocation.Capability)
+	cap, _ := capability.LookupCapability(m.Provider, env.Invocation.Capability)
 	return PolicyDecision{Decision: DecisionAllow, Capability: cap}
 }

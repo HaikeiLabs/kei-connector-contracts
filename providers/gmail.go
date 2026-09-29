@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 // GmailReadonlyScope is the only OAuth scope a gmail connector needs. The
@@ -128,9 +128,9 @@ type GmailClient struct {
 
 func NewGmail(backend GmailBackend) *GmailClient { return &GmailClient{backend: backend} }
 
-func (c *GmailClient) Provider() connectors.Provider { return connectors.ProviderGmail }
+func (c *GmailClient) Provider() contract.Provider { return contract.ProviderGmail }
 
-func (c *GmailClient) Invoke(ctx context.Context, meta connectors.Metadata, inv connectors.Invocation, payload Payload) (Result, error) {
+func (c *GmailClient) Invoke(ctx context.Context, meta contract.Metadata, inv contract.Invocation, payload Payload) (Result, error) {
 	if err := checkProvider(meta, c.Provider()); err != nil {
 		return Result{}, err
 	}

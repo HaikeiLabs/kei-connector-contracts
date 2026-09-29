@@ -22,7 +22,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 // TitoEvent is the read-only event record exposed by the client. Status is
@@ -169,9 +169,9 @@ func NewTito(store MemoryTito) *TitoClient { return NewTitoBackend(memoryTitoBac
 
 func NewTitoBackend(backend TitoBackend) *TitoClient { return &TitoClient{backend: backend} }
 
-func (c *TitoClient) Provider() connectors.Provider { return connectors.ProviderTito }
+func (c *TitoClient) Provider() contract.Provider { return contract.ProviderTito }
 
-func (c *TitoClient) Invoke(ctx context.Context, meta connectors.Metadata, inv connectors.Invocation, payload Payload) (Result, error) {
+func (c *TitoClient) Invoke(ctx context.Context, meta contract.Metadata, inv contract.Invocation, payload Payload) (Result, error) {
 	if err := checkProvider(meta, c.Provider()); err != nil {
 		return Result{}, err
 	}

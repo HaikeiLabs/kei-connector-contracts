@@ -26,7 +26,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 // Attendee PII markers planted in fixtures; no result may carry them.
@@ -50,9 +50,9 @@ func titoStore() MemoryTito {
 	}
 }
 
-func titoMeta(t *testing.T) connectors.Metadata {
+func titoMeta(t *testing.T) contract.Metadata {
 	t.Helper()
-	return metaFor(t, connectors.ProviderTito, []string{"tito/acme/events"}, nil)
+	return metaFor(t, contract.ProviderTito, []string{"tito/acme/events"}, nil)
 }
 
 func TestTitoReadsReturnEventReleaseAndAggregateData(t *testing.T) {
@@ -60,7 +60,7 @@ func TestTitoReadsReturnEventReleaseAndAggregateData(t *testing.T) {
 	meta := titoMeta(t)
 	ctx := context.Background()
 
-	result, err := client.Invoke(ctx, meta, invocation("event.list", connectors.ActionRead, "tito/acme/events"), EventListPayload{})
+	result, err := client.Invoke(ctx, meta, invocation("event.list", contract.ActionRead, "tito/acme/events"), EventListPayload{})
 	if err != nil {
 		t.Fatalf("event.list: %v", err)
 	}
@@ -68,7 +68,7 @@ func TestTitoReadsReturnEventReleaseAndAggregateData(t *testing.T) {
 		t.Fatalf("events = %+v", page)
 	}
 
-	result, err = client.Invoke(ctx, meta, invocation("event.get", connectors.ActionRead, "tito/acme/events/conf-2026"), EventGetPayload{})
+	result, err = client.Invoke(ctx, meta, invocation("event.get", contract.ActionRead, "tito/acme/events/conf-2026"), EventGetPayload{})
 	if err != nil {
 		t.Fatalf("event.get: %v", err)
 	}
@@ -76,7 +76,7 @@ func TestTitoReadsReturnEventReleaseAndAggregateData(t *testing.T) {
 		t.Fatalf("event = %+v", event)
 	}
 
-	result, err = client.Invoke(ctx, meta, invocation("release.list", connectors.ActionRead, "tito/acme/events/conf-2026/releases"), ReleaseListPayload{})
+	result, err = client.Invoke(ctx, meta, invocation("release.list", contract.ActionRead, "tito/acme/events/conf-2026/releases"), ReleaseListPayload{})
 	if err != nil {
 		t.Fatalf("release.list: %v", err)
 	}
@@ -84,7 +84,7 @@ func TestTitoReadsReturnEventReleaseAndAggregateData(t *testing.T) {
 		t.Fatalf("releases = %+v", releases)
 	}
 
-	result, err = client.Invoke(ctx, meta, invocation("ticket.summary", connectors.ActionRead, "tito/acme/events/conf-2026/ticket-summary"), TicketSummaryPayload{})
+	result, err = client.Invoke(ctx, meta, invocation("ticket.summary", contract.ActionRead, "tito/acme/events/conf-2026/ticket-summary"), TicketSummaryPayload{})
 	if err != nil {
 		t.Fatalf("ticket.summary: %v", err)
 	}
@@ -99,23 +99,23 @@ func TestTitoRejectsWritesAndMismatchedRequests(t *testing.T) {
 	client := NewTito(titoStore())
 	meta := titoMeta(t)
 	for name, tc := range map[string]struct {
-		inv     connectors.Invocation
+		inv     contract.Invocation
 		payload Payload
 	}{
-		"ticket create is not a capability": {invocation("ticket.create", connectors.ActionCreate, "tito/acme/events/conf-2026"), EventGetPayload{}},
-		"read capability as a write":        {invocation("event.get", connectors.ActionUpdate, "tito/acme/events/conf-2026"), EventGetPayload{}},
-		"delete is locked":                  {invocation("event.get", connectors.ActionDelete, "tito/acme/events/conf-2026"), EventGetPayload{}},
-		"payload replay":                    {invocation("event.get", connectors.ActionRead, "tito/acme/events/conf-2026"), TicketSummaryPayload{}},
-		"list on an event resource":         {invocation("event.list", connectors.ActionRead, "tito/acme/events/conf-2026"), EventListPayload{}},
-		"get on the collection":             {invocation("event.get", connectors.ActionRead, "tito/acme/events"), EventGetPayload{}},
-		"summary on the event":              {invocation("ticket.summary", connectors.ActionRead, "tito/acme/events/conf-2026"), TicketSummaryPayload{}},
-		"releases without an event":         {invocation("release.list", connectors.ActionRead, "tito/acme/events//releases"), ReleaseListPayload{}},
-		"raw ticket listing":                {invocation("ticket.summary", connectors.ActionRead, "tito/acme/events/conf-2026/tickets"), TicketSummaryPayload{}},
-		"slug with a query":                 {invocation("event.get", connectors.ActionRead, "tito/acme/events/conf?x=1"), EventGetPayload{}},
-		"encoded slash in a slug":           {invocation("event.get", connectors.ActionRead, "tito/acme/events/conf%2Freg"), EventGetPayload{}},
-		"traversal":                         {invocation("event.get", connectors.ActionRead, "tito/acme/events/../conf-2026"), EventGetPayload{}},
-		"unknown event status filter":       {invocation("event.list", connectors.ActionRead, "tito/acme/events"), EventListPayload{Status: "deleted"}},
-		"negative page":                     {invocation("event.list", connectors.ActionRead, "tito/acme/events"), EventListPayload{Page: -1}},
+		"ticket create is not a capability": {invocation("ticket.create", contract.ActionCreate, "tito/acme/events/conf-2026"), EventGetPayload{}},
+		"read capability as a write":        {invocation("event.get", contract.ActionUpdate, "tito/acme/events/conf-2026"), EventGetPayload{}},
+		"delete is locked":                  {invocation("event.get", contract.ActionDelete, "tito/acme/events/conf-2026"), EventGetPayload{}},
+		"payload replay":                    {invocation("event.get", contract.ActionRead, "tito/acme/events/conf-2026"), TicketSummaryPayload{}},
+		"list on an event resource":         {invocation("event.list", contract.ActionRead, "tito/acme/events/conf-2026"), EventListPayload{}},
+		"get on the collection":             {invocation("event.get", contract.ActionRead, "tito/acme/events"), EventGetPayload{}},
+		"summary on the event":              {invocation("ticket.summary", contract.ActionRead, "tito/acme/events/conf-2026"), TicketSummaryPayload{}},
+		"releases without an event":         {invocation("release.list", contract.ActionRead, "tito/acme/events//releases"), ReleaseListPayload{}},
+		"raw ticket listing":                {invocation("ticket.summary", contract.ActionRead, "tito/acme/events/conf-2026/tickets"), TicketSummaryPayload{}},
+		"slug with a query":                 {invocation("event.get", contract.ActionRead, "tito/acme/events/conf?x=1"), EventGetPayload{}},
+		"encoded slash in a slug":           {invocation("event.get", contract.ActionRead, "tito/acme/events/conf%2Freg"), EventGetPayload{}},
+		"traversal":                         {invocation("event.get", contract.ActionRead, "tito/acme/events/../conf-2026"), EventGetPayload{}},
+		"unknown event status filter":       {invocation("event.list", contract.ActionRead, "tito/acme/events"), EventListPayload{Status: "deleted"}},
+		"negative page":                     {invocation("event.list", contract.ActionRead, "tito/acme/events"), EventListPayload{Page: -1}},
 	} {
 		if _, err := client.Invoke(context.Background(), meta, tc.inv, tc.payload); err == nil {
 			t.Errorf("%s: invocation was allowed", name)
@@ -161,7 +161,7 @@ func TestAuthenticatedTitoContract(t *testing.T) {
 	meta := titoMeta(t)
 	ctx := context.Background()
 
-	result, err := client.Invoke(ctx, meta, invocation("event.list", connectors.ActionRead, "tito/acme/events"), EventListPayload{Status: "past"})
+	result, err := client.Invoke(ctx, meta, invocation("event.list", contract.ActionRead, "tito/acme/events"), EventListPayload{Status: "past"})
 	if err != nil {
 		t.Fatalf("event.list: %v", err)
 	}
@@ -169,15 +169,15 @@ func TestAuthenticatedTitoContract(t *testing.T) {
 	if len(page.Events) != 1 || page.Events[0].Account != "acme" || page.Events[0].Status != "live" || page.NextPage != 2 {
 		t.Fatalf("events = %+v", page)
 	}
-	result, err = client.Invoke(ctx, meta, invocation("event.get", connectors.ActionRead, "tito/acme/events/conf-2026"), EventGetPayload{})
+	result, err = client.Invoke(ctx, meta, invocation("event.get", contract.ActionRead, "tito/acme/events/conf-2026"), EventGetPayload{})
 	if err != nil || result.Data.(TitoEvent).Status != "draft" {
 		t.Fatalf("event.get = %+v, %v", result, err)
 	}
-	result, err = client.Invoke(ctx, meta, invocation("release.list", connectors.ActionRead, "tito/acme/events/conf-2026/releases"), ReleaseListPayload{})
+	result, err = client.Invoke(ctx, meta, invocation("release.list", contract.ActionRead, "tito/acme/events/conf-2026/releases"), ReleaseListPayload{})
 	if err != nil || len(result.Data.([]TitoRelease)) != 1 || result.Data.([]TitoRelease)[0].Price != "50.0" {
 		t.Fatalf("release.list = %+v, %v", result, err)
 	}
-	result, err = client.Invoke(ctx, meta, invocation("ticket.summary", connectors.ActionRead, "tito/acme/events/conf-2026/ticket-summary"), TicketSummaryPayload{})
+	result, err = client.Invoke(ctx, meta, invocation("ticket.summary", contract.ActionRead, "tito/acme/events/conf-2026/ticket-summary"), TicketSummaryPayload{})
 	if err != nil {
 		t.Fatalf("ticket.summary: %v", err)
 	}
@@ -209,24 +209,24 @@ func TestAuthenticatedTitoTicketSummaryFailsClosedPastPageLimit(t *testing.T) {
 	}))
 	defer server.Close()
 	client := NewTitoHTTP(testHTTPClient(server, func(*testing.T, *http.Request) {}), &recordingResolver{token: "fake-tito-token"})
-	_, err := client.Invoke(context.Background(), titoMeta(t), invocation("ticket.summary", connectors.ActionRead, "tito/acme/events/conf-2026/ticket-summary"), TicketSummaryPayload{})
+	_, err := client.Invoke(context.Background(), titoMeta(t), invocation("ticket.summary", contract.ActionRead, "tito/acme/events/conf-2026/ticket-summary"), TicketSummaryPayload{})
 	if err == nil || !strings.Contains(err.Error(), "too many tickets") {
 		t.Fatalf("error = %v, want a fail-closed page limit", err)
 	}
 }
 
 func TestAuthenticatedTitoFailsClosedAndRedactsErrors(t *testing.T) {
-	client, err := New(connectors.ProviderTito)
+	client, err := New(contract.ProviderTito)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = client.Invoke(context.Background(), titoMeta(t), invocation("event.list", connectors.ActionRead, "tito/acme/events"), EventListPayload{})
+	_, err = client.Invoke(context.Background(), titoMeta(t), invocation("event.list", contract.ActionRead, "tito/acme/events"), EventListPayload{})
 	if err == nil || !strings.Contains(err.Error(), "credential") {
 		t.Fatalf("unconfigured resolver error = %v", err)
 	}
 
 	noNetwork := &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) { return nil, errors.New("must not send") })}
-	_, err = NewTitoHTTP(noNetwork, credentialErrorResolver{}).Invoke(context.Background(), titoMeta(t), invocation("event.list", connectors.ActionRead, "tito/acme/events"), EventListPayload{})
+	_, err = NewTitoHTTP(noNetwork, credentialErrorResolver{}).Invoke(context.Background(), titoMeta(t), invocation("event.list", contract.ActionRead, "tito/acme/events"), EventListPayload{})
 	if err == nil || err.Error() != "credential resolution failed" {
 		t.Fatalf("resolver error = %v", err)
 	}
@@ -235,7 +235,7 @@ func TestAuthenticatedTitoFailsClosedAndRedactsErrors(t *testing.T) {
 		http.Error(w, `{"error":"FAKE-ATTENDEE fake-tito-token"}`, http.StatusUnauthorized)
 	}))
 	defer server.Close()
-	_, err = NewTitoHTTP(testHTTPClient(server, func(*testing.T, *http.Request) {}), &recordingResolver{token: "fake-tito-token"}).Invoke(context.Background(), titoMeta(t), invocation("event.list", connectors.ActionRead, "tito/acme/events"), EventListPayload{})
+	_, err = NewTitoHTTP(testHTTPClient(server, func(*testing.T, *http.Request) {}), &recordingResolver{token: "fake-tito-token"}).Invoke(context.Background(), titoMeta(t), invocation("event.list", contract.ActionRead, "tito/acme/events"), EventListPayload{})
 	if err == nil || strings.Contains(err.Error(), "fake-tito-token") || strings.Contains(err.Error(), "FAKE-ATTENDEE") {
 		t.Fatalf("provider rejection error = %v", err)
 	}

@@ -12,9 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectors
+package audit
 
-import "time"
+import (
+	"time"
+
+	"github.com/HaikeiLabs/kei-connector-contracts/envelope"
+	"github.com/HaikeiLabs/kei-connector-contracts/governance"
+)
 
 // AuditRecord is the audit-attribution row for a governed connector
 // invocation. Its JSON shape mirrors the shared DecisionEvent/AuditRecord wire
@@ -46,7 +51,7 @@ type AuditRecord struct {
 // invocation never duplicates an audit row. The tool_name encodes the
 // connector and capability so connector calls are queryable as a class
 // (tool_name LIKE 'connector/%').
-func BuildAuditRecord(env Envelope, decision PolicyDecision, invokedAt time.Time) AuditRecord {
+func BuildAuditRecord(env envelope.Envelope, decision governance.PolicyDecision, invokedAt time.Time) AuditRecord {
 	spanID := env.Invocation.IdempotencyKey
 	if spanID == "" {
 		spanID = env.Invocation.TraceID

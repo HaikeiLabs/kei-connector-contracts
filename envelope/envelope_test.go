@@ -12,25 +12,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectors
+package envelope
 
 import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 func validEnvelope() Envelope {
 	return Envelope{
 		Version: EnvelopeVersion1,
-		Invocation: Invocation{
+		Invocation: contract.Invocation{
 			TenantID:       "t-1",
 			WorkspaceID:    "w-1",
 			Subject:        "u-1",
 			AgentID:        "a-1",
 			ConnectorID:    "c-1",
 			Capability:     "lead.read",
-			Action:         ActionRead,
+			Action:         contract.ActionRead,
 			Resource:       "leads/42",
 			TraceID:        "trace-1",
 			IdempotencyKey: "idem-1",

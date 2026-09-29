@@ -23,7 +23,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 type recordingResolver struct {
@@ -74,8 +74,8 @@ func TestAuthenticatedGitHubContract(t *testing.T) {
 			t.Errorf("endpoint = %s", req.URL.String())
 		}
 	}), resolver)
-	meta := metaFor(t, connectors.ProviderGitHub, []string{"repos/acme/kei"}, nil)
-	inv := invocation("issue.read", connectors.ActionRead, "repos/acme/kei/issues/7")
+	meta := metaFor(t, contract.ProviderGitHub, []string{"repos/acme/kei"}, nil)
+	inv := invocation("issue.read", contract.ActionRead, "repos/acme/kei/issues/7")
 	result, err := client.Invoke(context.Background(), meta, inv, GitHubIssueReadPayload{})
 	if err != nil {
 		t.Fatalf("invoke: %v", err)
@@ -109,8 +109,8 @@ func TestAuthenticatedGoogleContract(t *testing.T) {
 			t.Errorf("endpoint = %s", req.URL.String())
 		}
 	}), resolver)
-	meta := metaFor(t, connectors.ProviderGoogle, []string{"drive/drive-1/files/file-1"}, nil)
-	inv := invocation("docs.read", connectors.ActionRead, "drive/drive-1/files/file-1")
+	meta := metaFor(t, contract.ProviderGoogle, []string{"drive/drive-1/files/file-1"}, nil)
+	inv := invocation("docs.read", contract.ActionRead, "drive/drive-1/files/file-1")
 	// The metadata request is intentionally mocked as a separate fixed endpoint
 	// response by using the same server and dispatching on the query.
 	server.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -130,12 +130,12 @@ func TestAuthenticatedGoogleContract(t *testing.T) {
 }
 
 func TestAuthenticatedProviderFailsClosedWithoutCredentialResolver(t *testing.T) {
-	client, err := New(connectors.ProviderGitHub)
+	client, err := New(contract.ProviderGitHub)
 	if err != nil {
 		t.Fatal(err)
 	}
-	meta := metaFor(t, connectors.ProviderGitHub, []string{"repos/acme/kei"}, nil)
-	_, err = client.Invoke(context.Background(), meta, invocation("repository.read", connectors.ActionRead, "repos/acme/kei"), RepositoryReadPayload{})
+	meta := metaFor(t, contract.ProviderGitHub, []string{"repos/acme/kei"}, nil)
+	_, err = client.Invoke(context.Background(), meta, invocation("repository.read", contract.ActionRead, "repos/acme/kei"), RepositoryReadPayload{})
 	if err == nil || !strings.Contains(err.Error(), "credential") {
 		t.Fatalf("error = %v", err)
 	}
@@ -147,8 +147,8 @@ func TestAuthenticatedProviderFailsClosedWithoutCredentialResolver(t *testing.T)
 func TestAuthenticatedProviderDoesNotExposeCredentialErrors(t *testing.T) {
 	resolver := credentialErrorResolver{}
 	client := NewGitHubHTTP(&http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) { return nil, fmt.Errorf("must not send") })}, resolver)
-	meta := metaFor(t, connectors.ProviderGitHub, []string{"repos/acme/kei"}, nil)
-	_, err := client.Invoke(context.Background(), meta, invocation("repository.read", connectors.ActionRead, "repos/acme/kei"), RepositoryReadPayload{})
+	meta := metaFor(t, contract.ProviderGitHub, []string{"repos/acme/kei"}, nil)
+	_, err := client.Invoke(context.Background(), meta, invocation("repository.read", contract.ActionRead, "repos/acme/kei"), RepositoryReadPayload{})
 	if err == nil || err.Error() != "credential resolution failed" {
 		t.Fatalf("error = %v", err)
 	}

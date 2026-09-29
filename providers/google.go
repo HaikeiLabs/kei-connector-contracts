@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 // GoogleFile is the read-only Drive/Docs record exposed by the client.
@@ -105,9 +105,9 @@ type GoogleClient struct {
 
 func NewGoogle(backend GoogleBackend) *GoogleClient { return &GoogleClient{backend: backend} }
 
-func (c *GoogleClient) Provider() connectors.Provider { return connectors.ProviderGoogle }
+func (c *GoogleClient) Provider() contract.Provider { return contract.ProviderGoogle }
 
-func (c *GoogleClient) Invoke(ctx context.Context, meta connectors.Metadata, inv connectors.Invocation, payload Payload) (Result, error) {
+func (c *GoogleClient) Invoke(ctx context.Context, meta contract.Metadata, inv contract.Invocation, payload Payload) (Result, error) {
 	if err := checkProvider(meta, c.Provider()); err != nil {
 		return Result{}, err
 	}

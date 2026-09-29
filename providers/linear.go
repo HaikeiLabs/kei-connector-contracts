@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 type LinearTeam struct {
@@ -159,9 +159,9 @@ func NewLinearRuntime(transport LinearGraphQLTransport, credentials LinearCreden
 	return &LinearClient{transport: transport, credentials: credentials}
 }
 
-func (c *LinearClient) Provider() connectors.Provider { return connectors.ProviderLinear }
+func (c *LinearClient) Provider() contract.Provider { return contract.ProviderLinear }
 
-func (c *LinearClient) Invoke(ctx context.Context, meta connectors.Metadata, inv connectors.Invocation, payload Payload) (Result, error) {
+func (c *LinearClient) Invoke(ctx context.Context, meta contract.Metadata, inv contract.Invocation, payload Payload) (Result, error) {
 	if err := checkProvider(meta, c.Provider()); err != nil {
 		return Result{}, err
 	}
@@ -189,8 +189,8 @@ func (c *LinearClient) Invoke(ctx context.Context, meta connectors.Metadata, inv
 	return c.invokeBackend(ctx, inv, payload, kind, id, c.backend)
 }
 
-func (c *LinearClient) resolveToken(ctx context.Context, meta connectors.Metadata, inv connectors.Invocation) (string, error) {
-	if err := connectors.ValidateCredentialRef(meta.CredentialRef); err != nil {
+func (c *LinearClient) resolveToken(ctx context.Context, meta contract.Metadata, inv contract.Invocation) (string, error) {
+	if err := contract.ValidateCredentialRef(meta.CredentialRef); err != nil {
 		return "", errors.New("linear credential is unavailable")
 	}
 	token, err := c.credentials.Resolve(ctx, meta.CredentialRef, LinearCredentialScope{
@@ -202,7 +202,7 @@ func (c *LinearClient) resolveToken(ctx context.Context, meta connectors.Metadat
 	return token, nil
 }
 
-func (c *LinearClient) invokeBackend(ctx context.Context, inv connectors.Invocation, payload Payload, kind, id string, backend LinearBackend) (Result, error) {
+func (c *LinearClient) invokeBackend(ctx context.Context, inv contract.Invocation, payload Payload, kind, id string, backend LinearBackend) (Result, error) {
 	switch payload.(type) {
 	case TeamReadPayload:
 		if kind != "team" {

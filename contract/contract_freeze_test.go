@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectors
+package contract
 
 import (
-	"strings"
 	"testing"
-	"time"
 )
 
 func frozenMetadata(provider Provider, capabilities []Capability) Metadata {
@@ -103,34 +101,5 @@ func TestConnectorContractFreezeBindingAndCredentialRules(t *testing.T) {
 		if err := ValidateCall(m, in); err == nil || err.Error() != "connector not found" {
 			t.Errorf("%s mismatch error = %v, want connector not found", name, err)
 		}
-	}
-}
-
-func TestConnectorContractFreezeEnvelopeAuditIdempotencyAndLegacyPolicy(t *testing.T) {
-	m := frozenMetadata(ProviderGitHub, CapabilitiesFor(ProviderGitHub))
-	m.Policy = PolicyAttributes{AllowedActions: []Action{ActionRead}, AllowedResources: []string{"legacy"}}
-	in := frozenInvocation("repository.read", ActionRead)
-	first := NewClient().Invoke(m, in)
-	second := NewClient().Invoke(m, in)
-	if first.Decision.Decision != DecisionAllow || second.Decision.Decision != DecisionAllow {
-		t.Fatalf("valid invocation decisions = %q, %q", first.Decision.Decision, second.Decision.Decision)
-	}
-	if first.Envelope.Version != EnvelopeVersion1 || first.Envelope.MintedBy != MintedByControlPlane {
-		t.Fatalf("envelope = %+v", first.Envelope)
-	}
-	if first.AuditRecord.SpanID != "idem-1" || second.AuditRecord.SpanID != "idem-1" {
-		t.Fatalf("audit span IDs = %q, %q", first.AuditRecord.SpanID, second.AuditRecord.SpanID)
-	}
-	if first.AuditRecord.ToolName != "connector/connector-1/repository.read" {
-		t.Fatalf("audit tool name = %q", first.AuditRecord.ToolName)
-	}
-	if first.Envelope.IssuedAt.IsZero() || first.Envelope.IssuedAt.Equal(time.Time{}) {
-		t.Fatal("envelope timestamp was not issued")
-	}
-
-	denied := in
-	denied.Subject = ""
-	if got := Decide(m, Envelope{Version: EnvelopeVersion1, Invocation: denied, MintedBy: MintedByControlPlane, IssuedAt: time.Now()}); got.Decision != DecisionDeny || !strings.Contains(got.Reason, "subject") {
-		t.Fatalf("missing subject decision = %+v", got)
 	}
 }

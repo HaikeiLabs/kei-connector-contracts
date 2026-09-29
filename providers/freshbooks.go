@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 // FreshBooks is the bookkeeping provider. Its contract surface is read-only:
@@ -165,11 +165,11 @@ func NewFreshBooks(backend FreshBooksBackend) *FreshBooksClientConn {
 	return &FreshBooksClientConn{backend: backend}
 }
 
-func (c *FreshBooksClientConn) Provider() connectors.Provider {
-	return connectors.ProviderFreshBooks
+func (c *FreshBooksClientConn) Provider() contract.Provider {
+	return contract.ProviderFreshBooks
 }
 
-func (c *FreshBooksClientConn) Invoke(ctx context.Context, meta connectors.Metadata, inv connectors.Invocation, payload Payload) (Result, error) {
+func (c *FreshBooksClientConn) Invoke(ctx context.Context, meta contract.Metadata, inv contract.Invocation, payload Payload) (Result, error) {
 	if err := checkProvider(meta, c.Provider()); err != nil {
 		return Result{}, err
 	}

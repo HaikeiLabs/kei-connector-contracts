@@ -26,7 +26,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/HaikeiLabs/kei-connector-contracts"
+	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
 const gmailFixtureBody = "FAKE-BODY-MARKER quarterly numbers inside"
@@ -38,9 +38,9 @@ func gmailStore() MemoryGmail {
 	}}
 }
 
-func gmailMeta(t *testing.T, includeBody bool) connectors.Metadata {
+func gmailMeta(t *testing.T, includeBody bool) contract.Metadata {
 	t.Helper()
-	m := metaFor(t, connectors.ProviderGmail, []string{"gmail/messages"}, nil)
+	m := metaFor(t, contract.ProviderGmail, []string{"gmail/messages"}, nil)
 	m.Policy.GmailIncludeBody = includeBody
 	return m
 }
@@ -53,7 +53,7 @@ func TestGmailReadonlyScopeIsPublished(t *testing.T) {
 
 func TestGmailSearchReturnsMetadataAndSnippetOnly(t *testing.T) {
 	client := NewGmail(gmailStore())
-	result, err := client.Invoke(context.Background(), gmailMeta(t, true), invocation("message.search", connectors.ActionRead, "gmail/messages"), MessageSearchPayload{Query: "quarterly"})
+	result, err := client.Invoke(context.Background(), gmailMeta(t, true), invocation("message.search", contract.ActionRead, "gmail/messages"), MessageSearchPayload{Query: "quarterly"})
 	if err != nil {
 		t.Fatalf("search: %v", err)
 	}
@@ -67,7 +67,7 @@ func TestGmailSearchReturnsMetadataAndSnippetOnly(t *testing.T) {
 
 func TestGmailGetExcludesBodyByDefault(t *testing.T) {
 	client := NewGmail(gmailStore())
-	result, err := client.Invoke(context.Background(), gmailMeta(t, false), invocation("message.get", connectors.ActionRead, "gmail/messages/m-1"), MessageGetPayload{MessageID: "m-1"})
+	result, err := client.Invoke(context.Background(), gmailMeta(t, false), invocation("message.get", contract.ActionRead, "gmail/messages/m-1"), MessageGetPayload{MessageID: "m-1"})
 	if err != nil {
 		t.Fatalf("get: %v", err)
 	}
@@ -80,7 +80,7 @@ func TestGmailGetExcludesBodyByDefault(t *testing.T) {
 
 func TestGmailGetIncludesBodyOnlyWithPolicyOptIn(t *testing.T) {
 	client := NewGmail(gmailStore())
-	result, err := client.Invoke(context.Background(), gmailMeta(t, true), invocation("message.get", connectors.ActionRead, "gmail/messages/m-1"), MessageGetPayload{})
+	result, err := client.Invoke(context.Background(), gmailMeta(t, true), invocation("message.get", contract.ActionRead, "gmail/messages/m-1"), MessageGetPayload{})
 	if err != nil {
 		t.Fatalf("get: %v", err)
 	}
@@ -99,7 +99,7 @@ func TestGmailClientStripsBodyEvenIfBackendReturnsIt(t *testing.T) {
 		{"message.search", "gmail/messages", MessageSearchPayload{}},
 		{"message.get", "gmail/messages/m-1", MessageGetPayload{}},
 	} {
-		result, err := client.Invoke(context.Background(), gmailMeta(t, false), invocation(tc.capability, connectors.ActionRead, tc.resource), tc.payload)
+		result, err := client.Invoke(context.Background(), gmailMeta(t, false), invocation(tc.capability, contract.ActionRead, tc.resource), tc.payload)
 		if err != nil {
 			t.Fatalf("%s: %v", tc.capability, err)
 		}
@@ -111,27 +111,27 @@ func TestGmailRejectsWritesAndMismatchedRequests(t *testing.T) {
 	client := NewGmail(gmailStore())
 	meta := gmailMeta(t, false)
 	for name, tc := range map[string]struct {
-		inv     connectors.Invocation
+		inv     contract.Invocation
 		payload Payload
 	}{
-		"send is not a capability":     {invocation("message.send", connectors.ActionCreate, "gmail/messages"), MessageSearchPayload{}},
-		"read capability as a write":   {invocation("message.get", connectors.ActionUpdate, "gmail/messages/m-1"), MessageGetPayload{}},
-		"delete is locked":             {invocation("message.get", connectors.ActionDelete, "gmail/messages/m-1"), MessageGetPayload{}},
-		"payload replay":               {invocation("message.get", connectors.ActionRead, "gmail/messages/m-1"), MessageSearchPayload{}},
-		"search on a message resource": {invocation("message.search", connectors.ActionRead, "gmail/messages/m-1"), MessageSearchPayload{}},
-		"get on the collection":        {invocation("message.get", connectors.ActionRead, "gmail/messages"), MessageGetPayload{}},
-		"payload id differs":           {invocation("message.get", connectors.ActionRead, "gmail/messages/m-1"), MessageGetPayload{MessageID: "m-2"}},
-		"foreign resource":             {invocation("message.get", connectors.ActionRead, "drive/d-1/files/m-1"), MessageGetPayload{}},
-		"traversal":                    {invocation("message.get", connectors.ActionRead, "gmail/messages/../m-1"), MessageGetPayload{}},
-		"negative page size":           {invocation("message.search", connectors.ActionRead, "gmail/messages"), MessageSearchPayload{PageSize: -1}},
-		"page size above the hard cap": {invocation("message.search", connectors.ActionRead, "gmail/messages"), MessageSearchPayload{PageSize: gmailMaxPageSize + 1}},
+		"send is not a capability":     {invocation("message.send", contract.ActionCreate, "gmail/messages"), MessageSearchPayload{}},
+		"read capability as a write":   {invocation("message.get", contract.ActionUpdate, "gmail/messages/m-1"), MessageGetPayload{}},
+		"delete is locked":             {invocation("message.get", contract.ActionDelete, "gmail/messages/m-1"), MessageGetPayload{}},
+		"payload replay":               {invocation("message.get", contract.ActionRead, "gmail/messages/m-1"), MessageSearchPayload{}},
+		"search on a message resource": {invocation("message.search", contract.ActionRead, "gmail/messages/m-1"), MessageSearchPayload{}},
+		"get on the collection":        {invocation("message.get", contract.ActionRead, "gmail/messages"), MessageGetPayload{}},
+		"payload id differs":           {invocation("message.get", contract.ActionRead, "gmail/messages/m-1"), MessageGetPayload{MessageID: "m-2"}},
+		"foreign resource":             {invocation("message.get", contract.ActionRead, "drive/d-1/files/m-1"), MessageGetPayload{}},
+		"traversal":                    {invocation("message.get", contract.ActionRead, "gmail/messages/../m-1"), MessageGetPayload{}},
+		"negative page size":           {invocation("message.search", contract.ActionRead, "gmail/messages"), MessageSearchPayload{PageSize: -1}},
+		"page size above the hard cap": {invocation("message.search", contract.ActionRead, "gmail/messages"), MessageSearchPayload{PageSize: gmailMaxPageSize + 1}},
 	} {
 		if _, err := client.Invoke(context.Background(), meta, tc.inv, tc.payload); err == nil {
 			t.Errorf("%s: invocation was allowed", name)
 		}
 	}
-	drive := metaFor(t, connectors.ProviderGoogle, []string{"drive/d-1"}, nil)
-	if _, err := client.Invoke(context.Background(), drive, invocation("drive.search", connectors.ActionRead, "drive/d-1"), DriveSearchPayload{}); err == nil {
+	drive := metaFor(t, contract.ProviderGoogle, []string{"drive/d-1"}, nil)
+	if _, err := client.Invoke(context.Background(), drive, invocation("drive.search", contract.ActionRead, "drive/d-1"), DriveSearchPayload{}); err == nil {
 		t.Error("a google_drive connector was accepted by the Gmail client")
 	}
 }
@@ -164,7 +164,7 @@ func TestAuthenticatedGmailSearchRequestsMetadataOnly(t *testing.T) {
 	defer server.Close()
 	client := NewGmailHTTP(testHTTPClient(server, assertGmailEndpoint(t)), resolver)
 	meta := gmailMeta(t, true)
-	result, err := client.Invoke(context.Background(), meta, invocation("message.search", connectors.ActionRead, "gmail/messages"), MessageSearchPayload{Query: "from:alice", PageSize: 2, PageToken: "p-1"})
+	result, err := client.Invoke(context.Background(), meta, invocation("message.search", contract.ActionRead, "gmail/messages"), MessageSearchPayload{Query: "from:alice", PageSize: 2, PageToken: "p-1"})
 	if err != nil {
 		t.Fatalf("search: %v", err)
 	}
@@ -197,7 +197,7 @@ func TestAuthenticatedGmailGetFetchesBodyOnlyWithOptIn(t *testing.T) {
 			_, _ = io.WriteString(w, gmailMetadataFixture)
 		}))
 		client := NewGmailHTTP(testHTTPClient(server, assertGmailEndpoint(t)), &recordingResolver{token: "fake-gmail-token"})
-		result, err := client.Invoke(context.Background(), gmailMeta(t, includeBody), invocation("message.get", connectors.ActionRead, "gmail/messages/m-1"), MessageGetPayload{MessageID: "m-1"})
+		result, err := client.Invoke(context.Background(), gmailMeta(t, includeBody), invocation("message.get", contract.ActionRead, "gmail/messages/m-1"), MessageGetPayload{MessageID: "m-1"})
 		server.Close()
 		if err != nil {
 			t.Fatalf("includeBody=%v: %v", includeBody, err)
@@ -220,17 +220,17 @@ func TestAuthenticatedGmailGetFetchesBodyOnlyWithOptIn(t *testing.T) {
 }
 
 func TestAuthenticatedGmailFailsClosedAndRedactsErrors(t *testing.T) {
-	client, err := New(connectors.ProviderGmail)
+	client, err := New(contract.ProviderGmail)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = client.Invoke(context.Background(), gmailMeta(t, false), invocation("message.search", connectors.ActionRead, "gmail/messages"), MessageSearchPayload{})
+	_, err = client.Invoke(context.Background(), gmailMeta(t, false), invocation("message.search", contract.ActionRead, "gmail/messages"), MessageSearchPayload{})
 	if err == nil || !strings.Contains(err.Error(), "credential") {
 		t.Fatalf("unconfigured resolver error = %v", err)
 	}
 
 	noNetwork := &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) { return nil, errors.New("must not send") })}
-	_, err = NewGmailHTTP(noNetwork, credentialErrorResolver{}).Invoke(context.Background(), gmailMeta(t, false), invocation("message.get", connectors.ActionRead, "gmail/messages/m-1"), MessageGetPayload{})
+	_, err = NewGmailHTTP(noNetwork, credentialErrorResolver{}).Invoke(context.Background(), gmailMeta(t, false), invocation("message.get", contract.ActionRead, "gmail/messages/m-1"), MessageGetPayload{})
 	if err == nil || err.Error() != "credential resolution failed" {
 		t.Fatalf("resolver error = %v", err)
 	}
@@ -239,7 +239,7 @@ func TestAuthenticatedGmailFailsClosedAndRedactsErrors(t *testing.T) {
 		http.Error(w, `{"error":"FAKE-BODY-MARKER fake-gmail-token"}`, http.StatusForbidden)
 	}))
 	defer server.Close()
-	_, err = NewGmailHTTP(testHTTPClient(server, assertGmailEndpoint(t)), &recordingResolver{token: "fake-gmail-token"}).Invoke(context.Background(), gmailMeta(t, false), invocation("message.get", connectors.ActionRead, "gmail/messages/m-1"), MessageGetPayload{})
+	_, err = NewGmailHTTP(testHTTPClient(server, assertGmailEndpoint(t)), &recordingResolver{token: "fake-gmail-token"}).Invoke(context.Background(), gmailMeta(t, false), invocation("message.get", contract.ActionRead, "gmail/messages/m-1"), MessageGetPayload{})
 	if err == nil || strings.Contains(err.Error(), "fake-gmail-token") || strings.Contains(err.Error(), "FAKE-BODY-MARKER") {
 		t.Fatalf("provider rejection error = %v", err)
 	}

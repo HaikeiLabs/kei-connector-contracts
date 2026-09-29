@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package connectors
+package contract
 
 import (
 	"bytes"
@@ -150,7 +150,7 @@ func TestSetupSchemaJSONExportIsCurrent(t *testing.T) {
 		t.Fatal(err)
 	}
 	want = append(want, '\n')
-	const path = "schemas/connector-setup.v1.json"
+	const path = "../schemas/connector-setup.v1.json"
 	if *updateSetupGolden {
 		if err := os.WriteFile(path, want, 0o644); err != nil {
 			t.Fatal(err)
