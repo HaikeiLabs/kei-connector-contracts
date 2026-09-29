@@ -84,7 +84,7 @@ func TestBuildAuditRecordPreservesCanonicalPlainTextValues(t *testing.T) {
 	env.Invocation.Capability = "pull_request.read"
 	env.Invocation.Resource = "repos/Acme/Kei/pulls/17"
 
-	rec := BuildAuditRecord(env, PolicyDecision{Decision: DecisionAllow}, time.Now())
+	rec := BuildAuditRecord(env, governance.PolicyDecision{Decision: governance.DecisionAllow}, time.Now())
 	if rec.InvokingSubject != "user:U-17" || rec.AgentID != "agent:ReviewBot" {
 		t.Fatalf("principal values changed: subject=%q agent=%q", rec.InvokingSubject, rec.AgentID)
 	}
