@@ -21,6 +21,19 @@ It is also deliberately **stdlib-only**. Every service imports it, so a
 dependency added here propagates to all of them. CI fails if `go.mod` gains a
 `require` block.
 
+## Authorization and approvals
+
+Connector contracts describe the operation, capability, resource, and
+metadata needed for runtime execution. They do not carry a one-time human
+approval for an invocation. Access is granted to users and groups through
+workspace permissions before execution; the tenant-side runtime executes
+operations covered by the workspace-bound identity. Contract PR #6 removes
+the exported `Invocation.ApprovalID`, `PolicyAttributes.DestructiveEnabled`,
+and `providers.DestructiveAllowed` fields. See the proposed
+[ADR-027: Approvals grant access; there are no per-call approvals](https://github.com/HaikeiLabs/kei/pull/671)
+for the decision and migration inventory; runtime consumers still need to
+remove their remaining approval transport fields.
+
 The contract is frozen: see `contract_freeze_test.go` and
 `providers/contract_freeze_test.go`. Breaking changes require a new contract or
 envelope version rather than an edit in place.
