@@ -81,9 +81,7 @@ const (
 // them. It authorizes any well-formed capability a connector declares and
 // leaves access to ABAC policy (HAI-258).
 var definitions = map[Provider][]Capability{
-	// Investor reads serve fundraising (HAI-210). Investor stage changes are
-	// agent action tools, never CRM capabilities.
-	ProviderCRM:     {{Name: "lead.read", Action: ActionRead}, {Name: "lead.create", Action: ActionCreate}, {Name: "lead.update", Action: ActionUpdate}, {Name: "investor.list", Action: ActionRead}, {Name: "investor.read", Action: ActionRead}},
+	ProviderCRM:     {{Name: "lead.read", Action: ActionRead}, {Name: "lead.create", Action: ActionCreate}, {Name: "lead.update", Action: ActionUpdate}, {Name: "investor.list", Action: ActionRead}, {Name: "investor.read", Action: ActionRead}, {Name: "investor.update", Action: ActionUpdate}},
 	ProviderLinear:  {{Name: "team.read", Action: ActionRead}, {Name: "project.read", Action: ActionRead}, {Name: "cycle.read", Action: ActionRead}, {Name: "issue.read", Action: ActionRead}, {Name: "issue.create", Action: ActionCreate}, {Name: "issue.update", Action: ActionUpdate}},
 	ProviderGitHub:  {{Name: "repository.read", Action: ActionRead}, {Name: "issue.read", Action: ActionRead}, {Name: "pull_request.read", Action: ActionRead}, {Name: "check.read", Action: ActionRead}, {Name: "workflow.read", Action: ActionRead}, {Name: "issue.create", Action: ActionCreate}, {Name: "issue.update", Action: ActionUpdate}, {Name: "pull_request.create", Action: ActionCreate}, {Name: "pull_request.update", Action: ActionUpdate}, {Name: "issue.comment", Action: ActionComment}},
 	ProviderGoogle:  {{Name: "drive.search", Action: ActionRead}, {Name: "drive.metadata.read", Action: ActionRead}, {Name: "docs.read", Action: ActionRead}},

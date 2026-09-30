@@ -117,12 +117,34 @@ type InvestorPage struct {
 	HasMore    bool          `json:"has_more"`
 }
 
-// CRMInvestorBackend is the seam for investor reads. It is separate from
-// CRMBackend so existing lead backends keep compiling; a backend without it
-// fails investor reads closed.
+// InvestorUpdatePayload requests investor.update. The payload carries an
+// allowlist of mutable fields: stage and optional notes. All other investor
+// fields are read-only and never flow through the runtime.
+type InvestorUpdatePayload struct {
+	Stage *string `json:"stage,omitempty"`
+}
+
+func (InvestorUpdatePayload) Capability() string { return "investor.update" }
+
+// Validate checks the payload: at least one mutable field must be set, and
+// stage, if set, must be a known InvestorStages value.
+func (p InvestorUpdatePayload) Validate() error {
+	if p.Stage == nil {
+		return errors.New("at least one field must be set on investor.update")
+	}
+	if p.Stage != nil && !slices.Contains(InvestorStages, *p.Stage) {
+		return fmt.Errorf("unknown investor stage %q", *p.Stage)
+	}
+	return nil
+}
+
+// CRMInvestorBackend is the seam for investor reads and writes. It is separate
+// from CRMBackend so existing lead backends keep compiling; a backend without
+// it fails investor reads closed.
 type CRMInvestorBackend interface {
 	ListInvestors(ctx context.Context, authRef string, filter InvestorListPayload) (InvestorPage, error)
 	Investor(ctx context.Context, authRef, id string) (CRMInvestor, error)
+	UpdateInvestor(ctx context.Context, authRef, id string, update InvestorUpdatePayload) (CRMInvestor, error)
 }
 
 // MemoryCRM is the in-memory CRM backend used until a real one exists. When
@@ -206,10 +228,30 @@ func (m MemoryCRM) Investor(_ context.Context, authRef, id string) (CRMInvestor,
 	return i, nil
 }
 
-// CRMClient serves lead.read, investor.list and investor.read. Lead
-// resources are leads (list) or leads/<id> (single lead); investor resources
-// are investors (investor.list) and investors/<id> (investor.read). Customer
-// reads are not exposed because the contract defines no customer
+func (m MemoryCRM) UpdateInvestor(_ context.Context, authRef, id string, update InvestorUpdatePayload) (CRMInvestor, error) {
+	if m.AuthRef != "" && authRef != m.AuthRef {
+		return CRMInvestor{}, errUnauthenticated
+	}
+	i, ok := m.Investors[id]
+	if !ok {
+		return CRMInvestor{}, errors.New("investor not found")
+	}
+	if err := update.Validate(); err != nil {
+		return CRMInvestor{}, err
+	}
+	if update.Stage != nil {
+		i.Stage = *update.Stage
+	}
+	i.UpdatedAt = time.Now()
+	m.Investors[id] = i
+	return i, nil
+}
+
+// CRMClient serves lead.read, investor.list, investor.read and
+// investor.update. Lead resources are leads (list) or leads/<id> (single
+// lead); investor resources are investors (investor.list),
+// investors/<id> (investor.read) and investors/<id> (investor.update).
+// Customer reads are not exposed because the contract defines no customer
 // capabilities.
 type CRMClient struct {
 	backend CRMBackend
@@ -234,6 +276,8 @@ func (c *CRMClient) Invoke(ctx context.Context, meta contract.Metadata, inv cont
 		return c.listInvestors(ctx, meta, inv, p)
 	case InvestorReadPayload:
 		return c.readInvestor(ctx, meta, inv)
+	case InvestorUpdatePayload:
+		return c.updateInvestor(ctx, meta, inv, p)
 	}
 	p, ok := payload.(LeadReadPayload)
 	if !ok {
@@ -294,6 +338,22 @@ func (c *CRMClient) readInvestor(ctx context.Context, meta contract.Metadata, in
 		return Result{}, errNoInvestorBackend
 	}
 	investor, err := backend.Investor(ctx, meta.CredentialRef, id)
+	if err != nil {
+		return Result{}, err
+	}
+	return Result{Capability: inv.Capability, Data: investor}, nil
+}
+
+func (c *CRMClient) updateInvestor(ctx context.Context, meta contract.Metadata, inv contract.Invocation, p InvestorUpdatePayload) (Result, error) {
+	id, ok := strings.CutPrefix(inv.Resource, "investors/")
+	if !ok || id == "" || strings.Contains(id, "/") {
+		return Result{}, errors.New("investor.update resource must be investors/<id>")
+	}
+	backend, ok := c.backend.(CRMInvestorBackend)
+	if !ok {
+		return Result{}, errNoInvestorBackend
+	}
+	investor, err := backend.UpdateInvestor(ctx, meta.CredentialRef, id, p)
 	if err != nil {
 		return Result{}, err
 	}

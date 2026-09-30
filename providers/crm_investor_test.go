@@ -27,25 +27,26 @@ func investorsMeta(t *testing.T) contract.Metadata {
 	return metaFor(t, contract.ProviderCRM, []string{"investors"}, nil)
 }
 
-func TestCRMInvestorCapabilitiesAreReads(t *testing.T) {
-	for _, name := range []string{"investor.list", "investor.read"} {
+func TestCRMInvestorCapabilitiesAreDefined(t *testing.T) {
+	for _, name := range []string{"investor.list", "investor.read", "investor.update"} {
 		found := false
 		for _, c := range contract.CapabilitiesFor(contract.ProviderCRM) {
 			if c.Name == name {
 				found = true
-				if c.Action != contract.ActionRead {
-					t.Errorf("%s action = %q, want read", name, c.Action)
+				switch name {
+				case "investor.list", "investor.read":
+					if c.Action != contract.ActionRead {
+						t.Errorf("%s action = %q, want read", name, c.Action)
+					}
+				case "investor.update":
+					if c.Action != contract.ActionUpdate {
+						t.Errorf("%s action = %q, want update", name, c.Action)
+					}
 				}
 			}
 		}
 		if !found {
 			t.Errorf("crm does not declare %s", name)
-		}
-	}
-	// Stage changes are agent action tools, not connector capabilities.
-	for _, c := range contract.CapabilitiesFor(contract.ProviderCRM) {
-		if strings.HasPrefix(c.Name, "investor.") && c.Action != contract.ActionRead {
-			t.Errorf("crm declares investor write %q", c.Name)
 		}
 	}
 }
@@ -151,6 +152,68 @@ func TestCRMInvestorRead(t *testing.T) {
 	}
 }
 
+func TestCRMInvestorUpdateStage(t *testing.T) {
+	c := NewCRM(crmStore())
+	ctx := context.Background()
+	stage := "committed"
+	got, err := c.Invoke(ctx, investorsMeta(t), invocation("investor.update", contract.ActionUpdate, "investors/i-1"), InvestorUpdatePayload{Stage: &stage})
+	if err != nil {
+		t.Fatalf("investor update failed: %v", err)
+	}
+	inv := got.Data.(CRMInvestor)
+	if inv.ID != "i-1" || inv.Stage != "committed" {
+		t.Fatalf("investor after update = %+v", inv)
+	}
+	// Verify the change persisted by reading it back.
+	read, err := c.Invoke(ctx, investorsMeta(t), invocation("investor.read", contract.ActionRead, "investors/i-1"), InvestorReadPayload{})
+	if err != nil {
+		t.Fatalf("investor read after update failed: %v", err)
+	}
+	if read.Data.(CRMInvestor).Stage != "committed" {
+		t.Fatalf("investor stage after update = %q, want committed", read.Data.(CRMInvestor).Stage)
+	}
+}
+
+func TestCRMInvestorUpdateValidatesStage(t *testing.T) {
+	c := NewCRM(crmStore())
+	inv := invocation("investor.update", contract.ActionUpdate, "investors/i-1")
+	invalid := "won"
+	for name, p := range map[string]InvestorUpdatePayload{
+		"unknown stage": {Stage: &invalid},
+	} {
+		if _, err := c.Invoke(context.Background(), investorsMeta(t), inv, p); err == nil {
+			t.Errorf("%s was accepted", name)
+		}
+	}
+}
+
+func TestCRMInvestorUpdateRejectsMissingResource(t *testing.T) {
+	c := NewCRM(crmStore())
+	stage := "committed"
+	for _, resource := range []string{"investors", "investors/", "investors/i-1/notes", "leads/l-1"} {
+		if _, err := c.Invoke(context.Background(), investorsMeta(t), invocation("investor.update", contract.ActionUpdate, resource), InvestorUpdatePayload{Stage: &stage}); err == nil {
+			t.Errorf("investor.update accepted resource %q", resource)
+		}
+	}
+}
+
+func TestCRMInvestorUpdateRejectsMissingInvestor(t *testing.T) {
+	c := NewCRM(crmStore())
+	stage := "committed"
+	if _, err := c.Invoke(context.Background(), investorsMeta(t), invocation("investor.update", contract.ActionUpdate, "investors/missing"), InvestorUpdatePayload{Stage: &stage}); err == nil {
+		t.Error("missing investor was updated")
+	}
+}
+
+func TestCRMInvestorUpdateFailsClosedWithoutInvestorBackend(t *testing.T) {
+	c := NewCRM(leadOnlyBackend{crmStore()})
+	stage := "committed"
+	_, err := c.Invoke(context.Background(), investorsMeta(t), invocation("investor.update", contract.ActionUpdate, "investors/i-1"), InvestorUpdatePayload{Stage: &stage})
+	if err == nil || err.Error() != "crm backend does not serve investors" {
+		t.Fatalf("lead-only backend error = %v", err)
+	}
+}
+
 func TestCRMInvestorReadsRequireAuthentication(t *testing.T) {
 	c := NewCRM(crmStore())
 	m := investorsMeta(t)
@@ -161,6 +224,10 @@ func TestCRMInvestorReadsRequireAuthentication(t *testing.T) {
 	}
 	if _, err := c.Invoke(ctx, m, invocation("investor.read", contract.ActionRead, "investors/i-1"), InvestorReadPayload{}); err == nil || err.Error() != "crm session is not authenticated" {
 		t.Fatalf("unauthenticated investor read error = %v", err)
+	}
+	stage := "committed"
+	if _, err := c.Invoke(ctx, m, invocation("investor.update", contract.ActionUpdate, "investors/i-1"), InvestorUpdatePayload{Stage: &stage}); err == nil || err.Error() != "crm session is not authenticated" {
+		t.Fatalf("unauthenticated investor update error = %v", err)
 	}
 }
 
