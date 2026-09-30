@@ -15,9 +15,6 @@
 package governance
 
 import (
-	"fmt"
-
-	"github.com/HaikeiLabs/kei-connector-contracts/capability"
 	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 	"github.com/HaikeiLabs/kei-connector-contracts/envelope"
 )
@@ -45,10 +42,12 @@ type PolicyDecision struct {
 
 // Decide evaluates a governed envelope against connector metadata. It is
 // fail-closed: malformed metadata, an invalid envelope, an inactive connector,
-// a cross-tenant/cross-workspace reference, an undefined capability, or an
-// undeclared capability are all explicit denies. Only an explicit allow is an
-// allow. Data-access and approval policy are decided by the ABAC policy layer,
-// not here.
+// a cross-tenant/cross-workspace reference, or a malformed or undeclared
+// capability are all explicit denies. Only an explicit allow is an allow, and
+// it carries the capability the connector declared. Decide is the control
+// plane's structural decision: it keeps no capability list
+// (contract.AuthorizeCall), and data access is decided by the ABAC policy
+// layer, not here. The tenant runtime separately refuses a capability it cannot execute.
 func Decide(m contract.Metadata, env envelope.Envelope) PolicyDecision {
 	if err := m.Validate(); err != nil {
 		return PolicyDecision{Decision: DecisionDeny, Reason: "invalid connector metadata: " + err.Error()}
@@ -64,14 +63,14 @@ func Decide(m contract.Metadata, env envelope.Envelope) PolicyDecision {
 		env.Invocation.ConnectorID != m.ID {
 		return PolicyDecision{Decision: DecisionDeny, Reason: "connector not found"}
 	}
-	// The capability must be both defined for the provider and declared on the
-	// connector; either boundary failing is a deny.
-	if _, ok := capability.LookupCapability(m.Provider, env.Invocation.Capability); !ok {
-		return PolicyDecision{Decision: DecisionDeny, Reason: fmt.Sprintf("capability %q is not defined for provider %q", env.Invocation.Capability, m.Provider)}
-	}
-	if err := contract.ValidateCall(m, env.Invocation); err != nil {
+	if err := contract.AuthorizeCall(m, env.Invocation); err != nil {
 		return PolicyDecision{Decision: DecisionDeny, Reason: err.Error()}
 	}
-	cap, _ := capability.LookupCapability(m.Provider, env.Invocation.Capability)
-	return PolicyDecision{Decision: DecisionAllow, Capability: cap}
+	// AuthorizeCall has confirmed the connector declares the capability.
+	for _, c := range m.Capabilities {
+		if c.Name == env.Invocation.Capability {
+			return PolicyDecision{Decision: DecisionAllow, Capability: c}
+		}
+	}
+	return PolicyDecision{Decision: DecisionDeny, Reason: "capability is not allowed"}
 }

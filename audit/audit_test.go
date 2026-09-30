@@ -62,7 +62,7 @@ func TestBuildAuditRecordFallsBackToTraceAndRecordsDenyReason(t *testing.T) {
 	env := decisionEnvelope()
 	env.Invocation.IdempotencyKey = ""
 	env.Invocation.TraceID = "trace-9"
-	decision := governance.PolicyDecision{Decision: governance.DecisionDeny, Reason: "approval required"}
+	decision := governance.PolicyDecision{Decision: governance.DecisionDeny, Reason: "no matching policy"}
 
 	rec := BuildAuditRecord(env, decision, time.Now())
 	if rec.SpanID != "trace-9" {
@@ -71,7 +71,7 @@ func TestBuildAuditRecordFallsBackToTraceAndRecordsDenyReason(t *testing.T) {
 	if rec.Decision != string(governance.DecisionDeny) {
 		t.Fatalf("decision = %q, want deny", rec.Decision)
 	}
-	if rec.PolicyReason == nil || *rec.PolicyReason != "approval required" {
+	if rec.PolicyReason == nil || *rec.PolicyReason != "no matching policy" {
 		t.Fatalf("policy_reason = %v, want the deny reason", rec.PolicyReason)
 	}
 }

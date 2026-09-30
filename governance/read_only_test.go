@@ -31,7 +31,7 @@ import (
 // These tests pin the operational consequence of that split: a connector is
 // read-only unless its own metadata explicitly opts in to a mutation. A
 // connector that declares only reads can never be talked into a write, no
-// matter what the caller asks for or which approval id it presents.
+// matter what the caller asks for.
 //
 // This is the fail-closed guarantee that keeps "the catalog lists writes" from
 // silently becoming "connectors can write".
@@ -109,10 +109,10 @@ func TestReadOnlyConnectorRejectsCatalogMutations(t *testing.T) {
 	}
 }
 
-// TestApprovalIDCannotUnlockUndeclaredMutation proves an approval id is not a
-// bypass: presenting one, with a policy permissive enough to admit the action,
+// TestPermissivePolicyCannotUnlockUndeclaredMutation proves connector policy
+// attributes are not a bypass: a policy permissive enough to admit the action
 // still fails because the connector never declared the capability.
-func TestApprovalIDCannotUnlockUndeclaredMutation(t *testing.T) {
+func TestPermissivePolicyCannotUnlockUndeclaredMutation(t *testing.T) {
 	for _, tc := range catalogMutations {
 		t.Run(string(tc.provider)+"/"+tc.capability, func(t *testing.T) {
 			meta, _, resource := readOnlyConnector(t, tc.provider)
@@ -122,10 +122,9 @@ func TestApprovalIDCannotUnlockUndeclaredMutation(t *testing.T) {
 				TenantID: meta.TenantID, WorkspaceID: meta.WorkspaceID, Subject: "u-1",
 				AgentID: "a-1", ConnectorID: meta.ID, Capability: tc.capability,
 				Action: tc.action, Resource: resource, TraceID: "trace-1",
-				ApprovalID: "approval-1",
 			}
 			if err := contract.ValidateCall(meta, in); err == nil {
-				t.Fatalf("mutation %q was authorized with an approval id", tc.capability)
+				t.Fatalf("mutation %q was authorized by a permissive policy", tc.capability)
 			}
 		})
 	}
@@ -133,7 +132,7 @@ func TestApprovalIDCannotUnlockUndeclaredMutation(t *testing.T) {
 
 // TestDecideDeniesUndeclaredMutation is the end-to-end fail-closed proof
 // through the policy decision: a mutation envelope against a read-only
-// connector is always a deny, never an allow, regardless of approval.
+// connector is always a deny, never an allow.
 func TestDecideDeniesUndeclaredMutation(t *testing.T) {
 	for _, tc := range catalogMutations {
 		t.Run(string(tc.provider)+"/"+tc.capability, func(t *testing.T) {
@@ -146,7 +145,6 @@ func TestDecideDeniesUndeclaredMutation(t *testing.T) {
 					TenantID: meta.TenantID, WorkspaceID: meta.WorkspaceID, Subject: "u-1",
 					AgentID: "a-1", ConnectorID: meta.ID, Capability: tc.capability,
 					Action: tc.action, Resource: resource, TraceID: "trace-1",
-					ApprovalID: "approval-1",
 				},
 				MintedBy: envelope.MintedByControlPlane,
 				IssuedAt: time.Now().UTC(),
@@ -158,9 +156,9 @@ func TestDecideDeniesUndeclaredMutation(t *testing.T) {
 	}
 }
 
-// TestReadCallNeedsNoApprovalID proves the read path stays usable: a governed
-// read against a read-only connector is valid with an empty approval id.
-func TestReadCallNeedsNoApprovalID(t *testing.T) {
+// TestReadCallIsValid proves the read path stays usable: a governed read
+// against a read-only connector is valid.
+func TestReadCallIsValid(t *testing.T) {
 	for _, provider := range []contract.Provider{contract.ProviderCRM, contract.ProviderGitHub, contract.ProviderLinear} {
 		t.Run(string(provider), func(t *testing.T) {
 			meta, readCap, resource := readOnlyConnector(t, provider)
@@ -170,7 +168,7 @@ func TestReadCallNeedsNoApprovalID(t *testing.T) {
 				Action: contract.ActionRead, Resource: resource, TraceID: "trace-1",
 			}
 			if err := contract.ValidateCall(meta, in); err != nil {
-				t.Fatalf("read call without an approval id rejected: %v", err)
+				t.Fatalf("read call rejected: %v", err)
 			}
 		})
 	}
@@ -192,7 +190,6 @@ func TestDeclaredMutationRemainsReachable(t *testing.T) {
 				TenantID: meta.TenantID, WorkspaceID: meta.WorkspaceID, Subject: "u-1",
 				AgentID: "a-1", ConnectorID: meta.ID, Capability: tc.capability,
 				Action: tc.action, Resource: resource, TraceID: "trace-1",
-				ApprovalID: "approval-1",
 			}
 			if err := contract.ValidateCall(meta, in); err != nil {
 				t.Fatalf("declared mutation %q rejected: %v", tc.capability, err)
@@ -247,7 +244,7 @@ func TestFinanceCatalogsDefineNoMutation(t *testing.T) {
 
 // TestFinanceMutationsRejectedEvenWhenDeclared is the belt-and-braces case: a
 // connector that forges a mutation capability in its own metadata, with a
-// permissive policy and an approval id, is still refused. contract.ValidateCall checks
+// permissive policy, is still refused. contract.ValidateCall checks
 // the capability against the provider catalog, so metadata cannot invent a
 // payment.
 func TestFinanceMutationsRejectedEvenWhenDeclared(t *testing.T) {
@@ -257,13 +254,10 @@ func TestFinanceMutationsRejectedEvenWhenDeclared(t *testing.T) {
 				meta, _, resource := readOnlyConnector(t, provider)
 				meta.Capabilities = append(meta.Capabilities, contract.Capability{Name: tc.capability, Action: tc.action})
 				meta.Policy.AllowedActions = []contract.Action{contract.ActionRead, contract.ActionCreate, contract.ActionUpdate, contract.ActionDelete}
-				meta.Policy.DestructiveEnabled = true
-
 				in := contract.Invocation{
 					TenantID: meta.TenantID, WorkspaceID: meta.WorkspaceID, Subject: "u-1",
 					AgentID: "a-1", ConnectorID: meta.ID, Capability: tc.capability,
 					Action: tc.action, Resource: resource, TraceID: "trace-1",
-					ApprovalID: "approval-1",
 				}
 				if err := contract.ValidateCall(meta, in); err == nil {
 					t.Fatalf("%s accepted forged mutation %q", provider, tc.capability)

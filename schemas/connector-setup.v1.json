@@ -238,7 +238,7 @@
         "location": "config",
         "required": false,
         "secret": false,
-        "pattern": "^(leads|customers)(/\\*)?$",
+        "pattern": "^(leads|customers|investors)(/\\*)?$",
         "default": [
           "leads",
           "customers"

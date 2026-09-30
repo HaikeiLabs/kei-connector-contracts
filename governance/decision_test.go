@@ -75,7 +75,7 @@ func TestDecideDeniesInsteadOfErroring(t *testing.T) {
 		{"cross-tenant", func(_ *contract.Metadata, e *envelope.Envelope) { e.Invocation.TenantID = "other" }, "connector not found"},
 		{"cross-workspace", func(_ *contract.Metadata, e *envelope.Envelope) { e.Invocation.WorkspaceID = "other" }, "connector not found"},
 		{"wrong connector", func(_ *contract.Metadata, e *envelope.Envelope) { e.Invocation.ConnectorID = "other" }, "connector not found"},
-		{"undefined capability", func(_ *contract.Metadata, e *envelope.Envelope) { e.Invocation.Capability = "admin.raw_sql" }, "not defined for provider"},
+		{"undeclared undefined capability", func(_ *contract.Metadata, e *envelope.Envelope) { e.Invocation.Capability = "admin.raw_sql" }, "capability is not allowed"},
 		{"undeclared capability", func(m *contract.Metadata, e *envelope.Envelope) {
 			m.Capabilities = []contract.Capability{{Name: "lead.read", Action: contract.ActionRead}}
 			e.Invocation.Capability = "lead.update"
@@ -103,17 +103,16 @@ func TestDecideDeniesInsteadOfErroring(t *testing.T) {
 	}
 }
 
-// TestDecideAllowsMutationWithoutApproval documents the decoupling: a mutation
-// is decided by structure and capability declaration alone; approval gating
-// lives in the ABAC policy layer.
-func TestDecideAllowsMutationWithoutApproval(t *testing.T) {
+// TestDecideAllowsDeclaredMutation documents that a mutation is decided by
+// structure and capability declaration alone; access is ABAC policy.
+func TestDecideAllowsDeclaredMutation(t *testing.T) {
 	env := decisionEnvelope()
 	env.Invocation.Capability = "lead.update"
 	env.Invocation.Action = contract.ActionUpdate
 
 	decision := Decide(decisionFixture(), env)
 	if decision.Decision != DecisionAllow {
-		t.Fatalf("decision = %s (%s), want allow for unapproved mutation", decision.Decision, decision.Reason)
+		t.Fatalf("decision = %s (%s), want allow for declared mutation", decision.Decision, decision.Reason)
 	}
 	if decision.Capability.Name != "lead.update" {
 		t.Fatalf("capability = %+v, want lead.update", decision.Capability)

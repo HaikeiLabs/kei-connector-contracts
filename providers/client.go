@@ -54,35 +54,15 @@ type Result struct {
 
 // Guard is the fail-closed gate every client runs before touching a backend.
 // It applies the contract's structural boundaries (tenant/workspace/status/
-// capability), rejects path-traversal resources that would normalize outside
-// the resource boundary, and keeps the destructive-operation lock. Resource,
-// prefix, and action policy are decided by the ABAC policy layer, not here.
+// capability) and rejects path-traversal resources that would normalize
+// outside the resource boundary. Resource, prefix, action, and destructive
+// operation policy are decided by the ABAC policy layer, not here.
 func Guard(meta contract.Metadata, inv contract.Invocation) error {
 	if err := contract.ValidateCall(meta, inv); err != nil {
 		return err
 	}
 	if !traversalSafe(inv.Resource) {
 		return errors.New("resource contains a path traversal segment")
-	}
-	if err := DestructiveAllowed(meta, inv); err != nil {
-		return err
-	}
-	return nil
-}
-
-// DestructiveAllowed keeps delete-class operations disabled unless the
-// connector policy explicitly enables them and an approval reference is
-// present. The initial capability surface defines no delete capabilities, so
-// this is defense in depth for the contract's fail-closed default.
-func DestructiveAllowed(meta contract.Metadata, inv contract.Invocation) error {
-	if inv.Action != contract.ActionDelete {
-		return nil
-	}
-	if !meta.Policy.DestructiveEnabled {
-		return errors.New("destructive operations are disabled")
-	}
-	if inv.ApprovalID == "" {
-		return errors.New("approval required for destructive operations")
 	}
 	return nil
 }
