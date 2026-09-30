@@ -129,14 +129,17 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 	// (read).
 	crm := NewCRM(crmStore())
 	cm := metaFor(t, contract.ProviderCRM, []string{"investors"}, nil)
+	committed := "committed"
 	for _, tc := range []struct {
 		resource string
 		payload  Payload
+		action   contract.Action
 	}{
-		{"investors", InvestorListPayload{}},
-		{"investors/i-1", InvestorReadPayload{}},
+		{"investors", InvestorListPayload{}, contract.ActionRead},
+		{"investors/i-1", InvestorReadPayload{}, contract.ActionRead},
+		{"investors/i-1", InvestorUpdatePayload{Stage: &committed}, contract.ActionUpdate},
 	} {
-		inv := invocation(tc.payload.Capability(), contract.ActionRead, tc.resource)
+		inv := invocation(tc.payload.Capability(), tc.action, tc.resource)
 		if _, err := crm.Invoke(ctx, cm, inv, tc.payload); err != nil {
 			t.Errorf("CRM resource %q rejected: %v", tc.resource, err)
 		}

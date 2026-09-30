@@ -47,6 +47,7 @@ var catalogMutations = []struct {
 	{contract.ProviderGitHub, "issue.comment", contract.ActionComment},
 	{contract.ProviderCRM, "lead.create", contract.ActionCreate},
 	{contract.ProviderCRM, "lead.update", contract.ActionUpdate},
+	{contract.ProviderCRM, "investor.update", contract.ActionUpdate},
 	{contract.ProviderLinear, "issue.create", contract.ActionCreate},
 	{contract.ProviderLinear, "issue.update", contract.ActionUpdate},
 }
