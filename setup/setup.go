@@ -57,6 +57,9 @@ const (
 	SetupLocationCredential SetupFieldLocation = "credential"
 	// SetupLocationHTTPAPI: stored in contract.Metadata.HTTPAPI.
 	SetupLocationHTTPAPI SetupFieldLocation = "http_api"
+	// SetupLocationGrafana: stored in contract.Metadata.Grafana.BaseURL and
+	// validated by contract.GrafanaConfig.Validate.
+	SetupLocationGrafana SetupFieldLocation = "grafana"
 )
 
 // SetupField is one input on a connector setup screen.
@@ -146,6 +149,19 @@ var setupSchemas = []SetupSchema{
 	// integration in Notion, so there is no non-secret config.
 	{Schema: SetupSchemaVersion, Provider: contract.ProviderNotion, Auth: sharedSecretAuth(), Fields: []SetupField{
 		{Name: "api_token", Label: "Notion internal integration token", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^(ntn|secret)_[A-Za-z0-9]+$`, MinLength: 20, MaxLength: 256},
+	}},
+	// Discord: a bot token. What it can read is the guilds the bot was
+	// invited to and the channels its roles can see, so there is no
+	// non-secret config.
+	{Schema: SetupSchemaVersion, Provider: contract.ProviderDiscord, Auth: sharedSecretAuth(), Fields: []SetupField{
+		{Name: "bot_token", Label: "Discord bot token", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$`, MinLength: 50, MaxLength: 256},
+	}},
+	// Grafana: the instance origin (Cloud or self-hosted; see
+	// contract.GrafanaConfig) and a service-account token (glsa_…). The
+	// service account's role bounds what the connector can read.
+	{Schema: SetupSchemaVersion, Provider: contract.ProviderGrafana, Auth: sharedSecretAuth(), Fields: []SetupField{
+		{Name: "base_url", Label: "Grafana URL", Type: SetupFieldHTTPSURL, Location: SetupLocationGrafana, Required: true, MaxLength: 2048},
+		{Name: "service_account_token", Label: "Grafana service account token", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^glsa_[A-Za-z0-9]+_[A-Za-z0-9]+$`, MinLength: 20, MaxLength: 256},
 	}},
 	{Schema: SetupSchemaVersion, Provider: contract.ProviderCRM, Auth: sharedSecretAuth(), Fields: []SetupField{
 		{Name: "base_url", Label: "CRM Worker origin", Type: SetupFieldHTTPSURL, Location: SetupLocationConfig, Required: true, MaxLength: 2048},

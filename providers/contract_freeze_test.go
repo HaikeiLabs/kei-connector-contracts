@@ -180,4 +180,36 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 			t.Errorf("Tito resource %q rejected: %v", tc.resource, err)
 		}
 	}
+
+	// HAI-309: Discord and Grafana are contract-only; their resource grammar
+	// is what the runtime executes against.
+	for capability, resource := range map[string]string{
+		"guild.list":   "guilds",
+		"guild.read":   "guilds/81384788765712384",
+		"channel.list": "guilds/81384788765712384/channels",
+		"channel.read": "channels/175928847299117063",
+		"thread.list":  "channels/175928847299117063/threads",
+		"message.list": "channels/175928847299117063/messages",
+		"message.read": "channels/175928847299117063/messages/1166474102939287632",
+		"role.list":    "guilds/81384788765712384/roles",
+	} {
+		if err := ValidateDiscordResource(capability, resource); err != nil {
+			t.Errorf("Discord resource %q rejected: %v", resource, err)
+		}
+	}
+	for capability, resource := range map[string]string{
+		"folder.list":      "folders",
+		"folder.read":      "folders/fd-ops",
+		"dashboard.search": "search",
+		"dashboard.read":   "dashboards/cIBgcSjkk",
+		"datasource.list":  "datasources",
+		"datasource.read":  "datasources/P8E80F9AEF21F6940",
+		"alert_rule.list":  "alert_rules",
+		"annotation.list":  "annotations",
+		"datasource.query": "datasources/P8E80F9AEF21F6940/query",
+	} {
+		if err := ValidateGrafanaResource(capability, resource); err != nil {
+			t.Errorf("Grafana resource %q rejected: %v", resource, err)
+		}
+	}
 }
