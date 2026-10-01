@@ -31,7 +31,7 @@ var updateSetupGolden = flag.Bool("update-setup", false, "rewrite schemas/connec
 // Only the connectors we build are configurable: s3 and the finance
 // providers have no setup schema.
 func TestSetupSchemasCoverExactlyTheSupportedProviders(t *testing.T) {
-	want := []contract.Provider{contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderLinear, contract.ProviderGitHub, contract.ProviderTito, contract.ProviderNotion, contract.ProviderCRM, contract.ProviderHTTPAPI}
+	want := []contract.Provider{contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderLinear, contract.ProviderGitHub, contract.ProviderTito, contract.ProviderNotion, contract.ProviderDiscord, contract.ProviderGrafana, contract.ProviderCRM, contract.ProviderHTTPAPI}
 	got := SetupSchemas()
 	if len(got) != len(want) {
 		t.Fatalf("SetupSchemas() has %d providers, want %d", len(got), len(want))
@@ -275,5 +275,89 @@ func TestCRMAllowedResourcesIncludeInvestors(t *testing.T) {
 				t.Errorf("allowed_resources default = %s, want [leads customers]", got)
 			}
 		}
+	}
+}
+
+// HAI-309: Discord is set up with a bot token and nothing else; the guilds it
+// can read are the ones the bot was invited to.
+func TestDiscordSetupIsOneBotToken(t *testing.T) {
+	s, ok := SetupSchemaFor(contract.ProviderDiscord)
+	if !ok || len(s.Auth) != 1 || s.Auth[0].CredentialSource != contract.CredentialSourceOpaqueRef || len(s.Auth[0].AccountModels) != 0 {
+		t.Fatalf("discord schema = %+v", s)
+	}
+	if len(s.Fields) != 1 || s.Fields[0].Name != "bot_token" || !s.Fields[0].Secret || !s.Fields[0].Required || s.Fields[0].Location != SetupLocationCredential {
+		t.Fatalf("discord fields = %+v", s.Fields)
+	}
+	token := s.Fields[0]
+	valid := "MTA4" + strings.Repeat("x", 20) + ".GhIj9k." + strings.Repeat("Ab_-", 8)
+	if !validSetupString(token, valid) {
+		t.Errorf("token %q rejected", valid)
+	}
+	for _, v := range []string{"", "short", "Bot " + valid, valid + " x", strings.Repeat("a", 300)} {
+		if validSetupString(token, v) {
+			t.Errorf("token %q accepted", v)
+		}
+	}
+	if err := ValidateConfig(contract.ProviderDiscord, "", map[string]any{"bot_token": "VALUE"}); err == nil {
+		t.Error("discord bot_token in config was accepted")
+	}
+}
+
+// HAI-309: Grafana takes its instance URL (stored in Metadata.Grafana, never
+// in config) and a service-account token behind the connector's opaque_ref.
+func TestGrafanaSetupIsBaseURLAndServiceAccountToken(t *testing.T) {
+	s, ok := SetupSchemaFor(contract.ProviderGrafana)
+	if !ok || len(s.Auth) != 1 || s.Auth[0].CredentialSource != contract.CredentialSourceOpaqueRef || len(s.Auth[0].AccountModels) != 0 {
+		t.Fatalf("grafana schema = %+v", s)
+	}
+	if len(s.Fields) != 2 {
+		t.Fatalf("grafana fields = %+v", s.Fields)
+	}
+	base, token := s.Fields[0], s.Fields[1]
+	if base.Name != "base_url" || base.Secret || !base.Required || base.Type != SetupFieldHTTPSURL || base.Location != SetupLocationGrafana {
+		t.Errorf("grafana base_url field = %+v", base)
+	}
+	if token.Name != "service_account_token" || !token.Secret || !token.Required || token.Location != SetupLocationCredential {
+		t.Errorf("grafana token field = %+v", token)
+	}
+	valid := "glsa_" + strings.Repeat("aB3", 10) + "_1a2b3c4d"
+	if !validSetupString(token, valid) {
+		t.Errorf("token %q rejected", valid)
+	}
+	for _, v := range []string{"", "glsa_", "Bearer " + valid, "eyJrIjoi" + strings.Repeat("a", 40), valid + " x"} {
+		if validSetupString(token, v) {
+			t.Errorf("token %q accepted", v)
+		}
+	}
+	if err := ValidateConfig(contract.ProviderGrafana, "", map[string]any{"base_url": "https://VALUE.example.com"}); err == nil {
+		t.Error("grafana base_url in config was accepted")
+	}
+}
+
+// ValidateMetadata enforces the Grafana base URL rules on the connector, and
+// that discord and grafana connectors are executable.
+func TestValidateMetadataChecksDiscordAndGrafana(t *testing.T) {
+	discord := connectorMetadata(contract.ProviderDiscord, contract.CredentialSourceOpaqueRef, "", nil)
+	discord.Capabilities = contract.CapabilitiesFor(contract.ProviderDiscord)
+	if err := ValidateMetadata(discord); err != nil {
+		t.Errorf("discord connector rejected: %v", err)
+	}
+	grafana := connectorMetadata(contract.ProviderGrafana, contract.CredentialSourceOpaqueRef, "", nil)
+	grafana.Capabilities = contract.CapabilitiesFor(contract.ProviderGrafana)
+	grafana.Grafana = &contract.GrafanaConfig{BaseURL: "https://grafana.internal:3000"}
+	if err := ValidateMetadata(grafana); err != nil {
+		t.Errorf("self-hosted grafana connector rejected: %v", err)
+	}
+	for _, u := range []string{"http://grafana.example.com", "https://169.254.169.254", "https://metadata.google.internal", "https://grafana.example.com/api"} {
+		bad := grafana
+		bad.Grafana = &contract.GrafanaConfig{BaseURL: u}
+		if err := ValidateMetadata(bad); err == nil {
+			t.Errorf("grafana connector with base_url %q accepted", u)
+		}
+	}
+	missing := grafana
+	missing.Grafana = nil
+	if err := ValidateMetadata(missing); err == nil {
+		t.Error("grafana connector without a base url was accepted")
 	}
 }

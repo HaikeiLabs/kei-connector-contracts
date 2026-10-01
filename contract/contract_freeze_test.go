@@ -60,6 +60,21 @@ func TestConnectorContractFreezeProviderCatalog(t *testing.T) {
 		ProviderCRM: {"lead.read": ActionRead, "lead.create": ActionCreate, "lead.update": ActionUpdate, "investor.list": ActionRead, "investor.read": ActionRead, "investor.update": ActionUpdate},
 		// HAI-203: Tito is a deliberate, read-only addition to the freeze.
 		ProviderTito: {"event.list": ActionRead, "event.get": ActionRead, "release.list": ActionRead, "ticket.summary": ActionRead},
+		// HAI-309: Discord and Grafana enter the freeze read-only. Discord has
+		// no member.* capability: member lists are personal data.
+		ProviderDiscord: {
+			"guild.list": ActionRead, "guild.read": ActionRead,
+			"channel.list": ActionRead, "channel.read": ActionRead,
+			"thread.list": ActionRead, "message.list": ActionRead,
+			"message.read": ActionRead, "role.list": ActionRead,
+		},
+		ProviderGrafana: {
+			"folder.list": ActionRead, "folder.read": ActionRead,
+			"dashboard.search": ActionRead, "dashboard.read": ActionRead,
+			"datasource.list": ActionRead, "datasource.read": ActionRead,
+			"alert_rule.list": ActionRead, "annotation.list": ActionRead,
+			"datasource.query": ActionRead,
+		},
 	}
 	for provider, expected := range want {
 		got := CapabilitiesFor(provider)

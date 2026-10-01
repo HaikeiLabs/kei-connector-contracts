@@ -123,8 +123,8 @@ func (m Metadata) validateCredentialBinding() error {
 			return err
 		}
 	}
-	if m.Provider == ProviderTito && source != CredentialSourceOpaqueRef {
-		return errors.New("tito connectors must use an opaque_ref credential source")
+	if (m.Provider == ProviderTito || m.Provider == ProviderDiscord || m.Provider == ProviderGrafana) && source != CredentialSourceOpaqueRef {
+		return fmt.Errorf("%s connectors must use an opaque_ref credential source", m.Provider)
 	}
 	if m.AccountModel == "" {
 		if source == CredentialSourceOAuth && m.Subject == "" {

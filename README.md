@@ -52,7 +52,7 @@ Dependencies point one way: `contract` ← `capability`, `envelope`, `setup`;
 
 | Import path | Contents |
 | --- | --- |
-| `github.com/HaikeiLabs/kei-connector-contracts/contract` | Provider, Status, Action, Capability, and the capability definitions; `Metadata`, `Invocation`, and the `http_api` types; `Validate`, `ValidateCall`, `ValidateInvocation`, `ValidateCredentialRef`; credential source and account models (`accountmodel.go`) |
+| `github.com/HaikeiLabs/kei-connector-contracts/contract` | Provider, Status, Action, Capability, and the capability definitions; `Metadata`, `Invocation`, the `http_api` types, and `GrafanaConfig`; `Validate`, `ValidateCall`, `ValidateInvocation`, `ValidateCredentialRef`; credential source and account models (`accountmodel.go`) |
 | `.../setup` | the setup schema (`SetupSchema`, `SetupSchemas`, `SetupSchemaFor`), `ValidateConfig`, and `ValidateMetadata` (the complete connector check: `Metadata.Validate`, then config) |
 | `.../capability` | `LookupCapability`, `CapabilityFor`, `CapabilitiesForProvider`, `Providers` |
 | `.../envelope` | `Envelope`, `EnvelopeVersion1`, `MintedByControlPlane` |
@@ -94,6 +94,48 @@ above that now holds `X`.
   reference rejection.
 
 Contract: `docs/connector-execution-contract.md` in `kei-connector-runtime`.
+
+## Discord and Grafana (HAI-309, unreleased)
+
+Two read-only, shared-secret providers. Both use `credential_source`
+`opaque_ref` only (no OAuth, no account models), and every capability is
+`read`. The contract carries the payloads (`providers/discord.go`,
+`providers/grafana.go`, each with `Validate`) and the resource grammar
+(`providers.ValidateDiscordResource`, `providers.ValidateGrafanaResource`);
+there is no backend seam, and the runtime executes the reads.
+
+| Provider | Capability | Resource | Input |
+| --- | --- | --- | --- |
+| `discord` | `guild.list` | `guilds` | |
+| `discord` | `guild.read` | `guilds/<snowflake>` | |
+| `discord` | `channel.list` | `guilds/<snowflake>/channels` | |
+| `discord` | `channel.read` | `channels/<snowflake>` | |
+| `discord` | `thread.list` | `channels/<snowflake>/threads` | |
+| `discord` | `message.list` | `channels/<snowflake>/messages` | `limit` 1-100, `before` or `after` snowflake |
+| `discord` | `message.read` | `channels/<snowflake>/messages/<snowflake>` | |
+| `discord` | `role.list` | `guilds/<snowflake>/roles` | |
+| `grafana` | `folder.list` | `folders` | |
+| `grafana` | `folder.read` | `folders/<uid>` | |
+| `grafana` | `dashboard.search` | `search` | `query`, `tags`, `limit` |
+| `grafana` | `dashboard.read` | `dashboards/<uid>` | |
+| `grafana` | `datasource.list` | `datasources` | |
+| `grafana` | `datasource.read` | `datasources/<uid>` | |
+| `grafana` | `alert_rule.list` | `alert_rules` | |
+| `grafana` | `annotation.list` | `annotations` | `from`/`to` (at most 31 days), `dashboard_uid`, `tags`, `limit` |
+| `grafana` | `datasource.query` | `datasources/<uid>/query` | `from`/`to` (at most 7 days), `max_rows` (at most 1000), `queries` (1-10) |
+
+Discord has no `member.*` capability: member lists are personal data.
+
+Setup: `discord` takes the secret `bot_token`. `grafana` takes `base_url`,
+stored in the new `Metadata.Grafana` (`GrafanaConfig{BaseURL}`, setup location
+`grafana`), and the secret `service_account_token`. `Metadata.Validate`
+requires `Metadata.Grafana` on a grafana connector and refuses it elsewhere.
+The base URL is an https origin with no path, query, fragment, or userinfo.
+Private and internal hosts are allowed, because Grafana is often self-hosted.
+Link-local addresses (169.254.0.0/16, fe80::/10), `fd00:ec2::254`, unspecified
+addresses, numeric-encoded IPv4 hosts, and cloud-metadata hostnames
+(`metadata`, `metadata.*`, `instance-data`, `instance-data.*`) are always
+refused. The runtime must still check the resolved address when it dials.
 
 ## Versioning
 

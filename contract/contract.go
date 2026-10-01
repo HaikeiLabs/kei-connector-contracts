@@ -55,6 +55,16 @@ const (
 	// ProviderTito is the Tito ticketing admin API. It has no OAuth: its API
 	// token lives in the customer's secret backend behind an opaque_ref.
 	ProviderTito Provider = "tito"
+
+	// ProviderDiscord reads Discord guilds, channels, threads, messages and
+	// roles with a bot token behind an opaque_ref. Member reads are absent
+	// by design: member lists are personal data.
+	ProviderDiscord Provider = "discord"
+
+	// ProviderGrafana reads a Grafana instance (Cloud or self-hosted) with a
+	// service-account token behind an opaque_ref. The instance is
+	// Metadata.Grafana.BaseURL.
+	ProviderGrafana Provider = "grafana"
 )
 
 // CredentialSource is typed metadata for where a connector's credential
@@ -97,6 +107,11 @@ var definitions = map[Provider][]Capability{
 	ProviderMercury:    {{Name: "account.read", Action: ActionRead}, {Name: "transaction.read", Action: ActionRead}, {Name: "balance.read", Action: ActionRead}},
 	ProviderGmail:      {{Name: "message.search", Action: ActionRead}, {Name: "message.get", Action: ActionRead}},
 	ProviderTito:       {{Name: "event.list", Action: ActionRead}, {Name: "event.get", Action: ActionRead}, {Name: "release.list", Action: ActionRead}, {Name: "ticket.summary", Action: ActionRead}},
+	// Discord and Grafana are read-only. Discord deliberately has no
+	// member.* capability (member lists are personal data) and neither has a
+	// write: sending messages or editing dashboards is an agent action tool.
+	ProviderDiscord: {{Name: "guild.list", Action: ActionRead}, {Name: "guild.read", Action: ActionRead}, {Name: "channel.list", Action: ActionRead}, {Name: "channel.read", Action: ActionRead}, {Name: "thread.list", Action: ActionRead}, {Name: "message.list", Action: ActionRead}, {Name: "message.read", Action: ActionRead}, {Name: "role.list", Action: ActionRead}},
+	ProviderGrafana: {{Name: "folder.list", Action: ActionRead}, {Name: "folder.read", Action: ActionRead}, {Name: "dashboard.search", Action: ActionRead}, {Name: "dashboard.read", Action: ActionRead}, {Name: "datasource.list", Action: ActionRead}, {Name: "datasource.read", Action: ActionRead}, {Name: "alert_rule.list", Action: ActionRead}, {Name: "annotation.list", Action: ActionRead}, {Name: "datasource.query", Action: ActionRead}},
 }
 
 func CapabilitiesFor(provider Provider) []Capability {
@@ -136,6 +151,9 @@ type Metadata struct {
 	CreatedAt     time.Time        `json:"created_at"`
 	UpdatedAt     time.Time        `json:"updated_at"`
 	HTTPAPI       *HTTPAPI         `json:"http_api,omitempty"`
+	// Grafana is the grafana provider's instance. It is required for, and
+	// only valid on, a grafana connector.
+	Grafana *GrafanaConfig `json:"grafana,omitempty"`
 
 	// CredentialSource is the typed credential source. Empty means
 	// opaque_ref, so metadata built against v0.1.0 stays valid; see
@@ -218,6 +236,16 @@ func (m Metadata) Validate() error {
 	} else if m.HTTPAPI != nil {
 		return errors.New("http_api metadata is only valid for provider http_api")
 	}
+	if m.Provider == ProviderGrafana {
+		if m.Grafana == nil {
+			return errors.New("grafana metadata is required")
+		}
+		if err := m.Grafana.Validate(); err != nil {
+			return err
+		}
+	} else if m.Grafana != nil {
+		return errors.New("grafana metadata is only valid for provider grafana")
+	}
 	if len(m.Scopes) == 0 {
 		return errors.New("connector must declare at least one scope")
 	}
@@ -273,7 +301,7 @@ func definedCapability(provider Provider, candidate Capability) bool {
 
 func validProvider(p Provider) bool {
 	return p == ProviderCRM || p == ProviderLinear || p == ProviderGitHub || p == ProviderGoogle || p == ProviderNotion || p == ProviderS3 || p == ProviderHTTPAPI ||
-		p == ProviderFreshBooks || p == ProviderMercury || p == ProviderGmail || p == ProviderTito
+		p == ProviderFreshBooks || p == ProviderMercury || p == ProviderGmail || p == ProviderTito || p == ProviderDiscord || p == ProviderGrafana
 }
 func validStatus(s Status) bool {
 	return s == StatusPending || s == StatusActive || s == StatusSuspended || s == StatusRevoked || s == StatusFailed
