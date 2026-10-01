@@ -1,0 +1,480 @@
+[
+  {
+    "schema": "kei.connector-access/v1",
+    "provider": "gmail",
+    "access": [
+      {
+        "kind": "api",
+        "api": {
+          "adapter": "gmail"
+        },
+        "setup": [
+          {
+            "name": "create_connector",
+            "description": "Create the connector in the Kei console with the provider's setup fields (schemas/connector-setup.v1.json). Secrets go to the console-connected secret manager; the connector keeps only its credential_ref."
+          },
+          {
+            "name": "declare_capabilities",
+            "description": "Declare the capabilities the connector exposes. ABAC policy decides who may use them."
+          }
+        ],
+        "verify": [
+          {
+            "name": "invoke_read",
+            "description": "Run one read through the runtime adapter.",
+            "run": [
+              "kei-proxy",
+              "connector",
+              "invoke",
+              "--connector",
+              "\u003cconnector_id\u003e",
+              "--capability",
+              "message.search",
+              "--action",
+              "read",
+              "--resource",
+              "\u003cresource\u003e"
+            ]
+          }
+        ],
+        "reads": [
+          "message.search",
+          "message.get"
+        ]
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-access/v1",
+    "provider": "google_drive",
+    "access": [
+      {
+        "kind": "api",
+        "api": {
+          "adapter": "google_drive"
+        },
+        "setup": [
+          {
+            "name": "create_connector",
+            "description": "Create the connector in the Kei console with the provider's setup fields (schemas/connector-setup.v1.json). Secrets go to the console-connected secret manager; the connector keeps only its credential_ref."
+          },
+          {
+            "name": "declare_capabilities",
+            "description": "Declare the capabilities the connector exposes. ABAC policy decides who may use them."
+          }
+        ],
+        "verify": [
+          {
+            "name": "invoke_read",
+            "description": "Run one read through the runtime adapter.",
+            "run": [
+              "kei-proxy",
+              "connector",
+              "invoke",
+              "--connector",
+              "\u003cconnector_id\u003e",
+              "--capability",
+              "drive.search",
+              "--action",
+              "read",
+              "--resource",
+              "\u003cresource\u003e"
+            ]
+          }
+        ],
+        "reads": [
+          "drive.search",
+          "drive.metadata.read",
+          "docs.read"
+        ]
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-access/v1",
+    "provider": "linear",
+    "access": [
+      {
+        "kind": "api",
+        "api": {
+          "adapter": "linear"
+        },
+        "setup": [
+          {
+            "name": "create_connector",
+            "description": "Create the connector in the Kei console with the provider's setup fields (schemas/connector-setup.v1.json). Secrets go to the console-connected secret manager; the connector keeps only its credential_ref."
+          },
+          {
+            "name": "declare_capabilities",
+            "description": "Declare the capabilities the connector exposes. ABAC policy decides who may use them."
+          }
+        ],
+        "verify": [
+          {
+            "name": "invoke_read",
+            "description": "Run one read through the runtime adapter.",
+            "run": [
+              "kei-proxy",
+              "connector",
+              "invoke",
+              "--connector",
+              "\u003cconnector_id\u003e",
+              "--capability",
+              "team.read",
+              "--action",
+              "read",
+              "--resource",
+              "\u003cresource\u003e"
+            ]
+          }
+        ],
+        "reads": [
+          "team.read",
+          "project.read",
+          "cycle.read",
+          "issue.read"
+        ]
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-access/v1",
+    "provider": "github",
+    "access": [
+      {
+        "kind": "api",
+        "api": {
+          "adapter": "github"
+        },
+        "setup": [
+          {
+            "name": "create_connector",
+            "description": "Create the connector in the Kei console with the provider's setup fields (schemas/connector-setup.v1.json). Secrets go to the console-connected secret manager; the connector keeps only its credential_ref."
+          },
+          {
+            "name": "declare_capabilities",
+            "description": "Declare the capabilities the connector exposes. ABAC policy decides who may use them."
+          }
+        ],
+        "verify": [
+          {
+            "name": "invoke_read",
+            "description": "Run one read through the runtime adapter.",
+            "run": [
+              "kei-proxy",
+              "connector",
+              "invoke",
+              "--connector",
+              "\u003cconnector_id\u003e",
+              "--capability",
+              "repository.read",
+              "--action",
+              "read",
+              "--resource",
+              "\u003cresource\u003e"
+            ]
+          }
+        ],
+        "reads": [
+          "repository.read",
+          "issue.read",
+          "pull_request.read",
+          "check.read",
+          "workflow.read"
+        ]
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-access/v1",
+    "provider": "tito",
+    "access": [
+      {
+        "kind": "api",
+        "api": {
+          "adapter": "tito"
+        },
+        "setup": [
+          {
+            "name": "create_connector",
+            "description": "Create the connector in the Kei console with the provider's setup fields (schemas/connector-setup.v1.json). Secrets go to the console-connected secret manager; the connector keeps only its credential_ref."
+          },
+          {
+            "name": "declare_capabilities",
+            "description": "Declare the capabilities the connector exposes. ABAC policy decides who may use them."
+          }
+        ],
+        "verify": [
+          {
+            "name": "invoke_read",
+            "description": "Run one read through the runtime adapter.",
+            "run": [
+              "kei-proxy",
+              "connector",
+              "invoke",
+              "--connector",
+              "\u003cconnector_id\u003e",
+              "--capability",
+              "event.list",
+              "--action",
+              "read",
+              "--resource",
+              "\u003cresource\u003e"
+            ]
+          }
+        ],
+        "reads": [
+          "event.list",
+          "event.get",
+          "release.list",
+          "ticket.summary"
+        ]
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-access/v1",
+    "provider": "notion",
+    "access": [
+      {
+        "kind": "api",
+        "api": {
+          "adapter": "notion"
+        },
+        "setup": [
+          {
+            "name": "create_connector",
+            "description": "Create the connector in the Kei console with the provider's setup fields (schemas/connector-setup.v1.json). Secrets go to the console-connected secret manager; the connector keeps only its credential_ref."
+          },
+          {
+            "name": "declare_capabilities",
+            "description": "Declare the capabilities the connector exposes. ABAC policy decides who may use them."
+          }
+        ],
+        "verify": [
+          {
+            "name": "invoke_read",
+            "description": "Run one read through the runtime adapter.",
+            "run": [
+              "kei-proxy",
+              "connector",
+              "invoke",
+              "--connector",
+              "\u003cconnector_id\u003e",
+              "--capability",
+              "search",
+              "--action",
+              "read",
+              "--resource",
+              "\u003cresource\u003e"
+            ]
+          }
+        ],
+        "reads": [
+          "search",
+          "page.read",
+          "database.query"
+        ]
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-access/v1",
+    "provider": "discord",
+    "access": [
+      {
+        "kind": "api",
+        "api": {
+          "adapter": "discord"
+        },
+        "setup": [
+          {
+            "name": "create_connector",
+            "description": "Create the connector in the Kei console with the provider's setup fields (schemas/connector-setup.v1.json). Secrets go to the console-connected secret manager; the connector keeps only its credential_ref."
+          },
+          {
+            "name": "declare_capabilities",
+            "description": "Declare the capabilities the connector exposes. ABAC policy decides who may use them."
+          }
+        ],
+        "verify": [
+          {
+            "name": "invoke_read",
+            "description": "Run one read through the runtime adapter.",
+            "run": [
+              "kei-proxy",
+              "connector",
+              "invoke",
+              "--connector",
+              "\u003cconnector_id\u003e",
+              "--capability",
+              "guild.list",
+              "--action",
+              "read",
+              "--resource",
+              "\u003cresource\u003e"
+            ]
+          }
+        ],
+        "reads": [
+          "guild.list",
+          "guild.read",
+          "channel.list",
+          "channel.read",
+          "thread.list",
+          "message.list",
+          "message.read",
+          "role.list"
+        ]
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-access/v1",
+    "provider": "grafana",
+    "access": [
+      {
+        "kind": "api",
+        "api": {
+          "adapter": "grafana"
+        },
+        "setup": [
+          {
+            "name": "create_connector",
+            "description": "Create the connector in the Kei console with the provider's setup fields (schemas/connector-setup.v1.json). Secrets go to the console-connected secret manager; the connector keeps only its credential_ref."
+          },
+          {
+            "name": "declare_capabilities",
+            "description": "Declare the capabilities the connector exposes. ABAC policy decides who may use them."
+          }
+        ],
+        "verify": [
+          {
+            "name": "invoke_read",
+            "description": "Run one read through the runtime adapter.",
+            "run": [
+              "kei-proxy",
+              "connector",
+              "invoke",
+              "--connector",
+              "\u003cconnector_id\u003e",
+              "--capability",
+              "folder.list",
+              "--action",
+              "read",
+              "--resource",
+              "\u003cresource\u003e"
+            ]
+          }
+        ],
+        "reads": [
+          "folder.list",
+          "folder.read",
+          "dashboard.search",
+          "dashboard.read",
+          "datasource.list",
+          "datasource.read",
+          "alert_rule.list",
+          "annotation.list",
+          "datasource.query"
+        ]
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-access/v1",
+    "provider": "crm",
+    "access": [
+      {
+        "kind": "api",
+        "api": {
+          "adapter": "crm"
+        },
+        "setup": [
+          {
+            "name": "create_connector",
+            "description": "Create the connector in the Kei console with the provider's setup fields (schemas/connector-setup.v1.json). Secrets go to the console-connected secret manager; the connector keeps only its credential_ref."
+          },
+          {
+            "name": "declare_capabilities",
+            "description": "Declare the capabilities the connector exposes. ABAC policy decides who may use them."
+          }
+        ],
+        "verify": [
+          {
+            "name": "invoke_read",
+            "description": "Run one read through the runtime adapter.",
+            "run": [
+              "kei-proxy",
+              "connector",
+              "invoke",
+              "--connector",
+              "\u003cconnector_id\u003e",
+              "--capability",
+              "lead.read",
+              "--action",
+              "read",
+              "--resource",
+              "\u003cresource\u003e"
+            ]
+          }
+        ],
+        "reads": [
+          "lead.read",
+          "investor.list",
+          "investor.read"
+        ],
+        "writes": [
+          "lead.create",
+          "lead.update",
+          "investor.update"
+        ]
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-access/v1",
+    "provider": "http_api",
+    "access": [
+      {
+        "kind": "api",
+        "api": {
+          "adapter": "http_api"
+        },
+        "setup": [
+          {
+            "name": "create_connector",
+            "description": "Create the connector in the Kei console with the provider's setup fields (schemas/connector-setup.v1.json). Secrets go to the console-connected secret manager; the connector keeps only its credential_ref."
+          },
+          {
+            "name": "declare_capabilities",
+            "description": "Declare the capabilities the connector exposes. ABAC policy decides who may use them."
+          }
+        ],
+        "verify": [
+          {
+            "name": "invoke_read",
+            "description": "Run one read through the runtime adapter.",
+            "run": [
+              "kei-proxy",
+              "connector",
+              "invoke",
+              "--connector",
+              "\u003cconnector_id\u003e",
+              "--capability",
+              "http.get",
+              "--action",
+              "read",
+              "--resource",
+              "\u003cresource\u003e"
+            ]
+          }
+        ],
+        "reads": [
+          "http.get",
+          "http.head"
+        ]
+      }
+    ]
+  }
+]
