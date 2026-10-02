@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/HaikeiLabs/kei-connector-contracts/schemas/connector-access.v1.schema.json",
+  "title": "Kei connector provider access modes (kei.connector-access/v1)",
+  "description": "How each provider can be reached: the runtime adapter (api), a provider CLI, an MCP server, or a webhook. Metadata only: it grants nothing, and ABAC policy decides every call. The export is schemas/connector-access.v1.json, an array of provider_access.",
+  "type": "array",
+  "items": { "$ref": "#/$defs/provider_access" },
+  "$defs": {
+    "capability": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$" },
+    "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$" },
+    "provider_access": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "provider", "access"],
+      "properties": {
+        "schema": { "const": "kei.connector-access/v1" },
+        "provider": { "type": "string" },
+        "access": { "type": "array", "items": { "$ref": "#/$defs/access_mode" } }
+      }
+    },
+    "access_mode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "reads"],
+      "properties": {
+        "kind": { "enum": ["api", "cli", "mcp", "webhook"] },
+        "api": { "$ref": "#/$defs/api" },
+        "cli": { "$ref": "#/$defs/cli" },
+        "mcp": { "$ref": "#/$defs/mcp" },
+        "webhook": { "$ref": "#/$defs/webhook" },
+        "credentials": {
+          "description": "Env vars set to kei://connectors/<connector_id>/<field> references, resolved into the child only by `kei-proxy run --` (cli) or the MCP launcher (mcp).",
+          "type": "array",
+          "items": { "$ref": "#/$defs/credential" }
+        },
+        "setup": { "type": "array", "items": { "$ref": "#/$defs/step" } },
+        "verify": { "type": "array", "items": { "$ref": "#/$defs/step" } },
+        "reads": { "description": "Read capabilities this mode serves.", "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/capability" } },
+        "writes": { "description": "Write capabilities this mode serves, made by agent action tools (ADR-028).", "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/capability" } }
+      },
+      "oneOf": [
+        { "properties": { "kind": { "const": "api" } }, "required": ["api"], "not": { "anyOf": [{ "required": ["cli"] }, { "required": ["mcp"] }, { "required": ["webhook"] }, { "required": ["credentials"] }] } },
+        { "properties": { "kind": { "const": "cli" } }, "required": ["cli"], "not": { "anyOf": [{ "required": ["api"] }, { "required": ["mcp"] }, { "required": ["webhook"] }] } },
+        { "properties": { "kind": { "const": "mcp" } }, "required": ["mcp"], "not": { "anyOf": [{ "required": ["api"] }, { "required": ["cli"] }, { "required": ["webhook"] }] } },
+        { "properties": { "kind": { "const": "webhook" } }, "required": ["webhook"], "not": { "anyOf": [{ "required": ["api"] }, { "required": ["cli"] }, { "required": ["mcp"] }, { "required": ["credentials"] }] } }
+      ]
+    },
+    "api": {
+      "description": "The kei-connector-runtime adapter for the provider, run by `kei-proxy connector invoke`.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["adapter"],
+      "properties": { "adapter": { "type": "string" } }
+    },
+    "cli": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["binary", "min_version", "install"],
+      "properties": {
+        "binary": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$" },
+        "min_version": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]+){0,2}$" },
+        "install": { "type": "string", "minLength": 1 }
+      }
+    },
+    "mcp": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["transport"],
+      "properties": {
+        "package": { "type": "string" },
+        "transport": { "enum": ["stdio", "streamable_http"] },
+        "command": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "url": { "type": "string", "pattern": "^https://" }
+      },
+      "oneOf": [
+        { "properties": { "transport": { "const": "stdio" } }, "required": ["command"], "not": { "required": ["url"] } },
+        { "properties": { "transport": { "const": "streamable_http" } }, "required": ["url"], "not": { "required": ["command"] } }
+      ]
+    },
+    "webhook": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["direction", "secret_field"],
+      "properties": {
+        "direction": { "enum": ["inbound", "outbound"] },
+        "secret_field": { "$ref": "#/$defs/name" }
+      }
+    },
+    "credential": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["env", "field"],
+      "properties": {
+        "env": { "type": "string", "pattern": "^[A-Z_][A-Z0-9_]{0,127}$" },
+        "field": { "$ref": "#/$defs/name" }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description"],
+      "properties": {
+        "name": { "$ref": "#/$defs/name" },
+        "description": { "type": "string", "minLength": 1 },
+        "run": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

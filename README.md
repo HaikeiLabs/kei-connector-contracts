@@ -54,6 +54,7 @@ Dependencies point one way: `contract` ← `capability`, `envelope`, `setup`;
 | --- | --- |
 | `github.com/HaikeiLabs/kei-connector-contracts/contract` | Provider, Status, Action, Capability, and the capability definitions; `Metadata`, `Invocation`, the `http_api` types, and `GrafanaConfig`; `Validate`, `ValidateCall`, `ValidateInvocation`, `ValidateCredentialRef`; credential source and account models (`accountmodel.go`) |
 | `.../setup` | the setup schema (`SetupSchema`, `SetupSchemas`, `SetupSchemaFor`), `ValidateConfig`, and `ValidateMetadata` (the complete connector check: `Metadata.Validate`, then config) |
+| `.../access` | per-provider access modes (`ProviderAccess`, `AccessMode`, `Access`, `AccessFor`, `CredentialReference`); metadata only |
 | `.../capability` | `LookupCapability`, `CapabilityFor`, `CapabilitiesForProvider`, `Providers` |
 | `.../envelope` | `Envelope`, `EnvelopeVersion1`, `MintedByControlPlane` |
 | `.../governance` | `Decision`, `PolicyDecision`, `Decide` |
@@ -136,6 +137,34 @@ Link-local addresses (169.254.0.0/16, fe80::/10), `fd00:ec2::254`, unspecified
 addresses, numeric-encoded IPv4 hosts, and cloud-metadata hostnames
 (`metadata`, `metadata.*`, `instance-data`, `instance-data.*`) are always
 refused. The runtime must still check the resolved address when it dials.
+
+## Provider access modes (HAI-319, unreleased)
+
+`access.Access()` lists how each provider can be reached. The JSON export is
+`schemas/connector-access.v1.json` and its JSON Schema is
+`schemas/connector-access.v1.schema.json` (`kei.connector-access/v1`). This is
+**metadata only and grants nothing**: ABAC policy still decides every call,
+and the owner decides which modes each connector actually uses.
+
+Each provider has an `access` list. Each mode has:
+
+- **`kind`:** one of the following.
+  - `api`: the runtime adapter, run by `kei-proxy connector invoke`.
+  - `cli`: a provider CLI, given by `binary`, `min_version` and an `install` hint.
+  - `mcp`: an MCP server, given by `package` and `transport` (`stdio` with `command`, or `streamable_http` with an https `url`).
+  - `webhook`: given by `direction` (`inbound` or `outbound`) and the `secret_field` of the signing secret.
+- **`credentials`** (cli and mcp only): pairs of `env` and `field`. The env var
+  holds the reference `kei://connectors/<connector_id>/<field>`, which
+  `kei-proxy run --` (HAI-305) or the MCP launcher resolves into the child
+  process only.
+- **`setup` and `verify`:** ordered steps.
+- **`reads` and `writes`:** the provider's read and write capabilities. Writes
+  are made by agent action tools (ADR-028).
+
+Today only `api` is populated. It is set for the providers with a runtime
+adapter: gmail, google_drive, linear, github, tito, notion, discord, grafana,
+crm and http_api. Only crm lists writes, because the runtime executes crm
+writes. No provider has a cli, mcp or webhook mode yet.
 
 ## Versioning
 
