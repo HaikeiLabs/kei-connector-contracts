@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -173,6 +174,20 @@ func validStateReason(state State, reason *Reason, accepted, checked bool) bool 
 // values, and validates report-versus-projection timestamp presence.
 func Decode(raw []byte, readProjection bool) (Health, error) {
 	var h Health
+	var timestampFields map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &timestampFields); err != nil {
+		return Health{}, errors.New("invalid policy bundle health report")
+	}
+	for _, name := range []string{"checked_at", "accepted_at", "expires_at", "reported_at"} {
+		value := timestampFields[name]
+		if len(value) == 0 || bytes.Equal(value, []byte("null")) {
+			continue
+		}
+		var text string
+		if json.Unmarshal(value, &text) != nil || !strings.HasSuffix(text, "Z") {
+			return Health{}, errors.New("invalid policy bundle health report")
+		}
+	}
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(&h); err != nil {

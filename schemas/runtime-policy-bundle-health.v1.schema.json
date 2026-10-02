@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/HaikeiLabs/kei-connector-contracts/schemas/runtime-policy-bundle-health.v1.schema.json",
   "title": "Kei runtime policy bundle health v1",
-  "description": "The canonical nested heartbeat health report and catalog read projection. Metadata only; no bundle contents, audience identifiers, credentials, provider data/results, raw errors, secret references, or policy counts.",
+  "description": "Canonical nested heartbeat health report and catalog read projection. Metadata only: no bundle contents, audience identifiers, credentials, provider data/results, raw errors, secret references, or policy counts.",
   "oneOf": [{"$ref": "#/$defs/heartbeatReport"}, {"$ref": "#/$defs/readProjection"}],
   "$defs": {
     "core": {
@@ -18,7 +18,23 @@
         "expires_at": {"type": ["string", "null"], "format": "date-time", "pattern": "Z$"},
         "reason_code": {"enum": ["bundle_missing", "refresh_failed", "bundle_stale", "bundle_expired", "integrity_rejected", "audience_rejected", "schema_unsupported", "rollback_rejected", "runtime_revoked", null]}
       },
-      "required": ["schema_version", "state", "bundle_version", "policy_revision", "bundle_digest", "checked_at", "accepted_at", "expires_at", "reason_code"]
+      "required": ["schema_version", "state", "bundle_version", "policy_revision", "bundle_digest", "checked_at", "accepted_at", "expires_at", "reason_code"],
+      "allOf": [
+        {"oneOf": [
+          {"properties": {"bundle_version": {"type": "null"}, "policy_revision": {"type": "null"}, "bundle_digest": {"type": "null"}, "accepted_at": {"type": "null"}, "expires_at": {"type": "null"}}},
+          {"properties": {"bundle_version": {"type": "integer"}, "policy_revision": {"type": "integer"}, "bundle_digest": {"type": "string"}, "accepted_at": {"type": "string"}, "expires_at": {"type": "string"}}}
+        ]},
+        {"if": {"properties": {"state": {"const": "active"}}, "required": ["state"]}, "then": {"properties": {"bundle_version": {"type": "integer"}, "policy_revision": {"type": "integer"}, "bundle_digest": {"type": "string"}, "checked_at": {"type": "string"}, "accepted_at": {"type": "string"}, "expires_at": {"type": "string"}, "reason_code": {"type": "null"}}}},
+        {"if": {"properties": {"state": {"const": "cold"}}, "required": ["state"]}, "then": {"properties": {"bundle_version": {"type": "null"}, "policy_revision": {"type": "null"}, "bundle_digest": {"type": "null"}, "accepted_at": {"type": "null"}, "expires_at": {"type": "null"}}, "oneOf": [
+          {"properties": {"checked_at": {"type": "null"}, "reason_code": {"type": "null"}}},
+          {"properties": {"checked_at": {"type": "string"}, "reason_code": {"const": "bundle_missing"}}}
+        ]}},
+        {"if": {"properties": {"state": {"const": "stale_but_valid"}}, "required": ["state"]}, "then": {"properties": {"bundle_version": {"type": "integer"}, "policy_revision": {"type": "integer"}, "bundle_digest": {"type": "string"}, "checked_at": {"type": "string"}, "accepted_at": {"type": "string"}, "expires_at": {"type": "string"}, "reason_code": {"const": "bundle_stale"}}}},
+        {"if": {"properties": {"state": {"const": "expired"}}, "required": ["state"]}, "then": {"properties": {"bundle_version": {"type": "integer"}, "policy_revision": {"type": "integer"}, "bundle_digest": {"type": "string"}, "checked_at": {"type": "string"}, "accepted_at": {"type": "string"}, "expires_at": {"type": "string"}, "reason_code": {"const": "bundle_expired"}}}},
+        {"if": {"properties": {"state": {"const": "invalid"}}, "required": ["state"]}, "then": {"properties": {"checked_at": {"type": "string"}, "reason_code": {"enum": ["refresh_failed", "integrity_rejected", "audience_rejected", "rollback_rejected"]}}}},
+        {"if": {"properties": {"state": {"const": "unsupported"}}, "required": ["state"]}, "then": {"properties": {"checked_at": {"type": "string"}, "reason_code": {"const": "schema_unsupported"}}}},
+        {"if": {"properties": {"state": {"const": "revoked"}}, "required": ["state"]}, "then": {"properties": {"checked_at": {"type": "string"}, "reason_code": {"const": "runtime_revoked"}}}}
+      ]
     },
     "heartbeatReport": {"allOf": [{"$ref": "#/$defs/core"}], "unevaluatedProperties": false},
     "readProjection": {
