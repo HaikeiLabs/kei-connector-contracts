@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Copyright 2026 Haikei Labs
-// SPDX-License-Identifier: Apache-2.0
-
 // Package policybundlehealth defines the shared runtime policy-bundle health
 // wire contract. It contains metadata only; bundle bytes and tenant content
 // remain local to the runtime.
@@ -177,6 +174,16 @@ func Decode(raw []byte, readProjection bool) (Health, error) {
 	var timestampFields map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &timestampFields); err != nil {
 		return Health{}, errors.New("invalid policy bundle health report")
+	}
+	for _, name := range []string{"schema_version", "state", "bundle_version", "policy_revision", "bundle_digest", "checked_at", "accepted_at", "expires_at", "reason_code"} {
+		if _, ok := timestampFields[name]; !ok {
+			return Health{}, errors.New("invalid policy bundle health report")
+		}
+	}
+	if readProjection {
+		if _, ok := timestampFields["reported_at"]; !ok {
+			return Health{}, errors.New("invalid policy bundle health report")
+		}
 	}
 	for _, name := range []string{"checked_at", "accepted_at", "expires_at", "reported_at"} {
 		value := timestampFields[name]

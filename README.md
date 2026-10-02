@@ -38,6 +38,15 @@ The contract is frozen: see `contract_freeze_test.go` and
 `providers/contract_freeze_test.go`. Breaking changes require a new contract or
 envelope version rather than an edit in place.
 
+## Runtime policy bundle health (v1)
+
+The shared `policybundlehealth` package and
+`schemas/runtime-policy-bundle-health.v1.schema.json` own the runtime heartbeat
+report and catalog read projection. Canonical examples live under
+`schemas/examples/runtime-policy-bundle-health/`. The contract is metadata
+only; the policy bundle remains local to the runtime. See `Health.Validate` and
+`Health.Decode` for the closed state/reason and field-invariant validation.
+
 ## Consumers
 
 - `kei-connector-runtime` — tenant-side evaluation and provider execution

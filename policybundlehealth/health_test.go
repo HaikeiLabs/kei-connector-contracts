@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Copyright 2026 Haikei Labs
-// SPDX-License-Identifier: Apache-2.0
-
 package policybundlehealth
 
 import (
+	"encoding/json"
 	"os"
 	"strings"
 	"testing"
@@ -41,6 +39,34 @@ func TestCanonicalFixtures(t *testing.T) {
 		if _, err := Decode(raw, tc.read); err != nil {
 			t.Errorf("Decode(%s): %v", tc.path, err)
 		}
+	}
+}
+
+func TestDecodeRejectsUnknownAndMalformedReports(t *testing.T) {
+	raw, err := os.ReadFile("../schemas/examples/runtime-policy-bundle-health/heartbeat-active.v1.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fields map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &fields); err != nil {
+		t.Fatal(err)
+	}
+	delete(fields, "reason_code")
+	missing, err := json.Marshal(fields)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for name, input := range map[string]string{
+		"unknown field":                   strings.Replace(string(raw), `"reason_code": null`, `"reason_code": null, "runtime_token": "secret"`, 1),
+		"read-only field in report":       strings.TrimSuffix(strings.TrimSpace(string(raw)), "}") + `, "reported_at":"2026-10-01T12:00:02Z"}`,
+		"missing required nullable field": string(missing),
+		"non-UTC timestamp":               strings.Replace(string(raw), "2026-10-01T12:00:00Z", "2026-10-01T12:00:00-06:00", 1),
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := Decode([]byte(input), false); err == nil {
+				t.Fatal("Decode accepted malformed report")
+			}
+		})
 	}
 }
 
