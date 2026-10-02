@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/HaikeiLabs/kei-connector-contracts/schemas/runtime-policy-bundle-health.v1.schema.json",
+  "title": "Kei runtime policy bundle health v1",
+  "description": "The canonical nested heartbeat health report and catalog read projection. Metadata only; no bundle contents, audience identifiers, credentials, provider data/results, raw errors, secret references, or policy counts.",
+  "oneOf": [{"$ref": "#/$defs/heartbeatReport"}, {"$ref": "#/$defs/readProjection"}],
+  "$defs": {
+    "core": {
+      "type": "object",
+      "properties": {
+        "schema_version": {"const": 1},
+        "state": {"enum": ["cold", "active", "stale_but_valid", "expired", "invalid", "unsupported", "revoked"]},
+        "bundle_version": {"type": ["integer", "null"], "minimum": 0},
+        "policy_revision": {"type": ["integer", "null"], "minimum": 0},
+        "bundle_digest": {"type": ["string", "null"], "pattern": "^sha256:[0-9a-f]{64}$"},
+        "checked_at": {"type": ["string", "null"], "format": "date-time", "pattern": "Z$"},
+        "accepted_at": {"type": ["string", "null"], "format": "date-time", "pattern": "Z$"},
+        "expires_at": {"type": ["string", "null"], "format": "date-time", "pattern": "Z$"},
+        "reason_code": {"enum": ["bundle_missing", "refresh_failed", "bundle_stale", "bundle_expired", "integrity_rejected", "audience_rejected", "schema_unsupported", "rollback_rejected", "runtime_revoked", null]}
+      },
+      "required": ["schema_version", "state", "bundle_version", "policy_revision", "bundle_digest", "checked_at", "accepted_at", "expires_at", "reason_code"]
+    },
+    "heartbeatReport": {"allOf": [{"$ref": "#/$defs/core"}], "unevaluatedProperties": false},
+    "readProjection": {
+      "allOf": [
+        {"$ref": "#/$defs/core"},
+        {"type": "object", "properties": {"reported_at": {"type": "string", "format": "date-time", "pattern": "Z$"}}, "required": ["reported_at"]}
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}
