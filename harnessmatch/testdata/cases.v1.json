@@ -1,0 +1,417 @@
+{
+  "description": "kei.harness-match/v1 fixture set",
+  "semantics": "kei.harness-match/v1",
+  "cases": [
+    {
+      "id": "permit-simple-exact-tool",
+      "desc": "exact tool match, permit",
+      "call": { "kind": "claude_code", "tool": "claude_code.edit" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "tool:claude_code.edit", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "deny-simple-tool",
+      "desc": "exact tool match, deny",
+      "call": { "kind": "codex", "tool": "codex.shell" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "tool:codex.shell", "action": "deny", "enabled": true }],
+      "want_outcome": "deny",
+      "want_policy": "p1"
+    },
+    {
+      "id": "unmatched-no-policy",
+      "desc": "no matching policy",
+      "call": { "kind": "claude_code", "tool": "claude_code.read" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "tool:claude_code.edit", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "unsupported-kind",
+      "desc": "unknown harness kind",
+      "call": { "kind": "vim" },
+      "policies": [],
+      "want_outcome": "not_renderable",
+      "want_reason": "unsupported_kind"
+    },
+    {
+      "id": "custom-kind-evaluate-via-pdp",
+      "desc": "custom harness is not renderable, evaluates via PDP",
+      "call": { "kind": "custom", "tool": "custom.do" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "tool:custom.do", "action": "permit", "enabled": true }],
+      "want_outcome": "not_renderable",
+      "want_reason": "evaluate_via_pdp"
+    },
+    {
+      "id": "path-not-absolute",
+      "desc": "relative path is rejected",
+      "call": { "kind": "claude_code", "path": "relative/path" },
+      "policies": [],
+      "want_outcome": "not_renderable",
+      "want_reason": "path_not_absolute"
+    },
+    {
+      "id": "path-not-clean",
+      "desc": "non-clean absolute path is rejected",
+      "call": { "kind": "claude_code", "path": "/foo/../bar" },
+      "policies": [],
+      "want_outcome": "not_renderable",
+      "want_reason": "path_not_absolute"
+    },
+    {
+      "id": "human-source-not-renderable",
+      "desc": "user: source is human-only, not renderable",
+      "call": { "kind": "claude_code", "tool": "claude_code.edit" },
+      "policies": [{ "id": "p1", "src": "user:alice@example.com", "dst": "*", "action": "permit", "enabled": true }],
+      "want_outcome": "not_renderable",
+      "want_policy": "p1",
+      "want_reason": "human_source"
+    },
+    {
+      "id": "human-source-email",
+      "desc": "email: source is human-only",
+      "call": { "kind": "claude_code", "tool": "claude_code.edit" },
+      "policies": [{ "id": "p1", "src": "email:alice@example.com", "dst": "*", "action": "permit", "enabled": true }],
+      "want_outcome": "not_renderable",
+      "want_policy": "p1",
+      "want_reason": "human_source"
+    },
+    {
+      "id": "human-source-group",
+      "desc": "group: source is human-only",
+      "call": { "kind": "claude_code", "tool": "claude_code.edit" },
+      "policies": [{ "id": "p1", "src": "group:engineering", "dst": "*", "action": "permit", "enabled": true }],
+      "want_outcome": "not_renderable",
+      "want_policy": "p1",
+      "want_reason": "human_source"
+    },
+    {
+      "id": "human-source-org",
+      "desc": "org: source is human-only",
+      "call": { "kind": "claude_code", "tool": "claude_code.edit" },
+      "policies": [{ "id": "p1", "src": "org:haikei", "dst": "*", "action": "permit", "enabled": true }],
+      "want_outcome": "not_renderable",
+      "want_policy": "p1",
+      "want_reason": "human_source"
+    },
+    {
+      "id": "src-harness-kind",
+      "desc": "harness:claude_code matches claude_code harness",
+      "call": { "kind": "claude_code", "tool": "claude_code.read" },
+      "policies": [{ "id": "p1", "src": "harness:claude_code", "dst": "tool:claude_code.read", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "src-harness-kind-no-match",
+      "desc": "harness:codex does not match claude_code",
+      "call": { "kind": "claude_code", "tool": "claude_code.read" },
+      "policies": [{ "id": "p1", "src": "harness:codex", "dst": "*", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "src-harness-id",
+      "desc": "harness:<uuid> matches harness by ID",
+      "call": { "kind": "claude_code", "harness_id": "a1b2c3d4-1234-5678-9abc-def012345678", "tool": "claude_code.read" },
+      "policies": [{ "id": "p1", "src": "harness:a1b2c3d4-1234-5678-9abc-def012345678", "dst": "*", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "src-harness-id-no-match",
+      "desc": "harness:<uuid> does not match when ID differs",
+      "call": { "kind": "claude_code", "harness_id": "a1b2c3d4-1234-5678-9abc-def012345678", "tool": "claude_code.read" },
+      "policies": [{ "id": "p1", "src": "harness:ffffffff-ffff-ffff-ffff-ffffffffffff", "dst": "*", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "src-agent-wildcard",
+      "desc": "agent:* matches any agent",
+      "call": { "kind": "claude_code", "agent_id": "agent-123", "tool": "claude_code.read" },
+      "policies": [{ "id": "p1", "src": "agent:*", "dst": "tool:claude_code.read", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "src-agent-specific",
+      "desc": "agent:<id> matches specific agent",
+      "call": { "kind": "claude_code", "agent_id": "agent-456", "tool": "claude_code.read" },
+      "policies": [{ "id": "p1", "src": "agent:agent-456", "dst": "tool:claude_code.read", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "src-agent-no-match",
+      "desc": "agent:<id> does not match when agent differs",
+      "call": { "kind": "claude_code", "agent_id": "agent-789", "tool": "claude_code.read" },
+      "policies": [{ "id": "p1", "src": "agent:agent-000", "dst": "*", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "scope-agent-id-matches",
+      "desc": "policy scope agent ID matches call agent ID",
+      "call": { "kind": "claude_code", "agent_id": "scope-agent-1", "tool": "claude_code.edit" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "tool:claude_code.edit", "action": "permit", "enabled": true, "scope_agent_id": "scope-agent-1" }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "scope-agent-id-mismatch",
+      "desc": "policy scope agent ID does not match",
+      "call": { "kind": "claude_code", "agent_id": "scope-agent-2", "tool": "claude_code.edit" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "tool:claude_code.edit", "action": "permit", "enabled": true, "scope_agent_id": "scope-agent-other" }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "disabled-policy-skipped",
+      "desc": "disabled policy is skipped",
+      "call": { "kind": "claude_code", "tool": "claude_code.edit" },
+      "policies": [
+        { "id": "p1", "src": "*", "dst": "tool:claude_code.edit", "action": "deny", "enabled": false },
+        { "id": "p2", "src": "*", "dst": "*", "action": "permit", "enabled": true }
+      ],
+      "want_outcome": "permit",
+      "want_policy": "p2"
+    },
+    {
+      "id": "first-policy-wins",
+      "desc": "first matching policy wins",
+      "call": { "kind": "claude_code", "tool": "claude_code.edit" },
+      "policies": [
+        { "id": "p1", "src": "*", "dst": "tool:claude_code.edit", "action": "deny", "enabled": true },
+        { "id": "p2", "src": "*", "dst": "*", "action": "permit", "enabled": true }
+      ],
+      "want_outcome": "deny",
+      "want_policy": "p1"
+    },
+    {
+      "id": "shell-argv-prefix-permit",
+      "desc": "shell:git commit -m matches argv prefix",
+      "call": { "kind": "claude_code", "argv": ["git", "commit", "-m", "fix bug"] },
+      "policies": [{ "id": "p1", "src": "*", "dst": "shell:git commit -m", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "shell-argv-prefix-mismatch",
+      "desc": "shell:gitk does not match git commit",
+      "call": { "kind": "claude_code", "argv": ["git", "commit"] },
+      "policies": [{ "id": "p1", "src": "*", "dst": "shell:gitk", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "shell-argv-prefix-too-long",
+      "desc": "pattern longer than argv does not match",
+      "call": { "kind": "claude_code", "argv": ["git"] },
+      "policies": [{ "id": "p1", "src": "*", "dst": "shell:git commit", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "shell-star-permit-rejected",
+      "desc": "shell:* on a shell call with permit is rejected (shell-permit rule)",
+      "call": { "kind": "claude_code", "argv": ["git", "commit"] },
+      "policies": [{ "id": "p1", "src": "*", "dst": "shell:*", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "shell-non-shell-dst-permit-rejected",
+      "desc": "non-shell permit on shell call is rejected",
+      "call": { "kind": "claude_code", "argv": ["git", "commit"] },
+      "policies": [{ "id": "p1", "src": "*", "dst": "tool:claude_code.edit", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "shell-deny-still-works",
+      "desc": "deny on shell:* still denies shell calls",
+      "call": { "kind": "claude_code", "argv": ["git", "commit"] },
+      "policies": [{ "id": "p1", "src": "*", "dst": "shell:*", "action": "deny", "enabled": true }],
+      "want_outcome": "deny",
+      "want_policy": "p1"
+    },
+    {
+      "id": "shell-deny-with-tool",
+      "desc": "deny on tool applies to calls that have both tool and shell argv",
+      "call": { "kind": "claude_code", "tool": "claude_code.edit", "argv": ["git", "commit"] },
+      "policies": [{ "id": "p1", "src": "*", "dst": "tool:claude_code.edit", "action": "deny", "enabled": true }],
+      "want_outcome": "deny",
+      "want_policy": "p1"
+    },
+    {
+      "id": "skill-exact-match",
+      "desc": "skill:my-skill matches exactly",
+      "call": { "kind": "opencode", "skill": "my-skill" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "skill:my-skill", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "skill-star-match",
+      "desc": "skill:* matches any skill",
+      "call": { "kind": "opencode", "skill": "any-skill" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "skill:*", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "skill-no-match",
+      "desc": "skill:other does not match call",
+      "call": { "kind": "opencode", "skill": "my-skill" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "skill:other", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "path-exact-glob",
+      "desc": "path:/home/user/projects/* matches exactly",
+      "call": { "kind": "opencode", "path": "/home/user/projects/myapp" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "path:/home/user/projects/*", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "path-double-star",
+      "desc": "path:/home/**/*.go matches any .go file recursively",
+      "call": { "kind": "opencode", "path": "/home/user/projects/myapp/main.go" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "path:/home/**/*.go", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "path-double-star-zero-segments",
+      "desc": "path:/home/** matches /home itself",
+      "call": { "kind": "opencode", "path": "/home" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "path:/home/**", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "path-star-in-segment",
+      "desc": "path glob with * within a segment",
+      "call": { "kind": "opencode", "path": "/var/log/syslog" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "path:/var/log/*log", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "path-home-expansion",
+      "desc": "~/projects matches home-dir-relative path",
+      "call": { "kind": "opencode", "path": "/home/alice/projects/myapp", "home": "/home/alice" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "path:~/projects/*", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "path-home-expansion-no-home",
+      "desc": "~/ glob without home is not renderable",
+      "call": { "kind": "opencode", "path": "/home/alice/projects" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "path:~/projects", "action": "permit", "enabled": true }],
+      "want_outcome": "not_renderable",
+      "want_policy": "p1",
+      "want_reason": "dst_not_renderable"
+    },
+    {
+      "id": "path-no-match",
+      "desc": "path:/other/* does not match",
+      "call": { "kind": "opencode", "path": "/home/user/projects/myapp" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "path:/other/*", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "mcp-server-exact",
+      "desc": "mcp:my-server matches server",
+      "call": { "kind": "claude_code", "mcp_server": "my-server", "mcp_tool": "read-tool" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "mcp:my-server", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "mcp-server-tool",
+      "desc": "mcp:my-server.read-tool matches server + tool",
+      "call": { "kind": "claude_code", "mcp_server": "my-server", "mcp_tool": "read-tool" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "mcp:my-server.read-tool", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "mcp-star",
+      "desc": "mcp:* matches any MCP server",
+      "call": { "kind": "claude_code", "mcp_server": "any-server" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "mcp:*", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "mcp-no-match",
+      "desc": "mcp:other-server does not match",
+      "call": { "kind": "claude_code", "mcp_server": "my-server" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "mcp:other-server", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "tool-star",
+      "desc": "tool:* matches any tool",
+      "call": { "kind": "codex", "tool": "codex.shell" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "tool:*", "action": "deny", "enabled": true }],
+      "want_outcome": "deny",
+      "want_policy": "p1"
+    },
+    {
+      "id": "tool-no-match-empty-call",
+      "desc": "empty tool field does not match tool:*",
+      "call": { "kind": "claude_code" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "tool:*", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "dst-star-permit",
+      "desc": "wildcard dst matches everything",
+      "call": { "kind": "opencode", "tool": "opencode.write" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "*", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "dst-star-deny",
+      "desc": "wildcard dst deny",
+      "call": { "kind": "opencode", "tool": "opencode.write" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "*", "action": "deny", "enabled": true }],
+      "want_outcome": "deny",
+      "want_policy": "p1"
+    },
+    {
+      "id": "src-harness-star",
+      "desc": "harness:* matches any harness",
+      "call": { "kind": "codex", "tool": "codex.shell" },
+      "policies": [{ "id": "p1", "src": "harness:*", "dst": "tool:codex.shell", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "shell-argv-empty-no-match",
+      "desc": "shell:* does not match when argv is empty",
+      "call": { "kind": "claude_code", "tool": "claude_code.read" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "shell:*", "action": "deny", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "unknown-scheme-no-match",
+      "desc": "unknown dst scheme does not match",
+      "call": { "kind": "claude_code", "tool": "claude_code.read" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "unknown:value", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "mcp-server-empty-no-match",
+      "desc": "mcp:* does not match when MCPServer is empty",
+      "call": { "kind": "claude_code", "tool": "claude_code.read" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "mcp:*", "action": "deny", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
+      "id": "opencode-skill-deny",
+      "desc": "skill deny on opencode",
+      "call": { "kind": "opencode", "skill": "dangerous-skill" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "skill:dangerous-skill", "action": "deny", "enabled": true }],
+      "want_outcome": "deny",
+      "want_policy": "p1"
+    }
+  ]
+}
