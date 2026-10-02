@@ -59,6 +59,7 @@ func TestDecodeRejectsUnknownAndMalformedReports(t *testing.T) {
 	for name, input := range map[string]string{
 		"unknown field":                   strings.Replace(string(raw), `"reason_code": null`, `"reason_code": null, "runtime_token": "secret"`, 1),
 		"read-only field in report":       strings.TrimSuffix(strings.TrimSpace(string(raw)), "}") + `, "reported_at":"2026-10-01T12:00:02Z"}`,
+		"null read-only field in report":  strings.TrimSuffix(strings.TrimSpace(string(raw)), "}") + `, "reported_at":null}`,
 		"missing required nullable field": string(missing),
 		"non-UTC timestamp":               strings.Replace(string(raw), "2026-10-01T12:00:00Z", "2026-10-01T12:00:00-06:00", 1),
 	} {

@@ -184,6 +184,8 @@ func Decode(raw []byte, readProjection bool) (Health, error) {
 		if _, ok := timestampFields["reported_at"]; !ok {
 			return Health{}, errors.New("invalid policy bundle health report")
 		}
+	} else if _, ok := timestampFields["reported_at"]; ok {
+		return Health{}, errors.New("invalid policy bundle health report")
 	}
 	for _, name := range []string{"checked_at", "accepted_at", "expires_at", "reported_at"} {
 		value := timestampFields[name]
