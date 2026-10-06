@@ -5,7 +5,7 @@
       "name": "discord.get_message",
       "source": "discord",
       "operation_class": "read",
-      "route": {"connector_binding": {"connector_id": "discord-installation-binding"}},
+      "route": {"connector_binding": {"agent_id": "agent-discord", "connector_id": "discord-installation-binding"}},
       "required_capabilities": ["message.read", "channel.read"],
       "resource_types": [{"type": "message", "parent_type": "channel"}]
     },
@@ -13,7 +13,7 @@
       "name": "discord.list_messages",
       "source": "discord",
       "operation_class": "read",
-      "route": {"connector_binding": {"connector_id": "discord-installation-binding"}},
+      "route": {"connector_binding": {"agent_id": "agent-discord", "connector_id": "discord-installation-binding"}},
       "required_capabilities": ["message.read"],
       "resource_types": [{"type": "message", "parent_type": "channel"}]
     },

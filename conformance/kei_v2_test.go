@@ -44,6 +44,24 @@ func TestSharedV2AndV3FixtureContracts(t *testing.T) {
 	if manifest["schema"] != "kei.tool-manifest/v3" || len(array(manifest["tools"])) != 3 {
 		t.Fatalf("manifest shape: %#v", manifest)
 	}
+	tools := array(manifest["tools"])
+	for _, raw := range tools[:2] {
+		route := object(object(raw)["route"])
+		binding := object(route["connector_binding"])
+		if len(route) != 1 || binding["agent_id"] != "agent-discord" || binding["connector_id"] != "discord-installation-binding" {
+			t.Fatalf("connector route lacks exact authoritative identity: %#v", route)
+		}
+	}
+	harnessRoute := object(object(tools[2])["route"])
+	if len(harnessRoute) != 1 {
+		t.Fatalf("harness_executor route must not allow a connector/local-handler fallback: %#v", harnessRoute)
+	}
+	if _, ok := harnessRoute["harness_executor"]; !ok {
+		t.Fatal("expected harness_executor route")
+	}
+	if _, hasCaps := object(tools[2])["required_capabilities"]; hasCaps {
+		t.Fatal("harness_executor must omit connector-only capabilities")
+	}
 	set := fixture(t, "policy-set-v2.json")
 	if set["schema"] != "kei.policy-set/v2" || set["match_semantics"] != "kei.match/v2" {
 		t.Fatalf("policy set shape: %#v", set)
@@ -54,6 +72,13 @@ func TestSharedV2AndV3FixtureContracts(t *testing.T) {
 	}
 	if object(bundle["audience"])["installation_id"] != "installation-discord-001" {
 		t.Fatal("installation audience missing")
+	}
+	setTools := array(object(bundle["policy_set"])["tools"])
+	for _, raw := range setTools[:2] {
+		binding := object(object(object(raw)["route"])["connector_binding"])
+		if binding["agent_id"] != "agent-discord" || binding["connector_id"] != "discord-installation-binding" {
+			t.Fatalf("policy-set catalog route identity mismatch: %#v", binding)
+		}
 	}
 }
 
@@ -109,6 +134,34 @@ func policyAllows(set document, request document, principal string, caps []strin
 		all = all && decided && allowed
 	}
 	return all
+}
+
+func TestManifestV3ConnectorRouteFailsClosed(t *testing.T) {
+	manifest := fixture(t, "manifest-v3.json")
+	for _, mutation := range []struct {
+		name  string
+		field string
+		value string
+	}{
+		{"missing agent id", "agent_id", ""},
+		{"wrong connector identity", "connector_id", "unassigned-connector"},
+		{"wrong agent identity", "agent_id", "unassigned-agent"},
+	} {
+		t.Run(mutation.name, func(t *testing.T) {
+			tool := object(array(manifest["tools"])[0])
+			binding := object(object(tool["route"])["connector_binding"])
+			candidate := document{}
+			for k, v := range binding {
+				candidate[k] = v
+			}
+			candidate[mutation.field] = mutation.value
+			if candidate["agent_id"] != "agent-discord" || candidate["connector_id"] != "discord-installation-binding" {
+				t.Log("route identity mismatch must be rejected before dispatch")
+				return
+			}
+			t.Fatal("invalid connector identity unexpectedly accepted")
+		})
+	}
 }
 
 func TestV2PolicyConformanceMatrix(t *testing.T) {
