@@ -62,10 +62,11 @@ func Guard(meta contract.Metadata, inv contract.Invocation) error {
 		return err
 	}
 	if meta.EffectiveCredentialSource() == contract.CredentialSourceOAuth {
-		if _, mapped := CapabilityOAuthScopes[meta.Provider]; mapped {
-			if err := ValidateGrantedOAuthScopes(meta.Provider, meta.Capabilities, meta.Scopes); err != nil {
-				return fmt.Errorf("provider OAuth preflight: %w", err)
-			}
+		if _, mapped := CapabilityOAuthScopes[meta.Provider]; !mapped {
+			return fmt.Errorf("provider OAuth preflight: scope mappings are not declared for provider %q", meta.Provider)
+		}
+		if err := ValidateGrantedOAuthScopes(meta.Provider, meta.Capabilities, meta.Scopes); err != nil {
+			return fmt.Errorf("provider OAuth preflight: %w", err)
 		}
 	}
 	if !traversalSafe(inv.Resource) {
