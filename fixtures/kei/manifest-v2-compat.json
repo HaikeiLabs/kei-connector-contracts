@@ -1,0 +1,12 @@
+{
+  "schema": "kei.tool-manifest/v2",
+  "tools": [
+    {
+      "name": "github.get_issue",
+      "source": "github",
+      "operation_class": "read",
+      "required_capabilities": ["issue.read"],
+      "resource_types": [{"type": "issue", "parent_type": "repository"}]
+    }
+  ]
+}

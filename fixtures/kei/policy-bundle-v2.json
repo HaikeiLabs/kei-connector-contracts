@@ -1,0 +1,45 @@
+{
+  "schema": "kei.policy-bundle/v2",
+  "bundle_id": "bundle-conformance-001",
+  "bundle_version": 1,
+  "policy_revision": 1,
+  "issuer": "kei-policy-catalog",
+  "audience": {
+    "installation_id": "installation-discord-001",
+    "org_id": "org-conformance",
+    "workspace_id": "ws-conformance"
+  },
+  "issued_at": "2026-01-01T00:00:00Z",
+  "not_after": "2026-01-01T12:00:00Z",
+  "refresh": {"poll_interval_seconds": 60, "stale_after_seconds": 300},
+  "subject_resolution": {"mode": "online", "max_cache_seconds": 60},
+  "policy_set": {
+    "schema": "kei.policy-set/v2",
+    "org_id": "org-conformance",
+    "workspace_id": "ws-conformance",
+    "match_semantics": "kei.match/v2",
+    "evaluation": {
+      "precedence": ["priority_desc", "deny_before_permit", "policy_id_asc"],
+      "checks": "per_capability_first_match_and",
+      "default": "deny"
+    },
+    "tools": [
+      {"name":"discord.get_message","source":"discord","operation_class":"read","route":{"connector_binding":{"connector_id":"discord-installation-binding"}},"required_capabilities":["message.read","channel.read"],"resource_types":[{"type":"message","parent_type":"channel"}]},
+      {"name":"discord.list_messages","source":"discord","operation_class":"read","route":{"connector_binding":{"connector_id":"discord-installation-binding"}},"required_capabilities":["message.read"],"resource_types":[{"type":"message","parent_type":"channel"}]},
+      {"name":"harness.open_file","source":"local","operation_class":"read","route":{"harness_executor":{"executor":"codex","registration":"harness.open_file"}}}
+    ],
+    "checks": [
+      {"policy_id":"deny-discord-get","name":"Deny one exact tool","effect":"deny","priority":100,"scope":{"org_id":"org-conformance","workspace_id":"ws-conformance","agent_id":"agent-discord"},"selector":{"source_principal":"group:blocked","tool":"discord.get_message","source":"discord","connector_id":"discord-installation-binding","capability":"message.read","resource_type":"message","resource_id":"message-blocked","resource_parent":"channel-42"}},
+      {"policy_id":"permit-discord-get","name":"Permit exact message read","effect":"permit","priority":50,"scope":{"org_id":"org-conformance","workspace_id":"ws-conformance","agent_id":"agent-discord"},"selector":{"source_principal":"group:reader","tool":"discord.get_message","source":"discord","connector_id":"discord-installation-binding","capability":"message.read","resource_type":"message","resource_id":"message-42","resource_parent":"channel-42"}},
+      {"policy_id":"permit-discord-get","name":"Permit exact message read","effect":"permit","priority":50,"scope":{"org_id":"org-conformance","workspace_id":"ws-conformance","agent_id":"agent-discord"},"selector":{"source_principal":"group:reader","tool":"discord.get_message","source":"discord","connector_id":"discord-installation-binding","capability":"channel.read","resource_type":"message","resource_id":"message-42","resource_parent":"channel-42"}},
+      {"policy_id":"deny-channel-capability","name":"Deny channel capability","effect":"deny","priority":75,"scope":{"org_id":"org-conformance","workspace_id":"ws-conformance","agent_id":"agent-discord"},"selector":{"source_principal":"group:cap-denied","source":"discord","connector_id":"discord-installation-binding","capability":"channel.read"}},
+      {"policy_id":"permit-list-tool","name":"Permit list tool only","effect":"permit","priority":50,"scope":{"org_id":"org-conformance","workspace_id":"ws-conformance","agent_id":"agent-discord"},"selector":{"source_principal":"group:reader","tool":"discord.list_messages","source":"discord","connector_id":"discord-installation-binding","capability":"message.read","resource_type":"message","resource_parent":"channel-42"}}
+    ],
+    "tool_policies": [
+      {"policy_id":"permit-native-open-file","name":"Explicit native tool grant","effect":"permit","priority":10,"scope":{"org_id":"org-conformance","workspace_id":"ws-conformance","agent_id":"agent-local"},"selector":{"source_principal":"harness:codex","tool":"harness.open_file","source":"local"}}
+    ]
+  },
+  "agent_connector_bindings": [
+    {"agent_id":"agent-discord","connector_id":"discord-installation-binding","capabilities":["message.read","channel.read"]}
+  ]
+}
