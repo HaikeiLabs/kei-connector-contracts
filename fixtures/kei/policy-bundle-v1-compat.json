@@ -1,0 +1,21 @@
+{
+  "schema": "kei.policy-bundle/v1",
+  "bundle_id": "bundle-legacy-001",
+  "bundle_version": 1,
+  "policy_revision": 1,
+  "issuer": "kei-policy-catalog",
+  "audience": {"installation_id":"installation-legacy-001","org_id":"org-conformance","workspace_id":"ws-conformance"},
+  "issued_at": "2026-01-01T00:00:00Z",
+  "not_after": "2026-01-01T12:00:00Z",
+  "refresh": {"poll_interval_seconds":300,"stale_after_seconds":900},
+  "subject_resolution": {"mode":"online","max_cache_seconds":30},
+  "policy_set": {
+    "match_semantics":"kei.match/v1",
+    "evaluation":{"order":"array_order_first_match","default":"deny"},
+    "groups":[],
+    "tools":[],
+    "agents":[],
+    "policies":[{"id":"legacy-read","name":"Legacy read grant","src_pattern":"group:reader","dst_pattern":"tool:github.get_issue","action":"permit","priority":100,"enabled":true,"approval_required":false,"scope":{"org_id":"org-conformance","workspace_id":"ws-conformance","agent_id":null}}]
+  },
+  "agent_connector_bindings": []
+}
