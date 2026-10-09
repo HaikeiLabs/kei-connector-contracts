@@ -19,10 +19,13 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"mime"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
+	"unicode"
 )
 
 const (
@@ -47,12 +50,31 @@ func NewGoogleHTTP(httpClient *http.Client, credentials CredentialResolver) *Goo
 }
 
 func (b *AuthenticatedGoogle) SearchFiles(ctx context.Context, driveID, query string) ([]GoogleFile, error) {
+	return b.ListFiles(ctx, driveID, query, "", 0)
+}
+
+func (b *AuthenticatedGoogle) ListFiles(ctx context.Context, driveID, query, mimeType string, pageSize int) ([]GoogleFile, error) {
+	if pageSize < 0 || pageSize > 100 || len(query) > 512 || strings.IndexFunc(query, unicode.IsControl) >= 0 {
+		return nil, errors.New("invalid Drive list input")
+	}
+	if mimeType != "" {
+		parsed, params, err := mime.ParseMediaType(mimeType)
+		if err != nil || parsed != mimeType || !strings.Contains(parsed, "/") || len(params) != 0 {
+			return nil, errors.New("invalid Drive MIME type")
+		}
+	}
 	params := url.Values{}
 	queryParts := []string{"trashed = false"}
 	if query != "" {
 		queryParts = append(queryParts, "name contains '"+escapeDriveQueryValue(query)+"'")
 	}
+	if mimeType != "" {
+		queryParts = append(queryParts, "mimeType = '"+escapeDriveQueryValue(mimeType)+"'")
+	}
 	params.Set("q", strings.Join(queryParts, " and "))
+	if pageSize > 0 {
+		params.Set("pageSize", strconv.Itoa(pageSize))
+	}
 	params.Set("corpora", "drive")
 	params.Set("driveId", driveID)
 	params.Set("includeItemsFromAllDrives", "true")
@@ -138,7 +160,10 @@ func (f googleFileResponse) model(driveID string) GoogleFile {
 	}
 	return GoogleFile{ID: f.ID, DriveID: f.DriveID, Name: f.Name, MimeType: f.MimeType, ModifiedAt: f.ModifiedAt}
 }
-func escapeDriveQueryValue(value string) string { return strings.ReplaceAll(value, "'", "\\'") }
+func escapeDriveQueryValue(value string) string {
+	value = strings.ReplaceAll(value, "\\", "\\\\")
+	return strings.ReplaceAll(value, "'", "\\'")
+}
 
 func (b *AuthenticatedGoogle) getJSON(ctx context.Context, endpoint string, out any) error {
 	req, err := b.authorizedRequest(ctx, http.MethodGet, endpoint)

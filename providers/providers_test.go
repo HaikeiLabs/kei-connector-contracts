@@ -152,6 +152,14 @@ func TestGoogleDriveSearchMetadataAndDocsRead(t *testing.T) {
 		t.Fatalf("search results = %+v", got)
 	}
 
+	listed, err := c.Invoke(ctx, m, invocation("drive.search", contract.ActionRead, "drive/d-1"), DriveSearchPayload{MimeType: "application/vnd.google-apps.document", PageSize: 1})
+	if err != nil {
+		t.Fatalf("list files failed: %v", err)
+	}
+	if got := listed.Data.([]GoogleFile); len(got) != 1 || got[0].ID != "f-1" {
+		t.Fatalf("filtered/bounded list results = %+v", got)
+	}
+
 	meta, err := c.Invoke(ctx, m, invocation("drive.metadata.read", contract.ActionRead, "drive/d-1/files/f-1"), DriveMetadataPayload{})
 	if err != nil {
 		t.Fatalf("metadata failed: %v", err)

@@ -36,7 +36,14 @@ type GoogleFile struct {
 
 // DriveSearchPayload requests drive.search over a drive resource.
 type DriveSearchPayload struct {
-	Query string `json:"query"`
+	Query    string `json:"query,omitempty"`
+	MimeType string `json:"mime_type,omitempty"`
+	PageSize int    `json:"page_size,omitempty"`
+}
+
+// GoogleFileLister is implemented by backends that support bounded Drive listing.
+type GoogleFileLister interface {
+	ListFiles(ctx context.Context, driveID, query, mimeType string, pageSize int) ([]GoogleFile, error)
 }
 
 func (DriveSearchPayload) Capability() string { return "drive.search" }
@@ -75,6 +82,32 @@ func (m MemoryGoogle) SearchFiles(_ context.Context, driveID, query string) ([]G
 		}
 	}
 	return out, nil
+}
+
+func (m MemoryGoogle) ListFiles(_ context.Context, driveID, query, mimeType string, pageSize int) ([]GoogleFile, error) {
+	var out []GoogleFile
+	for _, file := range m.Files {
+		if file.DriveID == driveID && (query == "" || strings.Contains(strings.ToLower(file.Name), strings.ToLower(query))) && (mimeType == "" || file.MimeType == mimeType) {
+			out = append(out, file)
+			if pageSize > 0 && len(out) == pageSize {
+				break
+			}
+		}
+	}
+	return out, nil
+}
+
+func filterGoogleFiles(files []GoogleFile, mimeType string, pageSize int) []GoogleFile {
+	filtered := make([]GoogleFile, 0, len(files))
+	for _, file := range files {
+		if mimeType == "" || file.MimeType == mimeType {
+			filtered = append(filtered, file)
+			if pageSize > 0 && len(filtered) == pageSize {
+				break
+			}
+		}
+	}
+	return filtered
 }
 
 func (m MemoryGoogle) File(_ context.Context, driveID, fileID string) (GoogleFile, error) {
@@ -124,7 +157,16 @@ func (c *GoogleClient) Invoke(ctx context.Context, meta contract.Metadata, inv c
 		if !ok {
 			return Result{}, errors.New("resource must be drive/<drive_id>")
 		}
-		files, err := c.backend.SearchFiles(ctx, driveID, p.Query)
+		var files []GoogleFile
+		var err error
+		if lister, ok := c.backend.(GoogleFileLister); ok {
+			files, err = lister.ListFiles(ctx, driveID, p.Query, p.MimeType, p.PageSize)
+		} else {
+			files, err = c.backend.SearchFiles(ctx, driveID, p.Query)
+			if err == nil {
+				files = filterGoogleFiles(files, p.MimeType, p.PageSize)
+			}
+		}
 		if err != nil {
 			return Result{}, err
 		}
