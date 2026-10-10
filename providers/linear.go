@@ -16,11 +16,15 @@ package providers
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
@@ -70,6 +74,106 @@ type LinearIssueReadPayload struct{}
 
 func (LinearIssueReadPayload) Capability() string { return "issue.read" }
 
+// Linear write bounds. Title and body limits keep a write inside the
+// runtime's 16 KiB input cap; priority is Linear's 0 (none) to 4 (low).
+const (
+	MaxLinearTitleRunes       = 256
+	MaxLinearDescriptionBytes = 12 << 10
+	MaxLinearCommentBytes     = 12 << 10
+	MaxLinearPriority         = 4
+)
+
+// LinearIssueCreatePayload requests issue.create. The team is the issue's
+// parent (Haikei semantics rule), so TeamID is required and must equal the
+// team named by the linear/team/<team> resource. TeamID is the team key
+// (for example "ENG") or the team's Linear id. The workspace is never an
+// argument: it is the connector's OAuth grant.
+type LinearIssueCreatePayload struct {
+	TeamID      string `json:"team_id"`
+	Title       string `json:"title"`
+	Description string `json:"description,omitempty"`
+	Priority    *int   `json:"priority,omitempty"`
+}
+
+func (LinearIssueCreatePayload) Capability() string { return "issue.create" }
+
+// Validate checks the payload against the issue.create bounds.
+func (p LinearIssueCreatePayload) Validate() error {
+	switch {
+	case !linearID.MatchString(p.TeamID):
+		return errors.New("team_id is invalid")
+	case strings.TrimSpace(p.Title) == "" || utf8.RuneCountInString(p.Title) > MaxLinearTitleRunes || strings.ContainsAny(p.Title, "\r\n"):
+		return errors.New("title is invalid")
+	case len(p.Description) > MaxLinearDescriptionBytes || !utf8.ValidString(p.Description):
+		return errors.New("description is invalid")
+	case p.Priority != nil && (*p.Priority < 0 || *p.Priority > MaxLinearPriority):
+		return errors.New("priority is out of range")
+	}
+	return nil
+}
+
+// LinearCommentCreatePayload requests comment.create. The issue is the
+// comment's parent, so IssueID is required and must equal the issue named by
+// the linear/issue/<issue> resource. IssueID is the identifier ("ENG-42") or
+// the issue's Linear id.
+type LinearCommentCreatePayload struct {
+	IssueID string `json:"issue_id"`
+	Body    string `json:"body"`
+}
+
+func (LinearCommentCreatePayload) Capability() string { return "comment.create" }
+
+// Validate checks the payload against the comment.create bounds.
+func (p LinearCommentCreatePayload) Validate() error {
+	switch {
+	case !linearID.MatchString(p.IssueID):
+		return errors.New("issue_id is invalid")
+	case strings.TrimSpace(p.Body) == "" || len(p.Body) > MaxLinearCommentBytes || !utf8.ValidString(p.Body):
+		return errors.New("body is invalid")
+	}
+	return nil
+}
+
+// linearID is a Linear team key, issue identifier, or entity id.
+var linearID = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$`)
+
+// LinearIssueCreated is the issue.create result. It names the new issue and
+// carries none of the submitted title or description.
+type LinearIssueCreated struct {
+	ID         string `json:"id"`
+	Identifier string `json:"identifier"`
+	TeamKey    string `json:"team_key"`
+	URL        string `json:"url"`
+}
+
+// LinearCommentCreated is the comment.create result. It carries no body.
+type LinearCommentCreated struct {
+	ID      string `json:"id"`
+	IssueID string `json:"issue_id"`
+	URL     string `json:"url"`
+}
+
+// LinearWriteBackend is the seam for Linear writes. ClientID is a
+// deterministic UUID derived from the invocation's idempotency key: Linear
+// accepts it as the new entity's id, so a replayed write cannot create a
+// second issue or comment.
+type LinearWriteBackend interface {
+	CreateIssue(ctx context.Context, clientID string, in LinearIssueCreatePayload) (LinearIssueCreated, error)
+	CreateComment(ctx context.Context, clientID string, in LinearCommentCreatePayload) (LinearCommentCreated, error)
+}
+
+// LinearWriteID derives the Linear entity id for one write from the
+// connector, the invoking subject, the capability, and the idempotency key.
+// It is a version 4 shaped UUID so Linear accepts it as an input id.
+func LinearWriteID(inv contract.Invocation) string {
+	sum := sha256.Sum256([]byte(strings.Join([]string{inv.TenantID, inv.WorkspaceID, inv.ConnectorID, inv.Subject, inv.Capability, inv.IdempotencyKey}, "\x00")))
+	b := sum[:16]
+	b[6] = (b[6] & 0x0f) | 0x40
+	b[8] = (b[8] & 0x3f) | 0x80
+	h := hex.EncodeToString(b)
+	return h[0:8] + "-" + h[8:12] + "-" + h[12:16] + "-" + h[16:20] + "-" + h[20:32]
+}
+
 // LinearBackend is the seam for Linear reads.
 type LinearBackend interface {
 	Team(ctx context.Context, key string) (LinearTeam, error)
@@ -101,12 +205,14 @@ type LinearGraphQLTransport interface {
 }
 
 // MemoryLinear remains an explicit offline test backend. It is never used by
-// runtime construction.
+// runtime construction. Writes are recorded in Issues and Comments, keyed by
+// the client id, so a replay returns the first result.
 type MemoryLinear struct {
 	Teams    map[string]LinearTeam
 	Projects map[string]LinearProject
 	Cycles   map[string]LinearCycle
 	Issues   map[string]LinearIssue
+	Comments map[string]LinearCommentCreated
 }
 
 func (m MemoryLinear) Team(_ context.Context, key string) (LinearTeam, error) {
@@ -141,9 +247,41 @@ func (m MemoryLinear) Issue(_ context.Context, id string) (LinearIssue, error) {
 	return i, nil
 }
 
-// LinearClient serves team.read, project.read, cycle.read, and issue.read.
-// Resources are linear/team/<key>, linear/project/<id>, linear/cycle/<id>,
-// and linear/issue/<id>.
+func (m MemoryLinear) CreateIssue(_ context.Context, clientID string, in LinearIssueCreatePayload) (LinearIssueCreated, error) {
+	team, ok := m.Teams[in.TeamID]
+	if !ok || m.Issues == nil {
+		return LinearIssueCreated{}, errors.New("team not found")
+	}
+	if existing, ok := m.Issues[clientID]; ok {
+		return LinearIssueCreated{ID: existing.ID, Identifier: existing.Identifier, TeamKey: existing.TeamKey}, nil
+	}
+	issue := LinearIssue{ID: clientID, TeamKey: team.Key, Identifier: fmt.Sprintf("%s-%d", team.Key, len(m.Issues)+1), Title: in.Title, State: "Triage"}
+	m.Issues[clientID] = issue
+	return LinearIssueCreated{ID: issue.ID, Identifier: issue.Identifier, TeamKey: issue.TeamKey}, nil
+}
+
+func (m MemoryLinear) CreateComment(_ context.Context, clientID string, in LinearCommentCreatePayload) (LinearCommentCreated, error) {
+	if m.Comments == nil {
+		return LinearCommentCreated{}, errors.New("comments are unavailable")
+	}
+	if existing, ok := m.Comments[clientID]; ok {
+		return existing, nil
+	}
+	for _, issue := range m.Issues {
+		if issue.ID == in.IssueID || issue.Identifier == in.IssueID {
+			comment := LinearCommentCreated{ID: clientID, IssueID: issue.ID}
+			m.Comments[clientID] = comment
+			return comment, nil
+		}
+	}
+	return LinearCommentCreated{}, errors.New("issue not found")
+}
+
+// LinearClient serves team.read, project.read, cycle.read, issue.read,
+// issue.create, and comment.create. Read resources are linear/team/<key>,
+// linear/project/<id>, linear/cycle/<id>, and linear/issue/<id>. A write's
+// resource is its parent: issue.create on linear/team/<team>, comment.create
+// on linear/issue/<issue>.
 type LinearClient struct {
 	backend     LinearBackend
 	transport   LinearGraphQLTransport
@@ -189,6 +327,48 @@ func (c *LinearClient) Invoke(ctx context.Context, meta contract.Metadata, inv c
 	return c.invokeBackend(ctx, inv, payload, kind, id, c.backend)
 }
 
+// invokeWrite runs issue.create or comment.create. Writes require an
+// idempotency key (connector execution contract, writes) and a payload whose
+// parent identifier equals the resource. The client never retries a write.
+func (c *LinearClient) invokeWrite(ctx context.Context, inv contract.Invocation, payload Payload, kind, id string, backend LinearBackend) (Result, error) {
+	writer, ok := backend.(LinearWriteBackend)
+	if !ok {
+		return Result{}, errors.New("linear writes are unavailable")
+	}
+	if inv.IdempotencyKey == "" {
+		return Result{}, errors.New("linear writes require an idempotency key")
+	}
+	clientID := LinearWriteID(inv)
+	switch p := payload.(type) {
+	case LinearIssueCreatePayload:
+		if err := p.Validate(); err != nil {
+			return Result{}, err
+		}
+		if kind != "team" || p.TeamID != id {
+			return Result{}, errors.New("issue.create requires a linear/team/<team> resource matching team_id")
+		}
+		data, err := writer.CreateIssue(ctx, clientID, p)
+		if err != nil {
+			return Result{}, err
+		}
+		return Result{Capability: inv.Capability, Data: data}, nil
+	case LinearCommentCreatePayload:
+		if err := p.Validate(); err != nil {
+			return Result{}, err
+		}
+		if kind != "issue" || p.IssueID != id {
+			return Result{}, errors.New("comment.create requires a linear/issue/<issue> resource matching issue_id")
+		}
+		data, err := writer.CreateComment(ctx, clientID, p)
+		if err != nil {
+			return Result{}, err
+		}
+		return Result{Capability: inv.Capability, Data: data}, nil
+	default:
+		return Result{}, fmt.Errorf("unsupported payload %T", payload)
+	}
+}
+
 func (c *LinearClient) resolveToken(ctx context.Context, meta contract.Metadata, inv contract.Invocation) (string, error) {
 	if err := contract.ValidateCredentialRef(meta.CredentialRef); err != nil {
 		return "", errors.New("linear credential is unavailable")
@@ -204,6 +384,8 @@ func (c *LinearClient) resolveToken(ctx context.Context, meta contract.Metadata,
 
 func (c *LinearClient) invokeBackend(ctx context.Context, inv contract.Invocation, payload Payload, kind, id string, backend LinearBackend) (Result, error) {
 	switch payload.(type) {
+	case LinearIssueCreatePayload, LinearCommentCreatePayload:
+		return c.invokeWrite(ctx, inv, payload, kind, id, backend)
 	case TeamReadPayload:
 		if kind != "team" {
 			return Result{}, errors.New("team.read requires a linear/team/<key> resource")

@@ -53,7 +53,7 @@ func TestLinearMutationsPassContract(t *testing.T) {
 	for _, tc := range []struct {
 		capability string
 		action     contract.Action
-	}{{"issue.create", contract.ActionCreate}, {"issue.update", contract.ActionUpdate}} {
+	}{{"issue.create", contract.ActionCreate}, {"issue.update", contract.ActionUpdate}, {"comment.create", contract.ActionCreate}} {
 		t.Run(tc.capability, func(t *testing.T) {
 			in := linearInvocation(tc.capability, tc.action)
 			// Authorization is the control plane's ABAC policy, decided

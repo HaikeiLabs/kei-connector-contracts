@@ -34,6 +34,53 @@ var CapabilityOAuthScopes = map[contract.Provider]map[string][]string{
 		"message.search": {GmailReadonlyScope},
 		"message.get":    {GmailReadonlyScope},
 	},
+	// Linear scopes are its OAuth app scopes, requested comma-separated.
+	// Writes map to the narrowest scope that covers them: issues:create and
+	// comments:create rather than the broad write scope, which only
+	// issue.update needs.
+	contract.ProviderLinear: {
+		"team.read":      {LinearReadScope},
+		"project.read":   {LinearReadScope},
+		"cycle.read":     {LinearReadScope},
+		"issue.read":     {LinearReadScope},
+		"issue.create":   {LinearIssuesCreateScope},
+		"comment.create": {LinearCommentsCreateScope},
+		"issue.update":   {LinearWriteScope},
+	},
+}
+
+// Linear OAuth scopes (https://linear.app/developers/oauth-2-0-authentication).
+const (
+	LinearReadScope           = "read"
+	LinearWriteScope          = "write"
+	LinearIssuesCreateScope   = "issues:create"
+	LinearCommentsCreateScope = "comments:create"
+)
+
+// DeclaresOAuthScopes reports whether the OAuth scope preflight applies to a
+// connector: its provider has a scope map, and its Scopes name at least one of
+// that provider's mapped OAuth scopes. Scopes that are only descriptive, such
+// as capability names or the runtime's session placeholder, and providers
+// without a map (GitHub) skip the preflight. This is the interim rule (owner
+// decision 2026-10-10, option C); the target is a preflight against the
+// user's actual grant, not connector metadata.
+func DeclaresOAuthScopes(meta contract.Metadata) bool {
+	mappings, ok := CapabilityOAuthScopes[meta.Provider]
+	if !ok {
+		return false
+	}
+	known := map[string]struct{}{}
+	for _, scopes := range mappings {
+		for _, scope := range scopes {
+			known[scope] = struct{}{}
+		}
+	}
+	for _, scope := range meta.Scopes {
+		if _, ok := known[scope]; ok {
+			return true
+		}
+	}
+	return false
 }
 
 // RequiredOAuthScopes returns the sorted, deduplicated least-privilege union

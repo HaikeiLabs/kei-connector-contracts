@@ -172,8 +172,9 @@ Each provider has an `access` list. Each mode has:
 
 Today only `api` is populated. It is set for the providers with a runtime
 adapter: gmail, google_drive, linear, github, tito, notion, discord, grafana,
-crm and http_api. Only crm lists writes, because the runtime executes crm
-writes. No provider has a cli, mcp or webhook mode yet.
+crm and http_api. Only crm and linear list writes, because the runtime
+executes them: every crm write, and Linear `issue.create` and
+`comment.create`. No provider has a cli, mcp or webhook mode yet.
 
 ## Versioning
 

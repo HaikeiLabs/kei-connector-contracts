@@ -21,6 +21,7 @@ import (
 	"errors"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -32,7 +33,16 @@ const (
 	linearProjectQuery = `query Project($id: String!) { project(id: $id) { id name state { name } team { key } } }`
 	linearCycleQuery   = `query Cycle($id: String!) { cycle(id: $id) { id name startsAt endsAt team { key } } }`
 	linearIssueQuery   = `query Issue($id: String!) { issue(id: $id) { id identifier title state { name } team { key } project { id } } }`
+
+	linearTeamIDQuery           = `query TeamID($key: String!) { teams(filter: { key: { eq: $key } }, first: 2) { nodes { id key } } }`
+	linearIssueCreateMutation   = `mutation IssueCreate($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { id identifier url team { key } } } }`
+	linearIssueRefQuery         = `query IssueRef($id: String!) { issue(id: $id) { id identifier url team { key } } }`
+	linearCommentCreateMutation = `mutation CommentCreate($input: CommentCreateInput!) { commentCreate(input: $input) { success comment { id url issue { id } } } }`
+	linearCommentRefQuery       = `query CommentRef($id: String!) { comment(id: $id) { id url issue { id } } }`
 )
+
+// linearUUID is a Linear entity id. A team_id that is not one is a team key.
+var linearUUID = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 
 // HTTPLinearGraphQLTransport is the production transport. Its endpoint is
 // intentionally not configurable: arbitrary destinations are outside the
@@ -186,4 +196,121 @@ func (b linearGraphQLBackend) Issue(ctx context.Context, id string) (LinearIssue
 		result.ProjectID = response.Issue.Project.ID
 	}
 	return result, nil
+}
+
+// teamUUID returns the Linear id of the team named by a key or id.
+func (b linearGraphQLBackend) teamUUID(ctx context.Context, team string) (string, error) {
+	if linearUUID.MatchString(team) {
+		return team, nil
+	}
+	var response struct {
+		Teams *struct {
+			Nodes []struct {
+				ID  string `json:"id"`
+				Key string `json:"key"`
+			} `json:"nodes"`
+		} `json:"teams"`
+	}
+	if err := b.query(ctx, linearTeamIDQuery, map[string]any{"key": team}, &response); err != nil || response.Teams == nil ||
+		len(response.Teams.Nodes) != 1 || response.Teams.Nodes[0].Key != team || !linearUUID.MatchString(response.Teams.Nodes[0].ID) {
+		return "", errors.New("invalid Linear team response")
+	}
+	return response.Teams.Nodes[0].ID, nil
+}
+
+type linearIssueRef struct {
+	ID         string `json:"id"`
+	Identifier string `json:"identifier"`
+	URL        string `json:"url"`
+	Team       *struct {
+		Key string `json:"key"`
+	} `json:"team"`
+}
+
+func (r *linearIssueRef) created() (LinearIssueCreated, bool) {
+	if r == nil || r.ID == "" || r.Identifier == "" || r.Team == nil || r.Team.Key == "" {
+		return LinearIssueCreated{}, false
+	}
+	return LinearIssueCreated{ID: r.ID, Identifier: r.Identifier, TeamKey: r.Team.Key, URL: r.URL}, true
+}
+
+// CreateIssue runs issueCreate with clientID as the new issue's id. When the
+// mutation fails, a read of clientID tells a replay of an issue that already
+// exists (returned as the result) from a write that did not happen. The
+// mutation itself is never retried.
+func (b linearGraphQLBackend) CreateIssue(ctx context.Context, clientID string, in LinearIssueCreatePayload) (LinearIssueCreated, error) {
+	teamID, err := b.teamUUID(ctx, in.TeamID)
+	if err != nil {
+		return LinearIssueCreated{}, err
+	}
+	input := map[string]any{"id": clientID, "teamId": teamID, "title": in.Title}
+	if in.Description != "" {
+		input["description"] = in.Description
+	}
+	if in.Priority != nil {
+		input["priority"] = *in.Priority
+	}
+	var response struct {
+		IssueCreate *struct {
+			Success bool            `json:"success"`
+			Issue   *linearIssueRef `json:"issue"`
+		} `json:"issueCreate"`
+	}
+	if err := b.query(ctx, linearIssueCreateMutation, map[string]any{"input": input}, &response); err == nil && response.IssueCreate != nil && response.IssueCreate.Success {
+		if created, ok := response.IssueCreate.Issue.created(); ok && created.ID == clientID {
+			return created, nil
+		}
+		return LinearIssueCreated{}, errors.New("invalid Linear issue create response")
+	}
+	var existing struct {
+		Issue *linearIssueRef `json:"issue"`
+	}
+	if err := b.query(ctx, linearIssueRefQuery, map[string]any{"id": clientID}, &existing); err == nil {
+		if created, ok := existing.Issue.created(); ok && created.ID == clientID {
+			return created, nil
+		}
+	}
+	return LinearIssueCreated{}, errors.New("Linear issue create failed")
+}
+
+type linearCommentRef struct {
+	ID    string `json:"id"`
+	URL   string `json:"url"`
+	Issue *struct {
+		ID string `json:"id"`
+	} `json:"issue"`
+}
+
+func (r *linearCommentRef) created() (LinearCommentCreated, bool) {
+	if r == nil || r.ID == "" || r.Issue == nil || r.Issue.ID == "" {
+		return LinearCommentCreated{}, false
+	}
+	return LinearCommentCreated{ID: r.ID, IssueID: r.Issue.ID, URL: r.URL}, true
+}
+
+// CreateComment runs commentCreate with clientID as the new comment's id,
+// with the same replay rule as CreateIssue.
+func (b linearGraphQLBackend) CreateComment(ctx context.Context, clientID string, in LinearCommentCreatePayload) (LinearCommentCreated, error) {
+	input := map[string]any{"id": clientID, "issueId": in.IssueID, "body": in.Body}
+	var response struct {
+		CommentCreate *struct {
+			Success bool              `json:"success"`
+			Comment *linearCommentRef `json:"comment"`
+		} `json:"commentCreate"`
+	}
+	if err := b.query(ctx, linearCommentCreateMutation, map[string]any{"input": input}, &response); err == nil && response.CommentCreate != nil && response.CommentCreate.Success {
+		if created, ok := response.CommentCreate.Comment.created(); ok && created.ID == clientID {
+			return created, nil
+		}
+		return LinearCommentCreated{}, errors.New("invalid Linear comment create response")
+	}
+	var existing struct {
+		Comment *linearCommentRef `json:"comment"`
+	}
+	if err := b.query(ctx, linearCommentRefQuery, map[string]any{"id": clientID}, &existing); err == nil {
+		if created, ok := existing.Comment.created(); ok && created.ID == clientID {
+			return created, nil
+		}
+	}
+	return LinearCommentCreated{}, errors.New("Linear comment create failed")
 }
