@@ -64,8 +64,8 @@ func TestAccessFreezeIsAPIOnlyForAdapterProviders(t *testing.T) {
 }
 
 // The api mode reads every read capability and declares only the writes the
-// runtime executes: every crm write, and Linear issue.create and
-// comment.create.
+// runtime executes: every crm write, Linear issue.create and comment.create,
+// and http_api http.post and http.patch.
 func TestAPIModeReadsAndWrites(t *testing.T) {
 	for _, p := range adapterProviders {
 		a, _ := AccessFor(p)
@@ -98,6 +98,10 @@ func TestAPIModeReadsAndWrites(t *testing.T) {
 	linear, _ := AccessFor(contract.ProviderLinear)
 	if want := []string{"comment.create", "issue.create"}; !reflect.DeepEqual(sorted(linear.Access[0].Writes), want) {
 		t.Errorf("linear writes = %v, want %v", linear.Access[0].Writes, want)
+	}
+	httpAPI, _ := AccessFor(contract.ProviderHTTPAPI)
+	if want := []string{"http.patch", "http.post"}; !reflect.DeepEqual(sorted(httpAPI.Access[0].Writes), want) {
+		t.Errorf("http_api writes = %v, want %v", httpAPI.Access[0].Writes, want)
 	}
 }
 
