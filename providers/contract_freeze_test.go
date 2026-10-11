@@ -212,4 +212,25 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 			t.Errorf("Grafana resource %q rejected: %v", resource, err)
 		}
 	}
+
+	// The skills repository lists its skills and fetches one by name.
+	skills := NewSkillsRepo(MemorySkillsRepo{
+		Commit:   "0123456789abcdef0123456789abcdef01234567",
+		Skills:   []SkillsRepoSkill{{Name: "deploy-helper", Harnesses: []string{}, Path: "skills/deploy-helper"}},
+		Archives: map[string][]byte{"deploy-helper": []byte("archive")},
+	})
+	sm := metaFor(t, contract.ProviderSkillsRepo, []string{"skills"}, nil)
+	sm.Config = map[string]any{"repo_url": "https://github.com/acme/agent-skills"}
+	for _, tc := range []struct {
+		resource string
+		payload  Payload
+	}{
+		{"skills", SkillsListPayload{}},
+		{"skills/deploy-helper", SkillsFetchPayload{}},
+	} {
+		inv := invocation(tc.payload.Capability(), contract.ActionRead, tc.resource)
+		if _, err := skills.Invoke(ctx, sm, inv, tc.payload); err != nil {
+			t.Errorf("skills repository resource %q rejected: %v", tc.resource, err)
+		}
+	}
 }
