@@ -50,6 +50,7 @@ var catalogMutations = []struct {
 	{contract.ProviderCRM, "investor.update", contract.ActionUpdate},
 	{contract.ProviderLinear, "issue.create", contract.ActionCreate},
 	{contract.ProviderLinear, "issue.update", contract.ActionUpdate},
+	{contract.ProviderLinear, "comment.create", contract.ActionCreate},
 }
 
 // readOnlyConnector returns an active connector whose metadata declares only a

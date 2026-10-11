@@ -47,7 +47,7 @@ func TestConnectorContractFreezeProviderCatalog(t *testing.T) {
 		},
 		ProviderGoogle: {"drive.search": ActionRead, "drive.metadata.read": ActionRead, "docs.read": ActionRead},
 		ProviderNotion: {"search": ActionRead, "page.read": ActionRead, "database.query": ActionRead},
-		ProviderLinear: {"team.read": ActionRead, "project.read": ActionRead, "cycle.read": ActionRead, "issue.read": ActionRead, "issue.create": ActionCreate, "issue.update": ActionUpdate},
+		ProviderLinear: {"team.read": ActionRead, "project.read": ActionRead, "cycle.read": ActionRead, "issue.read": ActionRead, "issue.create": ActionCreate, "issue.update": ActionUpdate, "comment.create": ActionCreate},
 		// The finance providers are frozen as read-only. If a future change
 		// adds a mutation capability here, this test fails and the reviewer
 		// has to justify letting an agent write to a ledger or a bank.

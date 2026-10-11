@@ -66,3 +66,77 @@ func TestOAuthScopesIncrementalReconsentAndDeclaredCoverage(t *testing.T) {
 		t.Fatal("undeclared provider mapping accepted")
 	}
 }
+
+func TestLinearOAuthScopesAreNarrowPerWrite(t *testing.T) {
+	for _, tc := range []struct {
+		capabilities []string
+		want         []string
+	}{
+		{[]string{"team.read", "issue.read"}, []string{LinearReadScope}},
+		{[]string{"issue.read", "issue.create"}, []string{LinearIssuesCreateScope, LinearReadScope}},
+		{[]string{"comment.create"}, []string{LinearCommentsCreateScope}},
+		{[]string{"issue.update"}, []string{LinearWriteScope}},
+	} {
+		caps := make([]contract.Capability, 0, len(tc.capabilities))
+		for _, name := range tc.capabilities {
+			caps = append(caps, contract.Capability{Name: name})
+		}
+		got, err := RequiredOAuthScopes(contract.ProviderLinear, caps)
+		if err != nil || !reflect.DeepEqual(got, tc.want) {
+			t.Errorf("%v: scopes = %v, %v; want %v", tc.capabilities, got, err, tc.want)
+		}
+	}
+	for _, capability := range contract.CapabilitiesFor(contract.ProviderLinear) {
+		if _, err := RequiredOAuthScopes(contract.ProviderLinear, []contract.Capability{capability}); err != nil {
+			t.Errorf("Linear capability %q has no scope mapping: %v", capability.Name, err)
+		}
+	}
+}
+
+// The interim preflight rule (owner decision 2026-10-10, option C): only a
+// mapped provider whose connector scopes name its OAuth scopes is checked.
+func TestDeclaresOAuthScopes(t *testing.T) {
+	for _, tc := range []struct {
+		name     string
+		provider contract.Provider
+		scopes   []string
+		want     bool
+	}{
+		{"linear provider scopes", contract.ProviderLinear, []string{LinearReadScope}, true},
+		{"gmail provider scope", contract.ProviderGmail, []string{GmailReadonlyScope}, true},
+		{"capability names from kei-cli", contract.ProviderLinear, []string{"team.read", "issue.create"}, false},
+		{"runtime session placeholder", contract.ProviderLinear, []string{"session"}, false},
+		{"github has no map", contract.ProviderGitHub, []string{"repo"}, false},
+	} {
+		if got := DeclaresOAuthScopes(contract.Metadata{Provider: tc.provider, Scopes: tc.scopes}); got != tc.want {
+			t.Errorf("%s: DeclaresOAuthScopes = %t, want %t", tc.name, got, tc.want)
+		}
+	}
+}
+
+func TestGuardSkipsPreflightForDescriptiveScopes(t *testing.T) {
+	for _, tc := range []struct {
+		provider contract.Provider
+		scopes   []string
+		inv      contract.Invocation
+	}{
+		{contract.ProviderGitHub, []string{"read"}, invocation("repository.read", contract.ActionRead, "github/acme/repo")},
+		{contract.ProviderLinear, []string{"session"}, invocation("team.read", contract.ActionRead, "linear/team/KEI")},
+		{contract.ProviderLinear, []string{"team.read", "issue.create"}, invocation("team.read", contract.ActionRead, "linear/team/KEI")},
+	} {
+		meta := metaFor(t, tc.provider, []string{"*"}, nil)
+		meta.CredentialSource = contract.CredentialSourceOAuth
+		meta.AccountModel = contract.AccountModelPerUser
+		meta.Scopes = tc.scopes
+		if err := Guard(meta, tc.inv); err != nil {
+			t.Errorf("%s scopes %v: Guard = %v, want no preflight", tc.provider, tc.scopes, err)
+		}
+	}
+	meta := metaFor(t, contract.ProviderLinear, []string{"*"}, nil)
+	meta.CredentialSource = contract.CredentialSourceOAuth
+	meta.AccountModel = contract.AccountModelPerUser
+	meta.Scopes = []string{LinearReadScope}
+	if err := Guard(meta, invocation("team.read", contract.ActionRead, "linear/team/KEI")); err == nil {
+		t.Error("provider scopes that miss issue.create/comment.create/issue.update passed the preflight")
+	}
+}

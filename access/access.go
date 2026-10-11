@@ -149,6 +149,23 @@ func CredentialReference(connectorID, field string) string {
 	return "kei://connectors/" + connectorID + "/" + field
 }
 
+// apiWrites are the write capabilities the runtime executes through its
+// adapter, per provider. crm executes every write it defines; Linear executes
+// issue.create and comment.create. Other providers' write capabilities, and
+// Linear issue.update, are not served by api mode.
+var apiWrites = map[contract.Provider]map[string]bool{
+	contract.ProviderLinear: {"issue.create": true, "comment.create": true},
+}
+
+// APIWrite reports whether the runtime adapter executes the named write
+// capability for provider.
+func APIWrite(provider contract.Provider, capability string) bool {
+	if provider == contract.ProviderCRM {
+		return true
+	}
+	return apiWrites[provider][capability]
+}
+
 func apiMode(provider contract.Provider) AccessMode {
 	mode := AccessMode{
 		Kind: KindAPI,
@@ -162,9 +179,7 @@ func apiMode(provider contract.Provider) AccessMode {
 	for _, c := range contract.CapabilitiesFor(provider) {
 		if c.Action == contract.ActionRead {
 			mode.Reads = append(mode.Reads, c.Name)
-		} else if provider == contract.ProviderCRM {
-			// The runtime executes crm writes through its adapter; other
-			// providers' write capabilities are not served by api mode.
+		} else if APIWrite(provider, c.Name) {
 			mode.Writes = append(mode.Writes, c.Name)
 		}
 	}

@@ -133,6 +133,10 @@
           "project.read",
           "cycle.read",
           "issue.read"
+        ],
+        "writes": [
+          "issue.create",
+          "comment.create"
         ]
       }
     ]
