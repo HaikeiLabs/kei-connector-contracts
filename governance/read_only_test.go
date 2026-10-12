@@ -51,6 +51,8 @@ var catalogMutations = []struct {
 	{contract.ProviderLinear, "issue.create", contract.ActionCreate},
 	{contract.ProviderLinear, "issue.update", contract.ActionUpdate},
 	{contract.ProviderLinear, "comment.create", contract.ActionCreate},
+	{contract.ProviderGoogle, "drive.doc.create", contract.ActionCreate},
+	{contract.ProviderGoogle, "drive.doc.update", contract.ActionUpdate},
 }
 
 // readOnlyConnector returns an active connector whose metadata declares only a
@@ -80,6 +82,10 @@ func readOnlyConnector(t *testing.T, provider contract.Provider) (contract.Metad
 		m.Capabilities = []contract.Capability{{Name: "account.read", Action: contract.ActionRead}}
 		m.Policy = contract.PolicyAttributes{AllowedActions: []contract.Action{contract.ActionRead}, AllowedResources: []string{"accounts/acct-1"}}
 		return m, "account.read", "accounts/acct-1"
+	case contract.ProviderGoogle:
+		m.Capabilities = []contract.Capability{{Name: "drive.search", Action: contract.ActionRead}}
+		m.Policy = contract.PolicyAttributes{AllowedActions: []contract.Action{contract.ActionRead}, AllowedResources: []string{"drive"}}
+		return m, "drive.search", "drive/d-1"
 	default:
 		t.Fatalf("unexpected provider %q", provider)
 		return contract.Metadata{}, "", ""
