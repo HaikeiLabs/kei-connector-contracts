@@ -133,6 +133,8 @@ func New(provider contract.Provider) (Client, error) {
 		return NewAuthenticatedGmail(RuntimeConfig{}), nil
 	case contract.ProviderTito:
 		return NewAuthenticatedTito(RuntimeConfig{}), nil
+	case contract.ProviderSkillsRepo:
+		return NewAuthenticatedSkillsRepo(RuntimeConfig{}), nil
 	default:
 		return nil, fmt.Errorf("unsupported provider %q", provider)
 	}

@@ -77,6 +77,11 @@ type SetupField struct {
 	Default   any    `json:"default,omitempty"`
 	// AccountModels limits the field to these models; empty means every model.
 	AccountModels []contract.AccountModel `json:"account_models,omitempty"`
+	// CredentialSources limits the field to these credential sources; empty
+	// means every source. A provider that offers both OAuth and a
+	// shared-secret token uses it to show the token field only on the
+	// opaque_ref path.
+	CredentialSources []contract.CredentialSource `json:"credential_sources,omitempty"`
 }
 
 // SetupAuth is one way a connector can authenticate.
@@ -94,13 +99,19 @@ type SetupSchema struct {
 	Fields   []SetupField      `json:"fields"`
 }
 
-// FieldsFor returns the fields that apply to an account model.
+// FieldsFor returns the fields that apply to an account model. per_user and
+// shared imply an oauth credential source, so a field limited to opaque_ref
+// does not apply to them.
 func (s SetupSchema) FieldsFor(model contract.AccountModel) []SetupField {
 	var fields []SetupField
 	for _, f := range s.Fields {
-		if len(f.AccountModels) == 0 || containsAccountModel(f.AccountModels, model) {
-			fields = append(fields, f)
+		if len(f.AccountModels) > 0 && !containsAccountModel(f.AccountModels, model) {
+			continue
 		}
+		if len(f.CredentialSources) > 0 && (model == contract.AccountModelPerUser || model == contract.AccountModelShared) && !containsCredentialSource(f.CredentialSources, contract.CredentialSourceOAuth) {
+			continue
+		}
+		fields = append(fields, f)
 	}
 	return fields
 }
@@ -117,6 +128,17 @@ func googleAuth() []SetupAuth {
 func oauthOnlyAuth() []SetupAuth {
 	return []SetupAuth{{CredentialSource: contract.CredentialSourceOAuth, AccountModels: []contract.AccountModel{contract.AccountModelPerUser, contract.AccountModelShared}, DefaultAccountModel: contract.AccountModelPerUser}}
 }
+
+// skillsRepoAuth is the invoking user's GitHub OAuth token, or a shared-secret
+// token behind an opaque_ref.
+func skillsRepoAuth() []SetupAuth {
+	return []SetupAuth{
+		{CredentialSource: contract.CredentialSourceOAuth, AccountModels: []contract.AccountModel{contract.AccountModelPerUser}, DefaultAccountModel: contract.AccountModelPerUser},
+		{CredentialSource: contract.CredentialSourceOpaqueRef},
+	}
+}
+
+var opaqueRefOnly = []contract.CredentialSource{contract.CredentialSourceOpaqueRef}
 
 func sharedSecretAuth() []SetupAuth {
 	return []SetupAuth{{CredentialSource: contract.CredentialSourceOpaqueRef}}
@@ -162,6 +184,17 @@ var setupSchemas = []SetupSchema{
 	{Schema: SetupSchemaVersion, Provider: contract.ProviderGrafana, Auth: sharedSecretAuth(), Fields: []SetupField{
 		{Name: "base_url", Label: "Grafana URL", Type: SetupFieldHTTPSURL, Location: SetupLocationGrafana, Required: true, MaxLength: 2048},
 		{Name: "service_account_token", Label: "Grafana service account token", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^glsa_[A-Za-z0-9]+_[A-Za-z0-9]+$`, MinLength: 20, MaxLength: 256},
+	}},
+	// Skills repository: the git repository and ref holding one folder per
+	// skill, and the folder those skill folders live in ("/" is the
+	// repository root). GitHub is the only host today. The token field is
+	// only for the opaque_ref path; per_user reads use the invoking user's
+	// GitHub OAuth token.
+	{Schema: SetupSchemaVersion, Provider: contract.ProviderSkillsRepo, Auth: skillsRepoAuth(), Fields: []SetupField{
+		{Name: "repo_url", Label: "Skills repository URL", Type: SetupFieldHTTPSURL, Location: SetupLocationConfig, Required: true, Pattern: `^https://github\.com/[A-Za-z0-9][A-Za-z0-9-]{0,38}/\.?[A-Za-z0-9_-][A-Za-z0-9._-]{0,99}$`, MaxLength: 2048},
+		{Name: "ref", Label: "Branch, tag, or commit", Type: SetupFieldString, Location: SetupLocationConfig, Pattern: `^[A-Za-z0-9][A-Za-z0-9._/-]{0,254}$`, Default: "main"},
+		{Name: "subdirectory", Label: "Skills folder", Type: SetupFieldString, Location: SetupLocationConfig, Pattern: `^(/|[A-Za-z0-9_-][A-Za-z0-9._-]{0,99}(/[A-Za-z0-9_-][A-Za-z0-9._-]{0,99}){0,7}/?)$`, Default: "skills/"},
+		{Name: "token", Label: "GitHub token with read access to repository contents", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 20, MaxLength: 512, CredentialSources: opaqueRefOnly},
 	}},
 	{Schema: SetupSchemaVersion, Provider: contract.ProviderCRM, Auth: sharedSecretAuth(), Fields: []SetupField{
 		{Name: "base_url", Label: "CRM Worker origin", Type: SetupFieldHTTPSURL, Location: SetupLocationConfig, Required: true, MaxLength: 2048},
@@ -327,6 +360,15 @@ func stringList(value any) ([]string, bool) {
 		return items, len(items) > 0
 	}
 	return nil, false
+}
+
+func containsCredentialSource(sources []contract.CredentialSource, want contract.CredentialSource) bool {
+	for _, source := range sources {
+		if source == want {
+			return true
+		}
+	}
+	return false
 }
 
 func containsAccountModel(models []contract.AccountModel, want contract.AccountModel) bool {

@@ -152,6 +152,42 @@ addresses, numeric-encoded IPv4 hosts, and cloud-metadata hostnames
 (`metadata`, `metadata.*`, `instance-data`, `instance-data.*`) are always
 refused. The runtime must still check the resolved address when it dials.
 
+## Skills repository (unreleased)
+
+A dedicated, read-only provider for a workspace's agent skill source: a git
+repository holding one folder per skill, each with a `SKILL.md`. It is its own
+provider rather than a `github` capability, so a skill source never implies
+access to a repository's issues or pull requests.
+
+| Provider | Capability | Resource | Result |
+| --- | --- | --- | --- |
+| `skills_repo` | `skills.list` | `skills` | `SkillsRepoListing`: `ref`, the resolved `commit`, and per skill `name`, `version`, `description`, `harnesses`, `path` |
+| `skills_repo` | `skills.fetch` | `skills/<name>` | `SkillsRepoArchive`: the skill entry, `commit`, `format` (`tar+gzip`), `digest` (`sha256:<hex>`), `size`, and the `archive` bytes |
+
+- A skill name is one segment of letters, digits, `-` and `_` (at most 64), so
+  a fetch cannot leave the skills folder. A folder whose `SKILL.md`
+  frontmatter names another skill is left out of the listing and refused by
+  `skills.fetch`.
+- `version` and `harnesses` are read from the frontmatter, top level or under
+  `metadata:`. Values that are not plain tokens are dropped.
+- The archive is inline in the invoke result: the result shape has no blob
+  reference, and a reference would need a second, ungoverned download. It is
+  deterministic for a commit (path order, fixed timestamps, modes 0644/0755),
+  bounded (500 files, 2 MiB per file, 8 MiB in total), and refuses symlinks
+  and submodules.
+- Setup: `repo_url` (`https://github.com/<owner>/<repo>`; GitHub is the only
+  host today), `ref` (default `main`), and `subdirectory` (default `skills/`,
+  `/` for the root). Auth is the invoking user's GitHub OAuth token
+  (`per_user`) or a shared-secret `token` over `opaque_ref`. The new optional
+  `SetupField.CredentialSources` limits the token field to the `opaque_ref`
+  path.
+- `providers.GitHubSkillsRepo` is the GitHub backend behind the
+  `SkillsRepoBackend` seam. It resolves the ref to a commit and reads trees
+  and blobs by object id, so one call reads one snapshot.
+
+`skills_repo` is not in the access manifest yet: it is added when the runtime
+wires the provider.
+
 ## Provider access modes (HAI-319, unreleased)
 
 `access.Access()` lists how each provider can be reached. The JSON export is

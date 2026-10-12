@@ -31,7 +31,7 @@ var updateSetupGolden = flag.Bool("update-setup", false, "rewrite schemas/connec
 // Only the connectors we build are configurable: s3 and the finance
 // providers have no setup schema.
 func TestSetupSchemasCoverExactlyTheSupportedProviders(t *testing.T) {
-	want := []contract.Provider{contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderLinear, contract.ProviderGitHub, contract.ProviderTito, contract.ProviderNotion, contract.ProviderDiscord, contract.ProviderGrafana, contract.ProviderCRM, contract.ProviderHTTPAPI}
+	want := []contract.Provider{contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderLinear, contract.ProviderGitHub, contract.ProviderTito, contract.ProviderNotion, contract.ProviderDiscord, contract.ProviderGrafana, contract.ProviderSkillsRepo, contract.ProviderCRM, contract.ProviderHTTPAPI}
 	got := SetupSchemas()
 	if len(got) != len(want) {
 		t.Fatalf("SetupSchemas() has %d providers, want %d", len(got), len(want))
@@ -359,5 +359,74 @@ func TestValidateMetadataChecksDiscordAndGrafana(t *testing.T) {
 	missing.Grafana = nil
 	if err := ValidateMetadata(missing); err == nil {
 		t.Error("grafana connector without a base url was accepted")
+	}
+}
+
+// A skills repository is a GitHub repository URL, a ref (default main), and
+// the skills folder (default skills/). The token field applies only to the
+// opaque_ref path: a per_user connector reads with the user's OAuth token.
+func TestSkillsRepoSetup(t *testing.T) {
+	s, ok := SetupSchemaFor(contract.ProviderSkillsRepo)
+	if !ok || len(s.Auth) != 2 || s.Auth[0].CredentialSource != contract.CredentialSourceOAuth || s.Auth[1].CredentialSource != contract.CredentialSourceOpaqueRef || len(s.Auth[1].AccountModels) != 0 {
+		t.Fatalf("skills_repo schema = %+v", s)
+	}
+	fields := map[string]SetupField{}
+	for _, f := range s.Fields {
+		fields[f.Name] = f
+	}
+	if f := fields["ref"]; f.Default != "main" || f.Required || !validSetupString(f, "main") {
+		t.Errorf("ref field = %+v", f)
+	}
+	if f := fields["subdirectory"]; f.Default != "skills/" || f.Required || !validSetupString(f, "skills/") {
+		t.Errorf("subdirectory field = %+v", f)
+	}
+	if f := fields["token"]; !f.Secret || f.Location != SetupLocationCredential {
+		t.Errorf("token field = %+v", f)
+	}
+	for _, f := range s.FieldsFor(contract.AccountModelPerUser) {
+		if f.Secret {
+			t.Errorf("per_user offers secret field %q", f.Name)
+		}
+	}
+	secrets := 0
+	for _, f := range s.FieldsFor("") {
+		if f.Secret {
+			secrets++
+		}
+	}
+	if secrets != 1 {
+		t.Errorf("opaque_ref offers %d secret fields, want 1", secrets)
+	}
+
+	for _, config := range []map[string]any{
+		{"repo_url": "https://github.com/acme/agent-skills"},
+		{"repo_url": "https://github.com/acme/.github", "ref": "release/v1.2", "subdirectory": "/"},
+		{"repo_url": "https://github.com/acme/agent-skills", "ref": "0123456789abcdef0123456789abcdef01234567", "subdirectory": "tools/skills"},
+	} {
+		if err := ValidateConfig(contract.ProviderSkillsRepo, contract.AccountModelPerUser, config); err != nil {
+			t.Errorf("config %v rejected: %v", config, err)
+		}
+	}
+	for name, config := range map[string]map[string]any{
+		"missing repo":      {},
+		"other host":        {"repo_url": "https://gitlab.com/acme/agent-skills"},
+		"http":              {"repo_url": "http://github.com/acme/agent-skills"},
+		"dot-dot repo":      {"repo_url": "https://github.com/acme/.."},
+		"repo path":         {"repo_url": "https://github.com/acme/agent-skills/tree/main"},
+		"userinfo":          {"repo_url": "https://user@github.com/acme/agent-skills"},
+		"dot-dot subfolder": {"repo_url": "https://github.com/acme/agent-skills", "subdirectory": "../skills"},
+		"hidden subfolder":  {"repo_url": "https://github.com/acme/agent-skills", "subdirectory": ".git/"},
+		"ref option":        {"repo_url": "https://github.com/acme/agent-skills", "ref": "-main"},
+		"token in config":   {"repo_url": "https://github.com/acme/agent-skills", "token": "VALUE"},
+		"unknown field":     {"repo_url": "https://github.com/acme/agent-skills", "branch": "main"},
+		"shared model":      nil,
+	} {
+		model := contract.AccountModelPerUser
+		if name == "shared model" {
+			model = contract.AccountModelShared
+		}
+		if err := ValidateConfig(contract.ProviderSkillsRepo, model, config); err == nil {
+			t.Errorf("%s: config accepted", name)
+		}
 	}
 }

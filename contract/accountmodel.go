@@ -43,6 +43,10 @@ var accountModels = map[Provider][]AccountModel{
 	ProviderGoogle: {AccountModelPerUser, AccountModelShared, AccountModelDomainDelegation},
 	ProviderLinear: {AccountModelPerUser, AccountModelShared},
 	ProviderGitHub: {AccountModelPerUser, AccountModelShared},
+	// A skills repository is read with the invoking user's GitHub OAuth
+	// token, or with a shared-secret token over opaque_ref (no account
+	// model).
+	ProviderSkillsRepo: {AccountModelPerUser},
 }
 
 // AccountModelsFor returns the account models a provider allows, in the order

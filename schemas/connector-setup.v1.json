@@ -247,6 +247,68 @@
   },
   {
     "schema": "kei.connector-setup/v1",
+    "provider": "skills_repo",
+    "auth": [
+      {
+        "credential_source": "oauth",
+        "account_models": [
+          "per_user"
+        ],
+        "default_account_model": "per_user"
+      },
+      {
+        "credential_source": "opaque_ref"
+      }
+    ],
+    "fields": [
+      {
+        "name": "repo_url",
+        "label": "Skills repository URL",
+        "type": "https_url",
+        "location": "config",
+        "required": true,
+        "secret": false,
+        "pattern": "^https://github\\.com/[A-Za-z0-9][A-Za-z0-9-]{0,38}/\\.?[A-Za-z0-9_-][A-Za-z0-9._-]{0,99}$",
+        "max_length": 2048
+      },
+      {
+        "name": "ref",
+        "label": "Branch, tag, or commit",
+        "type": "string",
+        "location": "config",
+        "required": false,
+        "secret": false,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9._/-]{0,254}$",
+        "default": "main"
+      },
+      {
+        "name": "subdirectory",
+        "label": "Skills folder",
+        "type": "string",
+        "location": "config",
+        "required": false,
+        "secret": false,
+        "pattern": "^(/|[A-Za-z0-9_-][A-Za-z0-9._-]{0,99}(/[A-Za-z0-9_-][A-Za-z0-9._-]{0,99}){0,7}/?)$",
+        "default": "skills/"
+      },
+      {
+        "name": "token",
+        "label": "GitHub token with read access to repository contents",
+        "type": "string",
+        "location": "credential",
+        "required": true,
+        "secret": true,
+        "pattern": "^\\S+$",
+        "min_length": 20,
+        "max_length": 512,
+        "credential_sources": [
+          "opaque_ref"
+        ]
+      }
+    ]
+  },
+  {
+    "schema": "kei.connector-setup/v1",
     "provider": "crm",
     "auth": [
       {

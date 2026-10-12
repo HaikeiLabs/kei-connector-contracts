@@ -79,6 +79,8 @@ func TestConnectorContractFreezeProviderCatalog(t *testing.T) {
 			"alert_rule.list": ActionRead, "annotation.list": ActionRead,
 			"datasource.query": ActionRead,
 		},
+		// The skills repository enters the freeze read-only.
+		ProviderSkillsRepo: {"skills.list": ActionRead, "skills.fetch": ActionRead},
 	}
 	for provider, expected := range want {
 		got := CapabilitiesFor(provider)

@@ -65,6 +65,13 @@ const (
 	// service-account token behind an opaque_ref. The instance is
 	// Metadata.Grafana.BaseURL.
 	ProviderGrafana Provider = "grafana"
+
+	// ProviderSkillsRepo reads a workspace's agent skill source: a git
+	// repository (GitHub first) holding one folder per skill. It is a
+	// dedicated provider rather than a github capability so that a skill
+	// source never implies access to a repository's issues or pull requests.
+	// Its capabilities are reads: list the skills and fetch one as an archive.
+	ProviderSkillsRepo Provider = "skills_repo"
 )
 
 // CredentialSource is typed metadata for where a connector's credential
@@ -115,6 +122,9 @@ var definitions = map[Provider][]Capability{
 	// write: sending messages or editing dashboards is an agent action tool.
 	ProviderDiscord: {{Name: "guild.list", Action: ActionRead}, {Name: "guild.read", Action: ActionRead}, {Name: "channel.list", Action: ActionRead}, {Name: "channel.read", Action: ActionRead}, {Name: "thread.list", Action: ActionRead}, {Name: "message.list", Action: ActionRead}, {Name: "message.read", Action: ActionRead}, {Name: "role.list", Action: ActionRead}},
 	ProviderGrafana: {{Name: "folder.list", Action: ActionRead}, {Name: "folder.read", Action: ActionRead}, {Name: "dashboard.search", Action: ActionRead}, {Name: "dashboard.read", Action: ActionRead}, {Name: "datasource.list", Action: ActionRead}, {Name: "datasource.read", Action: ActionRead}, {Name: "alert_rule.list", Action: ActionRead}, {Name: "annotation.list", Action: ActionRead}, {Name: "datasource.query", Action: ActionRead}},
+	// The skills repository is read-only: installing or syncing a skill is
+	// done by the client that fetched it, never by a write to the source.
+	ProviderSkillsRepo: {{Name: "skills.list", Action: ActionRead}, {Name: "skills.fetch", Action: ActionRead}},
 }
 
 func CapabilitiesFor(provider Provider) []Capability {
@@ -328,7 +338,8 @@ func definedCapability(provider Provider, candidate Capability) bool {
 
 func validProvider(p Provider) bool {
 	return p == ProviderCRM || p == ProviderLinear || p == ProviderGitHub || p == ProviderGoogle || p == ProviderNotion || p == ProviderS3 || p == ProviderHTTPAPI ||
-		p == ProviderFreshBooks || p == ProviderMercury || p == ProviderGmail || p == ProviderTito || p == ProviderDiscord || p == ProviderGrafana
+		p == ProviderFreshBooks || p == ProviderMercury || p == ProviderGmail || p == ProviderTito || p == ProviderDiscord || p == ProviderGrafana ||
+		p == ProviderSkillsRepo
 }
 func validStatus(s Status) bool {
 	return s == StatusPending || s == StatusActive || s == StatusSuspended || s == StatusRevoked || s == StatusFailed
