@@ -63,19 +63,17 @@
       }
     },
     "mcp": {
+      "description": "A remote MCP server, reached over https by the runtime's MCP route (streamable_http or sse). Never stdio.",
       "type": "object",
       "additionalProperties": false,
-      "required": ["transport"],
+      "required": ["transport", "url"],
       "properties": {
         "package": { "type": "string" },
-        "transport": { "enum": ["stdio", "streamable_http"] },
-        "command": { "type": "array", "minItems": 1, "items": { "type": "string" } },
-        "url": { "type": "string", "pattern": "^https://" }
-      },
-      "oneOf": [
-        { "properties": { "transport": { "const": "stdio" } }, "required": ["command"], "not": { "required": ["url"] } },
-        { "properties": { "transport": { "const": "streamable_http" } }, "required": ["url"], "not": { "required": ["command"] } }
-      ]
+        "transport": { "enum": ["streamable_http", "sse"] },
+        "url": { "type": "string", "pattern": "^https://" },
+        "resource": { "type": "string", "description": "Canonical resource URI; defaults to url." },
+        "issuer": { "type": "string", "description": "Expected authorization server issuer, when the server authenticates with OAuth." }
+      }
     },
     "webhook": {
       "type": "object",

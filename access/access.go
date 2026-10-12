@@ -45,8 +45,8 @@ const (
 	// KindCLI: the provider's own CLI, run under `kei-proxy run --`
 	// (HAI-305), which injects credential references into the child only.
 	KindCLI Kind = "cli"
-	// KindMCP: an MCP server, started by the MCP launcher, which injects
-	// credential references into the server only.
+	// KindMCP: a remote MCP server, reached over https by the runtime's MCP
+	// route (streamable_http or sse).
 	KindMCP Kind = "mcp"
 	// KindWebhook: provider events delivered to, or sent from, Kei.
 	KindWebhook Kind = "webhook"
@@ -56,8 +56,8 @@ const (
 type Transport string
 
 const (
-	TransportStdio          Transport = "stdio"
 	TransportStreamableHTTP Transport = "streamable_http"
+	TransportSSE            Transport = "sse"
 )
 
 // Direction is which way a webhook flows.
@@ -112,14 +112,17 @@ type CLIMode struct {
 	Install string `json:"install"`
 }
 
-// MCPMode runs or connects to an MCP server.
+// MCPMode connects to a remote MCP server over https.
 type MCPMode struct {
 	Package   string    `json:"package,omitempty"`
 	Transport Transport `json:"transport"`
-	// Command is the stdio server's argv.
-	Command []string `json:"command,omitempty"`
-	// URL is the streamable_http endpoint (https).
-	URL string `json:"url,omitempty"`
+	// URL is the remote MCP endpoint (https).
+	URL string `json:"url"`
+	// Resource is the canonical resource URI; it defaults to URL.
+	Resource string `json:"resource,omitempty"`
+	// Issuer is the expected authorization server issuer, when the server
+	// authenticates with OAuth.
+	Issuer string `json:"issuer,omitempty"`
 }
 
 // WebhookMode is a provider webhook.
@@ -129,8 +132,9 @@ type WebhookMode struct {
 	SecretField string `json:"secret_field"`
 }
 
-// CredentialEnv sets Env to CredentialReference(<connector id>, Field) in a
-// cli or mcp process.
+// CredentialEnv sets Env to CredentialReference(<connector id>, Field). For a
+// cli mode `kei-proxy run --` resolves it into the child process only; for an
+// mcp mode the runtime's MCP route attaches it to upstream requests.
 type CredentialEnv struct {
 	Env   string `json:"env"`
 	Field string `json:"field"`
@@ -245,7 +249,6 @@ func (a ProviderAccess) clone() ProviderAccess {
 		}
 		if m.MCP != nil {
 			mcp := *m.MCP
-			mcp.Command = cloneStrings(m.MCP.Command)
 			c.MCP = &mcp
 		}
 		if m.Webhook != nil {
@@ -364,8 +367,8 @@ func (m AccessMode) validate(provider contract.Provider) error {
 	if m.CLI != nil && containsSecretMaterial(m.CLI.Install) {
 		return errors.New("install hint must not contain secret material")
 	}
-	if m.MCP != nil && containsSecretMaterial(m.MCP.Command...) {
-		return errors.New("mcp command must not contain secret material")
+	if m.MCP != nil && containsSecretMaterial(m.MCP.URL, m.MCP.Resource, m.MCP.Issuer) {
+		return errors.New("mcp url, resource, and issuer must not contain secret material")
 	}
 	if err := validateCapabilities(provider, m.Reads, true); err != nil {
 		return err
@@ -378,17 +381,49 @@ func (m *MCPMode) validate() error {
 		return errors.New("mcp block is required")
 	}
 	switch m.Transport {
-	case TransportStdio:
-		if len(m.Command) == 0 || m.Command[0] == "" || m.URL != "" {
-			return errors.New("stdio mcp needs a command and no url")
-		}
-	case TransportStreamableHTTP:
-		u, err := url.Parse(m.URL)
-		if err != nil || u.Scheme != "https" || u.Host == "" || u.User != nil || len(m.Command) > 0 {
-			return errors.New("streamable_http mcp needs an https url and no command")
-		}
+	case TransportStreamableHTTP, TransportSSE:
 	default:
 		return fmt.Errorf("unknown mcp transport %q", m.Transport)
+	}
+	if err := validateRemoteURL(m.URL); err != nil {
+		return err
+	}
+	if m.Resource == "" {
+		m.Resource = m.URL
+	} else if m.Resource != m.URL {
+		if err := validateRemoteURL(m.Resource); err != nil {
+			return fmt.Errorf("mcp resource: %w", err)
+		}
+	}
+	if m.Issuer != "" {
+		if err := validateRemoteURL(m.Issuer); err != nil {
+			return fmt.Errorf("mcp issuer: %w", err)
+		}
+	}
+	return nil
+}
+
+// validateRemoteURL reports whether raw is a clean https endpoint: an https
+// scheme, a host, and no userinfo, query, or fragment.
+func validateRemoteURL(raw string) error {
+	u, err := url.Parse(raw)
+	if err != nil {
+		return fmt.Errorf("url %q is not valid", raw)
+	}
+	if u.Scheme != "https" {
+		return errors.New("url must be https")
+	}
+	if u.Host == "" {
+		return errors.New("url must have a host")
+	}
+	if u.User != nil {
+		return errors.New("url must not contain userinfo")
+	}
+	if u.RawQuery != "" {
+		return errors.New("url must not contain a query")
+	}
+	if u.Fragment != "" {
+		return errors.New("url must not contain a fragment")
 	}
 	return nil
 }

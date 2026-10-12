@@ -160,12 +160,12 @@ Each provider has an `access` list. Each mode has:
 - **`kind`:** one of the following.
   - `api`: the runtime adapter, run by `kei-proxy connector invoke`.
   - `cli`: a provider CLI, given by `binary`, `min_version` and an `install` hint.
-  - `mcp`: an MCP server, given by `package` and `transport` (`stdio` with `command`, or `streamable_http` with an https `url`).
+  - `mcp`: a remote MCP server, given by `transport` (`streamable_http` or `sse`) and an https `url` (no userinfo, query, or fragment). `resource` is the canonical resource URI (defaults to `url`); `issuer` is the optional expected authorization server issuer.
   - `webhook`: given by `direction` (`inbound` or `outbound`) and the `secret_field` of the signing secret.
 - **`credentials`** (cli and mcp only): pairs of `env` and `field`. The env var
   holds the reference `kei://connectors/<connector_id>/<field>`, which
-  `kei-proxy run --` (HAI-305) or the MCP launcher resolves into the child
-  process only.
+  `kei-proxy run --` (HAI-305) resolves into the child process only (cli), or
+  the runtime's MCP route attaches to upstream requests (mcp).
 - **`setup` and `verify`:** ordered steps.
 - **`reads` and `writes`:** the provider's read and write capabilities. Writes
   are made by agent action tools (ADR-028).
