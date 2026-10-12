@@ -68,6 +68,10 @@ func TestConnectorContractFreezeProviderCatalog(t *testing.T) {
 			"thread.list": ActionRead, "message.list": ActionRead,
 			"message.read": ActionRead, "role.list": ActionRead,
 		},
+		// http_api capabilities are named for their HTTP method. v0.8.0 adds
+		// the writes http.post (create) and http.patch (update), each with a
+		// JSON object body.
+		ProviderHTTPAPI: {"http.get": ActionRead, "http.head": ActionRead, "http.post": ActionCreate, "http.patch": ActionUpdate},
 		ProviderGrafana: {
 			"folder.list": ActionRead, "folder.read": ActionRead,
 			"dashboard.search": ActionRead, "dashboard.read": ActionRead,

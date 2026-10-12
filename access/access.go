@@ -151,10 +151,12 @@ func CredentialReference(connectorID, field string) string {
 
 // apiWrites are the write capabilities the runtime executes through its
 // adapter, per provider. crm executes every write it defines; Linear executes
-// issue.create and comment.create. Other providers' write capabilities, and
-// Linear issue.update, are not served by api mode.
+// issue.create and comment.create; http_api executes http.post and http.patch.
+// Other providers' write capabilities, and Linear issue.update, are not served
+// by api mode.
 var apiWrites = map[contract.Provider]map[string]bool{
-	contract.ProviderLinear: {"issue.create": true, "comment.create": true},
+	contract.ProviderLinear:  {"issue.create": true, "comment.create": true},
+	contract.ProviderHTTPAPI: {"http.post": true, "http.patch": true},
 }
 
 // APIWrite reports whether the runtime adapter executes the named write

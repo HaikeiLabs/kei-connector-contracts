@@ -15,6 +15,8 @@
 package contract
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
@@ -28,7 +30,36 @@ type HTTPMethod string
 const (
 	HTTPMethodGet  HTTPMethod = "GET"
 	HTTPMethodHead HTTPMethod = "HEAD"
+	// HTTPMethodPost and HTTPMethodPatch are writes. They carry a JSON
+	// object body (HTTPInvocation.Body) sent as application/json.
+	HTTPMethodPost  HTTPMethod = "POST"
+	HTTPMethodPatch HTTPMethod = "PATCH"
 )
+
+// HTTPContentTypeJSON is the only request content type http_api sends.
+const HTTPContentTypeJSON = "application/json"
+
+// httpMethodActions classifies each supported method the way other providers
+// classify their capabilities: GET and HEAD read, POST creates, PATCH updates.
+// A method absent here is not supported.
+var httpMethodActions = map[HTTPMethod]Action{
+	HTTPMethodGet:   ActionRead,
+	HTTPMethodHead:  ActionRead,
+	HTTPMethodPost:  ActionCreate,
+	HTTPMethodPatch: ActionUpdate,
+}
+
+// HTTPMethodAction returns the action a supported HTTP method performs, and
+// whether the method is supported.
+func HTTPMethodAction(method HTTPMethod) (Action, bool) {
+	action, ok := httpMethodActions[method]
+	return action, ok
+}
+
+// httpMethodHasBody reports whether a supported method carries a request body.
+func httpMethodHasBody(method HTTPMethod) bool {
+	return method == HTTPMethodPost || method == HTTPMethodPatch
+}
 
 type CredentialInjectionLocation string
 
@@ -62,10 +93,19 @@ type RedactionRules struct {
 	QueryParameters []string `json:"query_parameters"`
 	ResponseFields  []string `json:"response_fields"`
 }
+
+// HTTPInvocation is the full HTTP request the tenant runtime executes. It stays
+// in the runtime (ADR-011): the control plane authorizes on the capability's
+// method and the resource path (AuthorizeCall) and never needs Body.
 type HTTPInvocation struct {
 	Method HTTPMethod          `json:"method"`
 	Path   string              `json:"path"`
 	Query  map[string][]string `json:"query,omitempty"`
+	// ContentType and Body are set exactly when Method is POST or PATCH:
+	// ContentType is application/json and Body is a JSON object no larger
+	// than the connector's RequestMaxBytes.
+	ContentType string          `json:"content_type,omitempty"`
+	Body        json.RawMessage `json:"body,omitempty"`
 }
 
 const (
@@ -88,10 +128,10 @@ func (h HTTPAPI) Validate() error {
 		return errors.New("registered hostname is invalid or does not match registered base URL")
 	}
 	if len(h.AllowedMethods) == 0 {
-		return errors.New("http_api must allow GET or HEAD")
+		return errors.New("http_api must allow at least one of GET, HEAD, POST, or PATCH")
 	}
 	for _, method := range h.AllowedMethods {
-		if method != HTTPMethodGet && method != HTTPMethodHead {
+		if _, ok := HTTPMethodAction(method); !ok {
 			return fmt.Errorf("http method %q is not allowed", method)
 		}
 	}
@@ -150,8 +190,35 @@ func httpCapabilityMethod(capability string) (HTTPMethod, bool) {
 	return HTTPMethod(strings.ToUpper(verb)), true
 }
 
+// ValidateInvocation checks the full request the runtime executes: the
+// request target (validateTarget) and, for POST and PATCH, a JSON object body
+// within RequestMaxBytes sent as application/json. GET and HEAD carry no body.
 func (h HTTPAPI) ValidateInvocation(in HTTPInvocation) error {
-	if (in.Method != HTTPMethodGet && in.Method != HTTPMethodHead) || !containsHTTPMethod(h.AllowedMethods, in.Method) {
+	if err := h.validateTarget(in); err != nil {
+		return err
+	}
+	if !httpMethodHasBody(in.Method) {
+		if in.ContentType != "" || len(in.Body) != 0 {
+			return errors.New("HTTP method does not take a request body")
+		}
+		return nil
+	}
+	if in.ContentType != HTTPContentTypeJSON {
+		return errors.New("HTTP request content type must be application/json")
+	}
+	if int64(len(in.Body)) > h.RequestMaxBytes {
+		return errors.New("HTTP request body exceeds request_max_bytes")
+	}
+	if !json.Valid(in.Body) || !bytes.HasPrefix(bytes.TrimSpace(in.Body), []byte("{")) {
+		return errors.New("HTTP request body must be a JSON object")
+	}
+	return nil
+}
+
+// validateTarget checks the method, path, and query against the connector's
+// configuration. It is what the control plane can check without the body.
+func (h HTTPAPI) validateTarget(in HTTPInvocation) error {
+	if _, ok := HTTPMethodAction(in.Method); !ok || !containsHTTPMethod(h.AllowedMethods, in.Method) {
 		return errors.New("HTTP method is not allowed")
 	}
 	if err := validateRelativeHTTPPath(in.Path); err != nil {

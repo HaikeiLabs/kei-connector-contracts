@@ -91,13 +91,16 @@ const (
 // them. It authorizes any well-formed capability a connector declares and
 // leaves access to ABAC policy (HAI-258).
 var definitions = map[Provider][]Capability{
-	ProviderCRM:     {{Name: "lead.read", Action: ActionRead}, {Name: "lead.create", Action: ActionCreate}, {Name: "lead.update", Action: ActionUpdate}, {Name: "investor.list", Action: ActionRead}, {Name: "investor.read", Action: ActionRead}, {Name: "investor.update", Action: ActionUpdate}},
-	ProviderLinear:  {{Name: "team.read", Action: ActionRead}, {Name: "project.read", Action: ActionRead}, {Name: "cycle.read", Action: ActionRead}, {Name: "issue.read", Action: ActionRead}, {Name: "issue.create", Action: ActionCreate}, {Name: "issue.update", Action: ActionUpdate}, {Name: "comment.create", Action: ActionCreate}},
-	ProviderGitHub:  {{Name: "repository.read", Action: ActionRead}, {Name: "issue.read", Action: ActionRead}, {Name: "pull_request.read", Action: ActionRead}, {Name: "check.read", Action: ActionRead}, {Name: "workflow.read", Action: ActionRead}, {Name: "issue.create", Action: ActionCreate}, {Name: "issue.update", Action: ActionUpdate}, {Name: "pull_request.create", Action: ActionCreate}, {Name: "pull_request.update", Action: ActionUpdate}, {Name: "issue.comment", Action: ActionComment}},
-	ProviderGoogle:  {{Name: "drive.search", Action: ActionRead}, {Name: "drive.metadata.read", Action: ActionRead}, {Name: "docs.read", Action: ActionRead}},
-	ProviderNotion:  {{Name: "search", Action: ActionRead}, {Name: "page.read", Action: ActionRead}, {Name: "database.query", Action: ActionRead}},
-	ProviderS3:      {{Name: "object.list", Action: ActionRead}, {Name: "object.read", Action: ActionRead}},
-	ProviderHTTPAPI: {{Name: "http.get", Action: ActionRead}, {Name: "http.head", Action: ActionRead}},
+	ProviderCRM:    {{Name: "lead.read", Action: ActionRead}, {Name: "lead.create", Action: ActionCreate}, {Name: "lead.update", Action: ActionUpdate}, {Name: "investor.list", Action: ActionRead}, {Name: "investor.read", Action: ActionRead}, {Name: "investor.update", Action: ActionUpdate}},
+	ProviderLinear: {{Name: "team.read", Action: ActionRead}, {Name: "project.read", Action: ActionRead}, {Name: "cycle.read", Action: ActionRead}, {Name: "issue.read", Action: ActionRead}, {Name: "issue.create", Action: ActionCreate}, {Name: "issue.update", Action: ActionUpdate}, {Name: "comment.create", Action: ActionCreate}},
+	ProviderGitHub: {{Name: "repository.read", Action: ActionRead}, {Name: "issue.read", Action: ActionRead}, {Name: "pull_request.read", Action: ActionRead}, {Name: "check.read", Action: ActionRead}, {Name: "workflow.read", Action: ActionRead}, {Name: "issue.create", Action: ActionCreate}, {Name: "issue.update", Action: ActionUpdate}, {Name: "pull_request.create", Action: ActionCreate}, {Name: "pull_request.update", Action: ActionUpdate}, {Name: "issue.comment", Action: ActionComment}},
+	ProviderGoogle: {{Name: "drive.search", Action: ActionRead}, {Name: "drive.metadata.read", Action: ActionRead}, {Name: "docs.read", Action: ActionRead}},
+	ProviderNotion: {{Name: "search", Action: ActionRead}, {Name: "page.read", Action: ActionRead}, {Name: "database.query", Action: ActionRead}},
+	ProviderS3:     {{Name: "object.list", Action: ActionRead}, {Name: "object.read", Action: ActionRead}},
+	// http_api capabilities are named for the HTTP method they perform and
+	// take that method's action (HTTPMethodAction): POST creates and PATCH
+	// updates, so they are writes like any other provider's.
+	ProviderHTTPAPI: {{Name: "http.get", Action: ActionRead}, {Name: "http.head", Action: ActionRead}, {Name: "http.post", Action: ActionCreate}, {Name: "http.patch", Action: ActionUpdate}},
 	// Finance providers declare reads only. There is deliberately no
 	// payment, transfer, invoice.create or expense.update capability: a
 	// name absent from this catalog is never executed by the runtime, so the
@@ -262,6 +265,30 @@ func (m Metadata) Validate() error {
 		if !validAction(c.Action) {
 			return fmt.Errorf("invalid capability action %q", c.Action)
 		}
+		if m.Provider == ProviderHTTPAPI {
+			if err := validateHTTPCapabilityAction(c); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// validateHTTPCapabilityAction keeps an http_api capability that names a
+// supported HTTP method on that method's action, so a write method can never be
+// declared, and then authorized by policy, as a read. A capability naming an
+// unsupported method stays declarable and is denied at call time.
+func validateHTTPCapabilityAction(c Capability) error {
+	method, ok := httpCapabilityMethod(c.Name)
+	if !ok {
+		return nil
+	}
+	action, ok := HTTPMethodAction(method)
+	if !ok {
+		return nil
+	}
+	if c.Action != action {
+		return fmt.Errorf("capability %q must declare action %q", c.Name, action)
 	}
 	return nil
 }
@@ -342,21 +369,24 @@ func ValidateCall(m Metadata, in Invocation) error {
 // (HAI-258). The tenant runtime keeps an http_api request local (ADR-011), so
 // an invocation without one is authorized on the method its capability names
 // (http.get -> GET) and its resource, which is the request path, against the
-// connector's configured methods and path patterns (HAI-256). The runtime
-// re-checks the full request with ValidateCall before executing.
+// connector's configured methods and path patterns (HAI-256). A POST or PATCH
+// body is not needed to authorize. The runtime re-checks the full request,
+// body included, with ValidateCall before executing.
 func AuthorizeCall(m Metadata, in Invocation) error {
 	if err := m.Validate(); err != nil {
 		return err
 	}
 	if m.Provider == ProviderHTTPAPI && in.HTTP == nil {
 		method, ok := httpCapabilityMethod(in.Capability)
+		if err := validateCallScope(m, in); err != nil {
+			return err
+		}
 		if !ok {
-			if err := validateCallScope(m, in); err != nil {
-				return err
-			}
 			return errors.New("capability has no HTTP method")
 		}
-		in.HTTP = &HTTPInvocation{Method: method, Path: in.Resource}
+		if err := m.HTTPAPI.validateTarget(HTTPInvocation{Method: method, Path: in.Resource}); err != nil {
+			return err
+		}
 	}
 	return validateCallBoundary(m, in)
 }
@@ -369,6 +399,11 @@ func validateCallBoundary(m Metadata, in Invocation) error {
 		return err
 	}
 	if m.Provider == ProviderHTTPAPI && in.HTTP != nil {
+		// The request's method is the one the capability names, so a read
+		// capability can never carry a write request.
+		if method, ok := httpCapabilityMethod(in.Capability); !ok || method != in.HTTP.Method {
+			return errors.New("HTTP method does not match capability")
+		}
 		if err := m.HTTPAPI.ValidateInvocation(*in.HTTP); err != nil {
 			return err
 		}

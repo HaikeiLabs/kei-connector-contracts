@@ -16,6 +16,11 @@ This module is **metadata only**. Per
 [ADR-011](https://github.com/HaikeiLabs/kei/blob/main/docs/adr/011-tenant-side-proxy-data-plane.md)
 it must never carry provider payloads, provider results, customer content, or
 credential values — `credential_ref` is an opaque pointer, never key material.
+The one request payload it can describe is an http_api `http.post` or
+`http.patch` body (`HTTPInvocation.Body`: a JSON object, `application/json`
+only, capped at the connector's `request_max_bytes`). That request stays in the
+tenant runtime: the control plane authorizes the call on the capability's
+method and the resource path (`AuthorizeCall`) and never needs the body.
 
 It is also deliberately **stdlib-only**. Every service imports it, so a
 dependency added here propagates to all of them. CI fails if `go.mod` gains a
@@ -172,9 +177,10 @@ Each provider has an `access` list. Each mode has:
 
 Today only `api` is populated. It is set for the providers with a runtime
 adapter: gmail, google_drive, linear, github, tito, notion, discord, grafana,
-crm and http_api. Only crm and linear list writes, because the runtime
-executes them: every crm write, and Linear `issue.create` and
-`comment.create`. No provider has a cli, mcp or webhook mode yet.
+crm and http_api. Only crm, linear and http_api list writes, because the
+runtime executes them: every crm write, Linear `issue.create` and
+`comment.create`, and http_api `http.post` and `http.patch`. No provider has a
+cli, mcp or webhook mode yet.
 
 ## Versioning
 
