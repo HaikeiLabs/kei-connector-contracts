@@ -16,6 +16,8 @@ package providers
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"strings"
@@ -51,17 +53,96 @@ type DocsReadPayload struct{}
 
 func (DocsReadPayload) Capability() string { return "docs.read" }
 
-// GoogleBackend is the seam for Google Drive/Docs. Implementations receive
-// opaque drive and file identifiers only.
+// DriveDocCreatePayload requests drive.doc.create on a Drive resource. The
+// resource is the parent drive: drive/<drive_id>.
+type DriveDocCreatePayload struct {
+	Title string `json:"title"`
+	Body  string `json:"body,omitempty"`
+}
+
+func (DriveDocCreatePayload) Capability() string { return "drive.doc.create" }
+
+func (p DriveDocCreatePayload) Validate() error {
+	if strings.TrimSpace(p.Title) == "" {
+		return errors.New("title is required")
+	}
+	if len(p.Body) > maxDocBodyBytes {
+		return errors.New("body exceeds maximum size")
+	}
+	return nil
+}
+
+// DriveDocUpdatePayload requests drive.doc.update on a file resource. The
+// resource is the target document: drive/<drive_id>/files/<file_id>.
+type DriveDocUpdatePayload struct {
+	Title *string `json:"title,omitempty"`
+	Body  *string `json:"body,omitempty"`
+}
+
+func (DriveDocUpdatePayload) Capability() string { return "drive.doc.update" }
+
+func (p DriveDocUpdatePayload) Validate() error {
+	if p.Title == nil && p.Body == nil {
+		return errors.New("at least one of title or body must be set")
+	}
+	if p.Body != nil && len(*p.Body) > maxDocBodyBytes {
+		return errors.New("body exceeds maximum size")
+	}
+	if p.Title != nil && strings.TrimSpace(*p.Title) == "" {
+		return errors.New("title must not be empty")
+	}
+	return nil
+}
+
+// DriveDocWriteBounds keep writes inside the runtime's input cap.
+const maxDocBodyBytes = 12 << 10
+
+// DriveDocCreated is the drive.doc.create result.
+type DriveDocCreated struct {
+	ID      string `json:"id"`
+	DriveID string `json:"drive_id"`
+	Name    string `json:"name"`
+	URL     string `json:"url"`
+}
+
+// DriveDocUpdated is the drive.doc.update result.
+type DriveDocUpdated struct {
+	ID      string `json:"id"`
+	DriveID string `json:"drive_id"`
+	Name    string `json:"name"`
+	URL     string `json:"url"`
+}
+
+// GoogleBackend is the seam for Google Drive/Docs reads. Implementations
+// receive opaque drive and file identifiers only.
 type GoogleBackend interface {
 	SearchFiles(ctx context.Context, driveID, query string) ([]GoogleFile, error)
 	File(ctx context.Context, driveID, fileID string) (GoogleFile, error)
 	Document(ctx context.Context, driveID, fileID string) (string, error)
 }
 
+// GoogleWriteBackend is the seam for Google Drive/Docs writes.
+type GoogleWriteBackend interface {
+	CreateDocument(ctx context.Context, clientID string, driveID string, in DriveDocCreatePayload) (DriveDocCreated, error)
+	UpdateDocument(ctx context.Context, clientID string, driveID, fileID string, in DriveDocUpdatePayload) (DriveDocUpdated, error)
+}
+
+// GoogleWriteID derives a deterministic UUID for one write from the
+// invocation identifiers. A replayed write with the same idempotency key
+// produces the same client ID, so it cannot create a duplicate resource.
+func GoogleWriteID(inv contract.Invocation) string {
+	sum := sha256.Sum256([]byte(strings.Join([]string{inv.TenantID, inv.WorkspaceID, inv.ConnectorID, inv.Subject, inv.Capability, inv.IdempotencyKey}, "\x00")))
+	b := sum[:16]
+	b[6] = (b[6] & 0x0f) | 0x40
+	b[8] = (b[8] & 0x3f) | 0x80
+	h := hex.EncodeToString(b)
+	return h[0:8] + "-" + h[8:12] + "-" + h[12:16] + "-" + h[16:20] + "-" + h[20:32]
+}
+
 // MemoryGoogle is the in-memory Google backend used until a real one exists.
 type MemoryGoogle struct {
-	Files map[string]GoogleFile
+	Files   map[string]GoogleFile
+	Creates map[string]DriveDocCreated
 }
 
 func (m MemoryGoogle) SearchFiles(_ context.Context, driveID, query string) ([]GoogleFile, error) {
@@ -96,9 +177,49 @@ func (m MemoryGoogle) Document(ctx context.Context, driveID, fileID string) (str
 	return f.Content, nil
 }
 
-// GoogleClient serves drive.search, drive.metadata.read, and docs.read.
-// Resources are drive/<drive_id> for search and
-// drive/<drive_id>/files/<file_id> for file reads.
+func (m MemoryGoogle) CreateDocument(_ context.Context, clientID, driveID string, in DriveDocCreatePayload) (DriveDocCreated, error) {
+	if m.Creates == nil {
+		return DriveDocCreated{}, errors.New("drive writes are unavailable")
+	}
+	if existing, ok := m.Creates[clientID]; ok {
+		return existing, nil
+	}
+	doc := DriveDocCreated{
+		ID:      clientID,
+		DriveID: driveID,
+		Name:    in.Title,
+		URL:     "https://docs.google.com/document/d/" + clientID,
+	}
+	if m.Creates == nil {
+		m.Creates = map[string]DriveDocCreated{}
+	}
+	m.Creates[clientID] = doc
+	return doc, nil
+}
+
+func (m MemoryGoogle) UpdateDocument(_ context.Context, clientID, driveID, fileID string, in DriveDocUpdatePayload) (DriveDocUpdated, error) {
+	if m.Creates == nil {
+		return DriveDocUpdated{}, errors.New("drive writes are unavailable")
+	}
+	if existing, ok := m.Creates[clientID]; ok {
+		return DriveDocUpdated{ID: existing.ID, DriveID: existing.DriveID, Name: existing.Name, URL: existing.URL}, nil
+	}
+	doc := DriveDocUpdated{
+		ID:      fileID,
+		DriveID: driveID,
+		URL:     "https://docs.google.com/document/d/" + fileID,
+	}
+	if in.Title != nil {
+		doc.Name = *in.Title
+	}
+	m.Creates[clientID] = DriveDocCreated{ID: doc.ID, DriveID: doc.DriveID, Name: doc.Name, URL: doc.URL}
+	return doc, nil
+}
+
+// GoogleClient serves drive.search, drive.metadata.read, docs.read,
+// drive.doc.create, and drive.doc.update. Resources are drive/<drive_id> for
+// search and create, and drive/<drive_id>/files/<file_id> for file reads and
+// update.
 type GoogleClient struct {
 	backend GoogleBackend
 }
@@ -149,9 +270,59 @@ func (c *GoogleClient) Invoke(ctx context.Context, meta contract.Metadata, inv c
 			return Result{}, err
 		}
 		return Result{Capability: inv.Capability, Data: content}, nil
+	case DriveDocCreatePayload:
+		return c.invokeDocCreate(ctx, inv, p)
+	case DriveDocUpdatePayload:
+		return c.invokeDocUpdate(ctx, inv, p)
 	default:
 		return Result{}, fmt.Errorf("unsupported payload %T", payload)
 	}
+}
+
+func (c *GoogleClient) invokeDocCreate(ctx context.Context, inv contract.Invocation, p DriveDocCreatePayload) (Result, error) {
+	writer, ok := c.backend.(GoogleWriteBackend)
+	if !ok {
+		return Result{}, errors.New("drive writes are unavailable")
+	}
+	if inv.IdempotencyKey == "" {
+		return Result{}, errors.New("drive writes require an idempotency key")
+	}
+	if err := p.Validate(); err != nil {
+		return Result{}, err
+	}
+	driveID, ok := driveResource(inv.Resource)
+	if !ok {
+		return Result{}, errors.New("resource must be drive/<drive_id>")
+	}
+	clientID := GoogleWriteID(inv)
+	data, err := writer.CreateDocument(ctx, clientID, driveID, p)
+	if err != nil {
+		return Result{}, err
+	}
+	return Result{Capability: inv.Capability, Data: data}, nil
+}
+
+func (c *GoogleClient) invokeDocUpdate(ctx context.Context, inv contract.Invocation, p DriveDocUpdatePayload) (Result, error) {
+	writer, ok := c.backend.(GoogleWriteBackend)
+	if !ok {
+		return Result{}, errors.New("drive writes are unavailable")
+	}
+	if inv.IdempotencyKey == "" {
+		return Result{}, errors.New("drive writes require an idempotency key")
+	}
+	if err := p.Validate(); err != nil {
+		return Result{}, err
+	}
+	driveID, fileID, ok := fileResource(inv.Resource)
+	if !ok {
+		return Result{}, errors.New("resource must be drive/<drive_id>/files/<file_id>")
+	}
+	clientID := GoogleWriteID(inv)
+	data, err := writer.UpdateDocument(ctx, clientID, driveID, fileID, p)
+	if err != nil {
+		return Result{}, err
+	}
+	return Result{Capability: inv.Capability, Data: data}, nil
 }
 
 func driveResource(resource string) (string, bool) {
