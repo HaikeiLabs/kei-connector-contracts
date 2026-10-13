@@ -12,15 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package providers contains the initial read-only connector clients for the
-// governed providers defined by the PR #312 contract. Every client is a seam:
-// the backend interface is the integration point, and the bundled memory
-// backends are the only implementations, so no provider network call can
-// occur. Real backends will replace the memory ones behind the same seams.
-//
-// CRM customer reads are intentionally absent: the contract only defines
-// lead.* capabilities for the CRM provider, and new operations must be added
-// to the contract before a client may expose them.
 package providers
 
 import (
