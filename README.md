@@ -88,6 +88,42 @@ The root import path `github.com/HaikeiLabs/kei-connector-contracts` has no Go
 package from v0.2.0 on. v0.1.0 consumers change `connectors.X` to the package
 above that now holds `X`.
 
+## Providers as a harness library
+
+The `providers` package is a stable, harness-consumable library
+(ADR-036 section 9.2). A harness — the agentware SDK, a chat harness, or a
+custom SDK agent — imports it to read and write provider data, supplying its
+own credential and HTTP client. Each provider constructor takes a credential
+(a `CredentialResolver`) and an `*http.Client`, and returns a client bound to
+the provider's fixed base endpoint. The package never imports
+`kei-connector-runtime`; `providers/boundary_test.go`
+(`TestProvidersImportBoundary`) enforces that, and breaking changes follow the
+module's semantic versioning.
+
+```go
+import (
+	"context"
+	"errors"
+	"net/http"
+
+	"github.com/HaikeiLabs/kei-connector-contracts/providers"
+)
+
+// resolver is the harness's credential seam: it resolves an opaque kei://
+// reference to a token and must never log the secret.
+type resolver struct{}
+
+func (resolver) Resolve(ctx context.Context, tenantID, workspaceID, subject, ref string) (string, error) {
+	return "", errors.New("credential store not wired")
+}
+
+func main() {
+	// A credential and an *http.Client in; no runtime import.
+	github := providers.NewGitHubHTTP(&http.Client{}, resolver{})
+	_ = github
+}
+```
+
 ## Credential source, account models, and setup (v0.2.0)
 
 - `Metadata.CredentialSource` is `oauth` or `opaque_ref`. Empty means
