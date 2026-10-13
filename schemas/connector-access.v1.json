@@ -484,5 +484,50 @@
         ]
       }
     ]
+  },
+  {
+    "schema": "kei.connector-access/v1",
+    "provider": "skills_repo",
+    "access": [
+      {
+        "kind": "api",
+        "api": {
+          "adapter": "skills_repo"
+        },
+        "setup": [
+          {
+            "name": "create_connector",
+            "description": "Create the connector in the Kei console with the provider's setup fields (schemas/connector-setup.v1.json). Secrets go to the console-connected secret manager; the connector keeps only its credential_ref."
+          },
+          {
+            "name": "declare_capabilities",
+            "description": "Declare the capabilities the connector exposes. ABAC policy decides who may use them."
+          }
+        ],
+        "verify": [
+          {
+            "name": "invoke_read",
+            "description": "Run one read through the runtime adapter.",
+            "run": [
+              "kei-proxy",
+              "connector",
+              "invoke",
+              "--connector",
+              "\u003cconnector_id\u003e",
+              "--capability",
+              "skills.list",
+              "--action",
+              "read",
+              "--resource",
+              "\u003cresource\u003e"
+            ]
+          }
+        ],
+        "reads": [
+          "skills.list",
+          "skills.fetch"
+        ]
+      }
+    ]
   }
 ]
