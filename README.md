@@ -75,6 +75,8 @@ Dependencies point one way: `contract` ← `capability`, `envelope`, `setup`;
 | `.../audit` | `AuditRecord`, `BuildAuditRecord` |
 | `.../invoke` | `Client`, `NewClient`, `InvokeOutcome` (envelope + decision + audit record) |
 | `.../providers` | provider payloads, results, and read-only clients |
+| `.../canonical` | `Resource` (the canonical resource URI of an MCP server, ADR-036 §3.4), `ErrInvalidResource` |
+| `.../canonical/canonicaltest` | `ResourceCases`, the shared golden cases for `canonical.Resource`, also published as `canonical/canonicaltest/resource.json` |
 
 Account models are a file in `contract`, not a package: `Metadata.AccountModel`
 is a contract field and `Metadata.Validate` enforces the account-model rules,
@@ -253,6 +255,28 @@ crm, http_api and skills_repo. Only crm, linear and http_api list writes, becaus
 runtime executes them: every crm write, Linear `issue.create` and
 `comment.create`, and http_api `http.post` and `http.patch`. No provider has a
 cli, mcp or webhook mode yet.
+
+## Canonical resource URIs (HAI-566, unreleased)
+
+`canonical.Resource` turns an MCP server URL into its canonical resource URI.
+It is the one implementation that the OIDC bridge, the policy catalog and the
+runtime share: a token's resource, a stored connector's `mcp_url` and the
+route's audience check are compared through it, so two copies that differed
+would make every connection read as changed.
+
+- It lowercases the scheme and host, and drops the default port `:443`. Any
+  other port is kept as written, so `:0443` stays.
+- It keeps IPv6 literals as written, apart from case.
+- It strips every trailing slash unless the path is `/`, and an empty path
+  becomes `/`.
+- It rejects any URL that is not absolute `https`, and any URL with user
+  info, a query (even an empty one) or a fragment.
+- It checks shape only. It does not resolve hosts or apply SSRF rules.
+- Its error never contains the submitted URL, which may carry credentials.
+
+Test against `canonicaltest.ResourceCases()`, or `resource.json` from another
+language, rather than a local table. The cases pin current results,
+including the odd ones marked with a `note`.
 
 ## Versioning
 

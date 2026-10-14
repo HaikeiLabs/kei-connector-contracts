@@ -1,0 +1,55 @@
+{
+  "description": "Golden cases for canonical.Resource, the canonical resource URI of an MCP server (Kei ADR-036 section 3.4, MCP \"Canonical Server URI\"). Every implementation, in any language, must return exactly want for each accepted input and must reject each input marked error. The cases pin current behaviour, including the odd ones marked in note: a changed result makes a stored resource stop matching its tokens.",
+  "cases": [
+    {"name": "already canonical", "input": "https://mcp.example.com/mcp", "want": "https://mcp.example.com/mcp"},
+
+    {"name": "host is lowercased", "input": "https://MCP.Example.COM/mcp", "want": "https://mcp.example.com/mcp"},
+    {"name": "scheme is lowercased", "input": "HTTPS://mcp.example.com/mcp", "want": "https://mcp.example.com/mcp"},
+    {"name": "mixed-case scheme", "input": "HtTpS://mcp.example.com/mcp", "want": "https://mcp.example.com/mcp"},
+    {"name": "path case is kept", "input": "https://mcp.example.com/V1/MCP", "want": "https://mcp.example.com/V1/MCP"},
+    {"name": "non-ASCII host is lowercased, not punycoded", "input": "https://BÜCHER.example/mcp", "want": "https://bücher.example/mcp"},
+    {"name": "punycode host is kept", "input": "https://xn--mnchen-3ya.example.de/m", "want": "https://xn--mnchen-3ya.example.de/m"},
+
+    {"name": "trailing slash is removed", "input": "https://mcp.example.com/mcp/", "want": "https://mcp.example.com/mcp"},
+    {"name": "every trailing slash is removed", "input": "https://mcp.example.com/mcp///", "want": "https://mcp.example.com/mcp"},
+    {"name": "root path is kept", "input": "https://mcp.example.com/", "want": "https://mcp.example.com/"},
+    {"name": "empty path becomes root", "input": "https://mcp.example.com", "want": "https://mcp.example.com/"},
+    {"name": "slashes-only path becomes root", "input": "https://mcp.example.com//", "want": "https://mcp.example.com/"},
+    {"name": "inner empty segments are kept", "input": "https://mcp.example.com/a//b/", "want": "https://mcp.example.com/a//b"},
+    {"name": "percent-encoded space is kept", "input": "https://mcp.example.com/a%20b/", "want": "https://mcp.example.com/a%20b"},
+    {"name": "percent-encoded slash is kept", "input": "https://mcp.example.com/a%2Fb", "want": "https://mcp.example.com/a%2Fb"},
+
+    {"name": "default port 443 is removed", "input": "https://mcp.example.com:443/mcp", "want": "https://mcp.example.com/mcp"},
+    {"name": "port 0443 is kept as written", "input": "https://mcp.example.com:0443/mcp", "want": "https://mcp.example.com:0443/mcp"},
+    {"name": "non-default port is kept", "input": "https://mcp.example.com:8443/mcp/", "want": "https://mcp.example.com:8443/mcp"},
+    {"name": "empty port is removed", "input": "https://mcp.example.com:/mcp", "want": "https://mcp.example.com/mcp"},
+    {"name": "port 0 is kept", "input": "https://mcp.example.com:0/mcp", "want": "https://mcp.example.com:0/mcp", "note": "not range-checked; SSRF rules are the caller's"},
+
+    {"name": "IPv4 literal", "input": "https://192.0.2.1/mcp", "want": "https://192.0.2.1/mcp", "note": "address ranges are not checked; SSRF rules are the caller's"},
+    {"name": "IPv6 literal is kept as written", "input": "https://[2001:db8::1]/mcp", "want": "https://[2001:db8::1]/mcp"},
+    {"name": "IPv6 literal is lowercased", "input": "https://[2001:DB8::A]/mcp", "want": "https://[2001:db8::a]/mcp"},
+    {"name": "IPv6 literal is not compressed", "input": "https://[2001:0db8:0000:0000:0000:0000:0000:0001]/mcp", "want": "https://[2001:0db8:0000:0000:0000:0000:0000:0001]/mcp"},
+    {"name": "IPv6 literal with the default port", "input": "https://[2001:db8::1]:443/mcp", "want": "https://[2001:db8::1]/mcp"},
+    {"name": "IPv6 literal with another port", "input": "https://[2001:db8::1]:8443/mcp", "want": "https://[2001:db8::1]:8443/mcp"},
+    {"name": "IPv4-mapped IPv6 literal is kept", "input": "https://[::ffff:192.0.2.1]/mcp", "want": "https://[::ffff:192.0.2.1]/mcp"},
+    {"name": "IPv6 zone is unescaped", "input": "https://[fe80::1%25en0]/mcp", "want": "https://[fe80::1%en0]/mcp", "note": "pinned as the bridge computes it; the result is not a valid URL"},
+
+    {"name": "user info is rejected", "input": "https://user@mcp.example.com/mcp", "error": true},
+    {"name": "user info with a password is rejected", "input": "https://user:FAKE-password@mcp.example.com/mcp", "error": true},
+    {"name": "empty user info is rejected", "input": "https://@mcp.example.com/mcp", "error": true},
+
+    {"name": "fragment is rejected", "input": "https://mcp.example.com/mcp#frag", "error": true},
+    {"name": "empty fragment is accepted and dropped", "input": "https://mcp.example.com/mcp#", "want": "https://mcp.example.com/mcp", "note": "pinned as the bridge computes it"},
+
+    {"name": "query is rejected", "input": "https://mcp.example.com/mcp?a=1", "error": true},
+    {"name": "empty query is rejected", "input": "https://mcp.example.com/mcp?", "error": true},
+
+    {"name": "http is rejected", "input": "http://mcp.example.com/mcp", "error": true},
+    {"name": "other schemes are rejected", "input": "wss://mcp.example.com/mcp", "error": true},
+    {"name": "no scheme is rejected", "input": "mcp.example.com/mcp", "error": true},
+    {"name": "no host is rejected", "input": "https:///mcp", "error": true},
+    {"name": "opaque URL is rejected", "input": "https:mcp.example.com", "error": true},
+    {"name": "empty input is rejected", "input": "", "error": true},
+    {"name": "unparsable URL is rejected", "input": "https://mcp.exa mple.com/mcp", "error": true}
+  ]
+}
