@@ -377,6 +377,13 @@
     "provider": "http_api",
     "auth": [
       {
+        "credential_source": "on_behalf_of",
+        "account_models": [
+          "per_user"
+        ],
+        "default_account_model": "per_user"
+      },
+      {
         "credential_source": "opaque_ref"
       }
     ],
@@ -390,6 +397,32 @@
         "secret": false
       },
       {
+        "name": "client_id",
+        "label": "Client ID",
+        "type": "string",
+        "location": "config",
+        "required": true,
+        "secret": false,
+        "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+        "account_models": [
+          "per_user"
+        ]
+      },
+      {
+        "name": "client_secret",
+        "label": "Client secret",
+        "type": "string",
+        "location": "credential",
+        "required": true,
+        "secret": true,
+        "pattern": "^\\S+$",
+        "min_length": 1,
+        "max_length": 4096,
+        "account_models": [
+          "per_user"
+        ]
+      },
+      {
         "name": "api_key",
         "label": "API key",
         "type": "string",
@@ -398,7 +431,10 @@
         "secret": true,
         "pattern": "^\\S+$",
         "min_length": 1,
-        "max_length": 4096
+        "max_length": 4096,
+        "credential_sources": [
+          "opaque_ref"
+        ]
       }
     ]
   }

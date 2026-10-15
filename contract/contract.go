@@ -90,6 +90,11 @@ const (
 	// it. The value avoids the substring "secret" so API redaction guards that
 	// reject credential-like terms do not flag this metadata field.
 	CredentialSourceOpaqueRef CredentialSource = "opaque_ref"
+	// CredentialSourceOnBehalfOf is the OAuth 2.0 on-behalf-of flow for
+	// http_api connectors: the runtime uses client_id and client_secret to
+	// obtain an access token for the invoking user from the configured
+	// identity provider. It implies per_user account model.
+	CredentialSourceOnBehalfOf CredentialSource = "on_behalf_of"
 )
 
 // Definitions are the operations the tenant runtime has code to execute for
@@ -182,6 +187,10 @@ type Metadata struct {
 	// Config holds the provider's non-secret setup fields (see SetupSchemaFor).
 	// Secret values never appear here; they are behind CredentialRef.
 	Config map[string]any `json:"config,omitempty"`
+	// OnBehalfOf is the OAuth 2.0 on-behalf-of configuration for http_api
+	// connectors using the on_behalf_of credential source. It is required for,
+	// and only valid on, an http_api connector with CredentialSourceOnBehalfOf.
+	OnBehalfOf *OnBehalfOf `json:"on_behalf_of,omitempty"`
 }
 
 // EffectiveCredentialSource returns the connector's credential source, with an
@@ -258,6 +267,19 @@ func (m Metadata) Validate() error {
 		}
 	} else if m.Grafana != nil {
 		return errors.New("grafana metadata is only valid for provider grafana")
+	}
+	if m.EffectiveCredentialSource() == CredentialSourceOnBehalfOf {
+		if m.Provider != ProviderHTTPAPI {
+			return errors.New("on_behalf_of credential source is only valid for provider http_api")
+		}
+		if m.OnBehalfOf == nil {
+			return errors.New("on_behalf_of configuration is required")
+		}
+		if err := m.OnBehalfOf.Validate(m.ID); err != nil {
+			return err
+		}
+	} else if m.OnBehalfOf != nil {
+		return errors.New("on_behalf_of configuration is only valid for on_behalf_of credential source")
 	}
 	if len(m.Scopes) == 0 {
 		return errors.New("connector must declare at least one scope")
@@ -457,24 +479,25 @@ func validateCallScope(m Metadata, in Invocation) error {
 	return nil
 }
 
-// ValidateCredentialRef accepts opaque references only. URLs and inline
-// secrets are rejected so provider credentials remain in Kei's credential
-// service/secret backend. Any scheme-bearing reference is rejected: the
-// credential type/source is typed metadata (CredentialSource + Subject), not a
-// string namespace. The legacy kei-oauth namespace, in both its colon and
-// hyphen forms, is migration-only and is rejected.
+// ValidateCredentialRef accepts opaque references only, with one exception:
+// the kei://connectors/<id>/<field> scheme is allowed for on_behalf_of
+// client_secret references so the runtime resolves them to secrets inside the
+// connector's own credential store. Any other URL scheme or inline secret is
+// rejected so provider credentials remain in Kei's credential service/secret
+// backend. The legacy kei-oauth namespace, in both its colon and hyphen forms,
+// is migration-only and is rejected.
 func ValidateCredentialRef(ref string) error {
 	if ref == "" || len(ref) > 512 {
 		return errors.New("credential_ref is required")
 	}
-	// The legacy namespace is checked first so its colon form is reported
-	// as the namespace rather than as a URL scheme.
 	lower := strings.ToLower(ref)
 	if strings.HasPrefix(lower, "kei-oauth:") || strings.HasPrefix(lower, "kei-oauth-") {
 		return errors.New("credential_ref must not use the legacy kei-oauth namespace")
 	}
 	if u, err := url.Parse(ref); err == nil && u.Scheme != "" {
-		return errors.New("credential_ref must be an opaque reference")
+		if u.Scheme != "kei" || !strings.HasPrefix(u.Path, "/connectors/") || !strings.HasSuffix(u.Path, "/client_secret") {
+			return errors.New("credential_ref must be an opaque reference")
+		}
 	}
 	if strings.ContainsAny(ref, "\r\n\t") {
 		return errors.New("credential_ref contains invalid characters")

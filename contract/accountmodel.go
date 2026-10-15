@@ -43,6 +43,10 @@ var accountModels = map[Provider][]AccountModel{
 	ProviderGoogle: {AccountModelPerUser, AccountModelShared, AccountModelDomainDelegation},
 	ProviderLinear: {AccountModelPerUser, AccountModelShared},
 	ProviderGitHub: {AccountModelPerUser, AccountModelShared},
+	// http_api connectors support on_behalf_of per-user auth and shared-secret
+	// opaque_ref (no account model). Only per_user is declared here; opaque_ref
+	// connectors have no account model.
+	ProviderHTTPAPI: {AccountModelPerUser},
 	// A skills repository is read with the invoking user's GitHub OAuth
 	// token, or with a shared-secret token over opaque_ref (no account
 	// model).
@@ -119,7 +123,7 @@ func CredentialSubject(m Metadata, in Invocation) string {
 // credential_ref.
 func (m Metadata) validateCredentialBinding() error {
 	source := m.EffectiveCredentialSource()
-	if source != CredentialSourceOAuth && source != CredentialSourceOpaqueRef {
+	if source != CredentialSourceOAuth && source != CredentialSourceOpaqueRef && source != CredentialSourceOnBehalfOf {
 		return fmt.Errorf("unsupported credential_source %q", m.CredentialSource)
 	}
 	if m.Subject != "" {
@@ -141,8 +145,8 @@ func (m Metadata) validateCredentialBinding() error {
 	}
 	switch m.AccountModel {
 	case AccountModelPerUser:
-		if source != CredentialSourceOAuth {
-			return errors.New("per_user connectors must use an oauth credential source")
+		if source != CredentialSourceOAuth && source != CredentialSourceOnBehalfOf {
+			return errors.New("per_user connectors must use an oauth or on_behalf_of credential source")
 		}
 		if m.Subject != "" {
 			return errors.New("per_user connectors act for the invoking user and must not declare a subject")

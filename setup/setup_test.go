@@ -430,3 +430,109 @@ func TestSkillsRepoSetup(t *testing.T) {
 		}
 	}
 }
+
+// HAI-669: http_api offers on_behalf_of per_user auth alongside shared-secret
+// opaque_ref. client_id and client_secret are on_behalf_of-only.
+func TestHTTPAPISetupOffersOnBehalfOfPerUser(t *testing.T) {
+	s, ok := SetupSchemaFor(contract.ProviderHTTPAPI)
+	if !ok {
+		t.Fatal("http_api has no setup schema")
+	}
+	if len(s.Auth) != 2 {
+		t.Fatalf("http_api auth has %d paths, want 2", len(s.Auth))
+	}
+	obo := s.Auth[0]
+	if obo.CredentialSource != contract.CredentialSourceOnBehalfOf {
+		t.Errorf("http_api first auth credential_source = %q, want on_behalf_of", obo.CredentialSource)
+	}
+	if len(obo.AccountModels) != 1 || obo.AccountModels[0] != contract.AccountModelPerUser {
+		t.Errorf("http_api first auth account_models = %v, want [per_user]", obo.AccountModels)
+	}
+	if obo.DefaultAccountModel != contract.AccountModelPerUser {
+		t.Errorf("http_api first auth default account model = %q, want per_user", obo.DefaultAccountModel)
+	}
+	if s.Auth[1].CredentialSource != contract.CredentialSourceOpaqueRef || len(s.Auth[1].AccountModels) != 0 {
+		t.Errorf("http_api second auth = %+v", s.Auth[1])
+	}
+
+	fields := map[string]SetupField{}
+	for _, f := range s.Fields {
+		fields[f.Name] = f
+	}
+	if f := fields["client_id"]; f.Secret || f.Location != SetupLocationConfig || !f.Required || len(f.AccountModels) != 1 || f.AccountModels[0] != contract.AccountModelPerUser {
+		t.Errorf("client_id field = %+v", f)
+	}
+	if f := fields["client_secret"]; !f.Secret || f.Location != SetupLocationCredential || !f.Required || len(f.AccountModels) != 1 || f.AccountModels[0] != contract.AccountModelPerUser {
+		t.Errorf("client_secret field = %+v", f)
+	}
+	if f := fields["api_key"]; !f.Secret || f.Location != SetupLocationCredential || !f.Required || len(f.CredentialSources) != 1 || f.CredentialSources[0] != contract.CredentialSourceOpaqueRef {
+		t.Errorf("api_key field = %+v", f)
+	}
+
+	// per_user sees client_id and client_secret, but not api_key
+	perUserFields := s.FieldsFor(contract.AccountModelPerUser)
+	for _, f := range perUserFields {
+		if f.Name == "api_key" {
+			t.Error("per_user should not see api_key")
+		}
+	}
+	// opaque_ref sees api_key, and has at least one secret field matching
+	// the CredentialSources filter (FieldsFor("") returns all fields per
+	// the existing pattern, see TestSkillsRepoSetup).
+	secrets := 0
+	for _, f := range s.FieldsFor("") {
+		if f.Secret {
+			secrets++
+		}
+	}
+	if secrets != 1 {
+		t.Errorf("opaque_ref offers %d secret fields, want 1 (api_key)", secrets)
+	}
+}
+
+// HAI-669: http_api connector with OnBehalfOf validates through the full
+// ValidateMetadata stack.
+func TestValidateMetadataChecksHTTPAPIOnBehalfOf(t *testing.T) {
+	obo := contract.OnBehalfOf{
+		TenantID:        "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee",
+		ClientID:        "11111111-2222-3333-4444-555555555555",
+		Resource:        "https://analysis.windows.net/powerbi/api",
+		Scopes:          []string{"https://analysis.windows.net/powerbi/api/Dataset.Read.All"},
+		ClientSecretRef: "kei://connectors/c-http/client_secret",
+	}
+	m := contract.Metadata{
+		ID: "c-http", TenantID: "t-1", WorkspaceID: "w-1", Name: "http-conn", Provider: contract.ProviderHTTPAPI,
+		Status: contract.StatusActive, CredentialSource: contract.CredentialSourceOnBehalfOf,
+		CredentialRef: "kei://connectors/c-http/client_secret", AccountModel: contract.AccountModelPerUser,
+		Scopes: []string{"read"}, Capabilities: contract.CapabilitiesFor(contract.ProviderHTTPAPI)[:1],
+		CreatedBy: "u-1",
+		HTTPAPI: &contract.HTTPAPI{
+			RegisteredBaseURL: "https://api.example.com", RegisteredHostname: "api.example.com",
+			AllowedMethods: []contract.HTTPMethod{"GET"}, AllowedPathPatterns: []string{"/v1/*"},
+			QueryAllowlist: []string{"q"}, RequestMaxBytes: 1 << 20, ResponseMaxBytes: 1 << 20,
+			TimeoutMS: 5000, AllowRedirects: false, MaxRedirects: 0,
+			CredentialInjection: contract.CredentialInjection{Location: contract.CredentialInjectionHeader, Name: "Authorization", Scheme: "Bearer"},
+			Redaction:           contract.RedactionRules{Headers: []string{"Authorization"}},
+		},
+		OnBehalfOf: &obo,
+		Config:     map[string]any{"client_id": "11111111-2222-3333-4444-555555555555"},
+	}
+	if err := ValidateMetadata(m); err != nil {
+		t.Fatalf("valid http_api on_behalf_of connector rejected: %v", err)
+	}
+
+	missing := m
+	missing.OnBehalfOf = nil
+	if err := ValidateMetadata(missing); err == nil {
+		t.Error("http_api on_behalf_of connector without OnBehalfOf was accepted")
+	}
+
+	apiKey := m
+	apiKey.CredentialSource = contract.CredentialSourceOpaqueRef
+	apiKey.AccountModel = ""
+	apiKey.OnBehalfOf = nil
+	apiKey.Config = nil
+	if err := ValidateMetadata(apiKey); err != nil {
+		t.Errorf("http_api opaque_ref connector rejected: %v", err)
+	}
+}

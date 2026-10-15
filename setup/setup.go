@@ -108,7 +108,7 @@ func (s SetupSchema) FieldsFor(model contract.AccountModel) []SetupField {
 		if len(f.AccountModels) > 0 && !containsAccountModel(f.AccountModels, model) {
 			continue
 		}
-		if len(f.CredentialSources) > 0 && (model == contract.AccountModelPerUser || model == contract.AccountModelShared) && !containsCredentialSource(f.CredentialSources, contract.CredentialSourceOAuth) {
+		if len(f.CredentialSources) > 0 && (model == contract.AccountModelPerUser || model == contract.AccountModelShared) && !containsCredentialSource(f.CredentialSources, contract.CredentialSourceOAuth) && !containsCredentialSource(f.CredentialSources, contract.CredentialSourceOnBehalfOf) {
 			continue
 		}
 		fields = append(fields, f)
@@ -117,6 +117,7 @@ func (s SetupSchema) FieldsFor(model contract.AccountModel) []SetupField {
 }
 
 var delegationOnly = []contract.AccountModel{contract.AccountModelDomainDelegation}
+var perUserOnly = []contract.AccountModel{contract.AccountModelPerUser}
 
 func googleAuth() []SetupAuth {
 	return []SetupAuth{
@@ -142,6 +143,13 @@ var opaqueRefOnly = []contract.CredentialSource{contract.CredentialSourceOpaqueR
 
 func sharedSecretAuth() []SetupAuth {
 	return []SetupAuth{{CredentialSource: contract.CredentialSourceOpaqueRef}}
+}
+
+func httpAPIAuth() []SetupAuth {
+	return []SetupAuth{
+		{CredentialSource: contract.CredentialSourceOnBehalfOf, AccountModels: []contract.AccountModel{contract.AccountModelPerUser}, DefaultAccountModel: contract.AccountModelPerUser},
+		{CredentialSource: contract.CredentialSourceOpaqueRef},
+	}
 }
 
 func delegationFields() []SetupField {
@@ -203,9 +211,11 @@ var setupSchemas = []SetupSchema{
 		{Name: "allowed_resources", Label: "Allowed resources", Type: SetupFieldStringList, Location: SetupLocationConfig, Pattern: `^(leads|customers|investors)(/\*)?$`, Default: []string{"leads", "customers"}},
 		{Name: "api_key", Label: "CRM connector API key", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 32, MaxLength: 512},
 	}},
-	{Schema: SetupSchemaVersion, Provider: contract.ProviderHTTPAPI, Auth: sharedSecretAuth(), Fields: []SetupField{
+	{Schema: SetupSchemaVersion, Provider: contract.ProviderHTTPAPI, Auth: httpAPIAuth(), Fields: []SetupField{
 		{Name: "http_api", Label: "HTTP API registration", Type: SetupFieldHTTPAPI, Location: SetupLocationHTTPAPI, Required: true},
-		{Name: "api_key", Label: "API key", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 1, MaxLength: 4096},
+		{Name: "client_id", Label: "Client ID", Type: SetupFieldString, Location: SetupLocationConfig, Required: true, Pattern: `^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`, AccountModels: perUserOnly},
+		{Name: "client_secret", Label: "Client secret", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 1, MaxLength: 4096, AccountModels: perUserOnly},
+		{Name: "api_key", Label: "API key", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 1, MaxLength: 4096, CredentialSources: opaqueRefOnly},
 	}},
 }
 
