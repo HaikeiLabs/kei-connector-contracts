@@ -1,0 +1,20 @@
+{
+  "file": "parse-principal.json",
+  "version": 1,
+  "cases": [
+    { "name": "star-is-any", "input": "*", "want": { "kind": "any", "value": "" } },
+    { "name": "bare-name-is-group", "input": "admins", "want": { "kind": "group", "value": "admins" } },
+    { "name": "user-scheme", "input": "user:alice", "want": { "kind": "user", "value": "alice" } },
+    { "name": "email-scheme", "input": "email:alice@corp.com", "want": { "kind": "email", "value": "alice@corp.com" } },
+    { "name": "group-scheme", "input": "group:admins", "want": { "kind": "group", "value": "admins" } },
+    { "name": "org-scheme", "input": "org:admin", "want": { "kind": "org", "value": "admin" } },
+    { "name": "agent-scheme", "input": "agent:abc", "want": { "kind": "agent", "value": "abc" } },
+    { "name": "harness-scheme", "input": "harness:codex", "want": { "kind": "harness", "value": "codex" } },
+    { "name": "user-wildcard-value", "input": "user:*", "want": { "kind": "user", "value": "*" } },
+    { "name": "empty-value-errors", "input": "user:", "want": { "error": true } },
+    { "name": "colon-in-value", "input": "user:alice:extra", "want": { "kind": "user", "value": "alice:extra" } },
+    { "name": "unknown-scheme-errors", "input": "userr:alice", "want": { "error": true } },
+    { "name": "target-scheme-not-principal", "input": "shell:ls", "want": { "error": true } },
+    { "name": "scheme-case-sensitive", "input": "USER:alice", "want": { "error": true } }
+  ]
+}

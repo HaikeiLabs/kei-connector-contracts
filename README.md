@@ -77,6 +77,7 @@ Dependencies point one way: `contract` ← `capability`, `envelope`, `setup`;
 | `.../providers` | provider payloads, results, and read-only clients |
 | `.../canonical` | `Resource` (the canonical resource URI of an MCP server, ADR-036 §3.4), `ErrInvalidResource` |
 | `.../canonical/canonicaltest` | `ResourceCases`, the shared golden cases for `canonical.Resource`, also published as `canonical/canonicaltest/resource.json` |
+| `.../policy` | `Principal`/`ParsePrincipal`, `Target`/`ParseTarget`, `MatchPrincipal`, `Rule`/`Request`/`Decide`/`Precedence`, `Render` (a thin entry point over `harnessmatch`), and the conformance vectors in `policy/testdata/vectors/` |
 
 Account models are a file in `contract`, not a package: `Metadata.AccountModel`
 is a contract field and `Metadata.Validate` enforces the account-model rules,
@@ -277,6 +278,32 @@ would make every connection read as changed.
 Test against `canonicaltest.ResourceCases()`, or `resource.json` from another
 language, rather than a local table. The cases pin current results,
 including the odd ones marked with a `note`.
+
+## Shared policy model (HAI-606, unreleased)
+
+`policy` is the one implementation of policy matching and decisions, shared by
+the catalog, the runtime and the CLI so they cannot drift apart. It replaces
+the matcher copies those services each carried: principals (who), targets
+(what), decisions, and rendering.
+
+- `ParsePrincipal`/`ParseTarget` parse `<scheme>:<value>` patterns; `*` is
+  any, a bare name is a group for principals and an error for targets, and an
+  unknown scheme or an empty value is an error.
+- `MatchPrincipal` matches a principal pattern against user/email/groups with
+  the same semantics as the catalog's `MatchesPattern`. `MatchTarget` matches
+  a target pattern against a request target (exact, `*`, or `<scheme>:*`).
+- `Decide` orders the matching enabled rules by `Precedence` (priority DESC,
+  deny before permit, ID ASC); the first decides, or the outcome is
+  `no_match`. The runtime calls it when it authorizes a tool call.
+- `Render` turns the rules that apply to one subject into the native
+  allow/deny entries of a harness kind (for example the lists `kei harness
+  sync` writes for a coding harness). The harness is the rendering context, not
+  a principal: matching rules become entries, non-matching ones are withheld,
+  an unknown kind is unrenderable, and a permit that overlaps a deny that is
+  not rendered is withheld (fail closed).
+
+Conformance vectors live in `policy/testdata/vectors/` (`parse-principal`,
+`parse-target`, `match-principal`, `decide`, `render`).
 
 ## Versioning
 
