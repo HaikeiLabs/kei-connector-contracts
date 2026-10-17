@@ -1,0 +1,82 @@
+[
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "http_api.list_records",
+    "description": "List records of an entity through the governed http_api/CRM connection",
+    "parameters": [
+      {
+        "name": "entity",
+        "description": "Entity to list (e.g. leads); defaults to the bound entity",
+        "type": "string",
+        "required": false,
+        "default": "leads"
+      },
+      {
+        "name": "filters",
+        "description": "Query-style filters applied within the governed connection",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "limit",
+        "description": "Maximum number of records to return",
+        "type": "integer",
+        "required": false,
+        "default": 100
+      },
+      {
+        "name": "offset",
+        "description": "Number of records to skip",
+        "type": "integer",
+        "required": false,
+        "default": 0
+      }
+    ],
+    "permission": "http_api.read",
+    "category": "http_api",
+    "service": "http_api",
+    "version": "1.0.0",
+    "tags": ["http-read", "governed-connector", "crm-read"],
+    "binding": {
+      "connector_id": "conn_http_api_1",
+      "config": {
+        "resource": "records",
+        "api": "crm"
+      },
+      "delegated_context": ["tenant_id"]
+    }
+  },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "http_api.get_record",
+    "description": "Read a single record through the governed http_api/CRM connection",
+    "parameters": [
+      {
+        "name": "entity",
+        "description": "Entity the record belongs to (e.g. leads)",
+        "type": "string",
+        "required": false,
+        "default": "leads"
+      },
+      {
+        "name": "record_id",
+        "description": "Record identifier within the governed connection",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "permission": "http_api.read",
+    "category": "http_api",
+    "service": "http_api",
+    "version": "1.0.0",
+    "tags": ["http-read", "governed-connector", "crm-read"],
+    "binding": {
+      "connector_id": "conn_http_api_1",
+      "config": {
+        "resource": "records",
+        "api": "crm"
+      },
+      "delegated_context": ["tenant_id"]
+    }
+  }
+]

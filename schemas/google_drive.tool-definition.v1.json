@@ -1,0 +1,151 @@
+[
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "drive.list_files",
+    "description": "List files in the governed Drive",
+    "parameters": [
+      {
+        "name": "query",
+        "description": "Search query applied within the governed Drive",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "mime_type",
+        "description": "Filter by MIME type (e.g. text/plain)",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "limit",
+        "description": "Maximum number of files to return",
+        "type": "integer",
+        "required": false,
+        "default": 50
+      }
+    ],
+    "permission": "drive.read",
+    "category": "drive",
+    "service": "drive",
+    "version": "1.0.0",
+    "tags": ["drive-read", "governed-connector"],
+    "binding": {
+      "connector_id": "conn_drive_1",
+      "config": {
+        "resource": "files"
+      },
+      "delegated_context": ["tenant_id", "drive_id"]
+    }
+  },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "drive.get_file",
+    "description": "Read metadata for a single file in the governed Drive",
+    "parameters": [
+      {
+        "name": "file_id",
+        "description": "File identifier within the governed Drive",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "permission": "drive.read",
+    "category": "drive",
+    "service": "drive",
+    "version": "1.0.0",
+    "tags": ["drive-read", "governed-connector"],
+    "binding": {
+      "connector_id": "conn_drive_1",
+      "config": {
+        "resource": "files"
+      },
+      "delegated_context": ["tenant_id", "drive_id"]
+    }
+  },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "docs.get_document",
+    "description": "Read a document's content from the governed Docs workspace",
+    "parameters": [
+      {
+        "name": "document_id",
+        "description": "Document identifier within the governed Docs workspace",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "plain_text",
+        "description": "Return plain text instead of structured content",
+        "type": "boolean",
+        "required": false,
+        "default": true
+      }
+    ],
+    "permission": "drive.read",
+    "category": "drive",
+    "service": "drive",
+    "version": "1.0.0",
+    "tags": ["drive-read", "governed-connector"],
+    "binding": {
+      "connector_id": "conn_drive_1",
+      "config": {
+        "resource": "documents"
+      },
+      "delegated_context": ["tenant_id", "drive_id"]
+    }
+  },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "drive_create_doc",
+    "description": "Create a new Google Doc from Markdown inside a Drive folder. Use when the user asks to publish, upload, or save a document to a Drive folder and gives the folder id. The user sees a preview and must confirm it before anything is written, so call it once with the full content and never claim the doc was written until the result says so.",
+    "parameters": [
+      {
+        "name": "folder_id",
+        "description": "Id of the parent Drive folder the new doc goes in",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "title",
+        "description": "Document title",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "markdown",
+        "description": "Full document content in Markdown; Drive converts it to a Google Doc",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "permission": "drive.write",
+    "category": "drive",
+    "service": "drive",
+    "version": "1.0.0",
+    "tags": ["drive-write", "governed-action", "confirm-required", "harness-side"]
+  },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "drive_update_doc",
+    "description": "Replace the content of an existing Google Doc with Markdown. Use when the user asks to update, overwrite, or republish a doc and gives the doc id. The user sees a preview and must confirm it before anything is written, so call it once with the full content and never claim the doc was written until the result says so.",
+    "parameters": [
+      {
+        "name": "doc_id",
+        "description": "Id of the Google Doc to replace",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "markdown",
+        "description": "Full document content in Markdown; Drive converts it to a Google Doc",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "permission": "drive.write",
+    "category": "drive",
+    "service": "drive",
+    "version": "1.0.0",
+    "tags": ["drive-write", "governed-action", "confirm-required", "harness-side"]
+  }
+]

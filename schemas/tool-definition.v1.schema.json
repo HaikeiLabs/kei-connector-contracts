@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/HaikeiLabs/kei-connector-contracts/schemas/tool-definition.v1.schema.json",
+  "title": "Kei agent tool definition (kei.tool-definition/v1)",
+  "description": "A single agent capability (tool) with optional permission gate, service binding, and routing metadata. The export is an array of tool_definition in a .tool-definition.v1.json file per connector.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "name", "description"],
+  "properties": {
+    "schema": { "const": "kei.tool-definition/v1" },
+    "name": {
+      "description": "Unique tool id matching ^[a-z0-9_]+(\\.[a-z0-9_]+)*$",
+      "type": "string",
+      "pattern": "^[a-z0-9_]+(\\.[a-z0-9_]+)*$"
+    },
+    "description": { "type": "string", "minLength": 1 },
+    "parameters": {
+      "description": "Function arguments as either an array of parameter objects or a JSON Schema object (open-ended for model-native schemas).",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": { "$ref": "#/$defs/tool_parameter" }
+        },
+        {
+          "type": "object",
+          "description": "Open-ended JSON Schema for model-native parameter definitions."
+        }
+      ]
+    },
+    "permission": {
+      "description": "Permission gate for the tool.",
+      "$ref": "#/$defs/permission"
+    },
+    "category": {
+      "description": "Organization category.",
+      "$ref": "#/$defs/tool_category"
+    },
+    "service": {
+      "description": "Credential-lookup service; empty means policy-only.",
+      "type": "string",
+      "pattern": "^[a-z0-9_]*$"
+    },
+    "version": {
+      "description": "The tool's own version string.",
+      "type": "string"
+    },
+    "tags": {
+      "description": "Tailscale-style labels (e.g. github-write).",
+      "type": "array",
+      "items": { "type": "string" },
+      "uniqueItems": true
+    },
+    "binding": {
+      "description": "Non-secret routing metadata mapping a tool to a registered data source.",
+      "$ref": "#/$defs/tool_binding"
+    }
+  },
+  "$defs": {
+    "permission": {
+      "enum": [
+        "search_wiki",
+        "web_search",
+        "schedule_meetings",
+        "github_read",
+        "github_write",
+        "crm_read",
+        "crm_write",
+        "linear_read",
+        "linear_write",
+        "drive_read",
+        "drive_write",
+        "s3_read",
+        "http_api_read",
+        "notion_read",
+        "gmail_read",
+        "tito_read",
+        "finance_read",
+        "finance_write",
+        "fundraising_read",
+        "fundraising_write",
+        "project_hours_read",
+        "semantic_model_read"
+      ]
+    },
+    "tool_category": {
+      "enum": [
+        "search",
+        "productivity",
+        "github",
+        "crm",
+        "entertainment",
+        "linear",
+        "drive",
+        "s3",
+        "http_api",
+        "notion",
+        "gmail",
+        "tito"
+      ]
+    },
+    "tool_parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "type": { "type": "string", "default": "string" },
+        "description": { "type": "string" },
+        "required": { "type": "boolean", "default": false },
+        "enum": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "default": {}
+      }
+    },
+    "tool_binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["connector_id"],
+      "properties": {
+        "connector_id": { "type": "string", "minLength": 1 },
+        "config": {
+          "description": "Non-secret routing hints consumed by the tenant-side proxy.",
+          "type": "object",
+          "additionalProperties": true
+        },
+        "delegated_context": {
+          "description": "Non-secret field names the tenant-side proxy supplies at invocation.",
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+          "uniqueItems": true
+        }
+      }
+    }
+  }
+}
