@@ -1,0 +1,20 @@
+{
+  "file": "match-principal.json",
+  "version": 1,
+  "cases": [
+    { "name": "star-matches-any", "pattern": "*", "user": "", "email": "", "groups": [], "want": true },
+    { "name": "agent-prefix-no-match", "pattern": "agent:abc", "user": "agent:xabc", "email": "", "groups": [], "want": false },
+    { "name": "email-domain-no-match", "pattern": "*@corp.com", "user": "", "email": "a@evilcorp.com", "groups": [], "want": false },
+    { "name": "email-domain-case-insensitive", "pattern": "*@Corp.com", "user": "", "email": "a@corp.com", "groups": [], "want": true },
+    { "name": "email-scheme-wildcard", "pattern": "email:*@corp.com", "user": "", "email": "alice@corp.com", "groups": [], "want": true },
+    { "name": "user-wildcard-empty-user", "pattern": "user:*", "user": "", "email": "", "groups": [], "want": false },
+    { "name": "star-is-literal-prefix", "pattern": "*alice", "user": "evil-alice", "email": "", "groups": [], "want": false },
+    { "name": "group-scheme-match", "pattern": "group:admins", "user": "", "email": "", "groups": ["admins"], "want": true },
+    { "name": "group-bare-match", "pattern": "admins", "user": "", "email": "", "groups": ["admins"], "want": true },
+    { "name": "user-exact-match", "pattern": "user:bob", "user": "bob", "email": "", "groups": [], "want": true },
+    { "name": "email-exact-match", "pattern": "email:bob@x.com", "user": "", "email": "bob@x.com", "groups": [], "want": true },
+    { "name": "user-no-match", "pattern": "user:alice", "user": "", "email": "", "groups": [], "want": false },
+    { "name": "group-no-match", "pattern": "group:ops", "user": "", "email": "", "groups": ["admins"], "want": false },
+    { "name": "agent-whole-value-match", "pattern": "agent:abc", "user": "agent:abc", "email": "", "groups": [], "want": true }
+  ]
+}

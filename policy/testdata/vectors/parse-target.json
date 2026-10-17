@@ -1,0 +1,19 @@
+{
+  "file": "parse-target.json",
+  "version": 1,
+  "cases": [
+    { "name": "star-is-any", "input": "*", "want": { "kind": "any", "value": "" } },
+    { "name": "shell-scheme", "input": "shell:ls", "want": { "kind": "shell", "value": "ls" } },
+    { "name": "skill-scheme", "input": "skill:foo", "want": { "kind": "skill", "value": "foo" } },
+    { "name": "path-scheme", "input": "path:/etc/passwd", "want": { "kind": "path", "value": "/etc/passwd" } },
+    { "name": "capability-scheme", "input": "capability:read", "want": { "kind": "capability", "value": "read" } },
+    { "name": "connector-scheme", "input": "connector:github", "want": { "kind": "connector", "value": "github" } },
+    { "name": "tool-scheme", "input": "tool:claude_code.edit", "want": { "kind": "tool", "value": "claude_code.edit" } },
+    { "name": "mcp-scheme", "input": "mcp:server", "want": { "kind": "mcp", "value": "server" } },
+    { "name": "space-in-value", "input": "shell:ls -la", "want": { "kind": "shell", "value": "ls -la" } },
+    { "name": "empty-value-errors", "input": "tool:", "want": { "error": true } },
+    { "name": "bare-value-errors", "input": "foo", "want": { "error": true } },
+    { "name": "unknown-scheme-errors", "input": "userr:alice", "want": { "error": true } },
+    { "name": "principal-scheme-not-target", "input": "user:alice", "want": { "error": true } }
+  ]
+}

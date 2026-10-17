@@ -1,0 +1,74 @@
+{
+  "file": "render.json",
+  "version": 1,
+  "cases": [
+    {
+      "name": "permit-renders",
+      "rules": [
+        { "id": "p1", "principal": "*", "target": "tool:github.read", "effect": "permit", "priority": 1, "enabled": true }
+      ],
+      "user": "u1", "email": "", "groups": [], "harness_kind": "claude_code",
+      "want": {
+        "entries": [ { "rule_id": "p1", "target": "tool:github.read", "effect": "permit" } ],
+        "diagnostics": []
+      }
+    },
+    {
+      "name": "deny-renders",
+      "rules": [
+        { "id": "d1", "principal": "*", "target": "shell:rm", "effect": "deny", "priority": 1, "enabled": true }
+      ],
+      "user": "u1", "email": "", "groups": [], "harness_kind": "codex",
+      "want": {
+        "entries": [ { "rule_id": "d1", "target": "shell:rm", "effect": "deny" } ],
+        "diagnostics": []
+      }
+    },
+    {
+      "name": "other-group-withheld",
+      "rules": [
+        { "id": "g1", "principal": "group:ops", "target": "tool:x", "effect": "permit", "priority": 1, "enabled": true }
+      ],
+      "user": "u1", "email": "", "groups": ["admins"], "harness_kind": "claude_code",
+      "want": {
+        "entries": [],
+        "diagnostics": [ { "rule_id": "g1", "kind": "withheld", "reason": "principal does not match" } ]
+      }
+    },
+    {
+      "name": "skipped-deny-withholds-permit",
+      "rules": [
+        { "id": "d1", "principal": "*", "target": "tool:x", "effect": "deny", "priority": 9, "enabled": false },
+        { "id": "p1", "principal": "*", "target": "tool:x", "effect": "permit", "priority": 1, "enabled": true }
+      ],
+      "user": "u1", "email": "", "groups": [], "harness_kind": "claude_code",
+      "want": {
+        "entries": [],
+        "diagnostics": [ { "rule_id": "p1", "kind": "withheld", "reason": "overlapping deny is not rendered" } ]
+      }
+    },
+    {
+      "name": "unknown-harness-kind-unrenderable",
+      "rules": [
+        { "id": "p1", "principal": "*", "target": "tool:x", "effect": "permit", "priority": 1, "enabled": true }
+      ],
+      "user": "u1", "email": "", "groups": [], "harness_kind": "vim",
+      "want": {
+        "entries": [],
+        "diagnostics": [ { "rule_id": "p1", "kind": "unrenderable", "reason": "unsupported_kind" } ]
+      }
+    },
+    {
+      "name": "mixed-render-and-withhold",
+      "rules": [
+        { "id": "p1", "principal": "*", "target": "tool:a", "effect": "permit", "priority": 1, "enabled": true },
+        { "id": "g1", "principal": "group:ops", "target": "tool:b", "effect": "deny", "priority": 1, "enabled": true }
+      ],
+      "user": "u1", "email": "", "groups": ["admins"], "harness_kind": "claude_code",
+      "want": {
+        "entries": [ { "rule_id": "p1", "target": "tool:a", "effect": "permit" } ],
+        "diagnostics": [ { "rule_id": "g1", "kind": "withheld", "reason": "principal does not match" } ]
+      }
+    }
+  ]
+}
