@@ -83,6 +83,22 @@
       "want": { "decision": "no_match" }
     },
     {
+      "name": "scheme-wildcard-empty-value-no-match",
+      "rules": [
+        { "id": "r-tool", "principal": "*", "target": "tool:*", "effect": "deny", "priority": 1, "enabled": true }
+      ],
+      "request": { "user": "u1", "email": "", "groups": [], "target": "tool:" },
+      "want": { "decision": "no_match" }
+    },
+    {
+      "name": "scheme-wildcard-nonempty-value-matches",
+      "rules": [
+        { "id": "r-tool", "principal": "*", "target": "tool:*", "effect": "deny", "priority": 1, "enabled": true }
+      ],
+      "request": { "user": "u1", "email": "", "groups": [], "target": "tool:x" },
+      "want": { "decision": "deny", "decided_by": "r-tool", "outranked": [] }
+    },
+    {
       "name": "star-target-matches",
       "rules": [
         { "id": "r-all", "principal": "*", "target": "*", "effect": "permit", "priority": 1, "enabled": true }
