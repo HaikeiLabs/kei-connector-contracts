@@ -1,0 +1,248 @@
+[
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "github.get_repository",
+    "description": "Read metadata (default branch, description) for the governed repository at a given ref. Use it for questions about the repository itself; it is not a step before reading a pull request",
+    "parameters": [
+      {
+        "name": "ref",
+        "description": "Branch or tag to inspect; defaults to the default branch",
+        "type": "string",
+        "required": false,
+        "default": "main"
+      }
+    ],
+    "permission": "github.read",
+    "category": "github",
+    "service": "github",
+    "version": "1.0.0",
+    "tags": ["github-read", "governed-connector"],
+    "binding": {
+      "connector_id": "conn_github_1",
+      "config": {
+        "resource": "repository",
+        "default_branch": "main"
+      },
+      "delegated_context": ["tenant_id", "repository"]
+    }
+  },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "github.get_issue",
+    "description": "Read a single issue in the governed repository",
+    "parameters": [
+      {
+        "name": "issue_number",
+        "description": "Issue number within the governed repository",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "permission": "github.read",
+    "category": "github",
+    "service": "github",
+    "version": "1.0.0",
+    "tags": ["github-read", "governed-connector"],
+    "binding": {
+      "connector_id": "conn_github_1",
+      "config": {
+        "resource": "issues"
+      },
+      "delegated_context": ["tenant_id", "repository"]
+    }
+  },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "github.get_pull_request",
+    "description": "Read a single pull request in the governed repository to review or inspect it. Read-only: do not call it for requests to approve, comment on, merge, or close a pull request",
+    "parameters": [
+      {
+        "name": "pr_number",
+        "description": "Pull request number within the governed repository",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "permission": "github.read",
+    "category": "github",
+    "service": "github",
+    "version": "1.0.0",
+    "tags": ["github-read", "governed-connector"],
+    "binding": {
+      "connector_id": "conn_github_1",
+      "config": {
+        "resource": "pull_requests"
+      },
+      "delegated_context": ["tenant_id", "repository"]
+    }
+  },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "list_prs",
+    "description": "List GitHub pull requests",
+    "parameters": [
+      {
+        "name": "state",
+        "description": "Filter by PR state",
+        "type": "string",
+        "required": false,
+        "enum": ["open", "closed", "all"],
+        "default": "open"
+      },
+      {
+        "name": "limit",
+        "description": "Maximum number of PRs to return",
+        "type": "integer",
+        "required": false,
+        "default": 30
+      }
+    ],
+    "permission": "github.read",
+    "category": "github",
+    "service": "github",
+    "version": "1.0.0",
+    "tags": ["github-read"],
+    "binding": {
+      "connector_id": "conn_github_1",
+      "config": {
+        "default_branch": "main"
+      }
+    }
+  },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "list_issues",
+    "description": "List GitHub issues",
+    "parameters": [
+      {
+        "name": "state",
+        "description": "Filter by issue state",
+        "type": "string",
+        "required": false,
+        "enum": ["open", "closed", "all"],
+        "default": "open"
+      },
+      {
+        "name": "labels",
+        "description": "Comma-separated list of labels to filter by",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "limit",
+        "description": "Maximum number of issues to return",
+        "type": "integer",
+        "required": false,
+        "default": 30
+      }
+    ],
+    "permission": "github.read",
+    "category": "github",
+    "service": "github",
+    "version": "1.0.0",
+    "tags": ["github-read"],
+    "binding": {
+      "connector_id": "conn_github_1",
+      "config": {
+        "default_branch": "main"
+      }
+    }
+  },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "create_issue",
+    "description": "Create GitHub issues",
+    "parameters": [
+      {
+        "name": "title",
+        "description": "Issue title",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "body",
+        "description": "Issue body/description",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "labels",
+        "description": "Comma-separated list of labels",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "assignee",
+        "description": "Username to assign the issue to",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "permission": "github.write",
+    "category": "github",
+    "service": "github",
+    "version": "1.0.0",
+    "tags": ["github-write", "code-mutation"]
+  },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "get_workflow_status",
+    "description": "Get CI/CD workflow status",
+    "parameters": [
+      {
+        "name": "workflow_name",
+        "description": "Name of the workflow",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "permission": "github.read",
+    "category": "github",
+    "service": "github",
+    "version": "1.0.0",
+    "tags": ["github-read"],
+    "binding": {
+      "connector_id": "conn_github_1",
+      "config": {
+        "default_branch": "main"
+      }
+    }
+  },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "create_pull_request",
+    "description": "Open a GitHub pull request from an existing branch. Use it when the user says the work is on a branch and asks for a PR; call it directly, without reading the linked issue first",
+    "parameters": [
+      {
+        "name": "title",
+        "description": "PR title",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "body",
+        "description": "PR body/description",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "head",
+        "description": "The branch where changes are implemented",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "base",
+        "description": "The branch the changes should be pulled into",
+        "type": "string",
+        "required": false,
+        "default": "main"
+      }
+    ],
+    "permission": "github.write",
+    "category": "github",
+    "service": "github",
+    "version": "1.0.0",
+    "tags": ["github-write", "code-mutation"]
+  }
+]
