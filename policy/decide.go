@@ -113,7 +113,7 @@ func Decide(rules []Rule, req Request) Outcome {
 
 // targetMatches reports whether ruleTarget matches reqTarget: an exact
 // equality, the any target "*", or a "<scheme>:*" wildcard with the same
-// scheme as reqTarget.
+// scheme and a non-empty value in reqTarget.
 func targetMatches(ruleTarget, reqTarget string) bool {
 	if ruleTarget == reqTarget || ruleTarget == "*" {
 		return true
@@ -122,13 +122,13 @@ func targetMatches(ruleTarget, reqTarget string) bool {
 	if !ok || scheme == "" || strings.ContainsAny(scheme, ":*") {
 		return false
 	}
-	reqScheme, _, hasScheme := strings.Cut(reqTarget, ":")
-	return hasScheme && reqScheme == scheme
+	reqScheme, reqValue, hasScheme := strings.Cut(reqTarget, ":")
+	return hasScheme && reqScheme == scheme && reqValue != ""
 }
 
 // MatchTarget reports whether ruleTarget matches reqTarget: an exact
 // equality, the any target "*", or a "<scheme>:*" wildcard with the same
-// scheme as reqTarget.
+// scheme and a non-empty value in reqTarget.
 func MatchTarget(ruleTarget, reqTarget string) bool {
 	return targetMatches(ruleTarget, reqTarget)
 }

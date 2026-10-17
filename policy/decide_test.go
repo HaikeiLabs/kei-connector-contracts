@@ -28,6 +28,8 @@ func TestMatchTarget(t *testing.T) {
 		{"*", "capability:read", true},
 		{"connector:*", "connector:jira", true},
 		{"connector:*", "capability:read", false},
+		{"tool:*", "tool:", false},
+		{"tool:*", "tool:x", true},
 	}
 	for _, tc := range cases {
 		if got := MatchTarget(tc.rule, tc.req); got != tc.want {
