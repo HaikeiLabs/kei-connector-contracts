@@ -15,6 +15,7 @@
 package policy
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/HaikeiLabs/kei-connector-contracts/harnessmatch"
@@ -46,6 +47,10 @@ type RenderResult struct {
 // deny that is not rendered for this harness overlaps its target (withheld,
 // fail closed). A rule whose principal does not match is withheld. harnessmatch
 // supplies the known-kind check.
+//
+// MatchPrincipal only matches the supported principal kinds (user:, email:,
+// group:, org:, and "*"). harness:/agent: sources are not matched and return
+// false. The caller must pre-filter those before calling Render.
 func Render(rules []Rule, user, email string, groups []string, harnessKind string) RenderResult {
 	res := RenderResult{}
 	kindOK := harnessmatch.ValidKind(harnessKind)
@@ -112,7 +117,9 @@ func overlapsAny(target string, others []string) bool {
 
 // targetsOverlap reports whether two target patterns can match the same
 // concrete target: exact equality, either is "*", or one is a "<scheme>:*"
-// wildcard covering the other's scheme.
+// wildcard covering the other's scheme, one shell: pattern's whitespace-split
+// argv is a prefix of the other's (either direction), or two path: patterns'
+// glob segments could match a common path.
 func targetsOverlap(a, b string) bool {
 	if a == b || a == "*" || b == "*" {
 		return true
@@ -127,6 +134,21 @@ func targetsOverlap(a, b string) bool {
 			return true
 		}
 	}
+	aScheme, aValue, aOK := strings.Cut(a, ":")
+	bScheme, bValue, bOK := strings.Cut(b, ":")
+	if aOK && bOK && aScheme == bScheme {
+		switch aScheme {
+		case "shell":
+			da, pa := strings.Fields(aValue), strings.Fields(bValue)
+			if len(da) == 0 || da[0] == "*" || len(pa) == 0 || pa[0] == "*" {
+				return true
+			}
+			n := min(len(da), len(pa))
+			return slices.Equal(da[:n], pa[:n])
+		case "path":
+			return globsOverlap(strings.Split(aValue, "/"), strings.Split(bValue, "/"))
+		}
+	}
 	return false
 }
 
@@ -138,4 +160,20 @@ func schemeWildcard(t string) (string, bool) {
 		return "", false
 	}
 	return s, true
+}
+
+// globsOverlap reports whether two path globs could match a common path. A
+// ** or ~ segment overlaps anything that follows; a segment holding * is
+// taken to overlap any segment.
+func globsOverlap(a, b []string) bool {
+	if len(a) == 0 || len(b) == 0 {
+		return len(a) == len(b)
+	}
+	if a[0] == "**" || b[0] == "**" || a[0] == "*" && len(a) == 1 || b[0] == "*" && len(b) == 1 || a[0] == "~" || b[0] == "~" {
+		return true
+	}
+	if a[0] != b[0] && !strings.Contains(a[0], "*") && !strings.Contains(b[0], "*") {
+		return false
+	}
+	return globsOverlap(a[1:], b[1:])
 }

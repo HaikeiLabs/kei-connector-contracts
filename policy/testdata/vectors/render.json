@@ -69,6 +69,90 @@
         "entries": [ { "rule_id": "p1", "target": "tool:a", "effect": "permit" } ],
         "diagnostics": [ { "rule_id": "g1", "kind": "withheld", "reason": "principal does not match" } ]
       }
+    },
+    {
+      "name": "shell-argv-prefix-deny-longer-withholds-permit",
+      "rules": [
+        { "id": "d1", "principal": "*", "target": "shell:git status --porcelain", "effect": "deny", "priority": 9, "enabled": false },
+        { "id": "p1", "principal": "*", "target": "shell:git status", "effect": "permit", "priority": 1, "enabled": true }
+      ],
+      "user": "u1", "email": "", "groups": [], "harness_kind": "claude_code",
+      "want": {
+        "entries": [],
+        "diagnostics": [ { "rule_id": "p1", "kind": "withheld", "reason": "overlapping deny is not rendered" } ]
+      }
+    },
+    {
+      "name": "shell-argv-prefix-permit-longer-withholds-permit",
+      "rules": [
+        { "id": "d1", "principal": "*", "target": "shell:git", "effect": "deny", "priority": 9, "enabled": false },
+        { "id": "p1", "principal": "*", "target": "shell:git status", "effect": "permit", "priority": 1, "enabled": true }
+      ],
+      "user": "u1", "email": "", "groups": [], "harness_kind": "claude_code",
+      "want": {
+        "entries": [],
+        "diagnostics": [ { "rule_id": "p1", "kind": "withheld", "reason": "overlapping deny is not rendered" } ]
+      }
+    },
+    {
+      "name": "shell-non-overlapping-argv-does-not-withhold",
+      "rules": [
+        { "id": "d1", "principal": "*", "target": "shell:git push", "effect": "deny", "priority": 9, "enabled": false },
+        { "id": "p1", "principal": "*", "target": "shell:git status", "effect": "permit", "priority": 1, "enabled": true }
+      ],
+      "user": "u1", "email": "", "groups": [], "harness_kind": "claude_code",
+      "want": {
+        "entries": [ { "rule_id": "p1", "target": "shell:git status", "effect": "permit" } ],
+        "diagnostics": []
+      }
+    },
+    {
+      "name": "shell-star-deny-withholds-all-shell-permits",
+      "rules": [
+        { "id": "d1", "principal": "*", "target": "shell:*", "effect": "deny", "priority": 9, "enabled": false },
+        { "id": "p1", "principal": "*", "target": "shell:git status", "effect": "permit", "priority": 1, "enabled": true }
+      ],
+      "user": "u1", "email": "", "groups": [], "harness_kind": "claude_code",
+      "want": {
+        "entries": [],
+        "diagnostics": [ { "rule_id": "p1", "kind": "withheld", "reason": "overlapping deny is not rendered" } ]
+      }
+    },
+    {
+      "name": "skipped-deny-withholds-permit-skill-exact",
+      "rules": [
+        { "id": "d1", "principal": "*", "target": "skill:build", "effect": "deny", "priority": 9, "enabled": false },
+        { "id": "p1", "principal": "*", "target": "skill:build", "effect": "permit", "priority": 1, "enabled": true }
+      ],
+      "user": "u1", "email": "", "groups": [], "harness_kind": "claude_code",
+      "want": {
+        "entries": [],
+        "diagnostics": [ { "rule_id": "p1", "kind": "withheld", "reason": "overlapping deny is not rendered" } ]
+      }
+    },
+    {
+      "name": "skipped-deny-withholds-permit-skill-wildcard",
+      "rules": [
+        { "id": "d1", "principal": "*", "target": "skill:*", "effect": "deny", "priority": 9, "enabled": false },
+        { "id": "p1", "principal": "*", "target": "skill:build", "effect": "permit", "priority": 1, "enabled": true }
+      ],
+      "user": "u1", "email": "", "groups": [], "harness_kind": "claude_code",
+      "want": {
+        "entries": [],
+        "diagnostics": [ { "rule_id": "p1", "kind": "withheld", "reason": "overlapping deny is not rendered" } ]
+      }
+    },
+    {
+      "name": "skipped-deny-withholds-permit-path-glob",
+      "rules": [
+        { "id": "d1", "principal": "*", "target": "path:/home/**", "effect": "deny", "priority": 9, "enabled": false },
+        { "id": "p1", "principal": "*", "target": "path:/home/user/file", "effect": "permit", "priority": 1, "enabled": true }
+      ],
+      "user": "u1", "email": "", "groups": [], "harness_kind": "claude_code",
+      "want": {
+        "entries": [],
+        "diagnostics": [ { "rule_id": "p1", "kind": "withheld", "reason": "overlapping deny is not rendered" } ]
+      }
     }
   ]
 }
