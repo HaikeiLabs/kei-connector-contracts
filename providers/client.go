@@ -53,7 +53,7 @@ func Guard(meta contract.Metadata, inv contract.Invocation) error {
 		return err
 	}
 	if meta.EffectiveCredentialSource() == contract.CredentialSourceOAuth && DeclaresOAuthScopes(meta) {
-		if err := ValidateGrantedOAuthScopes(meta.Provider, meta.Capabilities, meta.Scopes); err != nil {
+		if err := ValidateGrantedOAuthScopes(CapabilityOAuthScopes[meta.Provider], meta.Capabilities, meta.Scopes); err != nil {
 			return fmt.Errorf("provider OAuth preflight: %w", err)
 		}
 	}

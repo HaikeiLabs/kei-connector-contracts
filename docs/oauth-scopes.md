@@ -1,11 +1,18 @@
 # OAuth capability scope contracts
 
 `providers.RequiredOAuthScopes`, `ValidateGrantedOAuthScopes`, and
-`OAuthReconsentScopes` are pure contract helpers. Consent/connect code should use
-`RequiredOAuthScopes` to request the least-privilege union, compare it with the
-stored grant, and use `OAuthReconsentScopes` when enabled capabilities change.
+`OAuthReconsentScopes` are pure contract helpers. Each accepts a
+`mapping map[string][]string` parameter — the capability→scope association from
+the connector template's `required_oauth_scopes` data — rather than reading a
+hard-coded provider map. Consent/connect code should supply this mapping,
+call `RequiredOAuthScopes` to request the least-privilege union, compare it with
+the stored grant, and use `OAuthReconsentScopes` when enabled capabilities
+change.
+
 Runtime provider `Guard` calls `ValidateGrantedOAuthScopes` before backend
 execution for OAuth credentials when `DeclaresOAuthScopes` holds (see below).
+`Guard` passes `CapabilityOAuthScopes[meta.Provider]` as the mapping; this
+global is deprecated in favour of template-supplied data.
 Neither path performs a control-plane call.
 
 ## When the preflight runs (interim rule)
@@ -20,6 +27,19 @@ preflight only when the provider has a scope map **and** the connector's
 it skips the preflight, as v0.7.0 did. That covers GitHub (no map),
 capability-name scopes, and session metadata. When the preflight runs, it is
 fail-closed.
+
+### Fail-closed diagnostics
+
+The helpers produce two distinct error classes so callers can distinguish them:
+
+| Condition | Error pattern | Behaviour |
+|---|---|---|
+| Capability absent from the supplied mapping | `OAuth scopes are not declared for capability "..."` | Fail-closed, bounded diagnostic |
+| Required scope missing from the user's OAuth grant | `OAuth grant is missing required scopes: [...]` | Indicates re-consent |
+| No mapping supplied and capabilities are non-empty | `OAuth scope mappings are not declared` | Fail-closed |
+
+Callers MUST NOT treat an absent-mapping or unknown-capability error as
+equivalent to a missing-scope error.
 
 ## Current coverage and integration boundary
 

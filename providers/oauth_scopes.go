@@ -24,6 +24,10 @@ import (
 // CapabilityOAuthScopes is the reviewed provider contract linking executable
 // capabilities to OAuth scopes. An absent provider or capability has no mapping;
 // callers must not infer one from a capability name or action.
+//
+// Deprecated: callers SHOULD supply their own mapping from template data
+// (required_oauth_scopes). This global exists only for legacy compatibility
+// and the interim DeclaresOAuthScopes preflight rule.
 var CapabilityOAuthScopes = map[contract.Provider]map[string][]string{
 	contract.ProviderGoogle: {
 		"drive.search":        {"https://www.googleapis.com/auth/drive.readonly"},
@@ -84,20 +88,25 @@ func DeclaresOAuthScopes(meta contract.Metadata) bool {
 }
 
 // RequiredOAuthScopes returns the sorted, deduplicated least-privilege union
-// for explicitly mapped capabilities. Unknown capabilities fail closed.
-func RequiredOAuthScopes(provider contract.Provider, capabilities []contract.Capability) ([]string, error) {
-	mappings, ok := CapabilityOAuthScopes[provider]
-	if !ok {
+// for explicitly mapped capabilities. Unknown capabilities fail closed with a
+// bounded diagnostic distinct from MissingOAuthScopes.
+//
+// The mapping is the capability→scope association from the connector template's
+// required_oauth_scopes data. When mapping is nil or empty and capabilities are
+// non-empty, the function returns an error; empty capabilities return an empty
+// slice regardless.
+func RequiredOAuthScopes(mapping map[string][]string, capabilities []contract.Capability) ([]string, error) {
+	if len(mapping) == 0 {
 		if len(capabilities) == 0 {
 			return []string{}, nil
 		}
-		return nil, fmt.Errorf("OAuth scope mappings are not declared for provider %q", provider)
+		return nil, fmt.Errorf("OAuth scope mappings are not declared")
 	}
 	set := map[string]struct{}{}
 	for _, capability := range capabilities {
-		scopes, ok := mappings[capability.Name]
+		scopes, ok := mapping[capability.Name]
 		if !ok {
-			return nil, fmt.Errorf("OAuth scopes are not declared for %s capability %q", provider, capability.Name)
+			return nil, fmt.Errorf("OAuth scopes are not declared for capability %q", capability.Name)
 		}
 		for _, scope := range scopes {
 			set[scope] = struct{}{}
@@ -125,8 +134,11 @@ func MissingOAuthScopes(required, granted []string) []string {
 // ValidateGrantedOAuthScopes ensures a connector's stored grant covers its
 // enabled capabilities. It is intended for consent and runtime preflight,
 // before provider execution; it does not perform policy evaluation or I/O.
-func ValidateGrantedOAuthScopes(provider contract.Provider, capabilities []contract.Capability, granted []string) error {
-	required, err := RequiredOAuthScopes(provider, capabilities)
+//
+// mapping is the capability→scope association from the connector template's
+// required_oauth_scopes data.
+func ValidateGrantedOAuthScopes(mapping map[string][]string, capabilities []contract.Capability, granted []string) error {
+	required, err := RequiredOAuthScopes(mapping, capabilities)
 	if err != nil {
 		return err
 	}
@@ -139,8 +151,11 @@ func ValidateGrantedOAuthScopes(provider contract.Provider, capabilities []contr
 
 // OAuthReconsentScopes returns only scopes not already granted for the new
 // enabled-capability set, supporting incremental re-consent.
-func OAuthReconsentScopes(provider contract.Provider, capabilities []contract.Capability, granted []string) ([]string, error) {
-	required, err := RequiredOAuthScopes(provider, capabilities)
+//
+// mapping is the capability→scope association from the connector template's
+// required_oauth_scopes data.
+func OAuthReconsentScopes(mapping map[string][]string, capabilities []contract.Capability, granted []string) ([]string, error) {
+	required, err := RequiredOAuthScopes(mapping, capabilities)
 	if err != nil {
 		return nil, err
 	}
