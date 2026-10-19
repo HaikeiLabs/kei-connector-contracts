@@ -30,16 +30,21 @@ fail-closed.
 
 ### Fail-closed diagnostics
 
-The helpers produce two distinct error classes so callers can distinguish them:
+The helpers produce distinct error classes so callers can distinguish them:
 
 | Condition | Error pattern | Behaviour |
 |---|---|---|
 | Capability absent from the supplied mapping | `OAuth scopes are not declared for capability "..."` | Fail-closed, bounded diagnostic |
-| Required scope missing from the user's OAuth grant | `OAuth grant is missing required scopes: [...]` | Indicates re-consent |
+| Required scope missing from the user's OAuth grant | `*providers.OAuthPreflightError` with `MissingScopes` | Indicates re-consent; detect with `errors.As` or `errors.Is` |
 | No mapping supplied and capabilities are non-empty | `OAuth scope mappings are not declared` | Fail-closed |
 
 Callers MUST NOT treat an absent-mapping or unknown-capability error as
 equivalent to a missing-scope error.
+
+`Guard` wraps a missing-scope error with `%w`, preserving its type and the
+bounded list of missing scopes. Policy evaluation remains outside `Guard`; a
+policy deny is represented by the policy decision outcome, not this preflight
+error. No control-plane call is made by the preflight.
 
 ## Current coverage and integration boundary
 

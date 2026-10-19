@@ -15,12 +15,14 @@
 package providers
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
 	"testing"
 
 	"github.com/HaikeiLabs/kei-connector-contracts/contract"
+	"github.com/HaikeiLabs/kei-connector-contracts/policy"
 )
 
 // fixtureMapping is a representative capability→scope mapping used by tests
@@ -416,6 +418,95 @@ func TestDistinctErrors(t *testing.T) {
 
 	if unknownMsg == missingMsg {
 		t.Fatalf("unknown capability error %q matches missing grant error %q; they must be distinct", unknownMsg, missingMsg)
+	}
+}
+
+// TestGuardOAuthPreflightOutcomes keeps re-consent, unknown mapping, and
+// policy-deny outcomes distinct. Policy evaluation remains outside Guard.
+func TestGuardOAuthPreflightOutcomes(t *testing.T) {
+	mapping := map[string][]string{"good.cap": {"scope-a", "scope-b"}}
+	metaWithOAuth := func(t *testing.T, scopes []string) contract.Metadata {
+		t.Helper()
+		m := contract.Metadata{
+			ID:               "c-1",
+			TenantID:         "t-1",
+			WorkspaceID:      "w-1",
+			Name:             "test",
+			Provider:         contract.ProviderLinear,
+			Status:           contract.StatusActive,
+			CredentialRef:    "vault/tenant/t-1/test",
+			CredentialSource: contract.CredentialSourceOAuth,
+			AccountModel:     contract.AccountModelPerUser,
+			Scopes:           scopes,
+			Resources:        []string{"*"},
+			Capabilities:     contract.CapabilitiesFor(contract.ProviderLinear),
+			CreatedBy:        "u-1",
+		}
+		if err := m.Validate(); err != nil {
+			t.Fatalf("fixture metadata is invalid: %v", err)
+		}
+		return m
+	}
+	inv := contract.Invocation{TenantID: "t-1", WorkspaceID: "w-1", Subject: "u-1", AgentID: "a-1", ConnectorID: "c-1", Capability: "team.read", Action: contract.ActionRead, Resource: "test-resource", TraceID: "trace-1"}
+	type result struct {
+		err      error
+		decision *policy.Outcome
+	}
+	cases := []struct {
+		name  string
+		run   func(*testing.T) result
+		check func(*testing.T, result)
+	}{
+		{
+			name: "missing scope is a typed re-consent error",
+			run: func(t *testing.T) result {
+				meta := metaWithOAuth(t, []string{LinearReadScope})
+				return result{err: Guard(meta, inv)}
+			},
+			check: func(t *testing.T, got result) {
+				var preflight *OAuthPreflightError
+				if !errors.As(got.err, &preflight) {
+					t.Fatalf("Guard error = %v (%T), want *OAuthPreflightError", got.err, got.err)
+				}
+				if !errors.Is(got.err, &OAuthPreflightError{}) {
+					t.Fatalf("Guard error %v is not errors.Is-compatible with *OAuthPreflightError", got.err)
+				}
+				if len(preflight.MissingScopes) == 0 || !reflect.DeepEqual(preflight.MissingScopes, MissingOAuthScopes([]string{LinearReadScope, LinearIssuesCreateScope, LinearCommentsCreateScope, LinearWriteScope}, []string{LinearReadScope})) {
+					t.Fatalf("MissingScopes = %v, want the bounded missing Linear scope list", preflight.MissingScopes)
+				}
+			},
+		},
+		{
+			name: "unknown capability mapping is a distinct plain error",
+			run: func(t *testing.T) result {
+				return result{err: ValidateGrantedOAuthScopes(mapping, []contract.Capability{{Name: "unknown.cap"}}, []string{"anything"})}
+			},
+			check: func(t *testing.T, got result) {
+				var preflight *OAuthPreflightError
+				if got.err == nil || errors.As(got.err, &preflight) || !strings.Contains(got.err.Error(), `not declared for capability "unknown.cap"`) {
+					t.Fatalf("unknown mapping error = %v (%T), want a distinct plain mapping error", got.err, got.err)
+				}
+			},
+		},
+		{
+			name: "policy deny is a policy outcome outside Guard",
+			run: func(t *testing.T) result {
+				meta := metaWithOAuth(t, []string{LinearReadScope, LinearIssuesCreateScope, LinearCommentsCreateScope, LinearWriteScope})
+				if err := Guard(meta, inv); err != nil {
+					return result{err: err}
+				}
+				decision := policy.Decide([]policy.Rule{{ID: "deny-1", Principal: "u-1", Target: "*", Effect: policy.Effect("deny"), Enabled: true}}, policy.Request{User: "u-1", Target: inv.Resource})
+				return result{decision: &decision}
+			},
+			check: func(t *testing.T, got result) {
+				if got.err != nil || got.decision == nil || got.decision.Decision != "deny" {
+					t.Fatalf("policy result = %+v, Guard error = %v; want policy.Outcome deny with Guard passing", got.decision, got.err)
+				}
+			},
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) { tc.check(t, tc.run(t)) })
 	}
 }
 
