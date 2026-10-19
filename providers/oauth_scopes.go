@@ -131,12 +131,37 @@ func MissingOAuthScopes(required, granted []string) []string {
 	return missing
 }
 
+// OAuthPreflightError is returned by ValidateGrantedOAuthScopes and Guard when
+// the OAuth grant is missing required scopes for the connector's enabled
+// capabilities. Callers should detect it with errors.As and use its
+// MissingScopes to trigger re-consent.
+type OAuthPreflightError struct {
+	MissingScopes []string
+}
+
+// Is reports whether target is also an OAuthPreflightError. Use errors.As to
+// inspect MissingScopes.
+func (e *OAuthPreflightError) Is(target error) bool {
+	_, ok := target.(*OAuthPreflightError)
+	return ok
+}
+
+func (e *OAuthPreflightError) Error() string {
+	return fmt.Sprintf("OAuth grant is missing required scopes: %v", e.MissingScopes)
+}
+
 // ValidateGrantedOAuthScopes ensures a connector's stored grant covers its
 // enabled capabilities. It is intended for consent and runtime preflight,
 // before provider execution; it does not perform policy evaluation or I/O.
 //
 // mapping is the capability→scope association from the connector template's
 // required_oauth_scopes data.
+//
+// It returns:
+//   - nil when the grant covers every required scope.
+//   - *OAuthPreflightError when scopes are missing (detectable via errors.As).
+//   - a plain error when the mapping is absent or a capability is unmapped
+//     (distinct from OAuthPreflightError).
 func ValidateGrantedOAuthScopes(mapping map[string][]string, capabilities []contract.Capability, granted []string) error {
 	required, err := RequiredOAuthScopes(mapping, capabilities)
 	if err != nil {
@@ -144,7 +169,7 @@ func ValidateGrantedOAuthScopes(mapping map[string][]string, capabilities []cont
 	}
 	missing := MissingOAuthScopes(required, granted)
 	if len(missing) != 0 {
-		return fmt.Errorf("OAuth grant is missing required scopes: %v", missing)
+		return &OAuthPreflightError{MissingScopes: missing}
 	}
 	return nil
 }
