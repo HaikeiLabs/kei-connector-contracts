@@ -19,6 +19,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 type parseWant struct {
@@ -141,15 +142,24 @@ type decideRule struct {
 	Enabled   bool   `json:"enabled"`
 }
 
+type decideGrant struct {
+	Principal  string `json:"principal"`
+	Target     string `json:"target"`
+	ExpireTime string `json:"expire_time"` // RFC 3339
+}
+
 type decideCase struct {
-	Name    string       `json:"name"`
-	Rules   []decideRule `json:"rules"`
-	Request Request      `json:"request"`
-	Want    decideWant   `json:"want"`
+	Name    string        `json:"name"`
+	Rules   []decideRule  `json:"rules"`
+	Request Request       `json:"request"`
+	Now     string        `json:"now,omitempty"` // RFC 3339
+	Grants  []decideGrant `json:"grants,omitempty"`
+	Want    decideWant    `json:"want"`
 }
 
 type decideWant struct {
 	Decision  string   `json:"decision"`
+	Reason    string   `json:"reason,omitempty"`
 	DecidedBy string   `json:"decided_by"`
 	Outranked []string `json:"outranked"`
 }
@@ -191,6 +201,86 @@ func TestDecide(t *testing.T) {
 			got := Decide(rules, tc.Request)
 			if got.Decision != tc.Want.Decision {
 				t.Errorf("decision: got %q want %q", got.Decision, tc.Want.Decision)
+			}
+			if got.DecidedBy != tc.Want.DecidedBy {
+				t.Errorf("decided_by: got %q want %q", got.DecidedBy, tc.Want.DecidedBy)
+			}
+			if len(got.Outranked) != len(tc.Want.Outranked) {
+				t.Errorf("outranked: got %v want %v", got.Outranked, tc.Want.Outranked)
+				return
+			}
+			for i := range got.Outranked {
+				if got.Outranked[i] != tc.Want.Outranked[i] {
+					t.Errorf("outranked[%d]: got %q want %q", i, got.Outranked[i], tc.Want.Outranked[i])
+				}
+			}
+			if tc.Want.Reason != "" && got.Reason != tc.Want.Reason {
+				t.Errorf("reason: got %q want %q", got.Reason, tc.Want.Reason)
+			}
+		})
+	}
+}
+
+func loadDecideAtCases(name string) ([]decideCase, error) {
+	raw, err := os.ReadFile(vectorPath(name))
+	if err != nil {
+		return nil, err
+	}
+	var suite struct {
+		File    string       `json:"file"`
+		Version int          `json:"version"`
+		Cases   []decideCase `json:"cases"`
+	}
+	if err := json.Unmarshal(raw, &suite); err != nil {
+		return nil, err
+	}
+	return suite.Cases, nil
+}
+
+func TestDecideAt(t *testing.T) {
+	cases, err := loadDecideAtCases("decide-at.json")
+	if err != nil {
+		t.Fatalf("loading fixtures: %v", err)
+	}
+	for _, tc := range cases {
+		t.Run(tc.Name, func(t *testing.T) {
+			rules := make([]Rule, len(tc.Rules))
+			for i, r := range tc.Rules {
+				rules[i] = Rule{
+					ID:        r.ID,
+					Principal: r.Principal,
+					Target:    r.Target,
+					Effect:    Effect(r.Effect),
+					Priority:  r.Priority,
+					Enabled:   r.Enabled,
+				}
+			}
+			grants := make([]AccessGrant, len(tc.Grants))
+			for i, g := range tc.Grants {
+				exp, err := time.Parse(time.RFC3339, g.ExpireTime)
+				if err != nil {
+					t.Fatalf("bad expire_time %q: %v", g.ExpireTime, err)
+				}
+				grants[i] = AccessGrant{
+					Principal:  g.Principal,
+					Target:     g.Target,
+					ExpireTime: exp,
+				}
+			}
+			var now time.Time
+			if tc.Now != "" {
+				var err error
+				now, err = time.Parse(time.RFC3339, tc.Now)
+				if err != nil {
+					t.Fatalf("bad now %q: %v", tc.Now, err)
+				}
+			}
+			got := DecideAt(rules, tc.Request, grants, now)
+			if got.Decision != tc.Want.Decision {
+				t.Errorf("decision: got %q want %q", got.Decision, tc.Want.Decision)
+			}
+			if got.Reason != tc.Want.Reason {
+				t.Errorf("reason: got %q want %q", got.Reason, tc.Want.Reason)
 			}
 			if got.DecidedBy != tc.Want.DecidedBy {
 				t.Errorf("decided_by: got %q want %q", got.DecidedBy, tc.Want.DecidedBy)
