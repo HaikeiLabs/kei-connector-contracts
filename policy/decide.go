@@ -17,6 +17,7 @@ package policy
 import (
 	"sort"
 	"strings"
+	"time"
 )
 
 // Effect is the decision a rule makes: "permit" or "deny".
@@ -43,8 +44,16 @@ type Request struct {
 // Outcome is the result of a decision.
 type Outcome struct {
 	Decision  string
+	Reason    string // explains no_match: "access_grant_expired" or "no_grant_matched"
 	DecidedBy string
 	Outranked []string
+}
+
+// AccessGrant is a time-bound grant that permits a principal to access a target.
+type AccessGrant struct {
+	Principal  string
+	Target     string
+	ExpireTime time.Time
 }
 
 // Precedence compares two rules: priority DESC, then deny before permit,
@@ -124,6 +133,52 @@ func targetMatches(ruleTarget, reqTarget string) bool {
 	}
 	reqScheme, reqValue, hasScheme := strings.Cut(reqTarget, ":")
 	return hasScheme && reqScheme == scheme && reqValue != ""
+}
+
+// DecideAt decides the request against the rules and optional access grants
+// at a specific time. Rules are evaluated first (as in Decide). When a
+// matching deny rule is found it always wins, regardless of grants. When no
+// rule matches, access grants are consulted:
+//   - any matching non-expired grant produces "permit" (DecidedBy="grant:...")
+//   - all matching grants are expired produces "no_match" with Reason "access_grant_expired"
+//   - no matching grant produces "no_match" with Reason "no_grant_matched"
+func DecideAt(rules []Rule, req Request, grants []AccessGrant, now time.Time) Outcome {
+	out := Decide(rules, req)
+	if out.Decision != "no_match" {
+		return out
+	}
+	// No rule matched; check all grants. If ANY matching grant is live
+	// (now < expire) we permit. If matches exist but ALL are expired,
+	// we return access_grant_expired.
+	var firstLive *AccessGrant
+	for i := range grants {
+		if !MatchPrincipal(grants[i].Principal, req.User, req.Email, req.Groups) {
+			continue
+		}
+		if !targetMatches(grants[i].Target, req.Target) {
+			continue
+		}
+		if now.Before(grants[i].ExpireTime) {
+			firstLive = &grants[i]
+			break
+		}
+	}
+	if firstLive != nil {
+		return Outcome{
+			Decision:  "permit",
+			DecidedBy: "grant:" + firstLive.Principal + ":" + firstLive.Target,
+		}
+	}
+	// No live grant found — check if any matching grant exists at all.
+	for _, g := range grants {
+		if MatchPrincipal(g.Principal, req.User, req.Email, req.Groups) &&
+			targetMatches(g.Target, req.Target) {
+			out.Reason = "access_grant_expired"
+			return out
+		}
+	}
+	out.Reason = "no_grant_matched"
+	return out
 }
 
 // MatchTarget reports whether ruleTarget matches reqTarget: an exact

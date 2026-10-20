@@ -1,0 +1,123 @@
+{
+  "file": "decide-at.json",
+  "version": 1,
+  "cases": [
+    {
+      "name": "deny-rule-wins-over-live-grant",
+      "rules": [
+        { "id": "r-deny", "principal": "*", "target": "tool:x", "effect": "deny", "priority": 1, "enabled": true }
+      ],
+      "request": { "user": "u1", "email": "", "groups": [], "target": "tool:x" },
+      "now": "2026-06-15T12:00:00Z",
+      "grants": [
+        { "principal": "*", "target": "tool:x", "expire_time": "2026-06-20T12:00:00Z" }
+      ],
+      "want": { "decision": "deny", "decided_by": "r-deny", "outranked": [] }
+    },
+    {
+      "name": "live-grant-permits-when-no-rule",
+      "rules": [],
+      "request": { "user": "u1", "email": "", "groups": [], "target": "tool:x" },
+      "now": "2026-06-15T12:00:00Z",
+      "grants": [
+        { "principal": "*", "target": "tool:x", "expire_time": "2026-06-20T12:00:00Z" }
+      ],
+      "want": { "decision": "permit", "decided_by": "grant:*:tool:x", "outranked": [] }
+    },
+    {
+      "name": "expired-grant-no-match",
+      "rules": [],
+      "request": { "user": "u1", "email": "", "groups": [], "target": "tool:x" },
+      "now": "2026-06-25T12:00:00Z",
+      "grants": [
+        { "principal": "*", "target": "tool:x", "expire_time": "2026-06-20T12:00:00Z" }
+      ],
+      "want": { "decision": "no_match", "reason": "access_grant_expired" }
+    },
+    {
+      "name": "boundary-now-equal-expire-is-expired",
+      "rules": [],
+      "request": { "user": "u1", "email": "", "groups": [], "target": "tool:x" },
+      "now": "2026-06-20T12:00:00Z",
+      "grants": [
+        { "principal": "*", "target": "tool:x", "expire_time": "2026-06-20T12:00:00Z" }
+      ],
+      "want": { "decision": "no_match", "reason": "access_grant_expired" }
+    },
+    {
+      "name": "no-grant-matches",
+      "rules": [],
+      "request": { "user": "u1", "email": "", "groups": [], "target": "tool:other" },
+      "now": "2026-06-15T12:00:00Z",
+      "grants": [
+        { "principal": "*", "target": "tool:x", "expire_time": "2026-06-20T12:00:00Z" }
+      ],
+      "want": { "decision": "no_match", "reason": "no_grant_matched" }
+    },
+    {
+      "name": "grant-principal-matches-user",
+      "rules": [],
+      "request": { "user": "u1", "email": "", "groups": [], "target": "tool:x" },
+      "now": "2026-06-15T12:00:00Z",
+      "grants": [
+        { "principal": "user:u1", "target": "tool:x", "expire_time": "2026-06-20T12:00:00Z" }
+      ],
+      "want": { "decision": "permit", "decided_by": "grant:user:u1:tool:x", "outranked": [] }
+    },
+    {
+      "name": "grant-principal-no-match",
+      "rules": [],
+      "request": { "user": "u2", "email": "", "groups": [], "target": "tool:x" },
+      "now": "2026-06-15T12:00:00Z",
+      "grants": [
+        { "principal": "user:u1", "target": "tool:x", "expire_time": "2026-06-20T12:00:00Z" }
+      ],
+      "want": { "decision": "no_match", "reason": "no_grant_matched" }
+    },
+    {
+      "name": "deny-rule-still-wins-with-expired-grant",
+      "rules": [
+        { "id": "r-deny", "principal": "*", "target": "tool:x", "effect": "deny", "priority": 1, "enabled": true }
+      ],
+      "request": { "user": "u1", "email": "", "groups": [], "target": "tool:x" },
+      "now": "2026-06-25T12:00:00Z",
+      "grants": [
+        { "principal": "*", "target": "tool:x", "expire_time": "2026-06-20T12:00:00Z" }
+      ],
+      "want": { "decision": "deny", "decided_by": "r-deny", "outranked": [] }
+    },
+    {
+      "name": "expired-then-live-permits",
+      "rules": [],
+      "request": { "user": "u1", "email": "", "groups": [], "target": "tool:x" },
+      "now": "2026-06-25T12:00:00Z",
+      "grants": [
+        { "principal": "*", "target": "tool:x", "expire_time": "2026-06-20T12:00:00Z" },
+        { "principal": "*", "target": "tool:x", "expire_time": "2026-07-20T12:00:00Z" }
+      ],
+      "want": { "decision": "permit", "decided_by": "grant:*:tool:x", "outranked": [] }
+    },
+    {
+      "name": "live-then-expired-permits",
+      "rules": [],
+      "request": { "user": "u1", "email": "", "groups": [], "target": "tool:x" },
+      "now": "2026-06-25T12:00:00Z",
+      "grants": [
+        { "principal": "*", "target": "tool:x", "expire_time": "2026-07-20T12:00:00Z" },
+        { "principal": "*", "target": "tool:x", "expire_time": "2026-06-20T12:00:00Z" }
+      ],
+      "want": { "decision": "permit", "decided_by": "grant:*:tool:x", "outranked": [] }
+    },
+    {
+      "name": "two-expired-no-match",
+      "rules": [],
+      "request": { "user": "u1", "email": "", "groups": [], "target": "tool:x" },
+      "now": "2026-06-25T12:00:00Z",
+      "grants": [
+        { "principal": "*", "target": "tool:x", "expire_time": "2026-06-20T12:00:00Z" },
+        { "principal": "*", "target": "tool:x", "expire_time": "2026-06-15T12:00:00Z" }
+      ],
+      "want": { "decision": "no_match", "reason": "access_grant_expired" }
+    }
+  ]
+}
