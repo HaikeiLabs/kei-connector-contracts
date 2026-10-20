@@ -16,6 +16,7 @@ package conformance
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -217,5 +218,185 @@ func TestToolDefinitionV1ProviderFileCount(t *testing.T) {
 		if len(tools) != want {
 			t.Errorf("%s: expected %d tool definitions, got %d", provider, want, len(tools))
 		}
+	}
+}
+
+// HAI-723 (owner decision, option A, 2026-10-20): per ADR-039 the harness
+// builds the provider call itself, so tool_binding must carry non-secret
+// transport metadata: method, url_template, auth placement (no secret
+// values) and arg mapping (tool param -> {in, name}).
+
+func loadToolDefSchema(t *testing.T) document {
+	t.Helper()
+	b, err := os.ReadFile(filepath.Join("..", "schemas", "tool-definition.v1.schema.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var doc document
+	if err := json.Unmarshal(b, &doc); err != nil {
+		t.Fatalf("schema parse: %v", err)
+	}
+	return doc
+}
+
+func schemaTransport(t *testing.T) document {
+	t.Helper()
+	schema := loadToolDefSchema(t)
+	defs, ok := schema["$defs"].(map[string]any)
+	if !ok {
+		t.Fatal("schema has no $defs")
+	}
+	binding, ok := defs["tool_binding"].(map[string]any)
+	if !ok {
+		t.Fatal("schema has no $defs.tool_binding")
+	}
+	props, ok := binding["properties"].(map[string]any)
+	if !ok {
+		t.Fatal("$defs.tool_binding has no properties")
+	}
+	transport, ok := props["transport"].(map[string]any)
+	if !ok {
+		t.Fatal("$defs.tool_binding.properties.transport missing: harness cannot build provider calls (HAI-723)")
+	}
+	return transport
+}
+
+func enumSet(v any) map[string]bool {
+	set := map[string]bool{}
+	if list, ok := v.([]any); ok {
+		for _, e := range list {
+			if s, ok := e.(string); ok {
+				set[s] = true
+			}
+		}
+	}
+	return set
+}
+
+func requireEnum(t *testing.T, got map[string]bool, want []string, label string) {
+	t.Helper()
+	if len(got) != len(want) {
+		t.Errorf("%s: enum %v, want exactly %v", label, got, want)
+		return
+	}
+	for _, w := range want {
+		if !got[w] {
+			t.Errorf("%s: enum %v missing %q", label, got, w)
+		}
+	}
+}
+
+// asDocument accepts both the named document type and a bare map[string]any
+// (JSON unmarshal produces the latter).
+func asDocument(v any) (document, bool) {
+	if d, ok := v.(document); ok {
+		return d, true
+	}
+	if m, ok := v.(map[string]any); ok {
+		return document(m), true
+	}
+	return nil, false
+}
+
+// validateTransport enforces the constraints the schema declares for a
+// transport block: closed property sets (additionalProperties: false, so no
+// secret values can slip in) and enum membership.
+func validateTransport(transport, tschema document) []string {
+	var errs []string
+	props, _ := asDocument(tschema["properties"])
+	if tschema["additionalProperties"] != false {
+		errs = append(errs, "transport schema must set additionalProperties: false")
+	}
+	for key := range transport {
+		if _, ok := props[key]; !ok {
+			errs = append(errs, fmt.Sprintf("transport.%s: not declared by schema", key))
+		}
+	}
+	if m, ok := transport["method"]; ok {
+		methodSchema, _ := asDocument(props["method"])
+		enum, _ := methodSchema["enum"].([]any)
+		if !enumSet(enum)[fmt.Sprintf("%v", m)] {
+			errs = append(errs, fmt.Sprintf("transport.method %v not in enum %v", m, enum))
+		}
+	}
+	if a, ok := asDocument(transport["auth"]); ok {
+		authSchema, _ := asDocument(props["auth"])
+		authProps, _ := asDocument(authSchema["properties"])
+		if authSchema["additionalProperties"] != false {
+			errs = append(errs, "transport.auth schema must set additionalProperties: false (no secret values)")
+		}
+		for key := range a {
+			if _, ok := authProps[key]; !ok {
+				errs = append(errs, fmt.Sprintf("transport.auth.%s: not declared by schema (secret values are forbidden)", key))
+			}
+		}
+		if p, ok := a["placement"]; ok {
+			placementSchema, _ := asDocument(authProps["placement"])
+			enum, _ := placementSchema["enum"].([]any)
+			if !enumSet(enum)[fmt.Sprintf("%v", p)] {
+				errs = append(errs, fmt.Sprintf("transport.auth.placement %v not in enum %v", p, enum))
+			}
+		}
+	}
+	if args, ok := asDocument(transport["args"]); ok {
+		argsSchema, _ := asDocument(props["args"])
+		valSchema, _ := asDocument(argsSchema["additionalProperties"])
+		valProps, _ := asDocument(valSchema["properties"])
+		for name, raw := range args {
+			v, ok := asDocument(raw)
+			if !ok {
+				errs = append(errs, fmt.Sprintf("transport.args.%s: must be an object", name))
+				continue
+			}
+			for key := range v {
+				if _, ok := valProps[key]; !ok {
+					errs = append(errs, fmt.Sprintf("transport.args.%s.%s: not declared by schema", name, key))
+				}
+			}
+			if in, ok := v["in"]; ok {
+				inSchema, _ := asDocument(valProps["in"])
+				enum, _ := inSchema["enum"].([]any)
+				if !enumSet(enum)[fmt.Sprintf("%v", in)] {
+					errs = append(errs, fmt.Sprintf("transport.args.%s.in %v not in enum %v", name, in, enum))
+				}
+			}
+		}
+	}
+	return errs
+}
+
+func TestToolDefinitionV1TransportBlock(t *testing.T) {
+	tschema := schemaTransport(t)
+	props := object(tschema["properties"])
+
+	requireEnum(t, enumSet(object(props["method"])["enum"]), []string{"GET", "POST", "PUT", "PATCH", "DELETE"}, "transport.method")
+	requireEnum(t, enumSet(object(object(object(props["auth"])["properties"])["placement"])["enum"]), []string{"header", "query", "none"}, "transport.auth.placement")
+	requireEnum(t, enumSet(object(object(object(object(props["args"])["additionalProperties"])["properties"])["in"])["enum"]), []string{"path", "query", "body", "header"}, "transport.args.*.in")
+
+	valid := document{
+		"method":       "GET",
+		"url_template": "/v1/issues?state={state}",
+		"auth":         document{"placement": "header", "name": "Authorization", "scheme": "Bearer"},
+		"args":         document{"state": document{"in": "query", "name": "state"}},
+	}
+	if errs := validateTransport(valid, tschema); len(errs) != 0 {
+		t.Errorf("valid transport block must validate: %v", errs)
+	}
+
+	unknownMethod := document{
+		"method":       "FETCH",
+		"url_template": "/v1/issues",
+	}
+	if errs := validateTransport(unknownMethod, tschema); len(errs) == 0 {
+		t.Error("transport with unknown method FETCH must fail")
+	}
+
+	secretField := document{
+		"method":       "GET",
+		"url_template": "/v1/issues",
+		"auth":         document{"placement": "header", "name": "Authorization", "scheme": "Bearer", "token": "ghp_0123456789"},
+	}
+	if errs := validateTransport(secretField, tschema); len(errs) == 0 {
+		t.Error("transport.auth with a secret-looking field (token) must fail")
 	}
 }
