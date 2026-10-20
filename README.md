@@ -49,20 +49,25 @@ The shared `policybundlehealth` package and
 `schemas/runtime-policy-bundle-health.v1.schema.json` own the runtime heartbeat
 report and catalog read projection. Canonical examples live under
 `schemas/examples/runtime-policy-bundle-health/`. The contract is metadata
-only; the policy bundle remains local to the runtime. See `Health.Validate` and
-`Health.Decode` for the closed state/reason and field-invariant validation.
+only; the policy bundle itself remains local to the tenant runtime, and only
+its wire types are shared (see
+[Shared policy bundle](#shared-policy-bundle-hai-609-unreleased)). See
+`Health.Validate` and `Health.Decode` for the closed state/reason and
+field-invariant validation.
 
 ## Consumers
 
 - `kei-connector-runtime` — tenant-side evaluation and provider execution
 - `kei-policy-catalog` — connector metadata and registrations
+- `kei-cli` — reads and inspects a policy bundle
 - `kei` — integration tests
 
 ## Packages
 
 Dependencies point one way: `contract` ← `capability`, `envelope`, `setup`;
 `envelope` ← `governance` ← `audit` ← `invoke`; `providers` imports
-`contract`.
+`contract`; `bundle` imports `contract`, `harnessmatch`, `policy` and
+`policybundlehealth`.
 
 | Import path | Contents |
 | --- | --- |
@@ -78,6 +83,7 @@ Dependencies point one way: `contract` ← `capability`, `envelope`, `setup`;
 | `.../canonical` | `Resource` (the canonical resource URI of an MCP server, ADR-036 §3.4), `ErrInvalidResource` |
 | `.../canonical/canonicaltest` | `ResourceCases`, the shared golden cases for `canonical.Resource`, also published as `canonical/canonicaltest/resource.json` |
 | `.../policy` | `Principal`/`ParsePrincipal`, `Target`/`ParseTarget`, `MatchPrincipal`, `Rule`/`Request`/`Decide`/`Precedence`, `Render` (a thin entry point over `harnessmatch`), and the conformance vectors in `policy/testdata/vectors/` |
+| `.../bundle` | the policy bundle wire types (`Payload`, `Audience`, `Identity`, `Harness`, `AgentModelProfile`, `InstallationSubject`, `Verified`), the bundle validators (`Validate`, `ValidateV2`, `RejectDuplicateJSON`), the decisions a bundle yields (`Evaluate`, `EvaluateConnector`, `EvaluateSession`, `EvaluateV2HarnessTool`, `EvaluateV2Plan`, `EvaluateV2Model`, `EvaluateHarness`) and the validator hooks a caller installs (`SetSchemaValidator`, `SetV2SchemaValidator`, `SetPlanValidator`) |
 
 Account models are a file in `contract`, not a package: `Metadata.AccountModel`
 is a contract field and `Metadata.Validate` enforces the account-model rules,
@@ -304,6 +310,38 @@ the matcher copies those services each carried: principals (who), targets
 
 Conformance vectors live in `policy/testdata/vectors/` (`parse-principal`,
 `parse-target`, `match-principal`, `decide`, `render`).
+
+## Shared policy bundle (HAI-609, unreleased)
+
+`bundle` is the shared implementation of the policy bundle contract: the
+document the policy catalog issues to an installation, the checks it has to
+pass, and the decisions every service derives from it. It is the one copy the
+CLI (which reads a bundle) and the tenant runtime (which enforces one) share,
+so the two cannot drift apart.
+
+- `Payload` is the bundle envelope: `Audience`, the `Identities` table, the
+  registered `Harnesses`, each agent's `AgentModelProfile`, the installation
+  `Subject`, the refresh window and the raw `PolicySet`. `Verified` is a
+  validated bundle together with its digest.
+- `Validate` and `ValidateV2` check the envelope: identity, audience, version
+  rollback, the issued-at clock-skew bound (`MaxIssuedAtClockSkew`), the
+  validity window, the subject-resolution mode and the policy-set dialect.
+  `RejectDuplicateJSON` rejects bundle bytes that parse two ways.
+- `Evaluate`, `EvaluateConnector`, `EvaluateSession` and the v2 evaluators
+  (`EvaluateV2HarnessTool`, `EvaluateV2Plan`, `EvaluateV2Model`,
+  `EvaluateHarness`) decide a call against a validated bundle. `Decision`
+  carries the outcome, the deciding policy and a reason code.
+- `SetSchemaValidator`, `SetV2SchemaValidator` and `SetPlanValidator` install
+  the checks this dependency-free module cannot make itself: the bundle's JSON
+  Schema documents and a v2 tool's operation plan both need a JSON Schema
+  implementation, so the enforcing service compiles them and passes them in. A
+  validator that is not installed is not applied.
+
+The bundle's persisted state — the copy an installation enforces — is not part
+of this package: it is runtime state rather than a wire contract, and it is
+platform-specific. The same goes for the bundle's canonical JSON Schema
+documents and example payloads, which stay with the services that compile and
+issue them.
 
 ## Versioning
 
