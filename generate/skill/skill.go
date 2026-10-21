@@ -144,6 +144,14 @@ func Generate(r io.Reader, opts Options) ([]byte, error) {
 		if len(t.Tags) > 0 {
 			buf.WriteString(fmt.Sprintf("- **Tags**: `%s`\n\n", strings.Join(t.Tags, "`, `")))
 		}
+		if transport := toolTransport(t.Binding); len(transport) > 0 {
+			var pretty bytes.Buffer
+			if json.Indent(&pretty, transport, "", "  ") == nil {
+				buf.WriteString("- **Transport**:\n\n```json\n")
+				buf.Write(pretty.Bytes())
+				buf.WriteString("\n```\n\n")
+			}
+		}
 	}
 
 	// Credential pass-through section.
@@ -170,6 +178,16 @@ func Generate(r io.Reader, opts Options) ([]byte, error) {
 	buf.WriteString("`kei connectors reconnect <id>`.\n")
 
 	return buf.Bytes(), nil
+}
+
+func toolTransport(binding json.RawMessage) json.RawMessage {
+	var value struct {
+		Transport json.RawMessage `json:"transport"`
+	}
+	if json.Unmarshal(binding, &value) != nil {
+		return nil
+	}
+	return value.Transport
 }
 
 // resolveConnector picks the connector info from the tools and options.

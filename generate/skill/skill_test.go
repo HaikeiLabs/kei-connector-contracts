@@ -34,6 +34,9 @@ func TestGenerateLinearGolden(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Generate: %v", err)
 	}
+	if !strings.Contains(string(got), `"url_template": "https://api.linear.app/graphql"`) {
+		t.Fatal("generated skill must preserve binding.transport for harness calls")
+	}
 
 	// Write actual output for inspection.
 	actualPath := filepath.Join("testdata", "linear.SKILL.md.actual")

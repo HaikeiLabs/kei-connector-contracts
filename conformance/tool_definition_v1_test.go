@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -30,6 +31,7 @@ type toolDefRef struct {
 	Description string          `json:"description"`
 	Permission  string          `json:"permission"`
 	Category    string          `json:"category"`
+	Tags        []string        `json:"tags,omitempty"`
 	Service     string          `json:"service,omitempty"`
 	Parameters  json.RawMessage `json:"parameters,omitempty"`
 	Binding     json.RawMessage `json:"binding,omitempty"`
@@ -398,5 +400,50 @@ func TestToolDefinitionV1TransportBlock(t *testing.T) {
 	}
 	if errs := validateTransport(secretField, tschema); len(errs) == 0 {
 		t.Error("transport.auth with a secret-looking field (token) must fail")
+	}
+}
+
+func TestConnectorDefinitionsHaveTransportForHTTPTools(t *testing.T) {
+	for _, connector := range []string{"linear", "github", "google_drive", "http_api"} {
+		path := filepath.Join("..", "schemas", connector+".tool-definition.v1.json")
+		tools := loadToolDefFile(t, path)
+		for _, tool := range tools {
+			isMCP := false
+			for _, tag := range tool.Tags {
+				if strings.EqualFold(tag, "mcp") {
+					isMCP = true
+				}
+			}
+			if isMCP {
+				continue
+			}
+			t.Run(tool.Name, func(t *testing.T) {
+				if tool.Binding == nil {
+					t.Fatalf("non-MCP tool %s must declare binding.transport", tool.Name)
+				}
+				var binding map[string]json.RawMessage
+				if err := json.Unmarshal(tool.Binding, &binding); err != nil {
+					t.Fatal(err)
+				}
+				var transport struct {
+					Method      string                     `json:"method"`
+					URLTemplate string                     `json:"url_template"`
+					Args        map[string]json.RawMessage `json:"args"`
+				}
+				if raw := binding["transport"]; len(raw) == 0 {
+					t.Fatalf("non-MCP tool %s must declare binding.transport", tool.Name)
+				} else if err := json.Unmarshal(raw, &transport); err != nil {
+					t.Fatal(err)
+				}
+				if transport.Method == "" || transport.URLTemplate == "" {
+					t.Fatalf("transport for %s must include method and url_template", tool.Name)
+				}
+				for _, placeholder := range regexp.MustCompile(`\{([^{}]+)\}`).FindAllStringSubmatch(transport.URLTemplate, -1) {
+					if _, ok := transport.Args[placeholder[1]]; !ok {
+						t.Errorf("URL placeholder {%s} must have an entry in transport.args", placeholder[1])
+					}
+				}
+			})
+		}
 	}
 }

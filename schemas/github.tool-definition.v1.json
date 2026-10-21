@@ -23,7 +23,24 @@
         "resource": "repository",
         "default_branch": "main"
       },
-      "delegated_context": ["tenant_id", "repository"]
+      "delegated_context": ["tenant_id", "repository"],
+      "transport": {
+        "method": "GET",
+        "url_template": "https://api.github.com/repos/{owner}/{repo}",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "owner": {
+            "in": "path"
+          },
+          "repo": {
+            "in": "path"
+          }
+        }
+      }
     }
   },
   {
@@ -48,7 +65,27 @@
       "config": {
         "resource": "issues"
       },
-      "delegated_context": ["tenant_id", "repository"]
+      "delegated_context": ["tenant_id", "repository"],
+      "transport": {
+        "method": "GET",
+        "url_template": "https://api.github.com/repos/{owner}/{repo}/issues/{issue_number}",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "owner": {
+            "in": "path"
+          },
+          "repo": {
+            "in": "path"
+          },
+          "issue_number": {
+            "in": "path"
+          }
+        }
+      }
     }
   },
   {
@@ -73,7 +110,27 @@
       "config": {
         "resource": "pull_requests"
       },
-      "delegated_context": ["tenant_id", "repository"]
+      "delegated_context": ["tenant_id", "repository"],
+      "transport": {
+        "method": "GET",
+        "url_template": "https://api.github.com/repos/{owner}/{repo}/pulls/{pr_number}",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "owner": {
+            "in": "path"
+          },
+          "repo": {
+            "in": "path"
+          },
+          "pr_number": {
+            "in": "path"
+          }
+        }
+      }
     }
   },
   {
@@ -106,6 +163,30 @@
       "connector_id": "conn_github_1",
       "config": {
         "default_branch": "main"
+      },
+      "transport": {
+        "method": "GET",
+        "url_template": "https://api.github.com/repos/{owner}/{repo}/pulls",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "owner": {
+            "in": "path"
+          },
+          "repo": {
+            "in": "path"
+          },
+          "state": {
+            "in": "query"
+          },
+          "limit": {
+            "in": "query",
+            "name": "per_page"
+          }
+        }
       }
     }
   },
@@ -145,6 +226,33 @@
       "connector_id": "conn_github_1",
       "config": {
         "default_branch": "main"
+      },
+      "transport": {
+        "method": "GET",
+        "url_template": "https://api.github.com/repos/{owner}/{repo}/issues",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "owner": {
+            "in": "path"
+          },
+          "repo": {
+            "in": "path"
+          },
+          "state": {
+            "in": "query"
+          },
+          "labels": {
+            "in": "query"
+          },
+          "limit": {
+            "in": "query",
+            "name": "per_page"
+          }
+        }
       }
     }
   },
@@ -182,8 +290,40 @@
     "category": "github",
     "service": "github",
     "version": "1.0.0",
-    "tags": ["github-write", "code-mutation"]
-  },
+    "tags": ["github-write", "code-mutation"],
+    "binding": {
+      "connector_id": "conn_github_1",
+      "transport": {
+        "method": "POST",
+        "url_template": "https://api.github.com/repos/{owner}/{repo}/issues",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "owner": {
+            "in": "path"
+          },
+          "repo": {
+            "in": "path"
+          },
+          "title": {
+            "in": "body"
+          },
+          "body": {
+            "in": "body"
+          },
+          "labels": {
+            "in": "body"
+          },
+          "assignee": {
+            "in": "body"
+          }
+        }
+      }
+    }
+    },
   {
     "schema": "kei.tool-definition/v1",
     "name": "get_workflow_status",
@@ -205,6 +345,26 @@
       "connector_id": "conn_github_1",
       "config": {
         "default_branch": "main"
+      },
+      "transport": {
+        "method": "GET",
+        "url_template": "https://api.github.com/repos/{owner}/{repo}/actions/workflows/{workflow_name}",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "owner": {
+            "in": "path"
+          },
+          "repo": {
+            "in": "path"
+          },
+          "workflow_name": {
+            "in": "path"
+          }
+        }
       }
     }
   },
@@ -243,6 +403,38 @@
     "category": "github",
     "service": "github",
     "version": "1.0.0",
-    "tags": ["github-write", "code-mutation"]
-  }
+    "tags": ["github-write", "code-mutation"],
+    "binding": {
+      "connector_id": "conn_github_1",
+      "transport": {
+        "method": "POST",
+        "url_template": "https://api.github.com/repos/{owner}/{repo}/pulls",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "owner": {
+            "in": "path"
+          },
+          "repo": {
+            "in": "path"
+          },
+          "title": {
+            "in": "body"
+          },
+          "body": {
+            "in": "body"
+          },
+          "head": {
+            "in": "body"
+          },
+          "base": {
+            "in": "body"
+          }
+        }
+      }
+    }
+    }
 ]

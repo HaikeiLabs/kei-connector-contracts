@@ -34,6 +34,38 @@ Use this skill when an agent needs to interact with Linear through the governed 
 
 - **Tags**: `linear-read`, `governed-connector`
 
+- **Transport**:
+
+```json
+{
+  "method": "POST",
+  "url_template": "https://api.linear.app/graphql",
+  "auth": {
+    "placement": "header",
+    "name": "Authorization",
+    "scheme": "Bearer"
+  },
+  "args": {
+    "state": {
+      "in": "body",
+      "name": "variables.filter.state"
+    },
+    "priority": {
+      "in": "body",
+      "name": "variables.filter.priority"
+    },
+    "assignee": {
+      "in": "body",
+      "name": "variables.filter.assignee"
+    },
+    "limit": {
+      "in": "body",
+      "name": "variables.first"
+    }
+  }
+}
+```
+
 #### `linear.get_issue`
 
 - **Description**: Read a single issue by its key in the governed Linear workspace. Use it when the user asks about an issue (status, details); do not call it just because a request mentions an issue key
@@ -45,6 +77,26 @@ Use this skill when an agent needs to interact with Linear through the governed 
   | `issue_key` | string | yes | Issue key, e.g. ENG-123 |
 
 - **Tags**: `linear-read`, `governed-connector`
+
+- **Transport**:
+
+```json
+{
+  "method": "POST",
+  "url_template": "https://api.linear.app/graphql",
+  "auth": {
+    "placement": "header",
+    "name": "Authorization",
+    "scheme": "Bearer"
+  },
+  "args": {
+    "issue_key": {
+      "in": "body",
+      "name": "variables.id"
+    }
+  }
+}
+```
 
 #### `linear.list_projects`
 
@@ -58,6 +110,30 @@ Use this skill when an agent needs to interact with Linear through the governed 
   | `limit` | integer | no | Maximum number of projects to return |
 
 - **Tags**: `linear-read`, `governed-connector`
+
+- **Transport**:
+
+```json
+{
+  "method": "POST",
+  "url_template": "https://api.linear.app/graphql",
+  "auth": {
+    "placement": "header",
+    "name": "Authorization",
+    "scheme": "Bearer"
+  },
+  "args": {
+    "state": {
+      "in": "body",
+      "name": "variables.filter.state"
+    },
+    "limit": {
+      "in": "body",
+      "name": "variables.first"
+    }
+  }
+}
+```
 
 #### `linear.create_issue`
 
@@ -75,6 +151,42 @@ Use this skill when an agent needs to interact with Linear through the governed 
 
 - **Tags**: `linear-write`, `governed-action`
 
+- **Transport**:
+
+```json
+{
+  "method": "POST",
+  "url_template": "https://api.linear.app/graphql",
+  "auth": {
+    "placement": "header",
+    "name": "Authorization",
+    "scheme": "Bearer"
+  },
+  "args": {
+    "team_key": {
+      "in": "body",
+      "name": "variables.input.teamId"
+    },
+    "title": {
+      "in": "body",
+      "name": "variables.input.title"
+    },
+    "description": {
+      "in": "body",
+      "name": "variables.input.description"
+    },
+    "priority": {
+      "in": "body",
+      "name": "variables.input.priority"
+    },
+    "labels": {
+      "in": "body",
+      "name": "variables.input.labelIds"
+    }
+  }
+}
+```
+
 #### `linear.create_followup_task`
 
 - **Description**: Create a Linear follow-up task for a CRM lead, by lead id. Call it directly when asked for a follow-up on a lead; the summary must not contain contact details
@@ -90,6 +202,42 @@ Use this skill when an agent needs to interact with Linear through the governed 
   | `idempotency_key` | string | yes | Stable replay key for this task creation |
 
 - **Tags**: `linear-write`, `crm-followup`, `governed-action`, `harness-neutral`
+
+- **Transport**:
+
+```json
+{
+  "method": "POST",
+  "url_template": "https://api.linear.app/graphql",
+  "auth": {
+    "placement": "header",
+    "name": "Authorization",
+    "scheme": "Bearer"
+  },
+  "args": {
+    "lead_id": {
+      "in": "body",
+      "name": "variables.input.teamId"
+    },
+    "title": {
+      "in": "body",
+      "name": "variables.input.title"
+    },
+    "summary": {
+      "in": "body",
+      "name": "variables.input.description"
+    },
+    "approval_id": {
+      "in": "header",
+      "name": "X-Approval-Id"
+    },
+    "idempotency_key": {
+      "in": "body",
+      "name": "variables.input.id"
+    }
+  }
+}
+```
 
 ## Credential pass-through
 

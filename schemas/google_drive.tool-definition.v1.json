@@ -34,7 +34,30 @@
       "config": {
         "resource": "files"
       },
-      "delegated_context": ["tenant_id", "drive_id"]
+      "delegated_context": ["tenant_id", "drive_id"],
+      "transport": {
+        "method": "GET",
+        "url_template": "https://www.googleapis.com/drive/v3/files",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "query": {
+            "in": "query",
+            "name": "q"
+          },
+          "mime_type": {
+            "in": "query",
+            "name": "q"
+          },
+          "limit": {
+            "in": "query",
+            "name": "pageSize"
+          }
+        }
+      }
     }
   },
   {
@@ -59,7 +82,21 @@
       "config": {
         "resource": "files"
       },
-      "delegated_context": ["tenant_id", "drive_id"]
+      "delegated_context": ["tenant_id", "drive_id"],
+      "transport": {
+        "method": "GET",
+        "url_template": "https://www.googleapis.com/drive/v3/files/{file_id}",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "file_id": {
+            "in": "path"
+          }
+        }
+      }
     }
   },
   {
@@ -91,7 +128,21 @@
       "config": {
         "resource": "documents"
       },
-      "delegated_context": ["tenant_id", "drive_id"]
+      "delegated_context": ["tenant_id", "drive_id"],
+      "transport": {
+        "method": "GET",
+        "url_template": "https://docs.googleapis.com/v1/documents/{document_id}",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "document_id": {
+            "in": "path"
+          }
+        }
+      }
     }
   },
   {
@@ -122,7 +173,7 @@
     "category": "drive",
     "service": "drive",
     "version": "1.0.0",
-    "tags": ["drive-write", "governed-action", "confirm-required", "harness-side"]
+    "tags": ["drive-write", "governed-action", "confirm-required", "harness-side", "mcp"]
   },
   {
     "schema": "kei.tool-definition/v1",
@@ -146,6 +197,6 @@
     "category": "drive",
     "service": "drive",
     "version": "1.0.0",
-    "tags": ["drive-write", "governed-action", "confirm-required", "harness-side"]
+    "tags": ["drive-write", "governed-action", "confirm-required", "harness-side", "mcp"]
   }
 ]

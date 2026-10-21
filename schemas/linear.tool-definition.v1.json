@@ -42,7 +42,34 @@
       "config": {
         "resource": "issues"
       },
-      "delegated_context": ["tenant_id", "workspace"]
+      "delegated_context": ["tenant_id", "workspace"],
+      "transport": {
+        "method": "POST",
+        "url_template": "https://api.linear.app/graphql",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "state": {
+            "in": "body",
+            "name": "variables.filter.state"
+          },
+          "priority": {
+            "in": "body",
+            "name": "variables.filter.priority"
+          },
+          "assignee": {
+            "in": "body",
+            "name": "variables.filter.assignee"
+          },
+          "limit": {
+            "in": "body",
+            "name": "variables.first"
+          }
+        }
+      }
     }
   },
   {
@@ -67,7 +94,22 @@
       "config": {
         "resource": "issues"
       },
-      "delegated_context": ["tenant_id", "workspace"]
+      "delegated_context": ["tenant_id", "workspace"],
+      "transport": {
+        "method": "POST",
+        "url_template": "https://api.linear.app/graphql",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "issue_key": {
+            "in": "body",
+            "name": "variables.id"
+          }
+        }
+      }
     }
   },
   {
@@ -100,7 +142,26 @@
       "config": {
         "resource": "projects"
       },
-      "delegated_context": ["tenant_id", "workspace"]
+      "delegated_context": ["tenant_id", "workspace"],
+      "transport": {
+        "method": "POST",
+        "url_template": "https://api.linear.app/graphql",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "state": {
+            "in": "body",
+            "name": "variables.filter.state"
+          },
+          "limit": {
+            "in": "body",
+            "name": "variables.first"
+          }
+        }
+      }
     }
   },
   {
@@ -144,8 +205,42 @@
     "category": "linear",
     "service": "linear",
     "version": "1.0.0",
-    "tags": ["linear-write", "governed-action"]
-  },
+    "tags": ["linear-write", "governed-action"],
+    "binding": {
+      "connector_id": "conn_linear_1",
+      "transport": {
+        "method": "POST",
+        "url_template": "https://api.linear.app/graphql",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "team_key": {
+            "in": "body",
+            "name": "variables.input.teamId"
+          },
+          "title": {
+            "in": "body",
+            "name": "variables.input.title"
+          },
+          "description": {
+            "in": "body",
+            "name": "variables.input.description"
+          },
+          "priority": {
+            "in": "body",
+            "name": "variables.input.priority"
+          },
+          "labels": {
+            "in": "body",
+            "name": "variables.input.labelIds"
+          }
+        }
+      }
+    }
+    },
   {
     "schema": "kei.tool-definition/v1",
     "name": "linear.create_followup_task",
@@ -186,6 +281,40 @@
     "category": "linear",
     "service": "linear",
     "version": "1.0.0",
-    "tags": ["linear-write", "crm-followup", "governed-action", "harness-neutral"]
-  }
+    "tags": ["linear-write", "crm-followup", "governed-action", "harness-neutral"],
+    "binding": {
+      "connector_id": "conn_linear_1",
+      "transport": {
+        "method": "POST",
+        "url_template": "https://api.linear.app/graphql",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "lead_id": {
+            "in": "body",
+            "name": "variables.input.teamId"
+          },
+          "title": {
+            "in": "body",
+            "name": "variables.input.title"
+          },
+          "summary": {
+            "in": "body",
+            "name": "variables.input.description"
+          },
+          "approval_id": {
+            "in": "header",
+            "name": "X-Approval-Id"
+          },
+          "idempotency_key": {
+            "in": "body",
+            "name": "variables.input.id"
+          }
+        }
+      }
+    }
+    }
 ]
