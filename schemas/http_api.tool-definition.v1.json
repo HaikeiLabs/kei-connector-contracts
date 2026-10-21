@@ -43,7 +43,32 @@
         "resource": "records",
         "api": "crm"
       },
-      "delegated_context": ["tenant_id"]
+      "delegated_context": ["tenant_id"],
+      "transport": {
+        "method": "GET",
+        "url_template": "/records",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "entity": {
+            "in": "query"
+          },
+          "filters": {
+            "in": "query"
+          },
+          "limit": {
+            "in": "query",
+            "name": "limit"
+          },
+          "offset": {
+            "in": "query",
+            "name": "offset"
+          }
+        }
+      }
     }
   },
   {
@@ -76,7 +101,24 @@
         "resource": "records",
         "api": "crm"
       },
-      "delegated_context": ["tenant_id"]
+      "delegated_context": ["tenant_id"],
+      "transport": {
+        "method": "GET",
+        "url_template": "/records/{record_id}",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "entity": {
+            "in": "query"
+          },
+          "record_id": {
+            "in": "path"
+          }
+        }
+      }
     }
   }
 ]
