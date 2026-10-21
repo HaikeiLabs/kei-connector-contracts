@@ -1,0 +1,14 @@
+name: Release announcement
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  announce:
+    uses: HaikeiLabs/github-workflows/.github/workflows/release-discord.yml@main
+    with:
+      tag: ${{ github.ref_name }}
+    secrets:
+      webhook: ${{ secrets.DISCORD_RELEASES_WEBHOOK }}
