@@ -131,6 +131,63 @@
           "type": "array",
           "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
           "uniqueItems": true
+        },
+        "transport": {
+          "description": "Optional non-secret transport metadata so the harness can build the provider call itself (ADR-039, HAI-723). Kei never calls providers; no secret values are permitted here.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "method": {
+              "description": "HTTP method for the provider call.",
+              "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+            },
+            "url_template": {
+              "description": "Path or URL template with {param} placeholders.",
+              "type": "string",
+              "minLength": 1
+            },
+            "auth": {
+              "description": "Credential placement only (header, query, or none). Secret values are supplied by the tenant-side proxy and must never appear in a tool definition.",
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "placement": {
+                  "description": "Where the credential is placed on the provider call.",
+                  "enum": ["header", "query", "none"]
+                },
+                "name": {
+                  "description": "Header or query parameter name carrying the credential (omitted when placement is none).",
+                  "type": "string",
+                  "minLength": 1
+                },
+                "scheme": {
+                  "description": "Auth scheme prefix (e.g. Bearer), for header placement.",
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "args": {
+              "description": "Maps each tool parameter to where it goes on the provider call.",
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["in"],
+                "properties": {
+                  "in": {
+                    "description": "Location of the argument on the provider call.",
+                    "enum": ["path", "query", "body", "header"]
+                  },
+                  "name": {
+                    "description": "Target name (path segment, query parameter, body field, or header name). Defaults to the tool parameter name when omitted.",
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
