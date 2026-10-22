@@ -84,7 +84,7 @@ func (v *Verified) V2ConnectorTool(name string, now time.Time) (V2Tool, bool) {
 		return V2Tool{}, false
 	}
 	for _, tool := range set.Tools {
-		if tool.Name == name && tool.Route.ConnectorBinding != nil && len(tool.Plan) > 0 && planValid(tool) {
+		if tool.Name == name && tool.Route.ConnectorBinding != nil && len(tool.Plan) > 0 && planValid(tool) == nil {
 			return tool, true
 		}
 	}
@@ -218,7 +218,7 @@ func (v *Verified) EvaluateV2Plan(toolName, agentID string, subject *SessionSubj
 			break
 		}
 	}
-	if tool == nil || tool.Route.ConnectorBinding == nil || tool.Route.ConnectorBinding.ConnectorID == "" || !planValid(*tool) {
+	if tool == nil || tool.Route.ConnectorBinding == nil || tool.Route.ConnectorBinding.ConnectorID == "" || planValid(*tool) != nil {
 		return Decision{Outcome: "deny", ReasonCode: "tool_not_registered", Reason: "connector tool is not registered in the policy bundle"}
 	}
 	if agentID == "" {

@@ -16,6 +16,7 @@ package bundle
 
 import (
 	"encoding/json"
+	"errors"
 	"testing"
 	"time"
 )
@@ -313,7 +314,7 @@ func TestBundleValidateRejectsUnsupportedMode(t *testing.T) {
 		"agent_connector_bindings": []
 	}`
 	SetSchemaValidator(func([]byte) error { return nil })
-	if _, err := Validate([]byte(raw), "inst-001", "org-001", "ws-001", 41, time.Date(2026, 10, 1, 12, 0, 0, 0, time.UTC)); err != ErrBundleUnsupported {
+	if _, err := Validate([]byte(raw), "inst-001", "org-001", "ws-001", 41, time.Date(2026, 10, 1, 12, 0, 0, 0, time.UTC)); !errors.Is(err, ErrBundleUnsupported) {
 		t.Fatalf("expected ErrBundleUnsupported, got %v", err)
 	}
 }
