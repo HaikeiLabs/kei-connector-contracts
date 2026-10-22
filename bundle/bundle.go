@@ -186,7 +186,7 @@ func Validate(bundleBytes []byte, installationID, orgID, workspaceID string, hig
 		return ValidateV2(bundleBytes, installationID, orgID, workspaceID, highestVersion, now)
 	}
 	if identity.Schema != "kei.policy-bundle/v1" {
-		return nil, ErrBundleUnsupported
+		return nil, fmt.Errorf("%w: schema", ErrBundleUnsupported)
 	}
 	if err := validatePayloadSchema(bundleBytes); err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "additional properties") {
@@ -220,7 +220,7 @@ func Validate(bundleBytes []byte, installationID, orgID, workspaceID string, hig
 	case "online":
 	case "bundle":
 	default:
-		return nil, ErrBundleUnsupported
+		return nil, fmt.Errorf("%w: subject_resolution.mode", ErrBundleUnsupported)
 	}
 	if err := validatePolicyDialect(payload.PolicySet); err != nil {
 		return nil, err
@@ -255,14 +255,14 @@ func SetV2SchemaValidator(v func([]byte) error) { schemaValidatorV2 = v }
 // enforces the plan profile; until one is set, plans are not validated.
 func SetPlanValidator(v PlanValidator) { planValidator = v }
 
-// planValid reports whether a tool's operation plan is valid under the
+// planValid returns nil when a tool's operation plan is valid under the
 // installed plan validator. With no validator installed the plan is not
 // checked at all.
-func planValid(tool V2Tool) bool {
+func planValid(tool V2Tool) error {
 	if planValidator == nil {
-		return true
+		return nil
 	}
-	return planValidator(tool) == nil
+	return planValidator(tool)
 }
 
 // ValidateV2 validates the ADR-035 v2 envelope. It is separate from Validate
@@ -306,8 +306,11 @@ func ValidateV2(bundleBytes []byte, installationID, orgID, workspaceID string, h
 	if payload.NotAfter.After(payload.IssuedAt.Add(24*time.Hour)) || !payload.NotAfter.After(payload.IssuedAt) {
 		return nil, errors.New("invalid policy bundle v2 validity window")
 	}
-	if payload.SubjectResolution.Mode != "bundle" || payload.Identities == nil {
-		return nil, ErrBundleUnsupported
+	if payload.SubjectResolution.Mode != "bundle" {
+		return nil, fmt.Errorf("%w: subject_resolution.mode", ErrBundleUnsupported)
+	}
+	if payload.Identities == nil {
+		return nil, fmt.Errorf("%w: identities", ErrBundleUnsupported)
 	}
 	if err := validatePolicySetV2(payload.PolicySet); err != nil {
 		return nil, err
@@ -331,17 +334,26 @@ func validatePolicySetV2(raw json.RawMessage) error {
 	if err := json.Unmarshal(raw, &v); err != nil {
 		return err
 	}
-	if v.Schema != "kei.policy-set/v2" || v.MatchSemantics != "kei.match/v2" || v.Evaluation.Checks != "per_capability_first_match_and" || v.Evaluation.Default != "deny" {
-		return ErrBundleUnsupported
+	if v.Schema != "kei.policy-set/v2" {
+		return fmt.Errorf("%w: policy_set.schema", ErrBundleUnsupported)
+	}
+	if v.MatchSemantics != "kei.match/v2" {
+		return fmt.Errorf("%w: policy_set.match_semantics", ErrBundleUnsupported)
+	}
+	if v.Evaluation.Checks != "per_capability_first_match_and" {
+		return fmt.Errorf("%w: policy_set.evaluation.checks", ErrBundleUnsupported)
+	}
+	if v.Evaluation.Default != "deny" {
+		return fmt.Errorf("%w: policy_set.evaluation.default", ErrBundleUnsupported)
 	}
 	var set v2PolicySet
 	if err := strictJSON(raw, &set); err != nil {
-		return ErrBundleUnsupported
+		return fmt.Errorf("%w: policy_set", ErrBundleUnsupported)
 	}
 	for _, tool := range set.Tools {
 		if tool.Route.ConnectorBinding != nil && len(tool.Plan) > 0 {
-			if !planValid(tool) {
-				return ErrBundleUnsupported
+			if err := planValid(tool); err != nil {
+				return fmt.Errorf("%w: tool %s: %v", ErrBundleUnsupported, tool.Name, err)
 			}
 		}
 	}
@@ -369,8 +381,14 @@ func validatePolicyDialect(raw json.RawMessage) error {
 	if err := json.Unmarshal(raw, &v); err != nil {
 		return err
 	}
-	if v.MatchSemantics != "kei.match/v1" || v.Evaluation.Order != "array_order_first_match" || v.Evaluation.Default != "deny" {
-		return ErrBundleUnsupported
+	if v.MatchSemantics != "kei.match/v1" {
+		return fmt.Errorf("%w: policy_set.match_semantics", ErrBundleUnsupported)
+	}
+	if v.Evaluation.Order != "array_order_first_match" {
+		return fmt.Errorf("%w: policy_set.evaluation.order", ErrBundleUnsupported)
+	}
+	if v.Evaluation.Default != "deny" {
+		return fmt.Errorf("%w: policy_set.evaluation.default", ErrBundleUnsupported)
 	}
 	return nil
 }
