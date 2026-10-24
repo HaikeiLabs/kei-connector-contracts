@@ -436,5 +436,105 @@
         }
       }
     }
+    },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "github.create_fix_pr",
+    "description": "Propose a pull-request fix for the server-selected repository and branch. Provide a concise title, a PR description, and a unified diff of at most 32 KiB. The server controls the target repository, branch, and draft status.",
+    "parameters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "body", "unified_diff"],
+      "properties": {
+        "title": { "type": "string", "description": "Pull request title" },
+        "body": { "type": "string", "description": "Pull request description" },
+        "unified_diff": {
+          "type": "string",
+          "description": "Unified diff to apply (maximum 32 KiB)",
+          "maxLength": 32768
+        }
+      }
+    },
+    "permission": "github.write",
+    "category": "github",
+    "service": "github",
+    "version": "1.0.0",
+    "tags": ["github-write", "fix-action", "harness-action"],
+    "binding": {
+      "connector_id": "conn_github_1",
+      "delegated_context": ["repository", "branch"]
     }
+  },
+  {
+    "schema": "kei.tool-definition/v1",
+    "name": "github.file_write",
+    "description": "Create or update a file in the repository. Use when user asks to write file, create file, edit file, or modify a file in the repository.",
+    "parameters": [
+      {
+        "name": "path",
+        "description": "File path in the repository (e.g., 'src/main.py')",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "content",
+        "description": "File content to write",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "branch",
+        "description": "Branch to write to (default: main)",
+        "type": "string",
+        "required": false,
+        "default": "main"
+      },
+      {
+        "name": "commit_message",
+        "description": "Commit message (auto-generated if not provided)",
+        "type": "string",
+        "required": false,
+        "default": ""
+      },
+      {
+        "name": "owner",
+        "description": "GitHub owner/org",
+        "type": "string",
+        "required": false,
+        "default": "soypete"
+      },
+      {
+        "name": "repo",
+        "description": "Repository name",
+        "type": "string",
+        "required": false,
+        "default": ""
+      }
+    ],
+    "permission": "file.write",
+    "category": "github",
+    "service": "github",
+    "version": "1.0.0",
+    "tags": ["github-write", "code-mutation", "governed-action"],
+    "binding": {
+      "connector_id": "conn_github_1",
+      "transport": {
+        "method": "PUT",
+        "url_template": "https://api.github.com/repos/{owner}/{repo}/contents/{path}",
+        "auth": {
+          "placement": "header",
+          "name": "Authorization",
+          "scheme": "Bearer"
+        },
+        "args": {
+          "owner": { "in": "path" },
+          "repo": { "in": "path" },
+          "path": { "in": "path" },
+          "content": { "in": "body", "encoding": "base64" },
+          "branch": { "in": "body" },
+          "commit_message": { "in": "body", "name": "message" }
+        }
+      }
+    }
+  }
 ]
