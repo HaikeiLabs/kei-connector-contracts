@@ -71,6 +71,7 @@
         "drive_write",
         "s3_read",
         "http_api_read",
+        "file_write",
         "notion_read",
         "gmail_read",
         "tito_read",
@@ -183,6 +184,10 @@
                     "description": "Target name (path segment, query parameter, body field, or header name). Defaults to the tool parameter name when omitted.",
                     "type": "string",
                     "minLength": 1
+                  },
+                  "encoding": {
+                    "description": "Encoding the harness applies to the argument value before placing it (e.g. base64 for the GitHub contents API).",
+                    "enum": ["base64"]
                   }
                 }
               }
