@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/HaikeiLabs/kei-connector-contracts/schemas/tool-call-template.v1.schema.json",
+  "title": "Kei tool call template (profile of kei.tool-definition/v1)",
+  "description": "A tool call template is a kei.tool-definition/v1 entry read under a stricter profile (HAI-856, ADR-039): the tool schema is mandatory and closed, and binding.transport carries placeholders only. The same entry registers the tool name and schema and templates the provider call after an allow. The credential is injected by the harness after the allow and never appears here. The Go validator in calltemplate/ enforces this profile plus the secret checks JSON Schema cannot express.",
+  "allOf": [{ "$ref": "tool-definition.v1.schema.json" }],
+  "required": ["parameters", "permission"],
+  "properties": {
+    "parameters": {
+      "description": "The tool schema. Either a list of named parameters, or a closed JSON Schema object.",
+      "oneOf": [
+        { "type": "array" },
+        {
+          "type": "object",
+          "required": ["type", "additionalProperties"],
+          "properties": {
+            "type": { "const": "object" },
+            "additionalProperties": { "const": false }
+          }
+        }
+      ]
+    }
+  }
+}

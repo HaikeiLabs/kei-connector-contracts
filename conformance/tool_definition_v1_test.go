@@ -141,6 +141,7 @@ func TestToolDefinitionV1ConnectorReadHasService(t *testing.T) {
 var validPermissions = map[string]bool{
 	"linear.read":   true,
 	"linear.write":  true,
+	"file.write":    true,
 	"github.read":   true,
 	"github.write":  true,
 	"drive.read":    true,
@@ -204,10 +205,10 @@ func TestToolDefinitionV1UniqueNames(t *testing.T) {
 
 func TestToolDefinitionV1ProviderFileCount(t *testing.T) {
 	expected := map[string]int{
-		"linear":       5, // linear.list_issues, linear.get_issue, linear.list_projects, linear.create_issue, linear.create_followup_task
-		"google_drive": 5, // drive.list_files, drive.get_file, docs.get_document, drive_create_doc, drive_update_doc
-		"github":       8, // github.get_repository, github.get_issue, github.get_pull_request, list_prs, list_issues, create_issue, get_workflow_status, create_pull_request
-		"http_api":     2, // http_api.list_records, http_api.get_record
+		"linear":       5,  // linear.list_issues, linear.get_issue, linear.list_projects, linear.create_issue, linear.create_followup_task
+		"google_drive": 5,  // drive.list_files, drive.get_file, docs.get_document, drive_create_doc, drive_update_doc
+		"github":       10, // github.get_repository, github.get_issue, github.get_pull_request, list_prs, list_issues, create_issue, get_workflow_status, create_pull_request, github.create_fix_pr, github.file_write
+		"http_api":     2,  // http_api.list_records, http_api.get_record
 	}
 	for provider, want := range expected {
 		dataPath := filepath.Join("..", "schemas", provider+".tool-definition.v1.json")
@@ -410,7 +411,9 @@ func TestConnectorDefinitionsHaveTransportForHTTPTools(t *testing.T) {
 		for _, tool := range tools {
 			isMCP := false
 			for _, tag := range tool.Tags {
-				if strings.EqualFold(tag, "mcp") {
+				// harness-action tools (HAI-856) run a bounded harness action,
+				// not a single provider HTTP call, so they carry no transport.
+				if strings.EqualFold(tag, "mcp") || strings.EqualFold(tag, "harness-action") {
 					isMCP = true
 				}
 			}
