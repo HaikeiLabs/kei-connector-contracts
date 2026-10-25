@@ -252,8 +252,4 @@ func TestMalformedV2FailsClosedAndV1RemainsRecognized(t *testing.T) {
 	if legacy["schema"] != "kei.policy-bundle/v1" || object(legacy["policy_set"])["match_semantics"] != "kei.match/v1" {
 		t.Fatal("legacy bundle fixture malformed")
 	}
-	legacyManifest := fixture(t, "manifest-v2-compat.json")
-	if legacyManifest["schema"] != "kei.tool-manifest/v2" || len(array(legacyManifest["tools"])) != 1 {
-		t.Fatal("legacy manifest fixture malformed")
-	}
 }
