@@ -217,10 +217,22 @@ func TestValidKind(t *testing.T) {
 	if !ValidKind("opencode") {
 		t.Error("expected opencode to be valid")
 	}
+	if !ValidKind("pi") {
+		t.Error("expected pi to be valid")
+	}
 	if !ValidKind("custom") {
 		t.Error("expected custom to be valid")
 	}
 	if ValidKind("vim") {
 		t.Error("expected vim to be invalid")
+	}
+}
+
+func TestPiEvaluatesViaPDPLikeCustom(t *testing.T) {
+	for _, kind := range []string{"pi", "custom"} {
+		got := Evaluate(Call{Kind: kind, Tool: "any_tool"}, nil)
+		if got.Outcome != OutcomeNotRenderable || got.Reason != ReasonEvaluateViaPDP {
+			t.Errorf("%s: got %+v, want not_renderable/evaluate_via_pdp", kind, got)
+		}
 	}
 }
