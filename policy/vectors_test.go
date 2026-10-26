@@ -43,6 +43,13 @@ type matchCase struct {
 	Want    bool     `json:"want"`
 }
 
+type targetMatchCase struct {
+	Name    string `json:"name"`
+	Pattern string `json:"pattern"`
+	Target  string `json:"target"`
+	Want    bool   `json:"want"`
+}
+
 func vectorPath(name string) string {
 	return filepath.Join("testdata", "vectors", name)
 }
@@ -72,6 +79,22 @@ func loadMatchCases(name string) ([]matchCase, error) {
 		File    string      `json:"file"`
 		Version int         `json:"version"`
 		Cases   []matchCase `json:"cases"`
+	}
+	if err := json.Unmarshal(raw, &suite); err != nil {
+		return nil, err
+	}
+	return suite.Cases, nil
+}
+
+func loadTargetMatchCases(name string) ([]targetMatchCase, error) {
+	raw, err := os.ReadFile(vectorPath(name))
+	if err != nil {
+		return nil, err
+	}
+	var suite struct {
+		File    string            `json:"file"`
+		Version int               `json:"version"`
+		Cases   []targetMatchCase `json:"cases"`
 	}
 	if err := json.Unmarshal(raw, &suite); err != nil {
 		return nil, err
@@ -394,6 +417,20 @@ func TestMatchPrincipal(t *testing.T) {
 			got := MatchPrincipal(tc.Pattern, tc.User, tc.Email, tc.Groups)
 			if got != tc.Want {
 				t.Errorf("got %v want %v", got, tc.Want)
+			}
+		})
+	}
+}
+
+func TestMatchTarget(t *testing.T) {
+	cases, err := loadTargetMatchCases("match-target.json")
+	if err != nil {
+		t.Fatalf("loading fixtures: %v", err)
+	}
+	for _, tc := range cases {
+		t.Run(tc.Name, func(t *testing.T) {
+			if got := MatchTarget(tc.Pattern, tc.Target); got != tc.Want {
+				t.Errorf("MatchTarget(%q, %q) = %v, want %v", tc.Pattern, tc.Target, got, tc.Want)
 			}
 		})
 	}

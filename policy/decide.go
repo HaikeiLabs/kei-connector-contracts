@@ -83,11 +83,11 @@ var Precedence func(a, b Rule) int = func(a, b Rule) int {
 }
 
 // Decide decides the request against the rules. It considers the enabled
-// rules whose principal matches the request and whose target equals the
-// request target exactly, or is "*" or "<scheme>:*" with the same scheme,
-// orders them by Precedence, and lets the first one decide. DecidedBy is
-// the deciding rule's ID and Outranked the IDs of the other matching rules
-// in order. If no rule matches, the decision is "no_match".
+// rules whose principal matches the request and whose target matches the
+// request target through MatchTarget, orders them by Precedence, and lets the
+// first one decide. DecidedBy is the deciding rule's ID and Outranked the IDs
+// of the other matching rules in order. If no rule matches, the decision is
+// "no_match".
 func Decide(rules []Rule, req Request) Outcome {
 	matched := make([]Rule, 0, len(rules))
 	for _, r := range rules {
@@ -121,18 +121,81 @@ func Decide(rules []Rule, req Request) Outcome {
 }
 
 // targetMatches reports whether ruleTarget matches reqTarget: an exact
-// equality, the any target "*", or a "<scheme>:*" wildcard with the same
-// scheme and a non-empty value in reqTarget.
+// equality, the any target "*", a "<scheme>:*" wildcard with the same scheme
+// and a non-empty value in reqTarget, a shell token list where the pattern
+// tokens are a prefix of the request tokens ("shell:git" matches "shell:git
+// push", and a trailing slash on the last pattern token is a prefix within
+// that token), or a connector dot-segment list where each pattern segment
+// equals the request segment and "*" matches the remaining segments
+// ("connector:github.*" matches "connector:github.repos.delete").
 func targetMatches(ruleTarget, reqTarget string) bool {
 	if ruleTarget == reqTarget || ruleTarget == "*" {
 		return true
 	}
-	scheme, ok := strings.CutSuffix(ruleTarget, ":*")
-	if !ok || scheme == "" || strings.ContainsAny(scheme, ":*") {
+	if scheme, ok := strings.CutSuffix(ruleTarget, ":*"); ok && scheme != "" && !strings.ContainsAny(scheme, ":*") {
+		reqScheme, reqValue, hasScheme := strings.Cut(reqTarget, ":")
+		if hasScheme && reqScheme == scheme && reqValue != "" {
+			return true
+		}
+	}
+	if value, ok := strings.CutPrefix(ruleTarget, "shell:"); ok {
+		reqValue, hasShell := strings.CutPrefix(reqTarget, "shell:")
+		return hasShell && shellMatches(value, reqValue)
+	}
+	if value, ok := strings.CutPrefix(ruleTarget, "connector:"); ok {
+		reqValue, hasConnector := strings.CutPrefix(reqTarget, "connector:")
+		return hasConnector && connectorMatches(value, reqValue)
+	}
+	return false
+}
+
+// shellMatches reports whether the shell pattern value matches the request
+// value. Both are whitespace-delimited token lists; the pattern tokens must
+// match the leading request tokens. A trailing slash on the last pattern
+// token makes that token a prefix ("/tmp/" matches "/tmp/foo"). An empty
+// pattern matches nothing, so "shell:" is inert.
+func shellMatches(pattern, target string) bool {
+	patternTokens := strings.Fields(pattern)
+	if len(patternTokens) == 0 {
 		return false
 	}
-	reqScheme, reqValue, hasScheme := strings.Cut(reqTarget, ":")
-	return hasScheme && reqScheme == scheme && reqValue != ""
+	targetTokens := strings.Fields(target)
+	if len(targetTokens) < len(patternTokens) {
+		return false
+	}
+	for i, token := range patternTokens {
+		if i == len(patternTokens)-1 && strings.HasSuffix(token, "/") {
+			if !strings.HasPrefix(targetTokens[i], token) {
+				return false
+			}
+			continue
+		}
+		if targetTokens[i] != token {
+			return false
+		}
+	}
+	return true
+}
+
+// connectorMatches reports whether the connector pattern value matches the
+// request value. Both are dot-separated segment lists; each pattern segment
+// must equal the request segment, except that "*" matches every remaining
+// segment. Without "*" the segment counts must be equal.
+func connectorMatches(pattern, target string) bool {
+	if target == "" {
+		return false
+	}
+	patternSegments := strings.Split(pattern, ".")
+	targetSegments := strings.Split(target, ".")
+	for i, segment := range patternSegments {
+		if segment == "*" {
+			return true
+		}
+		if i >= len(targetSegments) || targetSegments[i] != segment {
+			return false
+		}
+	}
+	return len(patternSegments) == len(targetSegments)
 }
 
 // DecideAt decides the request against the rules and optional access grants
@@ -182,8 +245,9 @@ func DecideAt(rules []Rule, req Request, grants []AccessGrant, now time.Time) Ou
 }
 
 // MatchTarget reports whether ruleTarget matches reqTarget: an exact
-// equality, the any target "*", or a "<scheme>:*" wildcard with the same
-// scheme and a non-empty value in reqTarget.
+// equality, the any target "*", a "<scheme>:*" wildcard with the same scheme
+// and a non-empty value in reqTarget, a shell token prefix, or a connector
+// dot-segment pattern with "*" segments. See targetMatches for the details.
 func MatchTarget(ruleTarget, reqTarget string) bool {
 	return targetMatches(ruleTarget, reqTarget)
 }
