@@ -1,0 +1,47 @@
+{
+  "file": "match-target.json",
+  "version": 1,
+  "cases": [
+    { "name": "exact-target-match", "pattern": "tool:github.read", "target": "tool:github.read", "want": true },
+    { "name": "exact-target-different", "pattern": "connector:jira", "target": "connector:myjira", "want": false },
+    { "name": "any-target", "pattern": "*", "target": "capability:read", "want": true },
+    { "name": "scheme-wildcard-matches", "pattern": "connector:*", "target": "connector:jira", "want": true },
+    { "name": "scheme-wildcard-wrong-scheme", "pattern": "connector:*", "target": "capability:read", "want": false },
+    { "name": "scheme-wildcard-empty-value", "pattern": "tool:*", "target": "tool:", "want": false },
+    { "name": "scheme-wildcard-nonempty-value", "pattern": "tool:*", "target": "tool:x", "want": true },
+    { "name": "scheme-suffix-is-literal", "pattern": "connector:jira_v2", "target": "connector:jira", "want": false },
+
+    { "name": "shell-exact", "pattern": "shell:git", "target": "shell:git", "want": true },
+    { "name": "shell-token-prefix", "pattern": "shell:git", "target": "shell:git push", "want": true },
+    { "name": "shell-token-list-prefix", "pattern": "shell:git push", "target": "shell:git push origin", "want": true },
+    { "name": "shell-token-boundary", "pattern": "shell:git", "target": "shell:gitx", "want": false },
+    { "name": "shell-multi-token-boundary", "pattern": "shell:git push", "target": "shell:git pushx", "want": false },
+    { "name": "shell-pattern-longer-than-request", "pattern": "shell:git push", "target": "shell:git", "want": false },
+    { "name": "shell-trailing-slash-prefix", "pattern": "shell:rm -rf /tmp/", "target": "shell:rm -rf /tmp/foo", "want": true },
+    { "name": "shell-trailing-slash-exact", "pattern": "shell:rm -rf /tmp/", "target": "shell:rm -rf /tmp/", "want": true },
+    { "name": "shell-no-trailing-slash-is-not-prefix", "pattern": "shell:rm -rf /tmp", "target": "shell:rm -rf /tmp/foo", "want": false },
+    { "name": "shell-whitespace-delimited", "pattern": "shell:git   push", "target": "shell:git push origin", "want": true },
+    { "name": "shell-empty-pattern-does-not-match", "pattern": "shell:", "target": "shell:git", "want": false },
+    { "name": "shell-empty-pattern-matches-empty", "pattern": "shell:", "target": "shell:", "want": true },
+    { "name": "shell-scheme-wildcard", "pattern": "shell:*", "target": "shell:git push", "want": true },
+    { "name": "shell-pattern-wrong-scheme", "pattern": "shell:git", "target": "tool:git push", "want": false },
+
+    { "name": "connector-dot-star-one-segment", "pattern": "connector:github.*", "target": "connector:github.api", "want": true },
+    { "name": "connector-dot-star-many-segments", "pattern": "connector:github.*", "target": "connector:github.repos.delete", "want": true },
+    { "name": "connector-dot-star-zero-segments", "pattern": "connector:github.*", "target": "connector:github", "want": true },
+    { "name": "connector-dot-star-wrong-prefix", "pattern": "connector:github.*", "target": "connector:gitlab.api", "want": false },
+    { "name": "connector-scheme-wildcard-empty-value", "pattern": "connector:*", "target": "connector:", "want": false },
+    { "name": "connector-dot-exact", "pattern": "connector:github.api", "target": "connector:github.api", "want": true },
+    { "name": "connector-dot-no-star-shorter-request", "pattern": "connector:github.api", "target": "connector:github", "want": false },
+    { "name": "connector-dot-no-star-longer-request", "pattern": "connector:github", "target": "connector:github.api", "want": false },
+    { "name": "connector-dot-middle-star", "pattern": "connector:github.*.delete", "target": "connector:github.repos.delete", "want": true },
+    { "name": "connector-pattern-wrong-scheme", "pattern": "connector:github.*", "target": "tool:github.api", "want": false },
+
+    { "name": "path-exact", "pattern": "path:/tmp", "target": "path:/tmp", "want": true },
+    { "name": "path-prefix-is-not-matched", "pattern": "path:/tmp", "target": "path:/tmp/foo", "want": false },
+
+    { "name": "skill-exact", "pattern": "skill:foo", "target": "skill:foo", "want": true },
+    { "name": "skill-not-a-prefix", "pattern": "skill:foo", "target": "skill:foobar", "want": false },
+    { "name": "capability-dot-is-not-segment-wildcard", "pattern": "capability:issue.*", "target": "capability:issue.read", "want": false }
+  ]
+}

@@ -297,7 +297,11 @@ the matcher copies those services each carried: principals (who), targets
   unknown scheme or an empty value is an error.
 - `MatchPrincipal` matches a principal pattern against user/email/groups with
   the same semantics as the catalog's `MatchesPattern`. `MatchTarget` matches
-  a target pattern against a request target (exact, `*`, or `<scheme>:*`).
+  a target pattern against a request target: exact, `*`, `<scheme>:*`, a shell
+  token prefix (`shell:git` matches `shell:git push`, and a trailing slash on
+  the last token is a prefix within it), or a connector dot-segment pattern
+  with `*` segments (`connector:github.*`). `path:`, `skill:`, `tool:` and
+  `capability:` keep exact matching.
 - `Decide` orders the matching enabled rules by `Precedence` (priority DESC,
   deny before permit, ID ASC); the first decides, or the outcome is
   `no_match`. The runtime calls it when it authorizes a tool call.
@@ -309,7 +313,7 @@ the matcher copies those services each carried: principals (who), targets
   not rendered is withheld (fail closed).
 
 Conformance vectors live in `policy/testdata/vectors/` (`parse-principal`,
-`parse-target`, `match-principal`, `decide`, `render`).
+`parse-target`, `match-principal`, `match-target`, `decide`, `render`).
 
 ## Shared policy bundle (HAI-609, unreleased)
 
