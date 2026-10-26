@@ -24,7 +24,7 @@ import (
 )
 
 // Kinds is the set of known harness kinds.
-var Kinds = map[string]bool{"claude_code": true, "codex": true, "opencode": true, "custom": true}
+var Kinds = map[string]bool{"claude_code": true, "codex": true, "opencode": true, "pi": true, "custom": true}
 
 // Outcome is the result of matching a harness call against policies.
 type Outcome string
@@ -50,7 +50,7 @@ const (
 // kei.harness-match/v1 matches on (ADR-029 §1.2, §1.3).
 type Call struct {
 	HarnessID string   // registered harness id (UUID), if any
-	Kind      string   // claude_code | codex | opencode | custom
+	Kind      string   // claude_code | codex | opencode | pi | custom
 	AgentID   string   // agent the harness runs as, if any
 	Tool      string   // registry tool name, e.g. claude_code.edit
 	Argv      []string // shell commands only
@@ -87,7 +87,7 @@ func Evaluate(call Call, policies []Policy) Result {
 	if !Kinds[call.Kind] {
 		return Result{Outcome: OutcomeNotRenderable, Reason: ReasonUnsupportedKind}
 	}
-	if call.Kind == "custom" {
+	if callsPDP(call.Kind) {
 		return Result{Outcome: OutcomeNotRenderable, Reason: ReasonEvaluateViaPDP}
 	}
 	if call.Path != "" && (!path.IsAbs(call.Path) || path.Clean(call.Path) != call.Path) {
@@ -253,6 +253,11 @@ func segmentMatch(pattern, seg string) bool {
 	}
 	return strings.HasSuffix(seg, parts[len(parts)-1])
 }
+
+// callsPDP reports whether a harness kind authorizes each call through the
+// kei-proxy local PDP instead of a rendered native allowlist. custom is the SDK
+// path; pi has its own adapter but authorizes the same way.
+func callsPDP(kind string) bool { return kind == "custom" || kind == "pi" }
 
 // ValidKind reports whether kind is a known harness kind.
 func ValidKind(kind string) bool { return Kinds[kind] }
