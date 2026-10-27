@@ -129,7 +129,7 @@ func (p TypedPrincipal) validateValue() error {
 		return fmt.Errorf("principal kind %q has an empty value", p.Kind)
 	}
 	if p.Kind == "autogroup" && !autogroups[p.Value] {
-		return fmt.Errorf("unknown autogroup %q; valid names: member, admin, owner, agent", p.Value)
+		return fmt.Errorf("unknown autogroup %q; valid names: member, admin", p.Value)
 	}
 	return nil
 }
