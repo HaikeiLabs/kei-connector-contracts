@@ -157,6 +157,9 @@ func TestShellToolNamesItsKind(t *testing.T) {
 	if k, ok := legacy.HarnessKindForShellTool("pi.bash"); !ok || k.Kind != "pi" {
 		t.Fatalf("with no registry pi.bash is the legacy Pi shell tool, got %+v ok=%v", k, ok)
 	}
+	if k, ok := legacy.HarnessKindForShellTool("viapdp.shell"); ok || k.Kind != "" {
+		t.Fatalf("no match must return the zero kind, got %+v ok=%v", k, ok)
+	}
 	if _, ok := legacy.HarnessKindForShellTool("claude_code.bash"); ok {
 		t.Fatal("a native kind's shell tool is not decided by the PDP")
 	}

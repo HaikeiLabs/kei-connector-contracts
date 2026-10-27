@@ -464,7 +464,10 @@ func (p Payload) HarnessKindForShellTool(tool string) (HarnessKind, bool) {
 		return HarnessKind{}, false
 	}
 	if len(p.HarnessKinds) == 0 {
-		return legacyShellKind, tool == legacyShellKind.ShellTool
+		if tool == legacyShellKind.ShellTool {
+			return legacyShellKind, true
+		}
+		return HarnessKind{}, false
 	}
 	for _, k := range p.HarnessKinds {
 		if k.ShellTool == tool && p.HarnessKindDecidesViaPDP(k.Kind) {
