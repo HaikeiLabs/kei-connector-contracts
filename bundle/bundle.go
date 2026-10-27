@@ -114,13 +114,23 @@ type Harness struct {
 // shell command line, and the native tools a policy can target. Gateable is
 // false for a kind that can only be observed, never gated.
 type HarnessKind struct {
-	Kind        string       `json:"kind"`
-	ShortName   string       `json:"short_name,omitempty"`
-	ToolPrefix  string       `json:"tool_prefix,omitempty"`
-	ShellTool   string       `json:"shell_tool,omitempty"`
-	Gateable    bool         `json:"gateable"`
+	Kind       string `json:"kind"`
+	ShortName  string `json:"short_name,omitempty"`
+	ToolPrefix string `json:"tool_prefix,omitempty"`
+	ShellTool  string `json:"shell_tool,omitempty"`
+	Gateable   bool   `json:"gateable"`
+	// DecidesVia says how the kind's calls are decided: DecidesViaPDP for the
+	// kei-proxy local PDP, DecidesViaNative for a rendered native allowlist.
+	// Empty keeps the built-in meaning (custom and pi via the PDP).
+	DecidesVia  string       `json:"decides_via,omitempty"`
 	NativeTools []NativeTool `json:"native_tools,omitempty"`
 }
+
+// Values of HarnessKind.DecidesVia.
+const (
+	DecidesViaPDP    = "pdp"
+	DecidesViaNative = "native"
+)
 
 // NativeTool maps the registry tool name a policy targets to the name the
 // harness itself uses for it.
@@ -430,6 +440,40 @@ func (p Payload) KnownHarnessKind(kind string) bool {
 	return false
 }
 
+// HarnessKindDecidesViaPDP reports whether kind decides each call through the
+// local PDP: the bundle's registry entry says so, and a kind it does not
+// describe keeps the built-in meaning (custom and pi).
+func (p Payload) HarnessKindDecidesViaPDP(kind string) bool {
+	for _, k := range p.HarnessKinds {
+		if k.Kind == kind && k.DecidesVia != "" {
+			return k.DecidesVia == DecidesViaPDP
+		}
+	}
+	return kind == "custom" || kind == "pi"
+}
+
+// legacyShellKind is the shell tool of the Pi kind: the released adapter name,
+// honoured while a bundle carries no registry.
+var legacyShellKind = HarnessKind{Kind: "pi", ShellTool: "pi.bash", DecidesVia: DecidesViaPDP, Gateable: true}
+
+// HarnessKindForShellTool returns the kind whose shell command line the
+// local PDP decides when tool is its shell tool. A bundle with no registry
+// knows only the legacy pi.bash; with a registry only its own entries count.
+func (p Payload) HarnessKindForShellTool(tool string) (HarnessKind, bool) {
+	if tool == "" {
+		return HarnessKind{}, false
+	}
+	if len(p.HarnessKinds) == 0 {
+		return legacyShellKind, tool == legacyShellKind.ShellTool
+	}
+	for _, k := range p.HarnessKinds {
+		if k.ShellTool == tool && p.HarnessKindDecidesViaPDP(k.Kind) {
+			return k, true
+		}
+	}
+	return HarnessKind{}, false
+}
+
 var harnessKindPattern = regexp.MustCompile(`^[a-z][a-z0-9_]{0,31}$`)
 
 func validateHarnessKinds(kinds []HarnessKind) error {
@@ -442,6 +486,11 @@ func validateHarnessKinds(kinds []HarnessKind) error {
 			return fmt.Errorf("harness_kinds[%d].kind %q is listed twice", i, k.Kind)
 		}
 		seen[k.Kind] = true
+		switch k.DecidesVia {
+		case "", DecidesViaPDP, DecidesViaNative:
+		default:
+			return fmt.Errorf("harness_kinds[%d].decides_via %q must be %q or %q", i, k.DecidesVia, DecidesViaPDP, DecidesViaNative)
+		}
 		if k.ShellTool != "" && !strings.HasPrefix(k.ShellTool, k.ToolPrefix) {
 			return fmt.Errorf("harness_kinds[%d].shell_tool %q must start with tool_prefix %q", i, k.ShellTool, k.ToolPrefix)
 		}

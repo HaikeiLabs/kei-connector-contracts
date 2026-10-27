@@ -52,6 +52,12 @@ const (
 // EvaluateV2PiShell applies ordered v2 harness policies to a Pi shell call
 // using the authenticated session subject and the verified membership snapshot.
 func (v *Verified) EvaluateV2PiShell(argv []string, agentID string, subject *SessionSubject, now time.Time) Decision {
+	return v.EvaluateV2ShellForKind("pi", argv, agentID, subject, now)
+}
+
+// EvaluateV2ShellForKind is EvaluateV2PiShell for any harness kind whose shell
+// the local PDP decides: harness:<kind> sources match the given kind.
+func (v *Verified) EvaluateV2ShellForKind(kind string, argv []string, agentID string, subject *SessionSubject, now time.Time) Decision {
 	if agentID == "" {
 		return Decision{Outcome: "deny", ReasonCode: "agent_not_assigned", Reason: "the trusted default agent is unavailable"}
 	}
@@ -70,7 +76,7 @@ func (v *Verified) EvaluateV2PiShell(argv []string, agentID string, subject *Ses
 	if err := strictJSON(v.Payload.PolicySet, &set); err != nil || set.HarnessMatchSemantics != "kei.harness-match/v1" {
 		return invalidDecision()
 	}
-	call := harnessmatch.Call{Kind: "pi", AgentID: agentID, Argv: argv}
+	call := harnessmatch.Call{Kind: kind, AgentID: agentID, Argv: argv}
 	matching := make([]v2HarnessPolicy, 0, len(set.HarnessPolicies))
 	for _, policy := range set.HarnessPolicies {
 		if !v2ScopeMatches(policy.Scope, agentID, v.Payload.Audience.OrgID, v.Payload.Audience.WorkspaceID) {
@@ -201,6 +207,6 @@ func (v *Verified) EvaluateHarness(c HarnessCall) (outcome, policyID, reason str
 			policies[i] = harnessmatch.Policy{ID: p.ID, Src: p.Src, Dst: p.Dst, Action: p.Action, Enabled: true, Scope: p.Scope.AgentID}
 		}
 	}
-	result := harnessmatch.EvaluateWith(c, policies, v.Payload.KnownHarnessKind)
+	result := harnessmatch.EvaluateWith(c, policies, harnessmatch.KindSet{Known: v.Payload.KnownHarnessKind, ViaPDP: v.Payload.HarnessKindDecidesViaPDP})
 	return string(result.Outcome), result.PolicyID, result.Reason
 }

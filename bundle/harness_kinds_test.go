@@ -39,6 +39,10 @@ func exampleKind() map[string]any {
 	}
 }
 
+func pdpKind() map[string]any {
+	return map[string]any{"kind": "viapdp", "tool_prefix": "viapdp.", "shell_tool": "viapdp.shell", "gateable": true, "decides_via": "pdp"}
+}
+
 func TestBundleHarnessKindsExtendTheBuiltInKinds(t *testing.T) {
 	SetV2SchemaValidator(func([]byte) error { return nil })
 	t.Cleanup(func() { SetV2SchemaValidator(nil) })
@@ -109,5 +113,95 @@ func TestEvaluateHarnessUsesTheBundleKinds(t *testing.T) {
 	}
 	if _, _, reason := v.EvaluateHarness(HarnessCall{Kind: "unlisted", Tool: "x"}); reason != HarnessReasonUnsupportedKind {
 		t.Fatalf("an unlisted kind: reason %q, want %q", reason, HarnessReasonUnsupportedKind)
+	}
+}
+
+func TestHarnessKindDecidesVia(t *testing.T) {
+	SetV2SchemaValidator(func([]byte) error { return nil })
+	t.Cleanup(func() { SetV2SchemaValidator(nil) })
+	now := time.Now().UTC()
+	native := exampleKind()
+	native["decides_via"] = "native"
+	v, err := ValidateV2(harnessKindsDoc(now, []any{native, pdpKind()}, "viapdp"), v2Installation, v2Org, v2Workspace, 1, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v.Payload.HarnessKindDecidesViaPDP("example") || !v.Payload.HarnessKindDecidesViaPDP("viapdp") {
+		t.Fatal("decides_via must follow the registry entry")
+	}
+	if _, reason := evalReason(v, "viapdp"); reason != HarnessReasonEvaluateViaPDP {
+		t.Fatalf("a pdp kind: reason %q, want %q", reason, HarnessReasonEvaluateViaPDP)
+	}
+	if outcome, _ := evalReason(v, "example"); outcome != HarnessUnmatched {
+		t.Fatalf("a native kind with no policy: outcome %q, want unmatched", outcome)
+	}
+	bad := exampleKind()
+	bad["decides_via"] = "telepathy"
+	if _, err := ValidateV2(harnessKindsDoc(now, []any{bad}, "example"), v2Installation, v2Org, v2Workspace, 1, now); err == nil || !strings.Contains(err.Error(), "decides_via") {
+		t.Fatalf("an unknown decides_via must be rejected, got %v", err)
+	}
+	// With no registry entry value, the built-in kinds keep their meaning.
+	var none Payload
+	if !none.HarnessKindDecidesViaPDP("pi") || !none.HarnessKindDecidesViaPDP("custom") || none.HarnessKindDecidesViaPDP("codex") {
+		t.Fatal("built-in decides_via: pi and custom via the PDP, codex native")
+	}
+}
+
+func evalReason(v *Verified, kind string) (outcome, reason string) {
+	outcome, _, reason = v.EvaluateHarness(HarnessCall{Kind: kind, Tool: kind + ".read"})
+	return
+}
+
+func TestShellToolNamesItsKind(t *testing.T) {
+	var legacy Payload
+	if k, ok := legacy.HarnessKindForShellTool("pi.bash"); !ok || k.Kind != "pi" {
+		t.Fatalf("with no registry pi.bash is the legacy Pi shell tool, got %+v ok=%v", k, ok)
+	}
+	if _, ok := legacy.HarnessKindForShellTool("claude_code.bash"); ok {
+		t.Fatal("a native kind's shell tool is not decided by the PDP")
+	}
+	p := Payload{HarnessKinds: []HarnessKind{
+		{Kind: "viapdp", ShellTool: "viapdp.shell", DecidesVia: "pdp"},
+		{Kind: "example", ShellTool: "example.shell", DecidesVia: "native"},
+	}}
+	if k, ok := p.HarnessKindForShellTool("viapdp.shell"); !ok || k.Kind != "viapdp" {
+		t.Fatalf("registry shell tool = %+v ok=%v", k, ok)
+	}
+	if _, ok := p.HarnessKindForShellTool("example.shell"); ok {
+		t.Fatal("a native kind's shell tool is not decided by the PDP")
+	}
+	if _, ok := p.HarnessKindForShellTool("pi.bash"); ok {
+		t.Fatal("with a registry only its own shell tools count")
+	}
+}
+
+func TestEvaluateV2ShellForKindAttributesTheCallToItsKind(t *testing.T) {
+	SetV2SchemaValidator(func([]byte) error { return nil })
+	t.Cleanup(func() { SetV2SchemaValidator(nil) })
+	now := time.Now().UTC()
+	doc := v2BundleDoc(now)
+	doc["harness_match_semantics"] = "kei.harness-match/v1"
+	doc["harnesses"] = []any{map[string]any{"agent_id": "agent-1", "kind": "viapdp"}}
+	doc["harness_kinds"] = []any{pdpKind()}
+	set := doc["policy_set"].(map[string]any)
+	set["harness_policies"] = []any{map[string]any{
+		"policy_id": "p1", "name": "p1", "src_pattern": "harness:viapdp", "dst_pattern": "shell:git status", "action": "permit", "priority": 10,
+		"scope": map[string]any{"org_id": nil, "workspace_id": nil, "agent_id": nil},
+	}}
+	raw, _ := json.Marshal(doc)
+	v, err := ValidateV2(raw, v2Installation, v2Org, v2Workspace, 1, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	subject := &SessionSubject{UserID: "user-alice", Source: "discord", ExternalID: "ext-alice", Status: "linked"}
+	argv := []string{"git", "status"}
+	if d := v.EvaluateV2ShellForKind("viapdp", argv, "agent-1", subject, now); d.Outcome != "allow" || d.PolicyID != "p1" {
+		t.Fatalf("shell for its own kind = %+v, want allow by p1", d)
+	}
+	if d := v.EvaluateV2ShellForKind("pi", argv, "agent-1", subject, now); d.Outcome == "allow" {
+		t.Fatalf("a harness:viapdp policy must not match a pi call, got %+v", d)
+	}
+	if d := v.EvaluateV2PiShell(argv, "agent-1", subject, now); d.Outcome == "allow" {
+		t.Fatalf("EvaluateV2PiShell is the pi kind, got %+v", d)
 	}
 }

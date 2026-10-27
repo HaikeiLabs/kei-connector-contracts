@@ -21,11 +21,19 @@ func TestEvaluateWithTakesTheKindSet(t *testing.T) {
 	if got := Evaluate(call, nil); got.Reason != ReasonUnsupportedKind {
 		t.Fatalf("Evaluate with the built-in kinds = %+v", got)
 	}
-	known := func(kind string) bool { return kind == "example" }
-	if got := EvaluateWith(call, nil, known); got.Reason == ReasonUnsupportedKind || got.Outcome != OutcomeUnmatched {
+	set := KindSet{Known: func(kind string) bool { return kind == "example" || kind == "viapdp" }, ViaPDP: func(kind string) bool { return kind == "viapdp" }}
+	if got := EvaluateWith(call, nil, set); got.Reason == ReasonUnsupportedKind || got.Outcome != OutcomeUnmatched {
 		t.Fatalf("EvaluateWith a set that lists it = %+v", got)
 	}
-	if got := EvaluateWith(Call{Kind: "codex"}, nil, known); got.Reason != ReasonUnsupportedKind {
+	if got := EvaluateWith(Call{Kind: "viapdp"}, nil, set); got.Reason != ReasonEvaluateViaPDP {
+		t.Fatalf("EvaluateWith a kind the set decides via the PDP = %+v", got)
+	}
+	if got := EvaluateWith(Call{Kind: "codex"}, nil, set); got.Reason != ReasonUnsupportedKind {
 		t.Fatalf("EvaluateWith a set that omits codex = %+v", got)
+	}
+	// A set with no ViaPDP keeps the built-in meaning (custom and pi via the PDP).
+	builtin := KindSet{Known: ValidKind}
+	if got := EvaluateWith(Call{Kind: "pi"}, nil, builtin); got.Reason != ReasonEvaluateViaPDP {
+		t.Fatalf("built-in decides_via for pi = %+v", got)
 	}
 }
