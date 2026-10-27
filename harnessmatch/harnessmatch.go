@@ -84,7 +84,13 @@ type Result struct {
 // gives not_renderable.  For a shell command, a permit counts only when its
 // dst is a shell: argv prefix (ADR-029 §9.4).
 func Evaluate(call Call, policies []Policy) Result {
-	if !Kinds[call.Kind] {
+	return EvaluateWith(call, policies, ValidKind)
+}
+
+// EvaluateWith is Evaluate against a caller-supplied kind set, so a policy
+// bundle that lists its own harness kinds is not limited to the built-in ones.
+func EvaluateWith(call Call, policies []Policy, known func(kind string) bool) Result {
+	if !known(call.Kind) {
 		return Result{Outcome: OutcomeNotRenderable, Reason: ReasonUnsupportedKind}
 	}
 	if callsPDP(call.Kind) {

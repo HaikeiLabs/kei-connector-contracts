@@ -109,6 +109,26 @@ type Harness struct {
 	Kind    string `json:"kind"`
 }
 
+// HarnessKind is one entry of the bundle's harness kind registry (CA-5): how a
+// kind is named in hooks, the prefix of its tool names, the tool that carries a
+// shell command line, and the native tools a policy can target. Gateable is
+// false for a kind that can only be observed, never gated.
+type HarnessKind struct {
+	Kind        string       `json:"kind"`
+	ShortName   string       `json:"short_name,omitempty"`
+	ToolPrefix  string       `json:"tool_prefix,omitempty"`
+	ShellTool   string       `json:"shell_tool,omitempty"`
+	Gateable    bool         `json:"gateable"`
+	NativeTools []NativeTool `json:"native_tools,omitempty"`
+}
+
+// NativeTool maps the registry tool name a policy targets to the name the
+// harness itself uses for it.
+type NativeTool struct {
+	ToolName   string `json:"tool_name"`
+	NativeName string `json:"native_name"`
+}
+
 // Payload is the signed-envelope body of a policy bundle.
 type Payload struct {
 	Schema         string    `json:"schema"`
@@ -131,7 +151,10 @@ type Payload struct {
 	AgentConnectorBindings json.RawMessage `json:"agent_connector_bindings"`
 	Identities             []Identity      `json:"identities,omitempty"`
 	Harnesses              []Harness       `json:"harnesses,omitempty"`
-	HarnessMatchSemantics  string          `json:"harness_match_semantics,omitempty"`
+	// HarnessKinds is the harness kind registry. When absent, only the
+	// built-in kinds (harnessmatch.Kinds) are valid.
+	HarnessKinds          []HarnessKind `json:"harness_kinds,omitempty"`
+	HarnessMatchSemantics string        `json:"harness_match_semantics,omitempty"`
 	// Subject is the v2-only installation subject (HAI-433).
 	Subject *InstallationSubject `json:"subject,omitempty"`
 	// AgentModelProfiles is the v2-only effective model profile of each agent
@@ -225,7 +248,7 @@ func Validate(bundleBytes []byte, installationID, orgID, workspaceID string, hig
 	if err := validatePolicyDialect(payload.PolicySet); err != nil {
 		return nil, err
 	}
-	if err := validateHarnesses(payload.Harnesses, payload.HarnessMatchSemantics); err != nil {
+	if err := validateHarnesses(payload); err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrBundleUnsupported, err)
 	}
 	digest := sha256.Sum256(bundleBytes)
@@ -315,7 +338,7 @@ func ValidateV2(bundleBytes []byte, installationID, orgID, workspaceID string, h
 	if err := validatePolicySetV2(payload.PolicySet); err != nil {
 		return nil, err
 	}
-	if err := validateHarnesses(payload.Harnesses, payload.HarnessMatchSemantics); err != nil {
+	if err := validateHarnesses(payload); err != nil {
 		return nil, fmt.Errorf("%w: %w", ErrBundleUnsupported, err)
 	}
 	digest := sha256.Sum256(bundleBytes)
@@ -393,7 +416,49 @@ func validatePolicyDialect(raw json.RawMessage) error {
 	return nil
 }
 
-func validateHarnesses(harnesses []Harness, semantics string) error {
+// KnownHarnessKind reports whether kind is a harness kind of this bundle: one
+// the bundle's registry lists, or a built-in kind when it carries no registry.
+func (p Payload) KnownHarnessKind(kind string) bool {
+	if len(p.HarnessKinds) == 0 {
+		return harnessmatch.ValidKind(kind)
+	}
+	for _, k := range p.HarnessKinds {
+		if k.Kind == kind {
+			return true
+		}
+	}
+	return false
+}
+
+var harnessKindPattern = regexp.MustCompile(`^[a-z][a-z0-9_]{0,31}$`)
+
+func validateHarnessKinds(kinds []HarnessKind) error {
+	seen := map[string]bool{}
+	for i, k := range kinds {
+		if !harnessKindPattern.MatchString(k.Kind) {
+			return fmt.Errorf("harness_kinds[%d].kind %q is not a valid harness kind", i, k.Kind)
+		}
+		if seen[k.Kind] {
+			return fmt.Errorf("harness_kinds[%d].kind %q is listed twice", i, k.Kind)
+		}
+		seen[k.Kind] = true
+		if k.ShellTool != "" && !strings.HasPrefix(k.ShellTool, k.ToolPrefix) {
+			return fmt.Errorf("harness_kinds[%d].shell_tool %q must start with tool_prefix %q", i, k.ShellTool, k.ToolPrefix)
+		}
+		for j, n := range k.NativeTools {
+			if k.ToolPrefix == "" || !strings.HasPrefix(n.ToolName, k.ToolPrefix) || n.NativeName == "" {
+				return fmt.Errorf("harness_kinds[%d].native_tools[%d] needs a tool_name under tool_prefix %q and a native_name", i, j, k.ToolPrefix)
+			}
+		}
+	}
+	return nil
+}
+
+func validateHarnesses(payload Payload) error {
+	harnesses, semantics := payload.Harnesses, payload.HarnessMatchSemantics
+	if err := validateHarnessKinds(payload.HarnessKinds); err != nil {
+		return err
+	}
 	if len(harnesses) == 0 && semantics == "" {
 		return nil
 	}
@@ -401,13 +466,13 @@ func validateHarnesses(harnesses []Harness, semantics string) error {
 		return fmt.Errorf("harness_match_semantics must be %q", "kei.harness-match/v1")
 	}
 	for i, h := range harnesses {
-		if !harnessmatch.Kinds[h.Kind] {
+		if !payload.KnownHarnessKind(h.Kind) {
 			return fmt.Errorf("harnesses[%d].kind %q is not a valid harness kind", i, h.Kind)
 		}
 		if !idPattern.MatchString(h.AgentID) {
 			return fmt.Errorf("harnesses[%d].agent_id %q is not a valid identifier", i, h.AgentID)
 		}
-		if harnessmatch.Kinds[h.AgentID] {
+		if payload.KnownHarnessKind(h.AgentID) {
 			return fmt.Errorf("harnesses[%d].agent_id %q must not equal a harness kind value", i, h.AgentID)
 		}
 	}

@@ -201,6 +201,6 @@ func (v *Verified) EvaluateHarness(c HarnessCall) (outcome, policyID, reason str
 			policies[i] = harnessmatch.Policy{ID: p.ID, Src: p.Src, Dst: p.Dst, Action: p.Action, Enabled: true, Scope: p.Scope.AgentID}
 		}
 	}
-	result := harnessmatch.Evaluate(c, policies)
+	result := harnessmatch.EvaluateWith(c, policies, v.Payload.KnownHarnessKind)
 	return string(result.Outcome), result.PolicyID, result.Reason
 }
