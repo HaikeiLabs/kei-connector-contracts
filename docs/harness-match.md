@@ -11,9 +11,9 @@ rationale, bundle format, and provenance chain.
 
 ## Semantics
 
-A harness call is described by its kind (`claude_code`, `codex`, `opencode`, or
-`custom`), the tool name, and optional payload fields (shell argv, skill name,
-path, home, MCP server/tool, agent ID, harness ID).  Policies are evaluated in
+A harness call is described by its kind (`claude_code`, `codex`, `opencode`,
+`pi`, `cursor`, or `custom`), the tool name, and optional payload fields
+(shell argv, skill name, path, home, MCP server/tool, agent ID, harness ID).  Policies are evaluated in
 order; the first enabled policy whose source **and** destination both match
 produces the outcome.
 
@@ -43,7 +43,7 @@ produces the outcome.
 |---------|---------|
 | `*` | Any harness or agent. |
 | `harness:*` | Any harness. |
-| `harness:<kind>` | Harness of the given kind (`claude_code`, `codex`, `opencode`). |
+| `harness:<kind>` | Harness of the given kind (`claude_code`, `codex`, `opencode`, `pi`, `cursor`). |
 | `harness:<harness_id>` | Harness with the given registered ID (UUID). |
 | `agent:*` | Any agent (when the call has an agent ID). |
 | `agent:<id>` | Specific agent by ID. |
