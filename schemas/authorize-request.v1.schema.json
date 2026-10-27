@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/HaikeiLabs/kei-connector-contracts/schemas/authorize-request.v1.schema.json",
+  "title": "Kei authorize request v1",
+  "description": "The kei.authorize-request/v1 request a harness sends to the tenant-local kei-proxy daemon. Metadata only: no tool arguments, message content or credentials. The optional caller object records who called, for the audit trail; a request without it is valid and its caller is unknown.",
+  "type": "object",
+  "properties": {
+    "schema": {"const": "kei.authorize-request/v1"},
+    "tool": {"type": "string", "minLength": 1},
+    "action": {"type": "string"},
+    "resource": {"type": "string"},
+    "agent_id": {"type": "string"},
+    "connector": {
+      "type": "object",
+      "properties": {
+        "connector_id": {"type": "string", "minLength": 1},
+        "capability": {"type": "string", "minLength": 1}
+      },
+      "required": ["connector_id", "capability"],
+      "additionalProperties": false
+    },
+    "span_id": {"type": "string"},
+    "parent_span": {"type": "string"},
+    "delegation_depth": {"type": "integer", "minimum": 0},
+    "framework": {"type": "string"},
+    "tool_args_digest": {"type": "string"},
+    "on_behalf_of": {"type": "string"},
+    "shell_command": {"type": "string", "description": "Accepted only over the tenant-local socket, used solely to evaluate shell: policies, and never copied to audit."},
+    "caller": {"$ref": "#/$defs/caller"}
+  },
+  "required": ["schema"],
+  "oneOf": [
+    {"required": ["tool"], "not": {"required": ["connector"]}},
+    {"required": ["connector"], "not": {"required": ["tool"]}}
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "caller": {
+      "description": "Optional caller metadata. Every field is optional and closed: nothing else may be added.",
+      "type": "object",
+      "properties": {
+        "harness": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$", "description": "Harness kind label, for example openwebui."},
+        "origin": {"enum": ["interactive", "automation"], "description": "interactive: a person in a live session. automation: an unattended run."},
+        "session_ref": {"type": "string", "pattern": "^[A-Za-z0-9._:/-]{1,128}$", "description": "Opaque session or chat reference chosen by the sender. A pointer only; it must never carry message content."}
+      },
+      "additionalProperties": false
+    }
+  }
+}

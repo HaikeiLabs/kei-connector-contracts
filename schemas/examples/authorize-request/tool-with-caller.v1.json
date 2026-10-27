@@ -1,0 +1,13 @@
+{
+  "schema": "kei.authorize-request/v1",
+  "tool": "web_search",
+  "action": "read",
+  "resource": "web_search",
+  "framework": "open-webui",
+  "tool_args_digest": "sha256:0123456789abcdef",
+  "caller": {
+    "harness": "openwebui",
+    "origin": "automation",
+    "session_ref": "chat:8f3a-2b"
+  }
+}
