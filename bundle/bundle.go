@@ -479,7 +479,9 @@ func (p Payload) HarnessKindForShellTool(tool string) (HarnessKind, bool) {
 
 var harnessKindPattern = regexp.MustCompile(`^[a-z][a-z0-9_]{0,31}$`)
 
-func validateHarnessKinds(kinds []HarnessKind) error {
+// ValidateHarnessKinds checks a harness kind registry: kind shape, no
+// duplicates, decides_via, and shell and native tool names under tool_prefix.
+func ValidateHarnessKinds(kinds []HarnessKind) error {
 	seen := map[string]bool{}
 	for i, k := range kinds {
 		if !harnessKindPattern.MatchString(k.Kind) {
@@ -508,7 +510,7 @@ func validateHarnessKinds(kinds []HarnessKind) error {
 
 func validateHarnesses(payload Payload) error {
 	harnesses, semantics := payload.Harnesses, payload.HarnessMatchSemantics
-	if err := validateHarnessKinds(payload.HarnessKinds); err != nil {
+	if err := ValidateHarnessKinds(payload.HarnessKinds); err != nil {
 		return err
 	}
 	if len(harnesses) == 0 && semantics == "" {

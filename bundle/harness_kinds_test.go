@@ -208,3 +208,12 @@ func TestEvaluateV2ShellForKindAttributesTheCallToItsKind(t *testing.T) {
 		t.Fatalf("EvaluateV2PiShell is the pi kind, got %+v", d)
 	}
 }
+
+func TestValidateHarnessKindsIsExported(t *testing.T) {
+	if err := ValidateHarnessKinds([]HarnessKind{{Kind: "example", ToolPrefix: "example.", DecidesVia: DecidesViaNative}}); err != nil {
+		t.Fatalf("a valid registry: %v", err)
+	}
+	if err := ValidateHarnessKinds([]HarnessKind{{Kind: "Bad Kind"}}); err == nil {
+		t.Fatal("an invalid kind must be rejected")
+	}
+}
