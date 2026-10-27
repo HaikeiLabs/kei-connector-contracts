@@ -93,7 +93,7 @@ func (v *Verified) EvaluateV2PiShell(argv []string, agentID string, subject *Ses
 		return Decision{Outcome: "deny", ReasonCode: "no_matching_policy", Reason: "no shell policy matched"}
 	}
 	sort.Slice(matching, func(i, j int) bool {
-		if matching[i].Priority != matching[j].Priority {
+		if !set.denyOverrides() && matching[i].Priority != matching[j].Priority {
 			return matching[i].Priority > matching[j].Priority
 		}
 		if matching[i].Action != matching[j].Action {
@@ -161,7 +161,7 @@ func (v *Verified) EvaluateV2MCP(slug, tool, agentID, harnessKind string, subjec
 		return Decision{Outcome: "deny", ReasonCode: "no_matching_policy", Reason: "no MCP policy matched"}
 	}
 	sort.Slice(matching, func(i, j int) bool {
-		if matching[i].Priority != matching[j].Priority {
+		if !set.denyOverrides() && matching[i].Priority != matching[j].Priority {
 			return matching[i].Priority > matching[j].Priority
 		}
 		if matching[i].Action != matching[j].Action {
@@ -181,12 +181,14 @@ func (v *Verified) EvaluateHarness(c HarnessCall) (outcome, policyID, reason str
 		return HarnessNotRenderable, "", HarnessReasonBundleInvalid
 	}
 	var policies []harnessmatch.Policy
+	denyFirst := false
 	if v.Payload.Schema == "kei.policy-bundle/v2" {
 		// v2 carries harness policies under policy_set (kei#852).
 		var set v2PolicySet
 		if err := json.Unmarshal(v.Payload.PolicySet, &set); err != nil || set.HarnessMatchSemantics != "kei.harness-match/v1" {
 			return HarnessNotRenderable, "", HarnessReasonBundleInvalid
 		}
+		denyFirst = set.denyOverrides()
 		policies = make([]harnessmatch.Policy, len(set.HarnessPolicies))
 		for i, p := range set.HarnessPolicies {
 			policies[i] = harnessmatch.Policy{ID: p.PolicyID, Src: p.Src, Dst: p.Dst, Action: p.Action, Enabled: true, Scope: p.Scope.AgentID}
@@ -196,10 +198,14 @@ func (v *Verified) EvaluateHarness(c HarnessCall) (outcome, policyID, reason str
 		if err != nil {
 			return HarnessNotRenderable, "", HarnessReasonBundleInvalid
 		}
+		denyFirst = set.Evaluation.Order == evalDenyOverrides
 		policies = make([]harnessmatch.Policy, len(set.Policies))
 		for i, p := range set.Policies {
 			policies[i] = harnessmatch.Policy{ID: p.ID, Src: p.Src, Dst: p.Dst, Action: p.Action, Enabled: true, Scope: p.Scope.AgentID}
 		}
+	}
+	if denyFirst {
+		policies = denyBeforePermit(policies)
 	}
 	result := harnessmatch.Evaluate(c, policies)
 	return string(result.Outcome), result.PolicyID, result.Reason

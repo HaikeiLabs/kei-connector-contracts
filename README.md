@@ -302,9 +302,14 @@ the matcher copies those services each carried: principals (who), targets
   the last token is a prefix within it), or a connector dot-segment pattern
   with `*` segments (`connector:github.*`). `path:`, `skill:`, `tool:` and
   `capability:` keep exact matching.
-- `Decide` orders the matching enabled rules by `Precedence` (priority DESC,
-  deny before permit, ID ASC); the first decides, or the outcome is
-  `no_match`. The runtime calls it when it authorizes a tool call.
+- `Decide` orders the matching enabled rules by `Precedence` (deny-overrides:
+  deny before permit, then ID ASC; `Priority` is not read); the first decides,
+  or the outcome is `no_match`. The runtime calls it when it authorizes a tool
+  call.
+- Bundles opt in to the same semantics with the evaluation id `deny_overrides`:
+  `policy_set.evaluation.order` for `kei.policy-bundle/v1`, an entry of
+  `policy_set.evaluation.precedence` for v2. `array_order_first_match` and
+  `priority_desc` keep their meaning, so existing bundles decide as before.
 - `Render` turns the rules that apply to one subject into the native
   allow/deny entries of a harness kind (for example the lists `kei harness
   sync` writes for a coding harness). The harness is the rendering context, not

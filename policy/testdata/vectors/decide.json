@@ -3,13 +3,22 @@
   "version": 1,
   "cases": [
     {
-      "name": "higher-priority-permit-beats-lower-deny",
+      "name": "deny-beats-higher-priority-permit",
       "rules": [
         { "id": "r-deny", "principal": "*", "target": "tool:github.read", "effect": "deny", "priority": 1, "enabled": true },
         { "id": "r-permit", "principal": "*", "target": "tool:github.read", "effect": "permit", "priority": 2, "enabled": true }
       ],
       "request": { "user": "u1", "email": "", "groups": [], "target": "tool:github.read" },
-      "want": { "decision": "permit", "decided_by": "r-permit", "outranked": ["r-deny"] }
+      "want": { "decision": "deny", "decided_by": "r-deny", "outranked": ["r-permit"] }
+    },
+    {
+      "name": "deny-from-former-low-priority-still-wins",
+      "rules": [
+        { "id": "r-permit", "principal": "*", "target": "tool:x", "effect": "permit", "priority": 100, "enabled": true },
+        { "id": "r-deny", "principal": "*", "target": "tool:x", "effect": "deny", "priority": 0, "enabled": true }
+      ],
+      "request": { "user": "u1", "email": "", "groups": [], "target": "tool:x" },
+      "want": { "decision": "deny", "decided_by": "r-deny", "outranked": ["r-permit"] }
     },
     {
       "name": "equal-priority-deny-beats-permit",
@@ -21,10 +30,10 @@
       "want": { "decision": "deny", "decided_by": "r-deny", "outranked": ["r-permit"] }
     },
     {
-      "name": "equal-priority-effect-lower-id-wins",
+      "name": "two-permits-lower-id-wins-regardless-of-priority",
       "rules": [
-        { "id": "b", "principal": "*", "target": "tool:x", "effect": "permit", "priority": 5, "enabled": true },
-        { "id": "a", "principal": "*", "target": "tool:x", "effect": "permit", "priority": 5, "enabled": true }
+        { "id": "b", "principal": "*", "target": "tool:x", "effect": "permit", "priority": 9, "enabled": true },
+        { "id": "a", "principal": "*", "target": "tool:x", "effect": "permit", "priority": 1, "enabled": true }
       ],
       "request": { "user": "u1", "email": "", "groups": [], "target": "tool:x" },
       "want": { "decision": "permit", "decided_by": "a", "outranked": ["b"] }
@@ -64,7 +73,7 @@
         { "id": "high-permit", "principal": "*", "target": "tool:x", "effect": "permit", "priority": 10, "enabled": true }
       ],
       "request": { "user": "u1", "email": "", "groups": [], "target": "tool:x" },
-      "want": { "decision": "deny", "decided_by": "high-deny", "outranked": ["high-permit", "mid-permit", "low"] }
+      "want": { "decision": "deny", "decided_by": "high-deny", "outranked": ["high-permit", "low", "mid-permit"] }
     },
     {
       "name": "scheme-wildcard-target-matches",
@@ -115,13 +124,13 @@
       "want": { "decision": "permit", "decided_by": "r-admins", "outranked": [] }
     },
     {
-      "name": "exact-target-beats-scheme-wildcard",
+      "name": "scheme-wildcard-deny-beats-exact-permit",
       "rules": [
         { "id": "r-wild", "principal": "*", "target": "tool:*", "effect": "deny", "priority": 1, "enabled": true },
         { "id": "r-exact", "principal": "*", "target": "tool:github.read", "effect": "permit", "priority": 2, "enabled": true }
       ],
       "request": { "user": "u1", "email": "", "groups": [], "target": "tool:github.read" },
-      "want": { "decision": "permit", "decided_by": "r-exact", "outranked": ["r-wild"] }
+      "want": { "decision": "deny", "decided_by": "r-wild", "outranked": ["r-exact"] }
     }
   ]
 }

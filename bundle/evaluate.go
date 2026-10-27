@@ -47,6 +47,9 @@ type policySet struct {
 	Agents     []agent     `json:"agents"`
 	Policies   []policy    `json:"policies"`
 	Connectors []Connector `json:"connectors"`
+	Evaluation struct {
+		Order string `json:"order"`
+	} `json:"evaluation"`
 }
 type group struct {
 	ID       string   `json:"id"`
@@ -77,7 +80,9 @@ type policy struct {
 }
 
 // Evaluate resolves the registered tool's canonical action and walks the
-// catalog-ordered policy array unchanged (priority DESC, deny before permit, id ASC).
+// policy array as evaluation.order declares: array_order_first_match walks the
+// catalog-ordered array and the first match decides; deny_overrides lets any
+// matching deny win over every matching permit regardless of array order.
 func (v *Verified) Evaluate(call Call, subject *Subject) Decision {
 	set, err := v.decodePolicySet()
 	if err != nil {
@@ -256,6 +261,7 @@ func (v *Verified) evaluatePolicies(set policySet, call Call, subject *Subject, 
 	if subject != nil {
 		groups, roles = subject.EffectiveGroups, subject.OrgRoles
 	}
+	var firstPermit string
 	for _, p := range set.Policies {
 		if p.Scope.AgentID != nil && *p.Scope.AgentID != call.AgentID {
 			continue
@@ -273,8 +279,16 @@ func (v *Verified) evaluatePolicies(set policySet, call Call, subject *Subject, 
 			return Decision{Outcome: "deny", PolicyID: p.ID, ReasonCode: "policy_deny", Reason: "policy denied"}
 		}
 		if p.Action == policyPermitAction {
-			return Decision{Outcome: "allow", PolicyID: p.ID}
+			if set.Evaluation.Order != evalDenyOverrides {
+				return Decision{Outcome: "allow", PolicyID: p.ID}
+			}
+			if firstPermit == "" {
+				firstPermit = p.ID
+			}
 		}
+	}
+	if firstPermit != "" {
+		return Decision{Outcome: "allow", PolicyID: firstPermit}
 	}
 	return Decision{Outcome: "deny", ReasonCode: "no_matching_policy", Reason: "no policy matched"}
 }
