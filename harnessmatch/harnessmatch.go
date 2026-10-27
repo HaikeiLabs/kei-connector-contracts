@@ -84,10 +84,30 @@ type Result struct {
 // gives not_renderable.  For a shell command, a permit counts only when its
 // dst is a shell: argv prefix (ADR-029 §9.4).
 func Evaluate(call Call, policies []Policy) Result {
-	if !Kinds[call.Kind] {
+	return EvaluateWith(call, policies, KindSet{Known: ValidKind})
+}
+
+// KindSet says which harness kinds exist and how each decides: a bundle that
+// carries its own registry passes it here instead of relying on Kinds.
+type KindSet struct {
+	// Known reports whether a kind exists.
+	Known func(kind string) bool
+	// ViaPDP reports whether a kind decides each call through the kei-proxy
+	// local PDP instead of a rendered native allowlist. Nil keeps the
+	// built-in meaning (custom and pi decide via the PDP).
+	ViaPDP func(kind string) bool
+}
+
+// EvaluateWith is Evaluate against a caller-supplied kind set.
+func EvaluateWith(call Call, policies []Policy, kinds KindSet) Result {
+	if !kinds.Known(call.Kind) {
 		return Result{Outcome: OutcomeNotRenderable, Reason: ReasonUnsupportedKind}
 	}
-	if callsPDP(call.Kind) {
+	viaPDP := kinds.ViaPDP
+	if viaPDP == nil {
+		viaPDP = callsPDP
+	}
+	if viaPDP(call.Kind) {
 		return Result{Outcome: OutcomeNotRenderable, Reason: ReasonEvaluateViaPDP}
 	}
 	if call.Path != "" && (!path.IsAbs(call.Path) || path.Clean(call.Path) != call.Path) {
