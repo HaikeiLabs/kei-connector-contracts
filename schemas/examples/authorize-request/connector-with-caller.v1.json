@@ -1,0 +1,9 @@
+{
+  "schema": "kei.authorize-request/v1",
+  "connector": {"connector_id": "github", "capability": "read"},
+  "resource": "github:repo:acme/widgets",
+  "caller": {
+    "harness": "openwebui",
+    "origin": "interactive"
+  }
+}

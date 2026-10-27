@@ -55,6 +55,17 @@ its wire types are shared (see
 `Health.Validate` and `Health.Decode` for the closed state/reason and
 field-invariant validation.
 
+## Authorize request (v1)
+
+The `authorizerequest` package and `schemas/authorize-request.v1.schema.json`
+own the `kei.authorize-request/v1` request a harness sends to the tenant-local
+`kei-proxy` daemon. The optional `caller` object (`harness`, `origin`
+`interactive` or `automation`, and an opaque `session_ref`) lets the audit
+trail say who called. A request without it stays valid and its caller is
+unknown. Canonical examples live under `schemas/examples/authorize-request/`.
+The contract is metadata only: `session_ref` is a pointer and must never carry
+message content.
+
 ## Consumers
 
 - `kei-connector-runtime` — tenant-side evaluation and provider execution
