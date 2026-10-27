@@ -49,13 +49,13 @@ const (
 
 // EvaluateHarness applies kei.harness-match/v1 to a harness tool call. It
 // decodes the bundle's policy set and delegates to harnessmatch.Evaluate.
-// EvaluateV2PiShell applies ordered v2 harness policies to a Pi shell call
+// EvaluateV2Shell applies ordered v2 harness policies to a shell command
 // using the authenticated session subject and the verified membership snapshot.
-func (v *Verified) EvaluateV2PiShell(argv []string, agentID string, subject *SessionSubject, now time.Time) Decision {
+func (v *Verified) EvaluateV2Shell(argv []string, agentID string, subject *SessionSubject, now time.Time) Decision {
 	return v.EvaluateV2ShellForKind("pi", argv, agentID, subject, now)
 }
 
-// EvaluateV2ShellForKind is EvaluateV2PiShell for any harness kind whose shell
+// EvaluateV2ShellForKind is EvaluateV2Shell for any harness kind whose shell
 // the local PDP decides: harness:<kind> sources match the given kind.
 func (v *Verified) EvaluateV2ShellForKind(kind string, argv []string, agentID string, subject *SessionSubject, now time.Time) Decision {
 	if agentID == "" {
@@ -99,7 +99,7 @@ func (v *Verified) EvaluateV2ShellForKind(kind string, argv []string, agentID st
 		return Decision{Outcome: "deny", ReasonCode: "no_matching_policy", Reason: "no shell policy matched"}
 	}
 	sort.Slice(matching, func(i, j int) bool {
-		if matching[i].Priority != matching[j].Priority {
+		if !set.denyOverrides() && matching[i].Priority != matching[j].Priority {
 			return matching[i].Priority > matching[j].Priority
 		}
 		if matching[i].Action != matching[j].Action {
@@ -167,7 +167,7 @@ func (v *Verified) EvaluateV2MCP(slug, tool, agentID, harnessKind string, subjec
 		return Decision{Outcome: "deny", ReasonCode: "no_matching_policy", Reason: "no MCP policy matched"}
 	}
 	sort.Slice(matching, func(i, j int) bool {
-		if matching[i].Priority != matching[j].Priority {
+		if !set.denyOverrides() && matching[i].Priority != matching[j].Priority {
 			return matching[i].Priority > matching[j].Priority
 		}
 		if matching[i].Action != matching[j].Action {
@@ -187,12 +187,14 @@ func (v *Verified) EvaluateHarness(c HarnessCall) (outcome, policyID, reason str
 		return HarnessNotRenderable, "", HarnessReasonBundleInvalid
 	}
 	var policies []harnessmatch.Policy
+	denyFirst := false
 	if v.Payload.Schema == "kei.policy-bundle/v2" {
 		// v2 carries harness policies under policy_set (kei#852).
 		var set v2PolicySet
 		if err := json.Unmarshal(v.Payload.PolicySet, &set); err != nil || set.HarnessMatchSemantics != "kei.harness-match/v1" {
 			return HarnessNotRenderable, "", HarnessReasonBundleInvalid
 		}
+		denyFirst = set.denyOverrides()
 		policies = make([]harnessmatch.Policy, len(set.HarnessPolicies))
 		for i, p := range set.HarnessPolicies {
 			policies[i] = harnessmatch.Policy{ID: p.PolicyID, Src: p.Src, Dst: p.Dst, Action: p.Action, Enabled: true, Scope: p.Scope.AgentID}
@@ -202,10 +204,14 @@ func (v *Verified) EvaluateHarness(c HarnessCall) (outcome, policyID, reason str
 		if err != nil {
 			return HarnessNotRenderable, "", HarnessReasonBundleInvalid
 		}
+		denyFirst = set.Evaluation.Order == evalDenyOverrides
 		policies = make([]harnessmatch.Policy, len(set.Policies))
 		for i, p := range set.Policies {
 			policies[i] = harnessmatch.Policy{ID: p.ID, Src: p.Src, Dst: p.Dst, Action: p.Action, Enabled: true, Scope: p.Scope.AgentID}
 		}
+	}
+	if denyFirst {
+		policies = denyBeforePermit(policies)
 	}
 	result := harnessmatch.EvaluateWith(c, policies, harnessmatch.KindSet{Known: v.Payload.KnownHarnessKind, ViaPDP: v.Payload.HarnessKindDecidesViaPDP})
 	return string(result.Outcome), result.PolicyID, result.Reason

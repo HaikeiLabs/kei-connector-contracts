@@ -23,7 +23,8 @@ import (
 // Effect is the decision a rule makes: "permit" or "deny".
 type Effect string
 
-// Rule is a single policy rule.
+// Rule is a single policy rule. Priority is retained so existing callers still
+// compile; Decide ignores it.
 type Rule struct {
 	ID        string
 	Principal string
@@ -56,16 +57,11 @@ type AccessGrant struct {
 	ExpireTime time.Time
 }
 
-// Precedence compares two rules: priority DESC, then deny before permit,
-// then ID ASC. It returns a negative number if a ranks before b, a positive
-// number if b ranks before a, and zero if they are equivalent.
+// Precedence compares two rules under deny-overrides: deny before permit,
+// then ID ASC. Priority is not read. It returns a negative number if a ranks
+// before b, a positive number if b ranks before a, and zero if they are
+// equivalent.
 var Precedence func(a, b Rule) int = func(a, b Rule) int {
-	if a.Priority != b.Priority {
-		if a.Priority > b.Priority {
-			return -1
-		}
-		return 1
-	}
 	aDeny, bDeny := a.Effect == "deny", b.Effect == "deny"
 	if aDeny != bDeny {
 		if aDeny {

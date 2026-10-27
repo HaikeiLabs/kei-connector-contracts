@@ -1,0 +1,30 @@
+{
+  "file": "typed-principal.json",
+  "version": 1,
+  "cases": [
+    { "name": "policy-group", "context": "policy", "principal": { "kind": "group", "value": "admins" }, "want": { "pattern": "group:admins" } },
+    { "name": "policy-autogroup-member", "context": "policy", "principal": { "kind": "autogroup", "value": "member" }, "want": { "pattern": "autogroup:member" } },
+    { "name": "policy-autogroup-admin", "context": "policy", "principal": { "kind": "autogroup", "value": "admin" }, "want": { "pattern": "autogroup:admin" } },
+    { "name": "policy-autogroup-owner-errors", "context": "policy", "principal": { "kind": "autogroup", "value": "owner" }, "want": { "error": true } },
+    { "name": "policy-autogroup-agent-errors", "context": "policy", "principal": { "kind": "autogroup", "value": "agent" }, "want": { "error": true } },
+    { "name": "policy-autogroup-unknown-errors", "context": "policy", "principal": { "kind": "autogroup", "value": "bogus" }, "want": { "error": true } },
+    { "name": "policy-autogroup-wildcard-errors", "context": "policy", "principal": { "kind": "autogroup", "value": "*" }, "want": { "error": true } },
+    { "name": "policy-group-empty-value-errors", "context": "policy", "principal": { "kind": "group" }, "want": { "error": true } },
+    { "name": "policy-user-errors", "context": "policy", "principal": { "kind": "user", "value": "alice" }, "want": { "error": true } },
+    { "name": "policy-email-errors", "context": "policy", "principal": { "kind": "email", "value": "alice@corp.com" }, "want": { "error": true } },
+    { "name": "policy-agent-errors", "context": "policy", "principal": { "kind": "agent", "value": "abc" }, "want": { "error": true } },
+    { "name": "policy-any-errors", "context": "policy", "principal": { "kind": "any" }, "want": { "error": true } },
+    { "name": "policy-org-errors", "context": "policy", "principal": { "kind": "org", "value": "admin" }, "want": { "error": true } },
+    { "name": "policy-harness-errors", "context": "policy", "principal": { "kind": "harness", "value": "codex" }, "want": { "error": true } },
+    { "name": "policy-unknown-kind-errors", "context": "policy", "principal": { "kind": "bogus", "value": "x" }, "want": { "error": true } },
+    { "name": "grant-user", "context": "grant", "principal": { "kind": "user", "value": "alice" }, "want": { "pattern": "user:alice" } },
+    { "name": "grant-email", "context": "grant", "principal": { "kind": "email", "value": "alice@corp.com" }, "want": { "pattern": "email:alice@corp.com" } },
+    { "name": "grant-agent", "context": "grant", "principal": { "kind": "agent", "value": "abc" }, "want": { "pattern": "agent:abc" } },
+    { "name": "grant-group", "context": "grant", "principal": { "kind": "group", "value": "admins" }, "want": { "pattern": "group:admins" } },
+    { "name": "grant-autogroup-member", "context": "grant", "principal": { "kind": "autogroup", "value": "member" }, "want": { "pattern": "autogroup:member" } },
+    { "name": "grant-user-empty-value-errors", "context": "grant", "principal": { "kind": "user" }, "want": { "error": true } },
+    { "name": "grant-any-errors", "context": "grant", "principal": { "kind": "any" }, "want": { "error": true } },
+    { "name": "grant-org-errors", "context": "grant", "principal": { "kind": "org", "value": "admin" }, "want": { "error": true } },
+    { "name": "grant-harness-errors", "context": "grant", "principal": { "kind": "harness", "value": "codex" }, "want": { "error": true } }
+  ]
+}

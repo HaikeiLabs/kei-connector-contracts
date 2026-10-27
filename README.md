@@ -55,6 +55,17 @@ its wire types are shared (see
 `Health.Validate` and `Health.Decode` for the closed state/reason and
 field-invariant validation.
 
+## Authorize request (v1)
+
+The `authorizerequest` package and `schemas/authorize-request.v1.schema.json`
+own the `kei.authorize-request/v1` request a harness sends to the tenant-local
+`kei-proxy` daemon. The optional `caller` object (`harness`, `origin`
+`interactive` or `automation`, and an opaque `session_ref`) lets the audit
+trail say who called. A request without it stays valid and its caller is
+unknown. Canonical examples live under `schemas/examples/authorize-request/`.
+The contract is metadata only: `session_ref` is a pointer and must never carry
+message content.
+
 ## Consumers
 
 - `kei-connector-runtime` — tenant-side evaluation and provider execution
@@ -302,9 +313,23 @@ the matcher copies those services each carried: principals (who), targets
   the last token is a prefix within it), or a connector dot-segment pattern
   with `*` segments (`connector:github.*`). `path:`, `skill:`, `tool:` and
   `capability:` keep exact matching.
-- `Decide` orders the matching enabled rules by `Precedence` (priority DESC,
-  deny before permit, ID ASC); the first decides, or the outcome is
-  `no_match`. The runtime calls it when it authorizes a tool call.
+- `Decide` orders the matching enabled rules by `Precedence` (deny-overrides:
+  deny before permit, then ID ASC; `Priority` is not read); the first decides,
+  or the outcome is `no_match`. The runtime calls it when it authorizes a tool
+  call.
+- Bundles opt in to the same semantics with the evaluation id `deny_overrides`:
+  `policy_set.evaluation.order` for `kei.policy-bundle/v1`, an entry of
+  `policy_set.evaluation.precedence` for v2. `array_order_first_match` and
+  `priority_desc` keep their meaning, so existing bundles decide as before.
+- `TypedTarget` (`{kind, value, caps?}`) and `TypedPrincipal` (`{kind, value}`)
+  are the structured forms of the target and principal patterns, with JSON
+  Schemas `policy-target.v1.schema.json` and `policy-principal.v1.schema.json`
+  in `schemas/`. `TypedTargetFromPattern` and `TypedPrincipalFromPattern` wrap
+  `ParseTarget`/`ParsePrincipal`, and `Pattern()` renders back. `caps` narrows a
+  connector target and is not part of the pattern. A policy principal is a
+  group or an autogroup (`ValidatePolicy`); a direct subject (user, email,
+  agent) is valid only on an access grant (`ValidateGrant`). The parsers are
+  unchanged.
 - `Render` turns the rules that apply to one subject into the native
   allow/deny entries of a harness kind (for example the lists `kei harness
   sync` writes for a coding harness). The harness is the rendering context, not

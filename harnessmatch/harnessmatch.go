@@ -24,7 +24,7 @@ import (
 )
 
 // Kinds is the set of known harness kinds.
-var Kinds = map[string]bool{"claude_code": true, "codex": true, "opencode": true, "pi": true, "custom": true}
+var Kinds = map[string]bool{"claude_code": true, "codex": true, "opencode": true, "pi": true, "cursor": true, "custom": true}
 
 // Outcome is the result of matching a harness call against policies.
 type Outcome string
@@ -50,7 +50,7 @@ const (
 // kei.harness-match/v1 matches on (ADR-029 §1.2, §1.3).
 type Call struct {
 	HarnessID string   // registered harness id (UUID), if any
-	Kind      string   // claude_code | codex | opencode | pi | custom
+	Kind      string   // claude_code | codex | opencode | pi | cursor | custom
 	AgentID   string   // agent the harness runs as, if any
 	Tool      string   // registry tool name, e.g. claude_code.edit
 	Argv      []string // shell commands only

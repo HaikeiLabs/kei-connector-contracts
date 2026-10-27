@@ -204,8 +204,8 @@ func TestEvaluateV2ShellForKindAttributesTheCallToItsKind(t *testing.T) {
 	if d := v.EvaluateV2ShellForKind("pi", argv, "agent-1", subject, now); d.Outcome == "allow" {
 		t.Fatalf("a harness:viapdp policy must not match a pi call, got %+v", d)
 	}
-	if d := v.EvaluateV2PiShell(argv, "agent-1", subject, now); d.Outcome == "allow" {
-		t.Fatalf("EvaluateV2PiShell is the pi kind, got %+v", d)
+	if d := v.EvaluateV2Shell(argv, "agent-1", subject, now); d.Outcome == "allow" {
+		t.Fatalf("EvaluateV2Shell is the pi kind, got %+v", d)
 	}
 }
 

@@ -417,7 +417,7 @@ func validatePolicyDialect(raw json.RawMessage) error {
 	if v.MatchSemantics != "kei.match/v1" {
 		return fmt.Errorf("%w: policy_set.match_semantics", ErrBundleUnsupported)
 	}
-	if v.Evaluation.Order != "array_order_first_match" {
+	if v.Evaluation.Order != "array_order_first_match" && v.Evaluation.Order != evalDenyOverrides {
 		return fmt.Errorf("%w: policy_set.evaluation.order", ErrBundleUnsupported)
 	}
 	if v.Evaluation.Default != "deny" {
