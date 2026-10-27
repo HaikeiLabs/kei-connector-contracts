@@ -339,6 +339,37 @@
       "want_policy": "p1"
     },
     {
+      "id": "cursor-tool-deny",
+      "desc": "exact tool match on the cursor kind, deny",
+      "call": { "kind": "cursor", "tool": "cursor.bash" },
+      "policies": [{ "id": "p1", "src": "*", "dst": "tool:cursor.bash", "action": "deny", "enabled": true }],
+      "want_outcome": "deny",
+      "want_policy": "p1"
+    },
+    {
+      "id": "cursor-shell-argv-permit",
+      "desc": "shell argv-prefix permit on the cursor kind",
+      "call": { "kind": "cursor", "argv": ["git", "status", "--short"] },
+      "policies": [{ "id": "p1", "src": "*", "dst": "shell:git status", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "src-harness-cursor",
+      "desc": "harness:cursor matches the cursor kind",
+      "call": { "kind": "cursor", "tool": "cursor.read" },
+      "policies": [{ "id": "p1", "src": "harness:cursor", "dst": "tool:cursor.read", "action": "permit", "enabled": true }],
+      "want_outcome": "permit",
+      "want_policy": "p1"
+    },
+    {
+      "id": "src-harness-cursor-no-match",
+      "desc": "harness:codex does not match the cursor kind",
+      "call": { "kind": "cursor", "tool": "cursor.read" },
+      "policies": [{ "id": "p1", "src": "harness:codex", "dst": "*", "action": "permit", "enabled": true }],
+      "want_outcome": "unmatched"
+    },
+    {
       "id": "mcp-no-match",
       "desc": "mcp:other-server does not match",
       "call": { "kind": "claude_code", "mcp_server": "my-server" },

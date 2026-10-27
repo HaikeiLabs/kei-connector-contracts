@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/HaikeiLabs/kei-connector-contracts/schemas/policy-target.v1.schema.json",
+  "title": "Kei policy target (kei.policy-target/v1)",
+  "description": "What a policy acts on: the structured form of a target pattern. kind matches the schemes policy.ParseTarget accepts; \"any\" is the \"*\" target and takes no value. caps narrows a connector target to the named capabilities and is not part of the pattern. Metadata only: it grants nothing.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["kind"],
+  "properties": {
+    "kind": { "enum": ["any", "shell", "skill", "path", "capability", "connector", "tool", "mcp"] },
+    "value": { "type": "string", "minLength": 1 },
+    "caps": {
+      "description": "Capabilities a connector target is narrowed to.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$" }
+    }
+  },
+  "oneOf": [
+    { "properties": { "kind": { "const": "any" } }, "not": { "anyOf": [{ "required": ["value"] }, { "required": ["caps"] }] } },
+    { "properties": { "kind": { "const": "connector" } }, "required": ["value"] },
+    { "properties": { "kind": { "enum": ["shell", "skill", "path", "capability", "tool", "mcp"] } }, "required": ["value"], "not": { "required": ["caps"] } }
+  ]
+}

@@ -18,12 +18,14 @@ import "embed"
 
 // FS is the embedded filesystem containing the shipped call templates
 // (*.tool-definition.v1.json) and the JSON Schemas they validate against
-// (tool-definition.v1.schema.json, tool-call-template.v1.schema.json).
+// (tool-definition.v1.schema.json, tool-call-template.v1.schema.json), and the
+// policy target and principal schemas (policy-target.v1.schema.json,
+// policy-principal.v1.schema.json).
 //
 // Use it from a harness to load templates without a filesystem path:
 //
 //	data, _ := schemas.FS.ReadFile("github.tool-definition.v1.json")
 //	templates, err := calltemplate.Parse(data)
 //
-//go:embed *.tool-definition.v1.json tool-definition.v1.schema.json tool-call-template.v1.schema.json
+//go:embed *.tool-definition.v1.json tool-definition.v1.schema.json tool-call-template.v1.schema.json policy-target.v1.schema.json policy-principal.v1.schema.json
 var FS embed.FS

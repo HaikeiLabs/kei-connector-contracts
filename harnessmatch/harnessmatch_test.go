@@ -217,6 +217,9 @@ func TestValidKind(t *testing.T) {
 	if !ValidKind("opencode") {
 		t.Error("expected opencode to be valid")
 	}
+	if !ValidKind("cursor") {
+		t.Error("expected cursor to be valid")
+	}
 	if !ValidKind("pi") {
 		t.Error("expected pi to be valid")
 	}

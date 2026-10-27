@@ -1,0 +1,8 @@
+{
+  "schema": "kei.authorize-request/v1",
+  "tool": "web_search",
+  "action": "read",
+  "resource": "web_search",
+  "framework": "example-harness",
+  "tool_args_digest": "sha256:0123456789abcdef"
+}

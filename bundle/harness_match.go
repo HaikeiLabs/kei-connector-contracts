@@ -49,9 +49,9 @@ const (
 
 // EvaluateHarness applies kei.harness-match/v1 to a harness tool call. It
 // decodes the bundle's policy set and delegates to harnessmatch.Evaluate.
-// EvaluateV2PiShell applies ordered v2 harness policies to a Pi shell call
+// EvaluateV2Shell applies ordered v2 harness policies to a shell command
 // using the authenticated session subject and the verified membership snapshot.
-func (v *Verified) EvaluateV2PiShell(argv []string, agentID string, subject *SessionSubject, now time.Time) Decision {
+func (v *Verified) EvaluateV2Shell(argv []string, agentID string, subject *SessionSubject, now time.Time) Decision {
 	if agentID == "" {
 		return Decision{Outcome: "deny", ReasonCode: "agent_not_assigned", Reason: "the trusted default agent is unavailable"}
 	}
