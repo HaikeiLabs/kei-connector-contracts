@@ -43,14 +43,15 @@ var principalSchemes = map[string]PrincipalKind{
 }
 
 // autogroups are the built-in groups the control plane resolves from a
-// caller's role instead of storing: every workspace member, admins, owners
-// and agents. "autogroup:<name>" parses only for these names.
-var autogroups = map[string]bool{"member": true, "admin": true, "owner": true, "agent": true}
+// caller's role instead of storing: every workspace member, and workspace
+// admins (owners count as admins for policy). "autogroup:<name>" parses only
+// for these names.
+var autogroups = map[string]bool{"member": true, "admin": true}
 
 // ParsePrincipal parses a principal pattern. "*" is the any principal, a
 // bare name is a group, and any other pattern is "<scheme>:<value>" with a
 // known principal scheme and a non-empty value. An autogroup value must be
-// one of member, admin, owner or agent. An unknown scheme, an unknown
+// one of member or admin. An unknown scheme, an unknown
 // autogroup name or an empty value is an error.
 func ParsePrincipal(pattern string) (Principal, error) {
 	if pattern == "*" {
@@ -68,7 +69,7 @@ func ParsePrincipal(pattern string) (Principal, error) {
 		return Principal{}, fmt.Errorf("principal pattern %q has an empty value", pattern)
 	}
 	if kind == "autogroup" && !autogroups[value] {
-		return Principal{}, fmt.Errorf("unknown autogroup %q; valid names: member, admin, owner, agent", value)
+		return Principal{}, fmt.Errorf("unknown autogroup %q; valid names: member, admin", value)
 	}
 	return Principal{Kind: kind, Value: value}, nil
 }
