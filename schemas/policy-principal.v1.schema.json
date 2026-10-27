@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/HaikeiLabs/kei-connector-contracts/schemas/policy-principal.v1.schema.json",
+  "title": "Kei policy principal (kei.policy-principal/v1)",
+  "description": "Who a policy applies to: the structured form of a principal pattern. A policy takes a standing source, a group or an autogroup (policy_principal, the root). A direct subject (user, email or agent) is valid only as the principal of an access grant (grant_principal). Metadata only: it grants nothing.",
+  "$ref": "#/$defs/policy_principal",
+  "$defs": {
+    "autogroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": { "const": "autogroup" },
+        "value": { "enum": ["member", "admin", "owner", "agent"] }
+      }
+    },
+    "group": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": { "const": "group" },
+        "value": { "type": "string", "minLength": 1 }
+      }
+    },
+    "direct_subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "value"],
+      "properties": {
+        "kind": { "enum": ["user", "email", "agent"] },
+        "value": { "type": "string", "minLength": 1 }
+      }
+    },
+    "policy_principal": {
+      "oneOf": [{ "$ref": "#/$defs/group" }, { "$ref": "#/$defs/autogroup" }]
+    },
+    "grant_principal": {
+      "oneOf": [{ "$ref": "#/$defs/group" }, { "$ref": "#/$defs/autogroup" }, { "$ref": "#/$defs/direct_subject" }]
+    }
+  }
+}

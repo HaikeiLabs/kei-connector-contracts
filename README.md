@@ -305,6 +305,15 @@ the matcher copies those services each carried: principals (who), targets
 - `Decide` orders the matching enabled rules by `Precedence` (priority DESC,
   deny before permit, ID ASC); the first decides, or the outcome is
   `no_match`. The runtime calls it when it authorizes a tool call.
+- `TypedTarget` (`{kind, value, caps?}`) and `TypedPrincipal` (`{kind, value}`)
+  are the structured forms of the target and principal patterns, with JSON
+  Schemas `policy-target.v1.schema.json` and `policy-principal.v1.schema.json`
+  in `schemas/`. `TypedTargetFromPattern` and `TypedPrincipalFromPattern` wrap
+  `ParseTarget`/`ParsePrincipal`, and `Pattern()` renders back. `caps` narrows a
+  connector target and is not part of the pattern. A policy principal is a
+  group or an autogroup (`ValidatePolicy`); a direct subject (user, email,
+  agent) is valid only on an access grant (`ValidateGrant`). The parsers are
+  unchanged.
 - `Render` turns the rules that apply to one subject into the native
   allow/deny entries of a harness kind (for example the lists `kei harness
   sync` writes for a coding harness). The harness is the rendering context, not
