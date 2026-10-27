@@ -424,6 +424,102 @@ func TestEvaluateV2MCP(t *testing.T) {
 	})
 }
 
+// TestEvaluateV2Shell exercises the shell-command path of the v2 harness
+// evaluation. It shares the v2MCPBundle helper because both paths consume the
+// same harness_policies wire shape.
+func TestEvaluateV2Shell(t *testing.T) {
+	now := time.Date(2026, 10, 5, 12, 0, 0, 0, time.UTC)
+	subject := &SessionSubject{UserID: "user-alice", Source: "discord", ExternalID: "ext-alice", Status: SubjectLinked}
+
+	t.Run("permit shell:<argv prefix>", func(t *testing.T) {
+		v := v2MCPBundle(t, now, []mcpTestPolicy{
+			{id: "p1", src: "*", dst: "shell:git status", action: "permit", priority: 10},
+		})
+		d := v.EvaluateV2Shell([]string{"git", "status", "--short"}, "agent-a", subject, now)
+		if d.Outcome != "allow" || d.PolicyID != "p1" {
+			t.Fatalf("decision = %+v", d)
+		}
+	})
+
+	t.Run("deny wins at equal priority", func(t *testing.T) {
+		v := v2MCPBundle(t, now, []mcpTestPolicy{
+			{id: "p-permit", src: "*", dst: "shell:git status", action: "permit", priority: 10},
+			{id: "p-deny", src: "*", dst: "shell:git", action: "deny", priority: 10},
+		})
+		d := v.EvaluateV2Shell([]string{"git", "status"}, "agent-a", subject, now)
+		if d.Outcome != "deny" || d.PolicyID != "p-deny" {
+			t.Fatalf("decision = %+v", d)
+		}
+	})
+
+	t.Run("group source via membership", func(t *testing.T) {
+		v := v2MCPBundle(t, now, []mcpTestPolicy{
+			{id: "p1", src: "group:members", dst: "shell:git status", action: "permit", priority: 10},
+		})
+		d := v.EvaluateV2Shell([]string{"git", "status"}, "agent-a", subject, now)
+		if d.Outcome != "allow" || d.PolicyID != "p1" {
+			t.Fatalf("decision = %+v", d)
+		}
+	})
+
+	t.Run("no match denies", func(t *testing.T) {
+		v := v2MCPBundle(t, now, []mcpTestPolicy{
+			{id: "p1", src: "*", dst: "shell:other command", action: "permit", priority: 10},
+		})
+		d := v.EvaluateV2Shell([]string{"git", "status"}, "agent-a", subject, now)
+		if d.Outcome != "deny" || d.ReasonCode != "no_matching_policy" {
+			t.Fatalf("decision = %+v", d)
+		}
+	})
+
+	t.Run("shell:* permit is not a shell grant", func(t *testing.T) {
+		v := v2MCPBundle(t, now, []mcpTestPolicy{
+			{id: "p1", src: "*", dst: "shell:*", action: "permit", priority: 10},
+		})
+		d := v.EvaluateV2Shell([]string{"git", "status"}, "agent-a", subject, now)
+		if d.Outcome != "deny" || d.ReasonCode != "no_matching_policy" {
+			t.Fatalf("decision = %+v", d)
+		}
+	})
+
+	t.Run("registered tool grant is not a shell grant", func(t *testing.T) {
+		v := v2MCPBundle(t, now, []mcpTestPolicy{
+			{id: "p1", src: "*", dst: "tool:pi.bash", action: "permit", priority: 10},
+		})
+		d := v.EvaluateV2Shell([]string{"git", "status"}, "agent-a", subject, now)
+		if d.Outcome != "deny" || d.ReasonCode != "no_matching_policy" {
+			t.Fatalf("decision = %+v", d)
+		}
+	})
+
+	t.Run("harness kind source", func(t *testing.T) {
+		v := v2MCPBundle(t, now, []mcpTestPolicy{
+			{id: "p-pi", src: "harness:pi", dst: "shell:git status", action: "permit", priority: 10},
+		})
+		d := v.EvaluateV2Shell([]string{"git", "status"}, "agent-a", subject, now)
+		if d.Outcome != "allow" || d.PolicyID != "p-pi" {
+			t.Fatalf("decision = %+v", d)
+		}
+		v = v2MCPBundle(t, now, []mcpTestPolicy{
+			{id: "p-codex", src: "harness:codex", dst: "shell:git status", action: "permit", priority: 10},
+		})
+		d = v.EvaluateV2Shell([]string{"git", "status"}, "agent-a", subject, now)
+		if d.Outcome != "deny" || d.ReasonCode != "no_matching_policy" {
+			t.Fatalf("decision = %+v", d)
+		}
+	})
+
+	t.Run("empty agent id denies", func(t *testing.T) {
+		v := v2MCPBundle(t, now, []mcpTestPolicy{
+			{id: "p1", src: "*", dst: "shell:git status", action: "permit", priority: 10},
+		})
+		d := v.EvaluateV2Shell([]string{"git", "status"}, "", subject, now)
+		if d.Outcome != "deny" || d.ReasonCode != "agent_not_assigned" {
+			t.Fatalf("decision = %+v", d)
+		}
+	})
+}
+
 func TestV2SessionPathRequiresPreflight(t *testing.T) {
 	now := time.Date(2026, 10, 5, 12, 0, 0, 0, time.UTC)
 	v := v2ToolBundle(t, now, nil)
