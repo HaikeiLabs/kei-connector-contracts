@@ -1,0 +1,26 @@
+{
+  "file": "typed-target.json",
+  "version": 1,
+  "cases": [
+    { "name": "any", "target": { "kind": "any" }, "want": { "pattern": "*" } },
+    { "name": "tool", "target": { "kind": "tool", "value": "github.get_issue" }, "want": { "pattern": "tool:github.get_issue" } },
+    { "name": "shell-prefix", "target": { "kind": "shell", "value": "git status" }, "want": { "pattern": "shell:git status" } },
+    { "name": "skill", "target": { "kind": "skill", "value": "build" }, "want": { "pattern": "skill:build" } },
+    { "name": "path", "target": { "kind": "path", "value": "/home/user/file" }, "want": { "pattern": "path:/home/user/file" } },
+    { "name": "capability", "target": { "kind": "capability", "value": "issues.read" }, "want": { "pattern": "capability:issues.read" } },
+    { "name": "mcp", "target": { "kind": "mcp", "value": "slack.list_channels" }, "want": { "pattern": "mcp:slack.list_channels" } },
+    { "name": "connector", "target": { "kind": "connector", "value": "github" }, "want": { "pattern": "connector:github" } },
+    { "name": "connector-with-caps", "target": { "kind": "connector", "value": "github", "caps": ["issues.read", "pulls.read"] }, "want": { "pattern": "connector:github" } },
+    { "name": "scheme-wildcard-value", "target": { "kind": "tool", "value": "*" }, "want": { "pattern": "tool:*" } },
+    { "name": "unknown-kind-errors", "target": { "kind": "bogus", "value": "x" }, "want": { "error": true } },
+    { "name": "empty-kind-errors", "target": { "kind": "", "value": "x" }, "want": { "error": true } },
+    { "name": "missing-value-errors", "target": { "kind": "tool" }, "want": { "error": true } },
+    { "name": "any-with-value-errors", "target": { "kind": "any", "value": "x" }, "want": { "error": true } },
+    { "name": "any-with-caps-errors", "target": { "kind": "any", "caps": ["issues.read"] }, "want": { "error": true } },
+    { "name": "caps-on-tool-errors", "target": { "kind": "tool", "value": "github.get_issue", "caps": ["issues.read"] }, "want": { "error": true } },
+    { "name": "empty-cap-errors", "target": { "kind": "connector", "value": "github", "caps": [""] }, "want": { "error": true } },
+    { "name": "duplicate-cap-errors", "target": { "kind": "connector", "value": "github", "caps": ["issues.read", "issues.read"] }, "want": { "error": true } },
+    { "name": "malformed-cap-errors", "target": { "kind": "connector", "value": "github", "caps": ["issues read"] }, "want": { "error": true } },
+    { "name": "principal-kind-not-target", "target": { "kind": "group", "value": "admins" }, "want": { "error": true } }
+  ]
+}
