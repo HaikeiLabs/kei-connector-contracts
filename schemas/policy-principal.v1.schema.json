@@ -11,7 +11,7 @@
       "required": ["kind", "value"],
       "properties": {
         "kind": { "const": "autogroup" },
-        "value": { "enum": ["member", "admin", "owner", "agent"] }
+        "value": { "enum": ["member", "admin"] }
       }
     },
     "group": {

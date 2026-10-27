@@ -197,7 +197,7 @@ func (v *Verified) EvaluateV2HarnessTool(toolName, agentID string, subject *Sess
 	request := map[string]string{"tool": registered.Name, "source": registered.Source}
 	groups, roles := membershipValues(v.Payload.Identities, subject.UserID, now)
 	groups = append(groups, subject.Groups...)
-	return evaluateV2Check(set.ToolPolicies, request, subject, groups, roles, agentID, v.Payload.Audience.OrgID, v.Payload.Audience.WorkspaceID)
+	return evaluateV2Check(set.ToolPolicies, set.denyOverrides(), request, subject, groups, roles, agentID, v.Payload.Audience.OrgID, v.Payload.Audience.WorkspaceID)
 }
 
 // EvaluateV2Plan locally AND-authorizes a complete exact operation plan for a
@@ -252,7 +252,7 @@ func (v *Verified) EvaluateV2Plan(toolName, agentID string, subject *SessionSubj
 		if op.ResourceParent != "" {
 			request["resource_parent"] = op.ResourceParent
 		}
-		decision := evaluateV2Check(set.Checks, request, subject, groups, roles, agentID, v.Payload.Audience.OrgID, v.Payload.Audience.WorkspaceID)
+		decision := evaluateV2Check(set.Checks, set.denyOverrides(), request, subject, groups, roles, agentID, v.Payload.Audience.OrgID, v.Payload.Audience.WorkspaceID)
 		if decision.Outcome != "allow" {
 			return decision
 		}
@@ -306,7 +306,7 @@ func (v *Verified) operationResourceRegistered(tool *V2Tool, op Operation) bool 
 	return false
 }
 
-func evaluateV2Check(checks []v2Check, request map[string]string, subject *SessionSubject, groups, roles []string, agentID, orgID, workspaceID string) Decision {
+func evaluateV2Check(checks []v2Check, denyOverrides bool, request map[string]string, subject *SessionSubject, groups, roles []string, agentID, orgID, workspaceID string) Decision {
 	matching := make([]v2Check, 0, len(checks))
 	call := Call{AgentID: agentID, UserID: subject.UserID, Email: subject.Email}
 	for _, check := range checks {
@@ -328,7 +328,7 @@ func evaluateV2Check(checks []v2Check, request map[string]string, subject *Sessi
 		return Decision{Outcome: "deny", ReasonCode: "no_matching_policy", Reason: "no policy check matched the operation"}
 	}
 	sort.Slice(matching, func(i, j int) bool {
-		if matching[i].Priority != matching[j].Priority {
+		if !denyOverrides && matching[i].Priority != matching[j].Priority {
 			return matching[i].Priority > matching[j].Priority
 		}
 		if matching[i].Effect != matching[j].Effect {
