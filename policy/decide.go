@@ -23,6 +23,25 @@ import (
 // Effect is the decision a rule makes: "permit" or "deny".
 type Effect string
 
+// When is an optional condition on the call context. A rule applies only when
+// every set field matches the request; the zero value always applies. Harness
+// is context, not identity (ADR-038 decision 9): it never names who is
+// deciding, only which harness made the call. Add new conditions as new fields;
+// each is a new, version-gated bundle feature.
+type When struct {
+	// Harness is a harness kind from the registry. Empty means any harness.
+	Harness string
+}
+
+// IsZero reports whether the condition is unset.
+func (w When) IsZero() bool { return w == When{} }
+
+// matches reports whether the request context satisfies the condition. A
+// request with no harness kind never satisfies a condition that names one.
+func (w When) matches(req Request) bool {
+	return w.Harness == "" || w.Harness == req.Harness
+}
+
 // Rule is a single policy rule. Priority is retained so existing callers still
 // compile; Decide ignores it.
 type Rule struct {
@@ -32,6 +51,9 @@ type Rule struct {
 	Effect    Effect
 	Priority  int
 	Enabled   bool
+	// When narrows the rule to a call context (ADR-038 D-6). The zero value
+	// always applies.
+	When When
 }
 
 // Request is the principal and target a decision is made for.
@@ -40,6 +62,9 @@ type Request struct {
 	Email  string
 	Groups []string
 	Target string
+	// Harness is the harness kind of the call, as the runtime knows it. Empty
+	// when unknown; a rule whose When names a harness does not apply then.
+	Harness string
 }
 
 // Outcome is the result of a decision.
@@ -79,8 +104,9 @@ var Precedence func(a, b Rule) int = func(a, b Rule) int {
 }
 
 // Decide decides the request against the rules. It considers the enabled
-// rules whose principal matches the request and whose target matches the
-// request target through MatchTarget, orders them by Precedence, and lets the
+// rules whose principal matches the request, whose target matches the
+// request target through MatchTarget and whose When condition holds for the
+// request context, and orders them by Precedence, and lets the
 // first one decide. DecidedBy is the deciding rule's ID and Outranked the IDs
 // of the other matching rules in order. If no rule matches, the decision is
 // "no_match".
@@ -94,6 +120,9 @@ func Decide(rules []Rule, req Request) Outcome {
 			continue
 		}
 		if !targetMatches(r.Target, req.Target) {
+			continue
+		}
+		if !r.When.matches(req) {
 			continue
 		}
 		matched = append(matched, r)

@@ -317,6 +317,13 @@ the matcher copies those services each carried: principals (who), targets
   deny before permit, then ID ASC; `Priority` is not read); the first decides,
   or the outcome is `no_match`. The runtime calls it when it authorizes a tool
   call.
+- A `Rule` may carry a `When` condition (ADR-038 D-6). Today it has one field,
+  `Harness`: the rule applies only when `Request.Harness` is that harness kind,
+  and never when the request's harness is unknown. The filter runs before
+  `Precedence`, so a deny whose `When` matches still beats every matching permit,
+  and a deny whose `When` does not match cannot deny. Harness is context, not
+  identity: it is never a principal. Bundles do not carry `when` yet; a runtime
+  must not receive it until it parses it.
 - Bundles opt in to the same semantics with the evaluation id `deny_overrides`:
   `policy_set.evaluation.order` for `kei.policy-bundle/v1`, an entry of
   `policy_set.evaluation.precedence` for v2. `array_order_first_match` and
