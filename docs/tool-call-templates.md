@@ -56,7 +56,6 @@ transport fields: the GitHub contents API takes file content base64 encoded.
 | Tool | File | Permission | Notes |
 | --- | --- | --- | --- |
 | `linear.create_issue` | `schemas/linear.tool-definition.v1.json` | `linear.write` | GraphQL `POST` |
-| `linear.create_followup_task` | `schemas/linear.tool-definition.v1.json` | `linear.write` | GraphQL `POST` |
 | `github.create_fix_pr` | `schemas/github.tool-definition.v1.json` | `github.write` | closed schema: `title`, `body`, `unified_diff` (max 32 KiB); no transport (kei-agents#45) |
 | `github.file_write` | `schemas/github.tool-definition.v1.json` | `file.write` | `PUT` contents API; governed file_write (HAI-855) |
 

@@ -23,7 +23,7 @@ import (
 
 // These mirror the governance package's test fixtures for tests here.
 func fixture() contract.Metadata {
-	return contract.Metadata{ID: "c-1", TenantID: "t-1", WorkspaceID: "w-1", Name: "CRM", Provider: contract.ProviderCRM, Status: contract.StatusActive, CredentialRef: "vault/tenant/t-1/crm", Scopes: []string{"leads:read"}, Resources: []string{"leads/*"}, Policy: contract.PolicyAttributes{AllowedActions: []contract.Action{contract.ActionRead, contract.ActionUpdate}, AllowedResources: []string{"leads"}}, Capabilities: []contract.Capability{{Name: "lead.read", Action: contract.ActionRead}}, CreatedBy: "u-1"}
+	return contract.Metadata{ID: "c-1", TenantID: "t-1", WorkspaceID: "w-1", Name: "Tito", Provider: contract.ProviderTito, Status: contract.StatusActive, CredentialRef: "vault/tenant/t-1/tito", Scopes: []string{"leads:read"}, Resources: []string{"leads/*"}, Policy: contract.PolicyAttributes{AllowedActions: []contract.Action{contract.ActionRead, contract.ActionUpdate}, AllowedResources: []string{"leads"}}, Capabilities: []contract.Capability{{Name: "lead.read", Action: contract.ActionRead}}, CreatedBy: "u-1"}
 }
 
 func decisionFixture() contract.Metadata {

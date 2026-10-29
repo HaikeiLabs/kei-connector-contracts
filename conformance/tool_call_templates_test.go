@@ -70,12 +70,6 @@ var firstTemplates = []templateParity{
 		optional: []string{"description", "labels", "priority"},
 		hasHTTP:  true,
 	},
-	{
-		file: "linear", name: "linear.create_followup_task", permission: "linear.write",
-		required: []string{"idempotency_key", "lead_id", "summary", "title"},
-		optional: []string{"approval_id"},
-		hasHTTP:  true,
-	},
 }
 
 func loadTemplates(t *testing.T, connector string) []calltemplate.Template {

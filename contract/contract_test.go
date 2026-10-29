@@ -17,12 +17,12 @@ package contract
 import "testing"
 
 func fixture() Metadata {
-	return Metadata{ID: "c-1", TenantID: "t-1", WorkspaceID: "w-1", Name: "CRM", Provider: ProviderCRM, Status: StatusActive, CredentialRef: "vault/tenant/t-1/crm", Scopes: []string{"leads:read"}, Resources: []string{"leads/*"}, Policy: PolicyAttributes{AllowedActions: []Action{ActionRead, ActionUpdate}, AllowedResources: []string{"leads"}}, Capabilities: []Capability{{Name: "lead.read", Action: ActionRead}}, CreatedBy: "u-1"}
+	return Metadata{ID: "c-1", TenantID: "t-1", WorkspaceID: "w-1", Name: "Linear", Provider: ProviderLinear, Status: StatusActive, CredentialRef: "vault/tenant/t-1/linear", Scopes: []string{"leads:read"}, Resources: []string{"leads/*"}, Policy: PolicyAttributes{AllowedActions: []Action{ActionRead, ActionUpdate}, AllowedResources: []string{"leads"}}, Capabilities: []Capability{{Name: "issue.read", Action: ActionRead}}, CreatedBy: "u-1"}
 }
 
 func TestValidateCallEnforcesTenantWorkspaceAndCapability(t *testing.T) {
 	m := fixture()
-	in := Invocation{TenantID: "t-1", WorkspaceID: "w-1", Subject: "u-1", AgentID: "a-1", ConnectorID: "c-1", Capability: "lead.read", Action: ActionRead, Resource: "leads/42", TraceID: "trace-1"}
+	in := Invocation{TenantID: "t-1", WorkspaceID: "w-1", Subject: "u-1", AgentID: "a-1", ConnectorID: "c-1", Capability: "issue.read", Action: ActionRead, Resource: "leads/42", TraceID: "trace-1"}
 	if err := ValidateCall(m, in); err != nil {
 		t.Fatalf("valid call rejected: %v", err)
 	}
@@ -37,8 +37,8 @@ func TestValidateCallEnforcesTenantWorkspaceAndCapability(t *testing.T) {
 // authorization happens in the control plane before the runtime.
 func TestValidateCallMutationsAreStructurallyAllowed(t *testing.T) {
 	m := fixture()
-	m.Capabilities = []Capability{{Name: "lead.update", Action: ActionUpdate}}
-	in := Invocation{TenantID: "t-1", WorkspaceID: "w-1", Subject: "u-1", AgentID: "a-1", ConnectorID: "c-1", Capability: "lead.update", Action: ActionUpdate, Resource: "leads/42", TraceID: "trace-1"}
+	m.Capabilities = []Capability{{Name: "issue.update", Action: ActionUpdate}}
+	in := Invocation{TenantID: "t-1", WorkspaceID: "w-1", Subject: "u-1", AgentID: "a-1", ConnectorID: "c-1", Capability: "issue.update", Action: ActionUpdate, Resource: "leads/42", TraceID: "trace-1"}
 	if err := ValidateCall(m, in); err != nil {
 		t.Fatalf("mutation rejected by the contract: %v", err)
 	}

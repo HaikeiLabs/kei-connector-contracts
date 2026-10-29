@@ -205,7 +205,7 @@ func TestToolDefinitionV1UniqueNames(t *testing.T) {
 
 func TestToolDefinitionV1ProviderFileCount(t *testing.T) {
 	expected := map[string]int{
-		"linear":       5,  // linear.list_issues, linear.get_issue, linear.list_projects, linear.create_issue, linear.create_followup_task
+		"linear":       4,  // linear.list_issues, linear.get_issue, linear.list_projects, linear.create_issue
 		"google_drive": 5,  // drive.list_files, drive.get_file, docs.get_document, drive_create_doc, drive_update_doc
 		"github":       10, // github.get_repository, github.get_issue, github.get_pull_request, list_prs, list_issues, create_issue, get_workflow_status, create_pull_request, github.create_fix_pr, github.file_write
 		"http_api":     2,  // http_api.list_records, http_api.get_record

@@ -34,7 +34,7 @@ var updateAccessGolden = flag.Bool("update-access", false, "rewrite schemas/conn
 var adapterProviders = []contract.Provider{
 	contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderLinear, contract.ProviderGitHub,
 	contract.ProviderTito, contract.ProviderNotion, contract.ProviderDiscord, contract.ProviderGrafana,
-	contract.ProviderCRM, contract.ProviderHTTPAPI, contract.ProviderSkillsRepo,
+	contract.ProviderHTTPAPI, contract.ProviderSkillsRepo,
 }
 
 // HAI-319 freeze: every adapter provider has exactly one api mode, and no
@@ -64,8 +64,8 @@ func TestAccessFreezeIsAPIOnlyForAdapterProviders(t *testing.T) {
 }
 
 // The api mode reads every read capability and declares only the writes the
-// runtime executes: every crm write, Linear issue.create and comment.create,
-// and http_api http.post and http.patch.
+// runtime executes: Linear issue.create and comment.create, and http_api
+// http.post and http.patch.
 func TestAPIModeReadsAndWrites(t *testing.T) {
 	for _, p := range adapterProviders {
 		a, _ := AccessFor(p)
@@ -91,9 +91,8 @@ func TestAPIModeReadsAndWrites(t *testing.T) {
 			t.Errorf("%s api mode has no setup or verify steps", p)
 		}
 	}
-	crm, _ := AccessFor(contract.ProviderCRM)
-	if want := []string{"investor.update", "lead.create", "lead.update"}; !reflect.DeepEqual(sorted(crm.Access[0].Writes), want) {
-		t.Errorf("crm writes = %v, want %v", crm.Access[0].Writes, want)
+	if _, ok := AccessFor("crm"); ok {
+		t.Error("crm has access modes; there is no crm provider (HAI-384)")
 	}
 	linear, _ := AccessFor(contract.ProviderLinear)
 	if want := []string{"comment.create", "issue.create"}; !reflect.DeepEqual(sorted(linear.Access[0].Writes), want) {

@@ -45,7 +45,7 @@ func s3Fixture() Metadata {
 	}
 }
 
-// validInvocation is a well-formed governed call for the CRM fixture.
+// validInvocation is a well-formed governed call for the fixture connector.
 func validInvocation() Invocation {
 	return Invocation{
 		TenantID:       "t-1",
@@ -53,7 +53,7 @@ func validInvocation() Invocation {
 		Subject:        "u-1",
 		AgentID:        "a-1",
 		ConnectorID:    "c-1",
-		Capability:     "lead.read",
+		Capability:     "issue.read",
 		Action:         ActionRead,
 		Resource:       "leads/42",
 		TraceID:        "trace-1",
@@ -191,7 +191,7 @@ func TestValidateCredentialRefRejectsMaterial(t *testing.T) {
 	}
 
 	accepted := []string{
-		"vault/tenant/t-1/crm",
+		"vault/tenant/t-1/tito",
 		"secret/kei/connectors/s3-billing",
 		"kv-v2/data/kei/github",
 	}
@@ -371,7 +371,7 @@ func TestValidateCredentialRefRejectsKeiOAuthNamespace(t *testing.T) {
 			}
 		})
 	}
-	if err := ValidateCredentialRef("vault/tenant/t-1/crm"); err != nil {
+	if err := ValidateCredentialRef("vault/tenant/t-1/tito"); err != nil {
 		t.Errorf("rejected valid opaque credential_ref: %v", err)
 	}
 }
@@ -473,7 +473,7 @@ func TestValidateCallEnforcesOAuthSubjectBinding(t *testing.T) {
 
 	sr := fixture()
 	sr.CredentialSource = CredentialSourceOpaqueRef
-	in2 := Invocation{TenantID: "t-1", WorkspaceID: "w-1", Subject: "anyone", AgentID: "a-1", ConnectorID: "c-1", Capability: "lead.read", Action: ActionRead, Resource: "leads/42", TraceID: "trace-1"}
+	in2 := Invocation{TenantID: "t-1", WorkspaceID: "w-1", Subject: "anyone", AgentID: "a-1", ConnectorID: "c-1", Capability: "issue.read", Action: ActionRead, Resource: "leads/42", TraceID: "trace-1"}
 	if err := ValidateCall(sr, in2); err != nil {
 		t.Fatalf("opaque_ref invocation rejected: %v", err)
 	}

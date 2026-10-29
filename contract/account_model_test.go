@@ -34,7 +34,6 @@ func TestAccountModelsPerProvider(t *testing.T) {
 		ProviderLinear: {AccountModelPerUser, AccountModelShared},
 		ProviderGitHub: {AccountModelPerUser, AccountModelShared},
 		ProviderTito:   nil,
-		ProviderCRM:    nil,
 	}
 	for provider, models := range want {
 		got := AccountModelsFor(provider)
