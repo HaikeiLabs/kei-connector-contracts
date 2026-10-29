@@ -22,19 +22,35 @@ import (
 )
 
 func TestLookupCapability(t *testing.T) {
-	cap, ok := LookupCapability(contract.ProviderCRM, "lead.read")
+	cap, ok := LookupCapability(contract.ProviderLinear, "issue.read")
 	if !ok {
-		t.Fatal("expected lead.read to be defined for crm")
+		t.Fatal("expected issue.read to be defined for linear")
 	}
-	if cap.Name != "lead.read" || cap.Action != contract.ActionRead {
+	if cap.Name != "issue.read" || cap.Action != contract.ActionRead {
 		t.Fatalf("unexpected capability: %+v", cap)
 	}
 
-	if _, ok := LookupCapability(contract.ProviderCRM, "admin.raw_sql"); ok {
+	if _, ok := LookupCapability(contract.ProviderLinear, "admin.raw_sql"); ok {
 		t.Fatal("undefined capability must not be found")
 	}
-	if _, ok := LookupCapability("unknown", "lead.read"); ok {
+	if _, ok := LookupCapability("unknown", "issue.read"); ok {
 		t.Fatal("unknown provider must not yield capabilities")
+	}
+}
+
+// TestCRMIsNotAProvider (HAI-384): there is no dedicated crm provider; a CRM
+// API is an http_api connector the admin names.
+func TestCRMIsNotAProvider(t *testing.T) {
+	if contract.ValidProvider("crm") {
+		t.Fatal(`"crm" must not be a valid provider`)
+	}
+	if _, err := CapabilitiesForProvider("crm"); err == nil {
+		t.Fatal(`"crm" must have no capability set`)
+	}
+	for _, p := range Providers() {
+		if p == "crm" {
+			t.Fatal(`Providers() must not list "crm"`)
+		}
 	}
 }
 
@@ -62,7 +78,7 @@ func TestCapabilitiesForProviderCopiesAndRejectsUnknown(t *testing.T) {
 
 func TestProvidersSortedAndComplete(t *testing.T) {
 	got := Providers()
-	want := []contract.Provider{contract.ProviderCRM, contract.ProviderDiscord, contract.ProviderFreshBooks, contract.ProviderGitHub, contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderGrafana, contract.ProviderHTTPAPI, contract.ProviderLinear, contract.ProviderMercury, contract.ProviderNotion, contract.ProviderS3, contract.ProviderSkillsRepo, contract.ProviderTito}
+	want := []contract.Provider{contract.ProviderDiscord, contract.ProviderFreshBooks, contract.ProviderGitHub, contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderGrafana, contract.ProviderHTTPAPI, contract.ProviderLinear, contract.ProviderMercury, contract.ProviderNotion, contract.ProviderS3, contract.ProviderSkillsRepo, contract.ProviderTito}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("Providers() = %v, want %v", got, want)
 	}

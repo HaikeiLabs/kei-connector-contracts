@@ -63,8 +63,6 @@
         "schedule_meetings",
         "github_read",
         "github_write",
-        "crm_read",
-        "crm_write",
         "linear_read",
         "linear_write",
         "drive_read",
@@ -75,10 +73,6 @@
         "notion_read",
         "gmail_read",
         "tito_read",
-        "finance_read",
-        "finance_write",
-        "fundraising_read",
-        "fundraising_write",
         "project_hours_read",
         "semantic_model_read"
       ]
@@ -88,7 +82,6 @@
         "search",
         "productivity",
         "github",
-        "crm",
         "entertainment",
         "linear",
         "drive",

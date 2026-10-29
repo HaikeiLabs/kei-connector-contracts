@@ -28,8 +28,9 @@ import (
 
 type Provider string
 
+// There is no dedicated CRM provider (HAI-384): a CRM API is an http_api
+// connector the admin names.
 const (
-	ProviderCRM     Provider = "crm"
 	ProviderLinear  Provider = "linear"
 	ProviderGitHub  Provider = "github"
 	ProviderGoogle  Provider = "google_drive"
@@ -98,7 +99,6 @@ const (
 // them. It authorizes any well-formed capability a connector declares and
 // leaves access to ABAC policy (HAI-258).
 var definitions = map[Provider][]Capability{
-	ProviderCRM:    {{Name: "lead.read", Action: ActionRead}, {Name: "lead.create", Action: ActionCreate}, {Name: "lead.update", Action: ActionUpdate}, {Name: "investor.list", Action: ActionRead}, {Name: "investor.read", Action: ActionRead}, {Name: "investor.update", Action: ActionUpdate}},
 	ProviderLinear: {{Name: "team.read", Action: ActionRead}, {Name: "project.read", Action: ActionRead}, {Name: "cycle.read", Action: ActionRead}, {Name: "issue.read", Action: ActionRead}, {Name: "issue.create", Action: ActionCreate}, {Name: "issue.update", Action: ActionUpdate}, {Name: "comment.create", Action: ActionCreate}},
 	ProviderGitHub: {{Name: "repository.read", Action: ActionRead}, {Name: "issue.read", Action: ActionRead}, {Name: "pull_request.read", Action: ActionRead}, {Name: "check.read", Action: ActionRead}, {Name: "workflow.read", Action: ActionRead}, {Name: "issue.create", Action: ActionCreate}, {Name: "issue.update", Action: ActionUpdate}, {Name: "pull_request.create", Action: ActionCreate}, {Name: "pull_request.update", Action: ActionUpdate}, {Name: "issue.comment", Action: ActionComment}},
 	ProviderGoogle: {{Name: "drive.search", Action: ActionRead}, {Name: "drive.metadata.read", Action: ActionRead}, {Name: "docs.read", Action: ActionRead}, {Name: "drive.doc.create", Action: ActionCreate}, {Name: "drive.doc.update", Action: ActionUpdate}},
@@ -337,7 +337,7 @@ func definedCapability(provider Provider, candidate Capability) bool {
 }
 
 func validProvider(p Provider) bool {
-	return p == ProviderCRM || p == ProviderLinear || p == ProviderGitHub || p == ProviderGoogle || p == ProviderNotion || p == ProviderS3 || p == ProviderHTTPAPI ||
+	return p == ProviderLinear || p == ProviderGitHub || p == ProviderGoogle || p == ProviderNotion || p == ProviderS3 || p == ProviderHTTPAPI ||
 		p == ProviderFreshBooks || p == ProviderMercury || p == ProviderGmail || p == ProviderTito || p == ProviderDiscord || p == ProviderGrafana ||
 		p == ProviderSkillsRepo
 }

@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"flag"
-	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -31,7 +30,7 @@ var updateSetupGolden = flag.Bool("update-setup", false, "rewrite schemas/connec
 // Only the connectors we build are configurable: s3 and the finance
 // providers have no setup schema.
 func TestSetupSchemasCoverExactlyTheSupportedProviders(t *testing.T) {
-	want := []contract.Provider{contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderLinear, contract.ProviderGitHub, contract.ProviderTito, contract.ProviderNotion, contract.ProviderDiscord, contract.ProviderGrafana, contract.ProviderSkillsRepo, contract.ProviderCRM, contract.ProviderHTTPAPI}
+	want := []contract.Provider{contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderLinear, contract.ProviderGitHub, contract.ProviderTito, contract.ProviderNotion, contract.ProviderDiscord, contract.ProviderGrafana, contract.ProviderSkillsRepo, contract.ProviderHTTPAPI}
 	got := SetupSchemas()
 	if len(got) != len(want) {
 		t.Fatalf("SetupSchemas() has %d providers, want %d", len(got), len(want))
@@ -129,7 +128,7 @@ func TestValidateConfigAcceptsValidNonSecretFields(t *testing.T) {
 		{contract.ProviderGmail, contract.AccountModelPerUser, map[string]any{}},
 		{contract.ProviderGmail, contract.AccountModelDomainDelegation, map[string]any{"impersonate_email": "events@example.com"}},
 		{contract.ProviderGoogle, contract.AccountModelShared, map[string]any{"drive_id": "0AFx-drive_1"}},
-		{contract.ProviderCRM, "", map[string]any{"base_url": "https://haikeilabs.com", "assertion_audience": "kei-crm", "allowed_resources": []any{"leads"}}},
+		{contract.ProviderSkillsRepo, "", map[string]any{"repo_url": "https://github.com/example-org/agent-skills"}},
 		{contract.ProviderLinear, contract.AccountModelShared, nil},
 	}
 	for _, tc := range cases {
@@ -153,8 +152,8 @@ func TestValidateConfigRejectsInvalidConfigWithoutEchoingValues(t *testing.T) {
 		{"wrong type", contract.ProviderGmail, contract.AccountModelPerUser, map[string]any{"include_body": "VALUE"}},
 		{"field for another model", contract.ProviderGmail, contract.AccountModelPerUser, map[string]any{"impersonate_email": "VALUE@example.com"}},
 		{"not an email", contract.ProviderGmail, contract.AccountModelDomainDelegation, map[string]any{"impersonate_email": "Name <VALUE@example.com>"}},
-		{"http base url", contract.ProviderCRM, "", map[string]any{"base_url": "http://VALUE.example.com", "assertion_audience": "kei-crm"}},
-		{"url with userinfo", contract.ProviderCRM, "", map[string]any{"base_url": "https://u:VALUE@example.com", "assertion_audience": "kei-crm"}},
+		{"http repo url", contract.ProviderSkillsRepo, "", map[string]any{"repo_url": "http://github.com/VALUE/skills"}},
+		{"url with userinfo", contract.ProviderSkillsRepo, "", map[string]any{"repo_url": "https://u:VALUE@github.com/acme/skills"}},
 		{"model not allowed", contract.ProviderGitHub, contract.AccountModelDomainDelegation, map[string]any{}},
 		{"no schema", contract.ProviderS3, "", map[string]any{}},
 		{"notion token in config", contract.ProviderNotion, "", map[string]any{"api_token": "ntn_VALUE0000000000000000"}},
@@ -233,48 +232,24 @@ func TestValidateMetadataChecksStructureThenConfig(t *testing.T) {
 // runtime's check, so it refuses a capability the runtime has no code for,
 // even though the control plane's structural Metadata.Validate accepts it.
 func TestValidateMetadataRequiresExecutableCapabilities(t *testing.T) {
-	m := connectorMetadata(contract.ProviderCRM, contract.CredentialSourceOpaqueRef, "", nil)
+	m := connectorMetadata(contract.ProviderTito, contract.CredentialSourceOpaqueRef, "", nil)
 	m.Capabilities = []contract.Capability{{Name: "deal.read", Action: contract.ActionRead}}
 	if err := m.Validate(); err != nil {
 		t.Fatalf("structural check rejected a declared capability: %v", err)
 	}
-	if err := ValidateMetadata(m); err == nil || err.Error() != `capability "deal.read" is not defined for provider "crm"` {
+	if err := ValidateMetadata(m); err == nil || err.Error() != `capability "deal.read" is not defined for provider "tito"` {
 		t.Fatalf("ValidateMetadata error = %v, want the executable-capability error", err)
 	}
 }
 
-// TestCRMAllowedResourcesIncludeInvestors (HAI-210): the crm contract defines
-// investor.list and investor.read, so the setup schema must let a connector
-// scope itself to investors alongside leads. The default stays leads and
-// customers, and resources outside the crm surface are still refused.
-func TestCRMAllowedResourcesIncludeInvestors(t *testing.T) {
-	base := func(resources ...any) map[string]any {
-		return map[string]any{"base_url": "https://haikeilabs.com", "assertion_audience": "kei-crm", "allowed_resources": resources}
+// TestCRMHasNoSetupSchema (HAI-384): there is no crm provider to set up; a
+// CRM API is set up as an http_api connector.
+func TestCRMHasNoSetupSchema(t *testing.T) {
+	if _, ok := SetupSchemaFor("crm"); ok {
+		t.Fatal(`"crm" has a setup schema`)
 	}
-	for name, config := range map[string]map[string]any{
-		"investors with leads": base("leads", "investors"),
-		"investors wildcard":   base("investors/*"),
-	} {
-		if err := ValidateConfig(contract.ProviderCRM, "", config); err != nil {
-			t.Errorf("%s rejected: %v", name, err)
-		}
-	}
-	for name, config := range map[string]map[string]any{
-		"unknown resource":   base("leads", "invoices"),
-		"investor singular":  base("investor"),
-		"investors sub-path": base("investors/42"),
-	} {
-		if err := ValidateConfig(contract.ProviderCRM, "", config); err == nil {
-			t.Errorf("%s accepted", name)
-		}
-	}
-	schema, _ := SetupSchemaFor(contract.ProviderCRM)
-	for _, f := range schema.Fields {
-		if f.Name == "allowed_resources" {
-			if got := fmt.Sprint(f.Default); got != "[leads customers]" {
-				t.Errorf("allowed_resources default = %s, want [leads customers]", got)
-			}
-		}
+	if err := ValidateConfig("crm", "", map[string]any{"base_url": "https://crm.example.com"}); err == nil {
+		t.Fatal(`config for "crm" was accepted`)
 	}
 }
 

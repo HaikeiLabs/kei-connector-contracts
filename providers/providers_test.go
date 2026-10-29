@@ -74,31 +74,31 @@ func TestGuardEnforcesWorkspaceAndTenant(t *testing.T) {
 }
 
 func TestGuardRejectsPathTraversal(t *testing.T) {
-	m := metaFor(t, contract.ProviderCRM, []string{"leads"}, nil)
-	// "leads/../../customers" passes the contract's raw prefix check but
-	// normalizes outside the leads boundary; the provider guard rejects it.
-	inv := invocation("lead.read", contract.ActionRead, "leads/../../customers")
+	m := metaFor(t, contract.ProviderNotion, []string{"pages"}, nil)
+	// "pages/../../databases" passes the contract's raw prefix check but
+	// normalizes outside the pages boundary; the provider guard rejects it.
+	inv := invocation("page.read", contract.ActionRead, "pages/../../databases")
 	if err := Guard(m, inv); err == nil || err.Error() != "resource contains a path traversal segment" {
 		t.Fatalf("traversal resource error = %v", err)
 	}
 	// A trailing traversal segment is rejected too.
-	if err := Guard(m, invocation("lead.read", contract.ActionRead, "leads/..")); err == nil {
+	if err := Guard(m, invocation("page.read", contract.ActionRead, "pages/..")); err == nil {
 		t.Fatal("trailing traversal segment was allowed")
 	}
 	// A bare ".." resource is rejected.
-	if err := Guard(m, invocation("lead.read", contract.ActionRead, "..")); err == nil {
+	if err := Guard(m, invocation("page.read", contract.ActionRead, "..")); err == nil {
 		t.Fatal("bare .. resource was allowed")
 	}
 	// A name that merely contains ".." is not a traversal segment.
-	if err := Guard(m, invocation("lead.read", contract.ActionRead, "leads/foo..bar")); err != nil {
+	if err := Guard(m, invocation("page.read", contract.ActionRead, "pages/foo..bar")); err != nil {
 		t.Fatalf("benign resource rejected: %v", err)
 	}
 }
 
 func TestGuardRejectsEncodedPathTraversal(t *testing.T) {
-	m := metaFor(t, contract.ProviderCRM, []string{"leads"}, nil)
-	for _, resource := range []string{"leads/%2e%2e/customers", "leads/%2E%2E/customers", "leads/..%2fcustomers"} {
-		inv := invocation("lead.read", contract.ActionRead, resource)
+	m := metaFor(t, contract.ProviderNotion, []string{"pages"}, nil)
+	for _, resource := range []string{"pages/%2e%2e/databases", "pages/%2E%2E/databases", "pages/..%2fdatabases"} {
+		inv := invocation("page.read", contract.ActionRead, resource)
 		if err := Guard(m, inv); err == nil || err.Error() != "resource contains a path traversal segment" {
 			t.Fatalf("encoded traversal %q error = %v", resource, err)
 		}
@@ -340,59 +340,6 @@ func TestS3ScopedListAndGet(t *testing.T) {
 	}
 }
 
-func crmStore() MemoryCRM {
-	now := time.Now().UTC()
-	return MemoryCRM{
-		AuthRef: "vault/tenant/t-1/test",
-		Leads: map[string]CRMLead{
-			"l-1": {ID: "l-1", Name: "Ada", Email: "ada@example.com", Company: "Acme", Stage: "qualified", CreatedAt: now},
-			"l-2": {ID: "l-2", Name: "Grace", Email: "grace@example.com", Company: "Bolt", Stage: "contacted", CreatedAt: now},
-		},
-		Investors: map[string]CRMInvestor{
-			"i-1": {ID: "i-1", Name: "Ada Lovelace", Firm: "Analytical Capital", Email: "ada@example.com", Stage: "prospect", CreatedAt: now, UpdatedAt: now},
-			"i-2": {ID: "i-2", Name: "Grace Hopper", Firm: "Compiler Ventures", Email: "grace@example.com", Stage: "diligence", CreatedAt: now, UpdatedAt: now},
-			"i-3": {ID: "i-3", Name: "Katherine Johnson", Firm: "Northstar Partners", Email: "kj@example.com", Stage: "meeting", CreatedAt: now, UpdatedAt: now},
-		},
-	}
-}
-
-func TestCRMLeadReadsRequireAuthentication(t *testing.T) {
-	c := NewCRM(crmStore())
-	m := metaFor(t, contract.ProviderCRM, []string{"leads"}, nil)
-	ctx := context.Background()
-
-	list, err := c.Invoke(ctx, m, invocation("lead.read", contract.ActionRead, "leads"), LeadReadPayload{})
-	if err != nil {
-		t.Fatalf("lead list failed: %v", err)
-	}
-	if got := list.Data.([]CRMLead); len(got) != 2 {
-		t.Fatalf("lead list returned %d leads: %+v", len(got), got)
-	}
-
-	lead, err := c.Invoke(ctx, m, invocation("lead.read", contract.ActionRead, "leads/l-1"), LeadReadPayload{ID: "l-1"})
-	if err != nil || lead.Data.(CRMLead).Name != "Ada" {
-		t.Fatalf("lead read = %+v, %v", lead.Data, err)
-	}
-
-	// A connector whose credential reference does not resolve to an
-	// authenticated session is rejected by the backend.
-	unauth := metaFor(t, contract.ProviderCRM, []string{"leads"}, nil)
-	unauth.CredentialRef = "vault/tenant/other/crm"
-	if _, err := c.Invoke(ctx, unauth, invocation("lead.read", contract.ActionRead, "leads"), LeadReadPayload{}); err == nil || err.Error() != "crm session is not authenticated" {
-		t.Fatalf("unauthenticated lead list error = %v", err)
-	}
-
-	// The payload cannot point at a different lead than the resource.
-	if _, err := c.Invoke(ctx, m, invocation("lead.read", contract.ActionRead, "leads/l-1"), LeadReadPayload{ID: "l-2"}); err == nil {
-		t.Fatal("payload/resource id mismatch was accepted")
-	}
-	// Customer reads are not part of the contract surface: the provider client
-	// enforces resource shape (structural), not policy boundaries.
-	if _, err := c.Invoke(ctx, m, invocation("lead.read", contract.ActionRead, "customers"), LeadReadPayload{}); err == nil || err.Error() != "resource must be leads or leads/<id>" {
-		t.Fatalf("customer resource error = %v", err)
-	}
-}
-
 func notionStore() MemoryNotion {
 	now := time.Now().UTC()
 	return MemoryNotion{
@@ -503,7 +450,7 @@ func TestNotionStructuralBoundary(t *testing.T) {
 }
 
 func TestRegistryAndProviderMismatch(t *testing.T) {
-	for _, p := range []contract.Provider{contract.ProviderCRM, contract.ProviderLinear, contract.ProviderGitHub, contract.ProviderGoogle, contract.ProviderNotion, contract.ProviderS3} {
+	for _, p := range []contract.Provider{contract.ProviderLinear, contract.ProviderGitHub, contract.ProviderGoogle, contract.ProviderNotion, contract.ProviderS3} {
 		c, err := New(p)
 		if err != nil {
 			t.Fatalf("New(%s) failed: %v", p, err)
