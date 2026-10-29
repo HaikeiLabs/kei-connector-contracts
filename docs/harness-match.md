@@ -71,6 +71,12 @@ A policy may carry an optional `scope_agent_id`.  When set, the policy matches
 only calls whose `AgentID` equals the scoped value.  This is checked before
 source or destination matching.
 
+**Deprecated.**  Producers should omit `scope_agent_id` (and the bundle
+`scope.agent_id` it comes from): a policy applies to every agent in its
+workspace, and an agent gets access through group membership.  Consumers keep
+honoring the value when a producer still sends it, so existing bundles
+evaluate unchanged.  The field is removed in the next major contracts version.
+
 ## Fixtures
 
 The file `harnessmatch/testdata/cases.v1.json` contains the shared fixture set

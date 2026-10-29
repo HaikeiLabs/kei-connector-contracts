@@ -528,3 +528,35 @@ func TestV2SessionPathRequiresPreflight(t *testing.T) {
 		t.Fatalf("v2 regular authorize path = %+v", d)
 	}
 }
+
+// scope.agent_id is deprecated: producers omit it (a policy applies to every
+// agent in its workspace; agents get access through group membership).
+// Consumers keep honoring it when a producer still sends it, so older bundles
+// evaluate as before.
+func TestV2ScopeAgentIDIsOptionalAndStillHonored(t *testing.T) {
+	type scope struct {
+		OrgID       *string `json:"org_id"`
+		WorkspaceID *string `json:"workspace_id"`
+		AgentID     *string `json:"agent_id"`
+	}
+	decode := func(raw string) scope {
+		t.Helper()
+		var s scope
+		if err := json.Unmarshal([]byte(raw), &s); err != nil {
+			t.Fatal(err)
+		}
+		return s
+	}
+	for name, raw := range map[string]string{
+		"key omitted": `{"org_id":"org-v2","workspace_id":"ws-v2"}`,
+		"null":        `{"org_id":"org-v2","workspace_id":"ws-v2","agent_id":null}`,
+	} {
+		if !v2ScopeMatches(decode(raw), "any-agent", "org-v2", "ws-v2") {
+			t.Errorf("%s: a scope without agent_id must match every agent", name)
+		}
+	}
+	scoped := decode(`{"org_id":"org-v2","workspace_id":"ws-v2","agent_id":"agent-a"}`)
+	if !v2ScopeMatches(scoped, "agent-a", "org-v2", "ws-v2") || v2ScopeMatches(scoped, "agent-b", "org-v2", "ws-v2") {
+		t.Error("a scope that still carries agent_id must keep matching only that agent")
+	}
+}
