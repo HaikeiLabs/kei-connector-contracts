@@ -322,8 +322,16 @@ the matcher copies those services each carried: principals (who), targets
   and never when the request's harness is unknown. The filter runs before
   `Precedence`, so a deny whose `When` matches still beats every matching permit,
   and a deny whose `When` does not match cannot deny. Harness is context, not
-  identity: it is never a principal. Bundles do not carry `when` yet; a runtime
-  must not receive it until it parses it.
+  identity: it is never a principal.
+- A v2 bundle's `policy_set.harness_policies` rows may carry
+  `when: {"harness": "<kind>"}` (`V2When`). The closed parser accepts exactly
+  that member, and only on `harness_policies`: `checks` and `tool_policies`
+  are not given the harness kind, so they keep rejecting it. An empty
+  `harness` or any other key is rejected. `EvaluateV2ShellForKind`,
+  `EvaluateV2MCP` and `EvaluateHarness` skip a row whose `when` names another
+  or an unknown kind before ordering, so deny-overrides is unchanged. A runtime
+  built before this member existed rejects the whole bundle, so the catalog
+  must emit `when` only to runtimes that parse it.
 - Bundles opt in to the same semantics with the evaluation id `deny_overrides`:
   `policy_set.evaluation.order` for `kei.policy-bundle/v1`, an entry of
   `policy_set.evaluation.precedence` for v2. `array_order_first_match` and

@@ -383,6 +383,11 @@ func validatePolicySetV2(raw json.RawMessage) error {
 	if err := strictJSON(raw, &set); err != nil {
 		return fmt.Errorf("%w: policy_set", ErrBundleUnsupported)
 	}
+	for i, p := range set.HarnessPolicies {
+		if p.When != nil && p.When.Harness == "" {
+			return fmt.Errorf("%w: policy_set.harness_policies[%d].when.harness", ErrBundleUnsupported, i)
+		}
+	}
 	for _, tool := range set.Tools {
 		if tool.Route.ConnectorBinding != nil && len(tool.Plan) > 0 {
 			if err := planValid(tool); err != nil {

@@ -82,6 +82,9 @@ func (v *Verified) EvaluateV2ShellForKind(kind string, argv []string, agentID st
 		if !v2ScopeMatches(policy.Scope, agentID, v.Payload.Audience.OrgID, v.Payload.Audience.WorkspaceID) {
 			continue
 		}
+		if !policy.whenHolds(call.Kind) {
+			continue
+		}
 		matched, renderable := harnessmatch.MatchDst(policy.Dst, call)
 		if !renderable || !matched {
 			continue
@@ -155,6 +158,9 @@ func (v *Verified) EvaluateV2MCP(slug, tool, agentID, harnessKind string, subjec
 		if !v2ScopeMatches(policy.Scope, agentID, v.Payload.Audience.OrgID, v.Payload.Audience.WorkspaceID) {
 			continue
 		}
+		if !policy.whenHolds(call.Kind) {
+			continue
+		}
 		matched, renderable := harnessmatch.MatchDst(policy.Dst, call)
 		if !renderable || !matched {
 			continue
@@ -195,9 +201,12 @@ func (v *Verified) EvaluateHarness(c HarnessCall) (outcome, policyID, reason str
 			return HarnessNotRenderable, "", HarnessReasonBundleInvalid
 		}
 		denyFirst = set.denyOverrides()
-		policies = make([]harnessmatch.Policy, len(set.HarnessPolicies))
-		for i, p := range set.HarnessPolicies {
-			policies[i] = harnessmatch.Policy{ID: p.PolicyID, Src: p.Src, Dst: p.Dst, Action: p.Action, Enabled: true, Scope: p.Scope.AgentID}
+		policies = make([]harnessmatch.Policy, 0, len(set.HarnessPolicies))
+		for _, p := range set.HarnessPolicies {
+			if !p.whenHolds(c.Kind) {
+				continue
+			}
+			policies = append(policies, harnessmatch.Policy{ID: p.PolicyID, Src: p.Src, Dst: p.Dst, Action: p.Action, Enabled: true, Scope: p.Scope.AgentID})
 		}
 	} else {
 		set, err := v.decodePolicySet()
