@@ -15,6 +15,7 @@
 package audit
 
 import (
+	"encoding/json"
 	"testing"
 	"time"
 
@@ -100,5 +101,55 @@ func TestBuildAuditRecordDenyCarriesNoCapability(t *testing.T) {
 	rec := BuildAuditRecord(decisionEnvelope(), governance.PolicyDecision{Decision: governance.DecisionDeny, Reason: "connector is not active"}, time.Now())
 	if rec.ToolName != "connector/c-1/lead.read" {
 		t.Fatalf("tool_name = %q; a deny must still be attributable", rec.ToolName)
+	}
+}
+
+func TestAuditRecordCredentialReleasedWireShape(t *testing.T) {
+	released := true
+	notReleased := false
+	cases := []struct {
+		name    string
+		value   *bool
+		want    string
+		present bool
+	}{
+		{name: "released", value: &released, want: "true", present: true},
+		{name: "allow without release", value: &notReleased, want: "false", present: true},
+		{name: "not a release decision", value: nil, present: false},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			rec := BuildAuditRecord(decisionEnvelope(), governance.PolicyDecision{Decision: governance.DecisionAllow}, time.Now())
+			rec.CredentialReleased = tc.value
+			data, err := json.Marshal(rec)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var fields map[string]json.RawMessage
+			if err := json.Unmarshal(data, &fields); err != nil {
+				t.Fatal(err)
+			}
+			got, ok := fields["credential_released"]
+			if ok != tc.present {
+				t.Fatalf("credential_released present = %v, want %v (%s)", ok, tc.present, data)
+			}
+			if ok && string(got) != tc.want {
+				t.Fatalf("credential_released = %s, want %s", got, tc.want)
+			}
+			var back AuditRecord
+			if err := json.Unmarshal(data, &back); err != nil {
+				t.Fatal(err)
+			}
+			if (back.CredentialReleased == nil) != (tc.value == nil) || (back.CredentialReleased != nil && *back.CredentialReleased != *tc.value) {
+				t.Fatalf("round trip credential_released = %v, want %v", back.CredentialReleased, tc.value)
+			}
+		})
+	}
+}
+
+func TestBuildAuditRecordLeavesCredentialReleasedUnset(t *testing.T) {
+	rec := BuildAuditRecord(decisionEnvelope(), governance.PolicyDecision{Decision: governance.DecisionAllow}, time.Now())
+	if rec.CredentialReleased != nil {
+		t.Fatalf("credential_released = %v; only the credential-release route sets it", *rec.CredentialReleased)
 	}
 }

@@ -43,6 +43,11 @@ type AuditRecord struct {
 	PolicyReason     *string   `json:"policy_reason,omitempty"`
 	OrgID            *string   `json:"org_id,omitempty"`
 	WorkspaceID      *string   `json:"workspace_id,omitempty"`
+	// CredentialReleased is set only on a credential-release decision
+	// (docs/credential-passthrough.md): true when a credential value was
+	// released to the caller, false when it was not. Nil on every other
+	// decision. The credential value itself is never recorded.
+	CredentialReleased *bool `json:"credential_released,omitempty"`
 }
 
 // BuildAuditRecord maps an envelope and its fail-closed decision onto the
