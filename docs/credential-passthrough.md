@@ -145,14 +145,28 @@ session memory for the life of the session.
 
 ## Audit
 
-The route emits one audit event per call: the decision (allow/deny), the
-`reason_code`, a `credential_released` boolean (true only on a successful
-release), the `connector_id`, `resource`, `session_id`, span context, and the
-policy metadata (`policy_id`, bundle version/digest/revision). It **never**
-records the access token value, the request payload, or any secret. The token
-crosses the socket and is not written to the audit log. This extends the
-existing decision audit event with a `credential_released` field; the decision
-and the release are both recorded, the material is not.
+The route emits one audit record per call (`audit.AuditRecord`): the decision
+the caller actually got (allow/deny), the `reason_code`, the connector and
+`resource`, span context, and the policy metadata (`policy_id`, bundle
+version/digest/revision). When a policy allow is followed by a release that
+fails (no credential held, expired, audience or account-model mismatch), the
+record is the deny the caller received, with the release `reason_code`, not
+the policy allow.
+
+When a credential was actually handed out, the record also carries
+`credential_kind`: which kind of credential the call used, `oauth` or
+`secret_store` (`audit.CredentialKindFor` maps the connector's
+`credential_source`: `oauth` → `oauth`, `opaque_ref` → `secret_store`). A record
+without `credential_kind` used no credential. The same applies to
+`kei-proxy run`: each connector whose secret-store credential was put into a
+child's environment is recorded as an access with `credential_kind:
+secret_store`. The control plane checks `credential_kind` against the
+connector's `credential_source` and stores it with the record.
+
+The record **never** carries the access token value, a secret reference, the
+request payload, or any secret. Whether, when and how often a session's
+credentials were released is agent-session state: it stays in the runtime
+session and is not part of the audit record.
 
 ## agentware SDK setup
 
