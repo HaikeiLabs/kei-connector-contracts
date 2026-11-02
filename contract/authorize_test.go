@@ -57,14 +57,14 @@ func TestValidateExecutableRequiresDefinedCapabilities(t *testing.T) {
 	if err := m.ValidateExecutable(); err != nil {
 		t.Fatalf("defined capability rejected: %v", err)
 	}
-	m.Capabilities = []Capability{{Name: "lead.read", Action: ActionRead}, {Name: "admin.raw_sql", Action: ActionRead}}
+	m.Capabilities = []Capability{{Name: "issue.read", Action: ActionRead}, {Name: "admin.raw_sql", Action: ActionRead}}
 	err := m.ValidateExecutable()
-	if err == nil || err.Error() != `capability "admin.raw_sql" is not defined for provider "crm"` {
+	if err == nil || err.Error() != `capability "admin.raw_sql" is not defined for provider "linear"` {
 		t.Fatalf("undefined capability error = %v", err)
 	}
 	// The definition is name and action: a defined name under another action
 	// is not executable.
-	m.Capabilities = []Capability{{Name: "lead.read", Action: ActionDelete}}
+	m.Capabilities = []Capability{{Name: "issue.read", Action: ActionDelete}}
 	if err := m.ValidateExecutable(); err == nil {
 		t.Fatal("defined name with the wrong action was accepted")
 	}

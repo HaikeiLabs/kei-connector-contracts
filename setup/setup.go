@@ -196,13 +196,6 @@ var setupSchemas = []SetupSchema{
 		{Name: "subdirectory", Label: "Skills folder", Type: SetupFieldString, Location: SetupLocationConfig, Pattern: `^(/|[A-Za-z0-9_-][A-Za-z0-9._-]{0,99}(/[A-Za-z0-9_-][A-Za-z0-9._-]{0,99}){0,7}/?)$`, Default: "skills/"},
 		{Name: "token", Label: "GitHub token with read access to repository contents", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 20, MaxLength: 512, CredentialSources: opaqueRefOnly},
 	}},
-	{Schema: SetupSchemaVersion, Provider: contract.ProviderCRM, Auth: sharedSecretAuth(), Fields: []SetupField{
-		{Name: "base_url", Label: "CRM Worker origin", Type: SetupFieldHTTPSURL, Location: SetupLocationConfig, Required: true, MaxLength: 2048},
-		{Name: "assertion_audience", Label: "Service assertion audience", Type: SetupFieldString, Location: SetupLocationConfig, Required: true, Pattern: `^[A-Za-z0-9][A-Za-z0-9._:/-]{0,254}$`},
-		{Name: "allowed_actions", Label: "Allowed actions", Type: SetupFieldStringList, Location: SetupLocationConfig, Pattern: `^(read|create|update)$`, Default: []string{"read"}},
-		{Name: "allowed_resources", Label: "Allowed resources", Type: SetupFieldStringList, Location: SetupLocationConfig, Pattern: `^(leads|customers|investors)(/\*)?$`, Default: []string{"leads", "customers"}},
-		{Name: "api_key", Label: "CRM connector API key", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 32, MaxLength: 512},
-	}},
 	{Schema: SetupSchemaVersion, Provider: contract.ProviderHTTPAPI, Auth: sharedSecretAuth(), Fields: []SetupField{
 		{Name: "http_api", Label: "HTTP API registration", Type: SetupFieldHTTPAPI, Location: SetupLocationHTTPAPI, Required: true},
 		{Name: "api_key", Label: "API key", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 1, MaxLength: 4096},

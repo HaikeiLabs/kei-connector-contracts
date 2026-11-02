@@ -114,8 +114,6 @@ func New(provider contract.Provider) (Client, error) {
 		return NewS3(MemoryS3{}), nil
 	case contract.ProviderNotion:
 		return NewNotion(MemoryNotion{}), nil
-	case contract.ProviderCRM:
-		return NewCRM(MemoryCRM{}), nil
 	case contract.ProviderFreshBooks:
 		return NewFreshBooks(MemoryFreshBooks{}), nil
 	case contract.ProviderMercury:

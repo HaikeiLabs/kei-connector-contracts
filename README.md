@@ -269,10 +269,11 @@ Each provider has an `access` list. Each mode has:
 
 Today only `api` is populated. It is set for the providers with a runtime
 adapter: gmail, google_drive, linear, github, tito, notion, discord, grafana,
-crm, http_api and skills_repo. Only crm, linear and http_api list writes, because the
-runtime executes them: every crm write, Linear `issue.create` and
-`comment.create`, and http_api `http.post` and `http.patch`. No provider has a
-cli, mcp or webhook mode yet.
+http_api and skills_repo. Only linear and http_api list writes, because the
+runtime executes them: Linear `issue.create` and `comment.create`, and
+http_api `http.post` and `http.patch`. No provider has a cli, mcp or webhook
+mode yet. There is no dedicated CRM provider (HAI-384): a CRM API is an
+http_api connector the admin names.
 
 ## Canonical resource URIs (HAI-566, unreleased)
 

@@ -2,7 +2,7 @@
   {
     "schema": "kei.tool-definition/v1",
     "name": "http_api.list_records",
-    "description": "List records of an entity through the governed http_api/CRM connection",
+    "description": "List records of an entity through the governed http_api connection",
     "parameters": [
       {
         "name": "entity",
@@ -36,7 +36,7 @@
     "category": "http_api",
     "service": "http_api",
     "version": "1.0.0",
-    "tags": ["http-read", "governed-connector", "crm-read"],
+    "tags": ["http-read", "governed-connector"],
     "binding": {
       "connector_id": "conn_http_api_1",
       "config": {
@@ -74,7 +74,7 @@
   {
     "schema": "kei.tool-definition/v1",
     "name": "http_api.get_record",
-    "description": "Read a single record through the governed http_api/CRM connection",
+    "description": "Read a single record through the governed http_api connection",
     "parameters": [
       {
         "name": "entity",
@@ -94,7 +94,7 @@
     "category": "http_api",
     "service": "http_api",
     "version": "1.0.0",
-    "tags": ["http-read", "governed-connector", "crm-read"],
+    "tags": ["http-read", "governed-connector"],
     "binding": {
       "connector_id": "conn_http_api_1",
       "config": {

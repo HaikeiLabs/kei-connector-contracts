@@ -45,9 +45,6 @@ var catalogMutations = []struct {
 	{contract.ProviderGitHub, "pull_request.create", contract.ActionCreate},
 	{contract.ProviderGitHub, "pull_request.update", contract.ActionUpdate},
 	{contract.ProviderGitHub, "issue.comment", contract.ActionComment},
-	{contract.ProviderCRM, "lead.create", contract.ActionCreate},
-	{contract.ProviderCRM, "lead.update", contract.ActionUpdate},
-	{contract.ProviderCRM, "investor.update", contract.ActionUpdate},
 	{contract.ProviderLinear, "issue.create", contract.ActionCreate},
 	{contract.ProviderLinear, "issue.update", contract.ActionUpdate},
 	{contract.ProviderLinear, "comment.create", contract.ActionCreate},
@@ -62,10 +59,6 @@ func readOnlyConnector(t *testing.T, provider contract.Provider) (contract.Metad
 	m := fixture()
 	m.Provider = provider
 	switch provider {
-	case contract.ProviderCRM:
-		m.Capabilities = []contract.Capability{{Name: "lead.read", Action: contract.ActionRead}}
-		m.Policy = contract.PolicyAttributes{AllowedActions: []contract.Action{contract.ActionRead}, AllowedResources: []string{"leads"}}
-		return m, "lead.read", "leads/42"
 	case contract.ProviderGitHub:
 		m.Capabilities = []contract.Capability{{Name: "issue.read", Action: contract.ActionRead}}
 		m.Policy = contract.PolicyAttributes{AllowedActions: []contract.Action{contract.ActionRead}, AllowedResources: []string{"repos/acme/kei"}}
@@ -167,7 +160,7 @@ func TestDecideDeniesUndeclaredMutation(t *testing.T) {
 // TestReadCallIsValid proves the read path stays usable: a governed read
 // against a read-only connector is valid.
 func TestReadCallIsValid(t *testing.T) {
-	for _, provider := range []contract.Provider{contract.ProviderCRM, contract.ProviderGitHub, contract.ProviderLinear} {
+	for _, provider := range []contract.Provider{contract.ProviderGitHub, contract.ProviderLinear} {
 		t.Run(string(provider), func(t *testing.T) {
 			meta, readCap, resource := readOnlyConnector(t, provider)
 			in := contract.Invocation{

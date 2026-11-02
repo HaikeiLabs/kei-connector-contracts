@@ -55,9 +55,8 @@ func TestConnectorContractFreezeProviderCatalog(t *testing.T) {
 		ProviderMercury:    {"account.read": ActionRead, "transaction.read": ActionRead, "balance.read": ActionRead},
 		// HAI-202: Gmail is a deliberate, read-only addition to the freeze.
 		ProviderGmail: {"message.search": ActionRead, "message.get": ActionRead},
-		// HAI-210/253: CRM enters the freeze with its investor reads and
-		// investor.update write capability.
-		ProviderCRM: {"lead.read": ActionRead, "lead.create": ActionCreate, "lead.update": ActionUpdate, "investor.list": ActionRead, "investor.read": ActionRead, "investor.update": ActionUpdate},
+		// HAI-384: the crm provider left the freeze; a CRM API is an
+		// http_api connector.
 		// HAI-203: Tito is a deliberate, read-only addition to the freeze.
 		ProviderTito: {"event.list": ActionRead, "event.get": ActionRead, "release.list": ActionRead, "ticket.summary": ActionRead},
 		// HAI-309: Discord and Grafana enter the freeze read-only. Discord has
