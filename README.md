@@ -1,8 +1,10 @@
 # kei-connector-contracts
 
-The versioned connector contract shared by Kei services: connector metadata,
-capabilities, invocation envelopes, decisions, audit shapes, and provider
-definitions.
+The versioned connector contract from [Haikei Labs](https://haikeilabs.com), shared by Kei
+services: connector metadata, capabilities, invocation envelopes, decisions,
+audit shapes, and provider definitions.
+
+[Docs](https://docs.haikeilabs.com) · [Discord](https://discord.gg/g6QaTYWXDa)
 
 Extracted from `kei` under
 [ADR-017](https://github.com/HaikeiLabs/kei/blob/main/docs/adr/017-service-repository-boundaries-and-naming.md),
@@ -227,7 +229,8 @@ access to a repository's issues or pull requests.
 - `version` and `harnesses` are read from the frontmatter, top level or under
   `metadata:`. Values that are not plain tokens are dropped.
 - The archive is inline in the invoke result: the result shape has no blob
-  reference, and a reference would need a second, ungoverned download. It is
+  reference, and a reference would need a second download that Kei doesn't
+  check. It is
   deterministic for a commit (path order, fixed timestamps, modes 0644/0755),
   bounded (500 files, 2 MiB per file, 8 MiB in total), and refuses symlinks
   and submodules.
