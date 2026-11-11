@@ -1,0 +1,55 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// GitHub connector contract.
+//
+// This file is the toolchain sample: one operation proving that a request
+// message can declare its operation contract, that the contract survives
+// code generation into every supported language, and that a registry can
+// walk the compiled descriptors to answer "what operations exist".
+syntax = "proto3";
+
+package kei.connectors.github.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;github";
+
+// GetIssueRequest reads a single issue from a GitHub repository.
+message GetIssueRequest {
+  string owner = 1;
+  string repository = 2;
+  int64 issue_number = 3;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.issues.get"
+    connector: "github"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/repos/{owner}/{repository}/issues/{issue_number}"
+    scopes: ["issues:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+  };
+}
+
+// GetIssueResponse models the subset of the GitHub issue payload the
+// contract needs. It is filled by JSON unmarshal of the provider response.
+message GetIssueResponse {
+  int64 id = 1;
+  int64 number = 2;
+  string title = 3;
+  string state = 4;
+  optional string body = 5;
+  string html_url = 6;
+}

@@ -1,0 +1,19 @@
+# Remote plugins only: no local toolchain beyond buf itself. Output paths are
+# the roots of the per-language modules under gen/.
+version: v2
+plugins:
+  - remote: buf.build/protocolbuffers/go
+    out: gen/go
+    opt: paths=source_relative
+  - remote: buf.build/protocolbuffers/python
+    out: gen/python/src
+  - remote: buf.build/protocolbuffers/pyi
+    out: gen/python/src
+  - remote: buf.build/bufbuild/es
+    out: gen/ts/src
+    opt: target=ts
+  - remote: buf.build/community/neoeinstein-prost
+    out: gen/rust/src/gen
+  - remote: buf.build/community/neoeinstein-prost-serde
+    out: gen/rust/src/gen
+    opt: ignore_unknown_fields

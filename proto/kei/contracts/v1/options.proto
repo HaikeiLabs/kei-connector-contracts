@@ -1,0 +1,71 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Operation contracts as protobuf language constructs.
+//
+// Proto is the contract language only: generated types are plain structs
+// filled by JSON unmarshal. There are no services, no gRPC, and no generated
+// HTTP clients in this module. Connector runtimes decide how to execute an
+// operation; the contract declares what it is called, how it is governed, and
+// what it touches.
+syntax = "proto3";
+
+package kei.contracts.v1;
+
+import "google/protobuf/descriptor.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1;contracts";
+
+// OperationClass classifies what an operation does to the connector's
+// backing resource. Reads are safe to retry and never change state; writes
+// may create, modify, or delete.
+enum OperationClass {
+  OPERATION_CLASS_UNSPECIFIED = 0;
+  OPERATION_CLASS_READ = 1;
+  OPERATION_CLASS_WRITE = 2;
+}
+
+// CredentialPlacement describes where the connector runtime places the
+// resolved credential on the outgoing HTTP request. The credential itself is
+// never part of the contract: it is resolved from a secret backend at
+// invocation time.
+enum CredentialPlacement {
+  CREDENTIAL_PLACEMENT_UNSPECIFIED = 0;
+  CREDENTIAL_PLACEMENT_HEADER_BEARER = 1;
+  CREDENTIAL_PLACEMENT_HEADER_CUSTOM = 2;
+  CREDENTIAL_PLACEMENT_QUERY = 3;
+  CREDENTIAL_PLACEMENT_BASIC = 4;
+  CREDENTIAL_PLACEMENT_NONE = 5;
+}
+
+// Operation declares how a connector operation is invoked and governed.
+//
+// Attach it to a request message with the operation message option below.
+// The id must be unique across all connectors and dotted
+// (connector.domain.action); the connector field must equal the first id
+// segment. Write operations must declare at least one scope.
+message Operation {
+  string id = 1;
+  string connector = 2;
+  OperationClass class = 3;
+  bool destructive = 4;
+  string http_method = 5;
+  string path_template = 6;
+  repeated string scopes = 7;
+  CredentialPlacement credential_placement = 8;
+}
+
+extend google.protobuf.MessageOptions {
+  Operation operation = 51234;
+}

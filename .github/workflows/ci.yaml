@@ -65,3 +65,62 @@ jobs:
             exit 1
           fi
           echo "OK: no third-party dependencies"
+
+  proto:
+    name: Proto toolchain
+    # Same hosted-runner rationale as the verify job: buf, Go and Rust only,
+    # no AWS or cluster dependency.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so .git#branch=main is resolvable for buf breaking.
+          fetch-depth: 0
+
+      - name: Install buf
+        uses: bufbuild/buf-action@v1
+        with:
+          setup_only: true
+
+      - name: Lint
+        run: buf lint
+
+      - name: Breaking change check
+        # The proto module is new on this branch; until main carries proto/
+        # there is no baseline to break against.
+        run: |
+          if git cat-file -e main:proto 2>/dev/null; then
+            buf breaking --against '.git#branch=main'
+          else
+            echo "proto/ does not exist on main yet; skipping breaking check"
+          fi
+
+      - name: Generate
+        run: buf generate
+
+      - name: Generated code is committed and in sync
+        # Both a modified tracked file and a brand-new untracked file mean the
+        # committed generation is stale.
+        run: |
+          untracked=$(git ls-files --others --exclude-standard gen/)
+          if [ -n "$untracked" ]; then
+            echo "buf generate produced untracked files under gen/:"
+            echo "$untracked"
+            exit 1
+          fi
+          git diff --exit-code
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.27"
+          cache-dependency-path: gen/go/go.sum
+
+      - name: Go registry tests
+        run: go test -count=1 ./...
+        working-directory: gen/go
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust serde tests
+        run: cargo test
+        working-directory: gen/rust
