@@ -1,6 +1,6 @@
 # Proposal 0001: Operation contracts
 
-**Status:** Proposal. Not accepted. For discussion with the maintainers.
+**Status:** Accepted (2026-11-11).
 Tracking: HAI-915.
 
 Nothing in this document is decided, and nothing in it changes the repository
@@ -8,6 +8,23 @@ today. It describes a possible direction, what it would take, and what would
 make us stop. This is the first file in `docs/proposals/`; there was no
 existing proposal or ADR folder in this repository, so this path is a
 suggestion too.
+
+## Amendment (owner, 2026-11-11)
+
+Accepted with the following amendments:
+
+- proto is the contract **language only**. buf generates plain Go structs,
+  Python, TS and Rust types.
+- Callers fill them by JSON unmarshal of the real provider payload: Go
+  protojson, Python json_format, TS `@bufbuild/protobuf` fromJson, Rust prost
+  plus pbjson serde.
+- No gRPC services, no grpc-gateway, no generated HTTP clients that relay
+  calls. The harness makes every call; kei-proxy stays decision-only
+  (ADR-039).
+- The bake-off against a bespoke JSON Schema generator is dropped. The
+  approval gate is HAI-990: 10 pilot operations whose fixtures unmarshal in
+  Go, Python and Rust.
+- Languages ship in lockstep from one tag: Go, Python, TS, Rust.
 
 ## 1. Motivation
 
