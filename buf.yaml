@@ -1,0 +1,11 @@
+# Operation contracts live in the proto module. Generated code under gen/ is
+# committed; buf generate output must stay in sync (CI checks with git diff).
+version: v2
+modules:
+  - path: proto
+lint:
+  use:
+    - STANDARD
+breaking:
+  use:
+    - FILE

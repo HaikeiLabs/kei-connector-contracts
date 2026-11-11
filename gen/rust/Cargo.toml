@@ -1,0 +1,21 @@
+# Rust bindings for the Kei connector operation contracts.
+#
+# The proto sources are the contract; this crate and everything under
+# gen/ are byproducts of buf generate plus thin hand-written glue.
+[package]
+name = "haikeilabs-connector-contracts"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "Kei connector operation contracts: prost types and pbjson serde impls"
+repository = "https://github.com/HaikeiLabs/kei-connector-contracts"
+publish = false
+
+[dependencies]
+prost = "0.14"
+pbjson = "0.8"
+pbjson-types = "0.8"
+serde = "1"
+
+[dev-dependencies]
+serde_json = "1"
