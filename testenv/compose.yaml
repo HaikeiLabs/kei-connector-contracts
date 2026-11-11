@@ -1,0 +1,116 @@
+# kei-connector-contracts local test environment (HAI-998).
+#
+# LOCAL DEVELOPMENT ONLY. Every password in this file is intentionally weak
+# ("testenv") and must never be reused outside this compose file.
+#
+# Start:   podman compose up -d          (from this directory)
+# Seed:    automatic on first start (init mechanism per image; see README.md)
+# Teardown: podman compose down -v       (removes containers AND volumes)
+
+services:
+  postgres:
+    image: postgres:16.4
+    environment:
+      POSTGRES_DB: testenv
+      POSTGRES_USER: testenv
+      POSTGRES_PASSWORD: testenv # LOCAL ONLY
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./seed/postgres.sql:/docker-entrypoint-initdb.d/10-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testenv -d testenv"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # Supabase-local runs as Postgres; this is a plain second postgres service
+  # standing in for it, with its own database and volume.
+  supabase:
+    image: postgres:16.4
+    environment:
+      POSTGRES_DB: supabase
+      POSTGRES_USER: testenv
+      POSTGRES_PASSWORD: testenv # LOCAL ONLY
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - supabase-data:/var/lib/postgresql/data
+      - ./seed/supabase.sql:/docker-entrypoint-initdb.d/10-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testenv -d supabase"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: testenv
+      MYSQL_USER: testenv
+      MYSQL_PASSWORD: testenv # LOCAL ONLY
+      MYSQL_ROOT_PASSWORD: testenv # LOCAL ONLY
+    ports:
+      - "127.0.0.1:3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./seed/mysql.sql:/docker-entrypoint-initdb.d/10-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u testenv -ptestenv --silent"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # Opt-in (profile "mssql"): the image is amd64-only and SQL Server 2022
+  # does not reliably start under amd64 emulation on arm64 Macs; use an
+  # amd64 host. Start it with
+  # `podman compose --profile mssql up -d` or TESTENV_MSSQL=1 bash smoke.sh.
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-CU15-ubuntu-22.04
+    platform: linux/amd64
+    profiles: ["mssql"]
+    environment:
+      ACCEPT_EULA: "Y"
+      # SQL Server enforces password complexity (8+ chars, 3 of
+      # upper/lower/digit/symbol); "testenv" is rejected by the server.
+      MSSQL_SA_PASSWORD: "Testenv_local1" # LOCAL ONLY
+    ports:
+      - "127.0.0.1:1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P Testenv_local1 -Q 'SELECT 1' -b -o /dev/null",
+        ]
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
+  # The mssql image has no init-script mechanism, so the seed runs in a
+  # one-shot sidecar that exits when the seed has been applied. It reuses the
+  # server image, which already ships sqlcmd at /opt/mssql-tools18/bin/sqlcmd.
+  mssql-seed:
+    image: mcr.microsoft.com/mssql/server:2022-CU15-ubuntu-22.04
+    platform: linux/amd64
+    profiles: ["mssql"]
+    depends_on:
+      mssql:
+        condition: service_healthy
+    volumes:
+      - ./seed/mssql.sql:/seed/mssql.sql:ro
+    entrypoint: []
+    command:
+      [
+        "sh",
+        "-c",
+        "/opt/mssql-tools18/bin/sqlcmd -C -S mssql,1433 -U sa -P Testenv_local1 -I -b -i /seed/mssql.sql",
+      ]
+
+volumes:
+  postgres-data:
+  supabase-data:
+  mysql-data:
+  mssql-data:
