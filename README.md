@@ -391,6 +391,16 @@ platform-specific. The same goes for the bundle's canonical JSON Schema
 documents and example payloads, which stay with the services that compile and
 issue them.
 
+## Operation contracts (HAI-988)
+
+The rules for operation contracts — the id grammar (`connector.resource.verb`,
+plus the `mcp.` and `builtin.` prefixes), the proto layout, `json_name`, the
+unknown-field and versioning rules, and the fixture policy — live in
+[docs/operation-contracts.md](docs/operation-contracts.md). Accepted
+2026-11-11 via proposal
+[0001](docs/proposals/0001-operation-contracts.md) with the owner amendment
+recorded there.
+
 ## Versioning
 
 Tagged with semver. Consumers require a released version; no `replace`
