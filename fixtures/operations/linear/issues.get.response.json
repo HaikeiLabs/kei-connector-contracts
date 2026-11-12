@@ -1,0 +1,14 @@
+{
+  "issue": {
+    "id": "00000000-0000-0000-0000-000000000101",
+    "identifier": "ENG-101",
+    "title": "Synthetic pilot issue",
+    "description": null,
+    "url": "https://example.invalid/linear/issue/ENG-101",
+    "createdAt": "2026-11-11T09:00:00.000Z",
+    "updatedAt": "2026-11-11T09:00:00.000Z"
+  },
+  "team": {
+    "name": "Synthetic Team"
+  }
+}

@@ -32,7 +32,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file kei/connectors/github/v1/issues.proto.
  */
 export const file_kei_connectors_github_v1_issues: GenFile = /*@__PURE__*/
-  fileDesc("CiVrZWkvY29ubmVjdG9ycy9naXRodWIvdjEvaXNzdWVzLnByb3RvEhhrZWkuY29ubmVjdG9ycy5naXRodWIudjEitAEKD0dldElzc3VlUmVxdWVzdBINCgVvd25lchgBIAEoCRISCgpyZXBvc2l0b3J5GAIgASgJEhQKDGlzc3VlX251bWJlchgDIAEoAzpokoIZZAoRZ2l0aHViLmlzc3Vlcy5nZXQSBmdpdGh1YhgBKgNHRVQyMS9yZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fS9pc3N1ZXMve2lzc3VlX251bWJlcn06C2lzc3VlczpyZWFkQAEiegoQR2V0SXNzdWVSZXNwb25zZRIKCgJpZBgBIAEoAxIOCgZudW1iZXIYAiABKAMSDQoFdGl0bGUYAyABKAkSDQoFc3RhdGUYBCABKAkSEQoEYm9keRgFIAEoCUgAiAEBEhAKCGh0bWxfdXJsGAYgASgJQgcKBV9ib2R5QlZaVGdpdGh1Yi5jb20vSGFpa2VpTGFicy9rZWktY29ubmVjdG9yLWNvbnRyYWN0cy9nZW4vZ28va2VpL2Nvbm5lY3RvcnMvZ2l0aHViL3YxO2dpdGh1YmIGcHJvdG8z", [file_kei_contracts_v1_options]);
+  fileDesc("CiVrZWkvY29ubmVjdG9ycy9naXRodWIvdjEvaXNzdWVzLnByb3RvEhhrZWkuY29ubmVjdG9ycy5naXRodWIudjEitAEKD0dldElzc3VlUmVxdWVzdBINCgVvd25lchgBIAEoCRISCgpyZXBvc2l0b3J5GAIgASgJEhQKDGlzc3VlX251bWJlchgDIAEoAzpokoIZZAoRZ2l0aHViLmlzc3Vlcy5nZXQSBmdpdGh1YhgBKgNHRVQyMS9yZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fS9pc3N1ZXMve2lzc3VlX251bWJlcn06C2lzc3VlczpyZWFkQAEiegoQR2V0SXNzdWVSZXNwb25zZRIKCgJpZBgBIAEoAxIOCgZudW1iZXIYAiABKAMSDQoFdGl0bGUYAyABKAkSDQoFc3RhdGUYBCABKAkSEQoEYm9keRgFIAEoCUgAiAEBEhAKCGh0bWxfdXJsGAYgASgJQgcKBV9ib2R5ItQBChFMaXN0SXNzdWVzUmVxdWVzdBINCgVvd25lchgBIAEoCRISCgpyZXBvc2l0b3J5GAIgASgJEhIKBXN0YXRlGAMgASgJSACIAQESFQoIcGVyX3BhZ2UYBCABKAVIAYgBATpakoIZVgoSZ2l0aHViLmlzc3Vlcy5saXN0EgZnaXRodWIYASoDR0VUMiIvcmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX0vaXNzdWVzOgtpc3N1ZXM6cmVhZEABQggKBl9zdGF0ZUILCglfcGVyX3BhZ2UidgoMSXNzdWVTdW1tYXJ5EgoKAmlkGAEgASgDEg4KBm51bWJlchgCIAEoAxINCgV0aXRsZRgDIAEoCRINCgVzdGF0ZRgEIAEoCRIRCgRib2R5GAUgASgJSACIAQESEAoIaHRtbF91cmwYBiABKAlCBwoFX2JvZHkiTAoSTGlzdElzc3Vlc1Jlc3BvbnNlEjYKBmlzc3VlcxgBIAMoCzImLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5Jc3N1ZVN1bW1hcnlCVlpUZ2l0aHViLmNvbS9IYWlrZWlMYWJzL2tlaS1jb25uZWN0b3ItY29udHJhY3RzL2dlbi9nby9rZWkvY29ubmVjdG9ycy9naXRodWIvdjE7Z2l0aHViYgZwcm90bzM", [file_kei_contracts_v1_options]);
 
 /**
  * GetIssueRequest reads a single issue from a GitHub repository.
@@ -107,4 +107,105 @@ export type GetIssueResponse = Message<"kei.connectors.github.v1.GetIssueRespons
  */
 export const GetIssueResponseSchema: GenMessage<GetIssueResponse> = /*@__PURE__*/
   messageDesc(file_kei_connectors_github_v1_issues, 1);
+
+/**
+ * ListIssuesRequest lists the issues of a GitHub repository. The contract
+ * models only the state filter and the page size of the query parameters.
+ *
+ * @generated from message kei.connectors.github.v1.ListIssuesRequest
+ */
+export type ListIssuesRequest = Message<"kei.connectors.github.v1.ListIssuesRequest"> & {
+  /**
+   * @generated from field: string owner = 1;
+   */
+  owner: string;
+
+  /**
+   * @generated from field: string repository = 2;
+   */
+  repository: string;
+
+  /**
+   * @generated from field: optional string state = 3;
+   */
+  state?: string | undefined;
+
+  /**
+   * @generated from field: optional int32 per_page = 4;
+   */
+  perPage?: number | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ListIssuesRequest.
+ * Use `create(ListIssuesRequestSchema)` to create a new message.
+ */
+export const ListIssuesRequestSchema: GenMessage<ListIssuesRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_issues, 2);
+
+/**
+ * IssueSummary models the subset of each issue entry a list response carries.
+ *
+ * @generated from message kei.connectors.github.v1.IssueSummary
+ */
+export type IssueSummary = Message<"kei.connectors.github.v1.IssueSummary"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: int64 number = 2;
+   */
+  number: bigint;
+
+  /**
+   * @generated from field: string title = 3;
+   */
+  title: string;
+
+  /**
+   * @generated from field: string state = 4;
+   */
+  state: string;
+
+  /**
+   * @generated from field: optional string body = 5;
+   */
+  body?: string | undefined;
+
+  /**
+   * @generated from field: string html_url = 6;
+   */
+  htmlUrl: string;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.IssueSummary.
+ * Use `create(IssueSummarySchema)` to create a new message.
+ */
+export const IssueSummarySchema: GenMessage<IssueSummary> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_issues, 3);
+
+/**
+ * ListIssuesResponse wraps the issue entries of a list response. GitHub
+ * returns a bare JSON array here; the contract envelopes it under issues so
+ * the response stays a protojson object and envelope keys stay
+ * drift-checkable. It is filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.ListIssuesResponse
+ */
+export type ListIssuesResponse = Message<"kei.connectors.github.v1.ListIssuesResponse"> & {
+  /**
+   * @generated from field: repeated kei.connectors.github.v1.IssueSummary issues = 1;
+   */
+  issues: IssueSummary[];
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ListIssuesResponse.
+ * Use `create(ListIssuesResponseSchema)` to create a new message.
+ */
+export const ListIssuesResponseSchema: GenMessage<ListIssuesResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_issues, 4);
 

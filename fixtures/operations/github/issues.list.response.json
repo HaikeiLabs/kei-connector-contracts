@@ -1,0 +1,21 @@
+{
+  "issues": [
+    {
+      "id": 5001,
+      "number": 12,
+      "title": "Synthetic first issue",
+      "state": "open",
+      "body": null,
+      "html_url": "https://example.invalid/example-org/example-repo/issues/12"
+    },
+    {
+      "id": 5002,
+      "number": 13,
+      "title": "Synthetic second issue",
+      "state": "closed",
+      "body": "Synthetic body text",
+      "html_url": "https://example.invalid/example-org/example-repo/issues/13"
+    }
+  ],
+  "incomplete_results": false
+}

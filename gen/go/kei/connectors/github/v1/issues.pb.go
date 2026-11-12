@@ -190,6 +190,209 @@ func (x *GetIssueResponse) GetHtmlUrl() string {
 	return ""
 }
 
+// ListIssuesRequest lists the issues of a GitHub repository. The contract
+// models only the state filter and the page size of the query parameters.
+type ListIssuesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Owner         string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	State         *string                `protobuf:"bytes,3,opt,name=state,proto3,oneof" json:"state,omitempty"`
+	PerPage       *int32                 `protobuf:"varint,4,opt,name=per_page,json=perPage,proto3,oneof" json:"per_page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListIssuesRequest) Reset() {
+	*x = ListIssuesRequest{}
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListIssuesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListIssuesRequest) ProtoMessage() {}
+
+func (x *ListIssuesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListIssuesRequest.ProtoReflect.Descriptor instead.
+func (*ListIssuesRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_issues_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ListIssuesRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *ListIssuesRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *ListIssuesRequest) GetState() string {
+	if x != nil && x.State != nil {
+		return *x.State
+	}
+	return ""
+}
+
+func (x *ListIssuesRequest) GetPerPage() int32 {
+	if x != nil && x.PerPage != nil {
+		return *x.PerPage
+	}
+	return 0
+}
+
+// IssueSummary models the subset of each issue entry a list response carries.
+type IssueSummary struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Number        int64                  `protobuf:"varint,2,opt,name=number,proto3" json:"number,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	State         string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	Body          *string                `protobuf:"bytes,5,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	HtmlUrl       string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *IssueSummary) Reset() {
+	*x = IssueSummary{}
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *IssueSummary) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IssueSummary) ProtoMessage() {}
+
+func (x *IssueSummary) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IssueSummary.ProtoReflect.Descriptor instead.
+func (*IssueSummary) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_issues_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *IssueSummary) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *IssueSummary) GetNumber() int64 {
+	if x != nil {
+		return x.Number
+	}
+	return 0
+}
+
+func (x *IssueSummary) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *IssueSummary) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *IssueSummary) GetBody() string {
+	if x != nil && x.Body != nil {
+		return *x.Body
+	}
+	return ""
+}
+
+func (x *IssueSummary) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+// ListIssuesResponse wraps the issue entries of a list response. GitHub
+// returns a bare JSON array here; the contract envelopes it under issues so
+// the response stays a protojson object and envelope keys stay
+// drift-checkable. It is filled by JSON unmarshal of the provider response.
+type ListIssuesResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Issues        []*IssueSummary        `protobuf:"bytes,1,rep,name=issues,proto3" json:"issues,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListIssuesResponse) Reset() {
+	*x = ListIssuesResponse{}
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListIssuesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListIssuesResponse) ProtoMessage() {}
+
+func (x *ListIssuesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListIssuesResponse.ProtoReflect.Descriptor instead.
+func (*ListIssuesResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_issues_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ListIssuesResponse) GetIssues() []*IssueSummary {
+	if x != nil {
+		return x.Issues
+	}
+	return nil
+}
+
 var File_kei_connectors_github_v1_issues_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_github_v1_issues_proto_rawDesc = "" +
@@ -209,7 +412,27 @@ const file_kei_connectors_github_v1_issues_proto_rawDesc = "" +
 	"\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n" +
 	"\x04body\x18\x05 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x19\n" +
 	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrlB\a\n" +
-	"\x05_bodyBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3"
+	"\x05_body\"\xf7\x01\n" +
+	"\x11ListIssuesRequest\x12\x14\n" +
+	"\x05owner\x18\x01 \x01(\tR\x05owner\x12\x1e\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tR\n" +
+	"repository\x12\x19\n" +
+	"\x05state\x18\x03 \x01(\tH\x00R\x05state\x88\x01\x01\x12\x1e\n" +
+	"\bper_page\x18\x04 \x01(\x05H\x01R\aperPage\x88\x01\x01:Z\x92\x82\x19V\n" +
+	"\x12github.issues.list\x12\x06github\x18\x01*\x03GET2\"/repos/{owner}/{repository}/issues:\vissues:read@\x01B\b\n" +
+	"\x06_stateB\v\n" +
+	"\t_per_page\"\x9f\x01\n" +
+	"\fIssueSummary\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
+	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n" +
+	"\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n" +
+	"\x04body\x18\x05 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x19\n" +
+	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrlB\a\n" +
+	"\x05_body\"T\n" +
+	"\x12ListIssuesResponse\x12>\n" +
+	"\x06issues\x18\x01 \x03(\v2&.kei.connectors.github.v1.IssueSummaryR\x06issuesBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3"
 
 var (
 	file_kei_connectors_github_v1_issues_proto_rawDescOnce sync.Once
@@ -223,17 +446,21 @@ func file_kei_connectors_github_v1_issues_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_github_v1_issues_proto_rawDescData
 }
 
-var file_kei_connectors_github_v1_issues_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_kei_connectors_github_v1_issues_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_kei_connectors_github_v1_issues_proto_goTypes = []any{
-	(*GetIssueRequest)(nil),  // 0: kei.connectors.github.v1.GetIssueRequest
-	(*GetIssueResponse)(nil), // 1: kei.connectors.github.v1.GetIssueResponse
+	(*GetIssueRequest)(nil),    // 0: kei.connectors.github.v1.GetIssueRequest
+	(*GetIssueResponse)(nil),   // 1: kei.connectors.github.v1.GetIssueResponse
+	(*ListIssuesRequest)(nil),  // 2: kei.connectors.github.v1.ListIssuesRequest
+	(*IssueSummary)(nil),       // 3: kei.connectors.github.v1.IssueSummary
+	(*ListIssuesResponse)(nil), // 4: kei.connectors.github.v1.ListIssuesResponse
 }
 var file_kei_connectors_github_v1_issues_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	3, // 0: kei.connectors.github.v1.ListIssuesResponse.issues:type_name -> kei.connectors.github.v1.IssueSummary
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_github_v1_issues_proto_init() }
@@ -242,13 +469,15 @@ func file_kei_connectors_github_v1_issues_proto_init() {
 		return
 	}
 	file_kei_connectors_github_v1_issues_proto_msgTypes[1].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_issues_proto_msgTypes[2].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_issues_proto_msgTypes[3].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_github_v1_issues_proto_rawDesc), len(file_kei_connectors_github_v1_issues_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from kei.contracts.v1 import options_pb2 as kei_dot_contracts_dot_v1_dot_options__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%kei/connectors/github/v1/issues.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xd4\x01\n\x0fGetIssueRequest\x12\x14\n\x05owner\x18\x01 \x01(\tR\x05owner\x12\x1e\n\nrepository\x18\x02 \x01(\tR\nrepository\x12!\n\x0cissue_number\x18\x03 \x01(\x03R\x0bissueNumber:h\x92\x82\x19\x64\n\x11github.issues.get\x12\x06github\x18\x01*\x03GET21/repos/{owner}/{repository}/issues/{issue_number}:\x0bissues:read@\x01\"\xa3\x01\n\x10GetIssueResponse\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n\x04\x62ody\x18\x05 \x01(\tH\x00R\x04\x62ody\x88\x01\x01\x12\x19\n\x08html_url\x18\x06 \x01(\tR\x07htmlUrlB\x07\n\x05_bodyBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%kei/connectors/github/v1/issues.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xd4\x01\n\x0fGetIssueRequest\x12\x14\n\x05owner\x18\x01 \x01(\tR\x05owner\x12\x1e\n\nrepository\x18\x02 \x01(\tR\nrepository\x12!\n\x0cissue_number\x18\x03 \x01(\x03R\x0bissueNumber:h\x92\x82\x19\x64\n\x11github.issues.get\x12\x06github\x18\x01*\x03GET21/repos/{owner}/{repository}/issues/{issue_number}:\x0bissues:read@\x01\"\xa3\x01\n\x10GetIssueResponse\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n\x04\x62ody\x18\x05 \x01(\tH\x00R\x04\x62ody\x88\x01\x01\x12\x19\n\x08html_url\x18\x06 \x01(\tR\x07htmlUrlB\x07\n\x05_body\"\xf7\x01\n\x11ListIssuesRequest\x12\x14\n\x05owner\x18\x01 \x01(\tR\x05owner\x12\x1e\n\nrepository\x18\x02 \x01(\tR\nrepository\x12\x19\n\x05state\x18\x03 \x01(\tH\x00R\x05state\x88\x01\x01\x12\x1e\n\x08per_page\x18\x04 \x01(\x05H\x01R\x07perPage\x88\x01\x01:Z\x92\x82\x19V\n\x12github.issues.list\x12\x06github\x18\x01*\x03GET2\"/repos/{owner}/{repository}/issues:\x0bissues:read@\x01\x42\x08\n\x06_stateB\x0b\n\t_per_page\"\x9f\x01\n\x0cIssueSummary\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n\x04\x62ody\x18\x05 \x01(\tH\x00R\x04\x62ody\x88\x01\x01\x12\x19\n\x08html_url\x18\x06 \x01(\tR\x07htmlUrlB\x07\n\x05_body\"T\n\x12ListIssuesResponse\x12>\n\x06issues\x18\x01 \x03(\x0b\x32&.kei.connectors.github.v1.IssueSummaryR\x06issuesBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -35,8 +35,16 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._serialized_options = b'ZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;github'
   _globals['_GETISSUEREQUEST']._loaded_options = None
   _globals['_GETISSUEREQUEST']._serialized_options = b'\222\202\031d\n\021github.issues.get\022\006github\030\001*\003GET21/repos/{owner}/{repository}/issues/{issue_number}:\013issues:read@\001'
+  _globals['_LISTISSUESREQUEST']._loaded_options = None
+  _globals['_LISTISSUESREQUEST']._serialized_options = b'\222\202\031V\n\022github.issues.list\022\006github\030\001*\003GET2\"/repos/{owner}/{repository}/issues:\013issues:read@\001'
   _globals['_GETISSUEREQUEST']._serialized_start=100
   _globals['_GETISSUEREQUEST']._serialized_end=312
   _globals['_GETISSUERESPONSE']._serialized_start=315
   _globals['_GETISSUERESPONSE']._serialized_end=478
+  _globals['_LISTISSUESREQUEST']._serialized_start=481
+  _globals['_LISTISSUESREQUEST']._serialized_end=728
+  _globals['_ISSUESUMMARY']._serialized_start=731
+  _globals['_ISSUESUMMARY']._serialized_end=890
+  _globals['_LISTISSUESRESPONSE']._serialized_start=892
+  _globals['_LISTISSUESRESPONSE']._serialized_end=976
 # @@protoc_insertion_point(module_scope)

@@ -38,5 +38,29 @@ pub mod kei {
                 include!("gen/kei/connectors/github/v1/kei.connectors.github.v1.rs");
             }
         }
+        /// Linear connector contract.
+        pub mod linear {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/linear/v1/kei.connectors.linear.v1.rs");
+            }
+        }
+        /// Generic HTTP API connector contract.
+        pub mod http_api {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/http_api/v1/kei.connectors.http_api.v1.rs");
+            }
+        }
+        /// Database connector contract.
+        pub mod database {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/database/v1/kei.connectors.database.v1.rs");
+            }
+        }
     }
 }

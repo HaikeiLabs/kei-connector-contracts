@@ -1,0 +1,11 @@
+{
+  "id": 7001,
+  "number": 42,
+  "title": "Synthetic pilot pull request",
+  "state": "open",
+  "body": null,
+  "html_url": "https://example.invalid/example-org/example-repo/pull/42",
+  "draft": false,
+  "merged_at": null,
+  "node_id": "synthetic-node-id-2"
+}

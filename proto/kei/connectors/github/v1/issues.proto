@@ -53,3 +53,40 @@ message GetIssueResponse {
   optional string body = 5;
   string html_url = 6;
 }
+
+// ListIssuesRequest lists the issues of a GitHub repository. The contract
+// models only the state filter and the page size of the query parameters.
+message ListIssuesRequest {
+  string owner = 1;
+  string repository = 2;
+  optional string state = 3;
+  optional int32 per_page = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.issues.list"
+    connector: "github"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/repos/{owner}/{repository}/issues"
+    scopes: ["issues:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+  };
+}
+
+// IssueSummary models the subset of each issue entry a list response carries.
+message IssueSummary {
+  int64 id = 1;
+  int64 number = 2;
+  string title = 3;
+  string state = 4;
+  optional string body = 5;
+  string html_url = 6;
+}
+
+// ListIssuesResponse wraps the issue entries of a list response. GitHub
+// returns a bare JSON array here; the contract envelopes it under issues so
+// the response stays a protojson object and envelope keys stay
+// drift-checkable. It is filled by JSON unmarshal of the provider response.
+message ListIssuesResponse {
+  repeated IssueSummary issues = 1;
+}

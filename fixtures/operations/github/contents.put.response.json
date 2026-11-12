@@ -1,0 +1,14 @@
+{
+  "content": {
+    "name": "notes.txt",
+    "path": "docs/notes.txt",
+    "sha": "synthetic-content-sha-1",
+    "html_url": "https://example.invalid/example-org/example-repo/blob/main/docs/notes.txt",
+    "download_url": null
+  },
+  "commit": {
+    "sha": "synthetic-commit-sha-1",
+    "html_url": "https://example.invalid/example-org/example-repo/commit/synthetic-commit-sha-1"
+  },
+  "node_id": "synthetic-node-id-3"
+}

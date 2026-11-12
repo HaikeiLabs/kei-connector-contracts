@@ -1,0 +1,16 @@
+{
+  "records": [
+    {
+      "id": "rec-1",
+      "name": "Synthetic One",
+      "email": null
+    },
+    {
+      "id": "rec-2",
+      "name": "Synthetic Two",
+      "email": "someone@example.invalid"
+    }
+  ],
+  "next_cursor": null,
+  "total_count": 2
+}

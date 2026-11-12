@@ -1,0 +1,9 @@
+{
+  "record": {
+    "id": "rec-1",
+    "name": "Synthetic One",
+    "email": null,
+    "notes": null
+  },
+  "etag": "synthetic-etag-1"
+}
