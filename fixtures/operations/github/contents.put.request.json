@@ -1,0 +1,8 @@
+{
+  "owner": "example-org",
+  "repository": "example-repo",
+  "path": "docs/notes.txt",
+  "message": "Synthetic pilot commit",
+  "content": "c3ludGhldGljIGZpbGUgY29udGVudA==",
+  "branch": "main"
+}

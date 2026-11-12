@@ -14,6 +14,11 @@ plugins:
     opt: target=ts
   - remote: buf.build/community/neoeinstein-prost
     out: gen/rust/src/gen
+    opt:
+      - compile_well_known_types
+      - extern_path=.google.protobuf=::pbjson_types
   - remote: buf.build/community/neoeinstein-prost-serde
     out: gen/rust/src/gen
-    opt: ignore_unknown_fields
+    opt:
+      - ignore_unknown_fields
+      - extern_path=.google.protobuf=::pbjson_types

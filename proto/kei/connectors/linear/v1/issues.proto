@@ -1,0 +1,114 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Linear connector contract: issues.
+//
+// Linear is GraphQL over POST /graphql. Its schema uses camelCase keys;
+// every field declared here already unmarshals under protojson's lowerCamel
+// default, so no json_name is set anywhere in this file. The data envelope
+// GraphQL wraps responses in is unwrapped by the harness; the contract
+// models the payload object.
+syntax = "proto3";
+
+package kei.connectors.linear.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/linear/v1;linear";
+
+// Issue models the subset of the Linear issue object the contract needs.
+message Issue {
+  string id = 1;
+  string identifier = 2;
+  string title = 3;
+  optional string description = 4;
+  string url = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+// GetIssueRequest reads a single Linear issue by id.
+message GetIssueRequest {
+  string id = 1;
+
+  option (kei.contracts.v1.operation) = {
+    id: "linear.issues.get"
+    connector: "linear"
+    class: OPERATION_CLASS_READ
+    http_method: "POST"
+    path_template: "/graphql"
+    scopes: ["issues:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+  };
+}
+
+// GetIssueResponse wraps the issue object the query returns.
+message GetIssueResponse {
+  Issue issue = 1;
+}
+
+// CreateIssueRequest creates a Linear issue. team_id is the GraphQL teamId
+// argument key; description and priority are optional.
+message CreateIssueRequest {
+  string title = 1;
+  string team_id = 2;
+  optional string description = 3;
+  optional int32 priority = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "linear.issues.create"
+    connector: "linear"
+    class: OPERATION_CLASS_WRITE
+    http_method: "POST"
+    path_template: "/graphql"
+    scopes: ["issues:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+  };
+}
+
+// CreateIssueResponse mirrors Linear's IssuePayload: success plus the created
+// issue.
+message CreateIssueResponse {
+  bool success = 1;
+  Issue issue = 2;
+}
+
+// SearchIssuesRequest searches Linear issues. after is the pagination cursor.
+message SearchIssuesRequest {
+  string term = 1;
+  optional int32 first = 2;
+  optional string after = 3;
+
+  option (kei.contracts.v1.operation) = {
+    id: "linear.issues.search"
+    connector: "linear"
+    class: OPERATION_CLASS_READ
+    http_method: "POST"
+    path_template: "/graphql"
+    scopes: ["issues:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+  };
+}
+
+// PageInfo models Linear's pagination cursor.
+message PageInfo {
+  bool has_next_page = 1;
+  optional string end_cursor = 2;
+}
+
+// SearchIssuesResponse models the issue connection the search returns.
+message SearchIssuesResponse {
+  repeated Issue nodes = 1;
+  PageInfo page_info = 2;
+}

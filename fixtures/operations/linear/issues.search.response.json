@@ -1,0 +1,27 @@
+{
+  "nodes": [
+    {
+      "id": "00000000-0000-0000-0000-000000000101",
+      "identifier": "ENG-101",
+      "title": "Synthetic pilot issue",
+      "description": null,
+      "url": "https://example.invalid/linear/issue/ENG-101",
+      "createdAt": "2026-11-11T09:00:00.000Z",
+      "updatedAt": "2026-11-11T09:00:00.000Z"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000103",
+      "identifier": "ENG-103",
+      "title": "Synthetic search result",
+      "description": "Synthetic description",
+      "url": "https://example.invalid/linear/issue/ENG-103",
+      "createdAt": "2026-11-11T09:30:00.000Z",
+      "updatedAt": "2026-11-11T09:30:00.000Z"
+    }
+  ],
+  "pageInfo": {
+    "hasNextPage": false,
+    "endCursor": null
+  },
+  "lastSyncId": 12346
+}

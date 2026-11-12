@@ -1,0 +1,13 @@
+{
+  "columns": [
+    {"name": "id", "type": "int8"},
+    {"name": "name", "type": "text"},
+    {"name": "note", "type": "text"}
+  ],
+  "rows": [
+    [1, "Synthetic One", null],
+    [2, "Synthetic Two", "Synthetic note"]
+  ],
+  "truncated": false,
+  "execution_time_ms": 12
+}

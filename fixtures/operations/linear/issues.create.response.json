@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "issue": {
+    "id": "00000000-0000-0000-0000-000000000102",
+    "identifier": "ENG-102",
+    "title": "Synthetic pilot issue",
+    "description": null,
+    "url": "https://example.invalid/linear/issue/ENG-102",
+    "createdAt": "2026-11-11T09:00:00.000Z",
+    "updatedAt": "2026-11-11T09:00:00.000Z"
+  },
+  "lastSyncId": 12345
+}

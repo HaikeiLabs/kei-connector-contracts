@@ -1,0 +1,72 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Database connector contract: read-only queries.
+//
+// The database connector executes one SQL statement against the connected
+// database. It is read-only in the pilot: no DDL and no writes. The dialect
+// records which engine the statement targets so the runtime can quote
+// parameters correctly.
+syntax = "proto3";
+
+package kei.connectors.database.v1;
+
+import "google/protobuf/struct.proto";
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1;database";
+
+// Dialect is the SQL engine a query.run statement targets. Buf's STANDARD
+// lint requires the DIALECT_ prefix and a _UNSPECIFIED zero value.
+enum Dialect {
+  DIALECT_UNSPECIFIED = 0;
+  DIALECT_POSTGRES = 1;
+  DIALECT_MYSQL = 2;
+  DIALECT_MSSQL = 3;
+  DIALECT_SNOWFLAKE = 4;
+  DIALECT_SUPABASE = 5;
+}
+
+// RunQueryRequest runs one read-only SQL statement. params are positional
+// bind parameters; max_rows caps the rows the runtime returns.
+message RunQueryRequest {
+  Dialect dialect = 1;
+  string sql = 2;
+  repeated google.protobuf.Value params = 3;
+  optional int64 max_rows = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "database.query.run"
+    connector: "database"
+    class: OPERATION_CLASS_READ
+    http_method: "POST"
+    path_template: "/query"
+    scopes: ["query:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_NONE
+  };
+}
+
+// Column describes one result column: its name and the engine's type name.
+message Column {
+  string name = 1;
+  string type = 2;
+}
+
+// RunQueryResponse models a result set. rows are positional ListValues in
+// column order; truncated is true when max_rows cut the result set short.
+message RunQueryResponse {
+  repeated Column columns = 1;
+  repeated google.protobuf.ListValue rows = 2;
+  bool truncated = 3;
+}
