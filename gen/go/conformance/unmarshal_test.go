@@ -32,6 +32,7 @@ import (
 
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/types/known/structpb"
 
 	databasev1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1"
 	githubv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1"
@@ -164,8 +165,42 @@ var fixtureCases = []fixtureCase{
 		request:   func() proto.Message { return &databasev1.RunQueryRequest{} },
 		response:  func() proto.Message { return &databasev1.RunQueryResponse{} },
 		spotCheck: func(t *testing.T, resp proto.Message) {
-			if got := len(resp.(*databasev1.RunQueryResponse).GetRows()); got != 2 {
-				t.Errorf("len(rows) = %d, want 2", got)
+			result := resp.(*databasev1.RunQueryResponse)
+			if got := len(result.GetColumns()); got != 4 {
+				t.Fatalf("len(columns) = %d, want 4", got)
+			}
+			if got := result.GetColumns()[0].GetName(); got != "id" {
+				t.Errorf("columns[0].name = %q, want id", got)
+			}
+			if got := result.GetColumns()[0].GetType(); got != "int8" {
+				t.Errorf("columns[0].type = %q, want int8", got)
+			}
+			if got := result.GetColumns()[3].GetType(); got != "numeric" {
+				t.Errorf("columns[3].type = %q, want numeric", got)
+			}
+			rows := result.GetRows()
+			if got := len(rows); got != 2 {
+				t.Fatalf("len(rows) = %d, want 2", got)
+			}
+			big := rows[0].GetValues()
+			if got := big[0].GetStringValue(); got != "9007199254740993" {
+				t.Errorf("rows[0][0] = %q, want the >2^53 id as a string (JSON numbers are float64)", got)
+			}
+			if got := big[1].GetStringValue(); got != "Big-ID Account — ünïcodé ✓" {
+				t.Errorf("rows[0][1] = %q, want the unicode account name", got)
+			}
+			if got := big[2].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("rows[0][2] = %v, want null", got)
+			}
+			if got := big[3].GetStringValue(); got != "12345678901234567890.123456789012345678" {
+				t.Errorf("rows[0][3] = %q, want NUMERIC carried as a precision-preserving string", got)
+			}
+			small := rows[1].GetValues()
+			if got := small[3].GetStringValue(); got != "0.000000000000000001" {
+				t.Errorf("rows[1][3] = %q, want numeric fraction preserved", got)
+			}
+			if result.GetTruncated() {
+				t.Error("truncated = true, want false")
 			}
 		},
 	},
@@ -218,6 +253,30 @@ func TestFixturesUnmarshal(t *testing.T) {
 			}
 			tt.spotCheck(t, resp)
 		})
+	}
+}
+
+func TestDatabaseQueryRunRequestFixture(t *testing.T) {
+	data := readFixture(t, "database", "query.run.request.json")
+	var req databasev1.RunQueryRequest
+	if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(data, &req); err != nil {
+		t.Fatalf("request fixture did not unmarshal: %v", err)
+	}
+	if got := req.GetDialect(); got != databasev1.Dialect_DIALECT_POSTGRES {
+		t.Errorf("dialect = %v, want DIALECT_POSTGRES", got)
+	}
+	if got := req.GetSql(); !strings.Contains(got, "accounts") {
+		t.Errorf("sql = %q, want the synthetic accounts query", got)
+	}
+	params := req.GetParams()
+	if len(params) != 1 {
+		t.Fatalf("len(params) = %d, want 1", len(params))
+	}
+	if got := params[0].GetStringValue(); got != "9007199254740993" {
+		t.Errorf("params[0] = %q, want the >2^53 bind value as a string", got)
+	}
+	if got := req.GetMaxRows(); got != 100 {
+		t.Errorf("max_rows = %d, want 100", got)
 	}
 }
 

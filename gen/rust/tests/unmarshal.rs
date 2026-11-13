@@ -18,7 +18,9 @@
 //! are skipped). One spot assert per op proves a field survived with its
 //! synthetic value intact, and the >2^53 int64 id round-trips exactly.
 
-use haikeilabs_connector_contracts::kei::connectors::database::v1::RunQueryResponse;
+use haikeilabs_connector_contracts::kei::connectors::database::v1::{
+    RunQueryRequest, RunQueryResponse,
+};
 use haikeilabs_connector_contracts::kei::connectors::github::v1::{
     GetIssueResponse, GetPullRequestResponse, ListIssuesResponse, PutContentsResponse,
 };
@@ -116,9 +118,54 @@ fn fixtures_unmarshal() {
         other => panic!("record.id is not a string: {:?}", other),
     }
 
-    // database.query.run — spot: two rows.
+    // database.query.run — request: dialect, sql, positional params (the
+    // >2^53 bind value travels as a string), max_rows.
+    let req: RunQueryRequest = serde_json::from_str(&fixture("database", "query.run.request.json"))
+        .expect("database.query.run request unmarshals");
+    assert!(req.sql.contains("accounts"));
+    assert_eq!(req.params.len(), 1);
+    match req.params[0].kind.as_ref() {
+        Some(Kind::StringValue(param)) => assert_eq!(param, "9007199254740993"),
+        other => panic!("params[0] must be a string, got {:?}", other),
+    }
+    assert_eq!(req.max_rows, Some(100));
+
+    // database.query.run — spot: columns, NULLs, bigint and NUMERIC strings.
     let resp: RunQueryResponse =
         serde_json::from_str(&fixture("database", "query.run.response.json"))
             .expect("database.query.run response unmarshals");
+    assert_eq!(resp.columns.len(), 4);
+    assert_eq!(resp.columns[0].name, "id");
+    assert_eq!(resp.columns[0].r#type, "int8");
+    assert_eq!(resp.columns[3].r#type, "numeric");
     assert_eq!(resp.rows.len(), 2);
+
+    let big = &resp.rows[0].values;
+    match big[0].kind.as_ref() {
+        Some(Kind::StringValue(id)) => {
+            assert_eq!(id, "9007199254740993", "int64 > 2^53 travels as a string")
+        }
+        other => panic!("rows[0][0] must be a string, got {:?}", other),
+    }
+    match big[1].kind.as_ref() {
+        Some(Kind::StringValue(name)) => assert_eq!(name, "Big-ID Account — ünïcodé ✓"),
+        other => panic!("rows[0][1] must be a string, got {:?}", other),
+    }
+    // prost-serde's pbjson_types::Value represents JSON null as kind None.
+    match big[2].kind.as_ref() {
+        None | Some(Kind::NullValue(_)) => {}
+        other => panic!("rows[0][2] must be null, got {:?}", other),
+    }
+    match big[3].kind.as_ref() {
+        Some(Kind::StringValue(balance)) => assert_eq!(
+            balance, "12345678901234567890.123456789012345678",
+            "NUMERIC keeps its precision as a string"
+        ),
+        other => panic!("rows[0][3] must be a string, got {:?}", other),
+    }
+    match resp.rows[1].values[3].kind.as_ref() {
+        Some(Kind::StringValue(balance)) => assert_eq!(balance, "0.000000000000000001"),
+        other => panic!("rows[1][3] must be a string, got {:?}", other),
+    }
+    assert!(!resp.truncated);
 }

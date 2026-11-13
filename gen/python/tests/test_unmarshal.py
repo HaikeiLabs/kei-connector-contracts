@@ -82,7 +82,31 @@ def _spot_http_api_records_get(response):
 
 
 def _spot_database_query_run(response):
+    assert len(response.columns) == 4
+    assert response.columns[0].name == "id"
+    assert response.columns[0].type == "int8"
+    assert response.columns[3].type == "numeric"
     assert len(response.rows) == 2
+
+    big = response.rows[0].values
+    # JSON numbers are float64, so the >2^53 id and NUMERIC values travel as
+    # strings; NULL travels as the protobuf null value.
+    assert big[0].string_value == "9007199254740993"
+    assert big[1].string_value == "Big-ID Account — ünïcodé ✓"
+    assert big[2].WhichOneof("kind") == "null_value"
+    assert big[3].string_value == "12345678901234567890.123456789012345678"
+
+    small = response.rows[1].values
+    assert small[3].string_value == "0.000000000000000001"
+    assert response.truncated is False
+
+
+def _check_database_query_run_request(request):
+    assert request.dialect == query_pb2.DIALECT_POSTGRES
+    assert "accounts" in request.sql
+    assert len(request.params) == 1
+    assert request.params[0].string_value == "9007199254740993"
+    assert request.max_rows == 100
 
 
 OPS = [
@@ -111,6 +135,8 @@ def test_fixtures_unmarshal(op, connector, request_cls, response_cls, spot):
         ignore_unknown_fields=True,
     )
     assert request is not None
+    if op == "database.query.run":
+        _check_database_query_run_request(request)
 
     response = json_format.Parse(
         _fixture(connector, _op_file(op, "response")),

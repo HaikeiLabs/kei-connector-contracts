@@ -38,6 +38,21 @@ Set `json_name` on every field whose provider JSON key differs from
 protojson's lowerCamel default. One generated type then unmarshals the
 provider's real payload without a second mapping layer.
 
+## Value encoding
+
+Fields typed `google.protobuf.Value` or `google.protobuf.ListValue` carry raw
+JSON, so a fixture has to use a JSON form that survives the round trip:
+
+- `NULL` is JSON `null`.
+- A 64-bit integer above 2^53 is a JSON string (`"9007199254740993"`), never a
+  JSON number: JSON numbers parse as `float64` and lose the low digits.
+- A `NUMERIC`/`DECIMAL` value is a JSON string
+  (`"12345678901234567890.123456789012345678"`) so its precision and scale are
+  preserved.
+
+`RunQueryResponse.rows` are positional: each row lists values in `columns`
+order.
+
 ## Unknown fields
 
 Runtime unmarshal discards unknown fields, so a provider adding a key does
