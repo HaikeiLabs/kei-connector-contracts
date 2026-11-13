@@ -2,11 +2,12 @@
   "columns": [
     {"name": "id", "type": "int8"},
     {"name": "name", "type": "text"},
-    {"name": "note", "type": "text"}
+    {"name": "note", "type": "text"},
+    {"name": "balance", "type": "numeric"}
   ],
   "rows": [
-    [1, "Synthetic One", null],
-    [2, "Synthetic Two", "Synthetic note"]
+    ["9007199254740993", "Big-ID Account — ünïcodé ✓", null, "12345678901234567890.123456789012345678"],
+    ["1", "Synthetic One", "Synthetic note", "0.000000000000000001"]
   ],
   "truncated": false,
   "execution_time_ms": 12

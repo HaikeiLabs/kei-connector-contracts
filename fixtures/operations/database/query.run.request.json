@@ -1,6 +1,6 @@
 {
   "dialect": "DIALECT_POSTGRES",
-  "sql": "SELECT id, name, note FROM synthetic_table WHERE id <= $1",
-  "params": [2],
+  "sql": "SELECT id, name, note, balance FROM synthetic_accounts WHERE id >= $1 ORDER BY id",
+  "params": ["9007199254740993"],
   "max_rows": 100
 }

@@ -90,6 +90,28 @@ TESTENV_MSSQL=1 bash smoke.sh  # also mssql (needs an amd64 host)
 
 Local only — do not add it to required CI.
 
+## Contract proof: database.query.run
+
+The build-tagged Go helper in `gen/go/conformance/testenv_test.go` proves the
+`database.query.run` contract against Postgres and Supabase: it runs three seed
+queries on each service (one with NULLs, one with a bigint above 2^53, one with
+NUMERIC precision), converts each CSV result into the `RunQueryResponse` JSON
+shape, and unmarshals it into the generated type. It shells out to the `psql`
+inside each container, so the contract modules gain no database driver. Normal
+CI skips it because it sits behind the `testenv` build tag.
+
+From the repository root:
+
+```sh
+podman compose -f testenv/compose.yaml up -d postgres supabase
+go -C gen/go test -tags testenv ./conformance -run TestEnvDatabaseQueryRun -v
+podman compose -f testenv/compose.yaml down -v --remove-orphans
+```
+
+Expected: 6 subtests pass (3 queries on `postgres`, 3 on `supabase`), and the
+logged JSON shows `null` for the NULL cell, `"9007199254740993"` as a string,
+and `"12345678901234567890.123456789012345678"` as a NUMERIC string.
+
 ## Teardown
 
 Full teardown, containers **and** volumes:
