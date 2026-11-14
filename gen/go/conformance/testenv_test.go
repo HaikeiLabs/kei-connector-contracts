@@ -36,13 +36,11 @@ package conformance
 
 import (
 	"bytes"
-	"encoding/csv"
 	"encoding/json"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"testing"
 
 	"google.golang.org/protobuf/encoding/protojson"
@@ -278,21 +276,6 @@ func runInContainer(t *testing.T, cli, service string, argv ...string) string {
 	return stdout.String()
 }
 
-// parseCSV splits client output into rows, header first.
-func parseCSV(t *testing.T, out string, comma rune) [][]string {
-	t.Helper()
-	reader := csv.NewReader(strings.NewReader(out))
-	reader.Comma = comma
-	records, err := reader.ReadAll()
-	if err != nil {
-		t.Fatalf("parsing client output: %v", err)
-	}
-	if len(records) == 0 {
-		t.Fatal("no rows in client output")
-	}
-	return records
-}
-
 // runPSQLCSV executes one query inside a postgres-family compose service and
 // returns its CSV rows, header first.
 func runPSQLCSV(t *testing.T, cli, service, database, sql string) [][]string {
@@ -317,13 +300,16 @@ func runMySQLTSV(t *testing.T, cli, service, database, sql string) [][]string {
 }
 
 // runMSSQLCSV executes one query inside the mssql compose service and returns
-// its rows, header first. sqlcmd has no NULL-marker option, so the mssql
-// queries wrap nullable columns in COALESCE(col, '__NULL__') themselves.
+// its rows without a header (-h -1). SET NOCOUNT ON keeps the "(N rows
+// affected)" footer out of the output; sqlcmd has no NULL-marker option, so
+// the mssql queries wrap nullable columns in COALESCE(col, '__NULL__')
+// themselves.
 func runMSSQLCSV(t *testing.T, cli, service, sql string) [][]string {
 	t.Helper()
 	out := runInContainer(t, cli, service,
 		"/opt/mssql-tools18/bin/sqlcmd", "-C", "-S", "localhost", "-U", "sa",
-		"-P", "Testenv_local1", "-I", "-b", "-W", "-s", ",", "-Q", sql)
+		"-P", "Testenv_local1", "-I", "-b", "-h", "-1", "-W", "-s", ",", "-Q",
+		"SET NOCOUNT ON; "+sql)
 	return parseCSV(t, out, ',')
 }
 
@@ -354,22 +340,30 @@ func convertCell(t *testing.T, raw, typ string) any {
 	}
 }
 
-// toResponse converts CSV records into the RunQueryResponse JSON shape and
-// unmarshals them into the generated message.
+// toResponse validates the CSV header (psql and mysql print one) and converts
+// the data rows into the RunQueryResponse JSON shape.
 func toResponse(t *testing.T, records [][]string, columns []columnSpec) *databasev1.RunQueryResponse {
 	t.Helper()
 	if got, want := records[0], len(columns); len(got) != want {
 		t.Fatalf("CSV header has %d columns, want %d: %v", len(got), want, got)
 	}
+	return toResponseRows(t, records[1:], columns)
+}
+
+// toResponseRows converts headerless rows (sqlcmd -h -1 prints no header)
+// into the RunQueryResponse JSON shape and unmarshals them into the generated
+// message.
+func toResponseRows(t *testing.T, rows [][]string, columns []columnSpec) *databasev1.RunQueryResponse {
+	t.Helper()
 	shape := responseJSON{
 		Columns:   make([]columnJSON, len(columns)),
-		Rows:      make([][]any, 0, len(records)-1),
+		Rows:      make([][]any, 0, len(rows)),
 		Truncated: false,
 	}
 	for i, col := range columns {
 		shape.Columns[i] = columnJSON{Name: col.name, Type: col.typ}
 	}
-	for _, record := range records[1:] {
+	for _, record := range rows {
 		row := make([]any, len(columns))
 		for i, col := range columns {
 			row[i] = convertCell(t, record[i], col.typ)
@@ -411,18 +405,19 @@ func TestEnvDatabaseQueryRun(t *testing.T) {
 		t.Run(target.service, func(t *testing.T) {
 			for _, tc := range databaseQueryCases(target.engine) {
 				t.Run(tc.name, func(t *testing.T) {
-					var records [][]string
+					var resp *databasev1.RunQueryResponse
 					switch target.engine {
 					case "postgres":
-						records = runPSQLCSV(t, cli, target.service, target.database, tc.sql)
+						resp = toResponse(t, runPSQLCSV(t, cli, target.service, target.database, tc.sql), tc.columns)
 					case "mysql":
-						records = runMySQLTSV(t, cli, target.service, target.database, tc.sql)
+						resp = toResponse(t, runMySQLTSV(t, cli, target.service, target.database, tc.sql), tc.columns)
 					case "mssql":
-						records = runMSSQLCSV(t, cli, target.service, tc.sql)
+						// -h -1 prints no header row, so the rows convert
+						// directly.
+						resp = toResponseRows(t, runMSSQLCSV(t, cli, target.service, tc.sql), tc.columns)
 					default:
 						t.Fatalf("unknown engine %q", target.engine)
 					}
-					resp := toResponse(t, records, tc.columns)
 					if got := len(resp.GetColumns()); got != len(tc.columns) {
 						t.Fatalf("len(columns) = %d, want %d", got, len(tc.columns))
 					}
