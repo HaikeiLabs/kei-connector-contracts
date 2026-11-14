@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/HaikeiLabs/kei-connector-contracts/schemas/authorize-request.v1.schema.json",
   "title": "Kei authorize request v1",
-  "description": "The kei.authorize-request/v1 request a harness sends to the tenant-local kei-proxy daemon. Metadata only: no tool arguments, message content or credentials. The optional caller object records who called, for the audit trail; a request without it is valid and its caller is unknown.",
+  "description": "The kei.authorize-request/v1 request sent to the tenant-local kei-proxy daemon. Optional tool_args and tool_context are accepted only for local validation of registered connector tool plans; they never leave the tenant runtime or enter audit. No provider payloads, results or credentials are carried. The optional caller object records who called, for the audit trail; a request without it is valid and its caller is unknown.",
   "type": "object",
   "properties": {
     "schema": {"const": "kei.authorize-request/v1"},
@@ -24,6 +24,8 @@
     "delegation_depth": {"type": "integer", "minimum": 0},
     "framework": {"type": "string"},
     "tool_args_digest": {"type": "string"},
+    "tool_args": {"type": "object", "description": "Arguments validated against the registered connector tool plan by the local runtime only."},
+    "tool_context": {"type": "object", "description": "Harness-provided context validated against the registered connector tool plan by the local runtime only."},
     "on_behalf_of": {"type": "string"},
     "shell_command": {"type": "string", "description": "Accepted only over the tenant-local socket, used solely to evaluate shell: policies, and never copied to audit."},
     "caller": {"$ref": "#/$defs/caller"}
@@ -32,6 +34,10 @@
   "oneOf": [
     {"required": ["tool"], "not": {"required": ["connector"]}},
     {"required": ["connector"], "not": {"required": ["tool"]}}
+  ],
+  "allOf": [
+    {"if": {"required": ["tool_args"]}, "then": {"required": ["tool"], "not": {"required": ["connector"]}}},
+    {"if": {"required": ["tool_context"]}, "then": {"required": ["tool_args"]}}
   ],
   "additionalProperties": false,
   "$defs": {

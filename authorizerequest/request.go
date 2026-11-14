@@ -14,9 +14,10 @@
 
 // Package authorizerequest defines the wire contract of the
 // kei.authorize-request/v1 request a harness sends to the tenant-local
-// kei-proxy daemon (POST /v1/authorize). It carries metadata only: the tool or
-// connector capability being called, a resource name and a digest of the
-// arguments. Tool arguments, message content and credentials never appear here.
+// kei-proxy daemon (POST /v1/authorize). It carries authorization metadata and,
+// for registered connector_binding tools only, optional tool arguments and
+// context for local plan evaluation. These values never go to the control plane
+// or audit stream; provider payloads, results and credentials are not carried.
 //
 // The optional Caller object (harness kind, origin and an opaque session
 // reference) lets the audit trail say who called. A request without it is
@@ -49,18 +50,20 @@ var (
 // Request is a kei.authorize-request/v1 object. Exactly one of Tool and
 // Connector is set.
 type Request struct {
-	Schema          string     `json:"schema"`
-	Tool            string     `json:"tool,omitempty"`
-	Action          string     `json:"action,omitempty"`
-	Resource        string     `json:"resource,omitempty"`
-	AgentID         string     `json:"agent_id,omitempty"`
-	Connector       *Connector `json:"connector,omitempty"`
-	SpanID          string     `json:"span_id,omitempty"`
-	ParentSpan      string     `json:"parent_span,omitempty"`
-	DelegationDepth int        `json:"delegation_depth,omitempty"`
-	Framework       string     `json:"framework,omitempty"`
-	ToolArgsDigest  string     `json:"tool_args_digest,omitempty"`
-	OnBehalfOf      string     `json:"on_behalf_of,omitempty"`
+	Schema          string          `json:"schema"`
+	Tool            string          `json:"tool,omitempty"`
+	Action          string          `json:"action,omitempty"`
+	Resource        string          `json:"resource,omitempty"`
+	AgentID         string          `json:"agent_id,omitempty"`
+	Connector       *Connector      `json:"connector,omitempty"`
+	SpanID          string          `json:"span_id,omitempty"`
+	ParentSpan      string          `json:"parent_span,omitempty"`
+	DelegationDepth int             `json:"delegation_depth,omitempty"`
+	Framework       string          `json:"framework,omitempty"`
+	ToolArgsDigest  string          `json:"tool_args_digest,omitempty"`
+	ToolArgs        json.RawMessage `json:"tool_args,omitempty"`
+	ToolContext     json.RawMessage `json:"tool_context,omitempty"`
+	OnBehalfOf      string          `json:"on_behalf_of,omitempty"`
 	// ShellCommand is accepted only over the tenant-local socket and is used
 	// solely to evaluate shell: policies. It is never copied to audit.
 	ShellCommand string `json:"shell_command,omitempty"`
@@ -111,10 +114,26 @@ func (r Request) Validate() error {
 	if r.Connector != nil && (r.Connector.ConnectorID == "" || r.Connector.Capability == "") {
 		return errors.New("connector needs connector_id and capability")
 	}
+	if len(r.ToolArgs) > 0 || len(r.ToolContext) > 0 {
+		if r.Tool == "" || r.Connector != nil {
+			return errors.New("tool arguments and context require a tool request")
+		}
+		if len(r.ToolArgs) > 0 && !validJSONPlanObject(r.ToolArgs) || len(r.ToolContext) > 0 && !validJSONPlanObject(r.ToolContext) {
+			return errors.New("tool arguments and context must be JSON objects")
+		}
+		if len(r.ToolContext) > 0 && len(r.ToolArgs) == 0 {
+			return errors.New("tool context requires tool arguments")
+		}
+	}
 	if r.Caller != nil {
 		return r.Caller.Validate()
 	}
 	return nil
+}
+
+func validJSONPlanObject(raw json.RawMessage) bool {
+	var value map[string]json.RawMessage
+	return json.Unmarshal(raw, &value) == nil && value != nil
 }
 
 // Decode parses and validates a request. Unknown fields and trailing data are
