@@ -1,0 +1,53 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// MCP connector contract: tool calls against remote MCP servers.
+//
+// A remote MCP server exposes tools that are not declared as fixed
+// operations here; the harness assigns their operation ids at registration
+// time as mcp.<server>.<tool> (server and tool normalized to [a-z0-9_]), so
+// policy and audit see one id space with the declared operations. This file
+// models the payload shapes of such a call. The messages carry no operation
+// option (the id is per tool, not per message) and there is no runtime
+// routing: the harness makes every call and kei-proxy stays decision-only
+// (ADR-039).
+syntax = "proto3";
+
+package kei.connectors.mcp.v1;
+
+import "google/protobuf/struct.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/mcp/v1;mcp";
+
+// ToolCall is the request shape of one tool invocation on a remote MCP
+// server. server and tool are the MCP-facing names; the operation id is
+// derived from them (mcp.<server>.<tool>, normalized to [a-z0-9_]).
+// arguments carries the tool input as free-form JSON — MCP tool schemas vary
+// per server, so like the http_api record bodies this stays a Struct: typed
+// enough to audit, open enough to carry any tool input. It is filled by JSON
+// unmarshal of what the harness sends.
+message ToolCall {
+  string server = 1;
+  string tool = 2;
+  google.protobuf.Struct arguments = 3;
+}
+
+// ToolResult is the response shape of one tool invocation. content holds the
+// content blocks the tool returned as free-form JSON; is_error is the MCP
+// isError flag (false means the call succeeded). It is filled by JSON
+// unmarshal of the tool's result.
+message ToolResult {
+  repeated google.protobuf.Struct content = 1;
+  bool is_error = 2;
+}
