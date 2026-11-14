@@ -1,3 +1,10 @@
 .scratch/
 /genskill
 gen/rust/target/
+
+gen/python/dist/
+gen/python/build/
+gen/python/src/*.egg-info/
+gen/ts/node_modules/
+gen/ts/dist/
+__pycache__/

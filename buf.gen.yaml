@@ -11,7 +11,9 @@ plugins:
     out: gen/python/src
   - remote: buf.build/bufbuild/es
     out: gen/ts/src
-    opt: target=ts
+    opt:
+      - target=ts
+      - import_extension=js
   - remote: buf.build/community/neoeinstein-prost
     out: gen/rust/src/gen
     opt:
