@@ -17,22 +17,28 @@
 // Testenv-only proof for database.query.run.
 //
 // This file is behind the "testenv" build tag so normal CI skips it. It talks
-// to the local database stack in testenv/compose.yaml through the psql that
-// ships in each container, so the contract modules gain no database driver.
-// Each query's CSV result is converted into the RunQueryResponse JSON shape
-// and unmarshaled into the generated types, which proves the contract accepts
-// what the real engine returns.
+// to the local database stack in testenv/compose.yaml through the SQL client
+// that ships in each container (psql, mysql, sqlcmd), so the contract modules
+// gain no database driver. Each query's result is converted into the
+// RunQueryResponse JSON shape and unmarshaled into the generated types, which
+// proves the contract accepts what the real engines return.
 //
 // Run it with the stack up:
 //
-//	podman compose -f testenv/compose.yaml up -d postgres supabase
+//	podman compose -f testenv/compose.yaml --profile mssql up -d
 //	go -C gen/go test -tags testenv ./conformance -run TestEnvDatabaseQueryRun -v
+//
+// The container CLI defaults to podman and can be overridden with the
+// CONTAINER_CLI environment variable; CI sets CONTAINER_CLI=docker. The
+// mssql service is amd64-only (see compose.yaml), so CI runs it on an amd64
+// hosted runner.
 package conformance
 
 import (
 	"bytes"
 	"encoding/csv"
 	"encoding/json"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -46,7 +52,11 @@ import (
 )
 
 const (
-	// psql prints this instead of an empty field, so NULL survives CSV.
+	// nullSentinel marks NULL across the three engine clients: psql prints it
+	// via -P null=..., and the mysql and mssql queries wrap nullable columns
+	// in COALESCE(col, '__NULL__') — mysql --batch prints NULL as the literal
+	// string NULL and sqlcmd has no NULL-marker option, so both route NULLs
+	// through the sentinel in SQL themselves.
 	nullSentinel = "__NULL__"
 	// composeFile is relative to this package directory (gen/go/conformance).
 	composeFile = "../../../testenv/compose.yaml"
@@ -77,100 +87,244 @@ type columnJSON struct {
 	Type string `json:"type"`
 }
 
-func databaseQueryCases() []queryCase {
-	return []queryCase{
-		{
-			name: "nulls",
-			sql:  "SELECT id, handle FROM accounts WHERE handle IS NULL ORDER BY id LIMIT 2",
-			columns: []columnSpec{
-				{"id", "int8"},
-				{"handle", "text"},
-			},
-			check: func(t *testing.T, resp *databasev1.RunQueryResponse) {
-				t.Helper()
-				if got := len(resp.GetRows()); got != 2 {
-					t.Fatalf("len(rows) = %d, want 2", got)
-				}
-				for i, row := range resp.GetRows() {
-					if got := row.GetValues()[1].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
-						t.Errorf("rows[%d][1] = %v, want NULL", i, got)
-					}
-				}
-			},
-		},
-		{
-			name: "bigint_above_2_53",
-			sql:  "SELECT id, name FROM accounts WHERE id > 9007199254740992 ORDER BY id",
-			columns: []columnSpec{
-				{"id", "int8"},
-				{"name", "text"},
-			},
-			check: func(t *testing.T, resp *databasev1.RunQueryResponse) {
-				t.Helper()
-				if got := len(resp.GetRows()); got != 1 {
-					t.Fatalf("len(rows) = %d, want 1", got)
-				}
-				row := resp.GetRows()[0].GetValues()
-				if got := row[0].GetStringValue(); got != "9007199254740993" {
-					t.Errorf("rows[0][0] = %q, want 9007199254740993 as a string", got)
-				}
-				if got := row[1].GetStringValue(); got != "Big-ID Account — ünïcodé ✓" {
-					t.Errorf("rows[0][1] = %q, want the unicode account name", got)
-				}
-			},
-		},
-		{
-			name: "numeric_precision",
-			sql:  "SELECT 12345678901234567890.123456789012345678::numeric AS balance, 0.000000000000000001::numeric AS tiny",
-			columns: []columnSpec{
-				{"balance", "numeric"},
-				{"tiny", "numeric"},
-			},
-			check: func(t *testing.T, resp *databasev1.RunQueryResponse) {
-				t.Helper()
-				if got := len(resp.GetRows()); got != 1 {
-					t.Fatalf("len(rows) = %d, want 1", got)
-				}
-				row := resp.GetRows()[0].GetValues()
-				if got := row[0].GetStringValue(); got != "12345678901234567890.123456789012345678" {
-					t.Errorf("rows[0][0] = %q, want NUMERIC precision preserved", got)
-				}
-				if got := row[1].GetStringValue(); got != "0.000000000000000001" {
-					t.Errorf("rows[0][1] = %q, want the fraction preserved", got)
-				}
-			},
-		},
+// checkNulls asserts the nulls case: two rows whose second column is NULL.
+func checkNulls(t *testing.T, resp *databasev1.RunQueryResponse) {
+	t.Helper()
+	if got := len(resp.GetRows()); got != 2 {
+		t.Fatalf("len(rows) = %d, want 2", got)
+	}
+	for i, row := range resp.GetRows() {
+		// Type-assert the oneof, not GetNullValue: an unset oneof also reads
+		// as the zero enum (NULL_VALUE), so GetNullValue would pass a non-null
+		// cell vacuously.
+		if _, ok := row.GetValues()[1].GetKind().(*structpb.Value_NullValue); !ok {
+			t.Errorf("rows[%d][1] = %T, want null_value", i, row.GetValues()[1].GetKind())
+		}
 	}
 }
 
-// runPSQLCSV executes one query inside the compose service and returns its
-// CSV rows, header first.
-func runPSQLCSV(t *testing.T, service, database, sql string) [][]string {
+// checkBigID asserts the bigint case: one row whose id is above 2^53 and
+// therefore must travel as a string, plus the unicode account name.
+func checkBigID(t *testing.T, resp *databasev1.RunQueryResponse) {
 	t.Helper()
-	if _, err := exec.LookPath("podman"); err != nil {
-		t.Skip("podman not installed; testenv proof skipped")
+	if got := len(resp.GetRows()); got != 1 {
+		t.Fatalf("len(rows) = %d, want 1", got)
 	}
+	row := resp.GetRows()[0].GetValues()
+	if got := row[0].GetStringValue(); got != "9007199254740993" {
+		t.Errorf("rows[0][0] = %q, want 9007199254740993 as a string", got)
+	}
+	if got := row[1].GetStringValue(); got != "Big-ID Account — ünïcodé ✓" {
+		t.Errorf("rows[0][1] = %q, want the unicode account name", got)
+	}
+}
+
+// checkDecimal asserts the numeric case: full decimal precision survives as
+// strings.
+func checkDecimal(t *testing.T, resp *databasev1.RunQueryResponse) {
+	t.Helper()
+	if got := len(resp.GetRows()); got != 1 {
+		t.Fatalf("len(rows) = %d, want 1", got)
+	}
+	row := resp.GetRows()[0].GetValues()
+	if got := row[0].GetStringValue(); got != "12345678901234567890.123456789012345678" {
+		t.Errorf("rows[0][0] = %q, want NUMERIC precision preserved", got)
+	}
+	if got := row[1].GetStringValue(); got != "0.000000000000000001" {
+		t.Errorf("rows[0][1] = %q, want the fraction preserved", got)
+	}
+}
+
+func databaseQueryCases(engine string) []queryCase {
+	switch engine {
+	case "postgres":
+		return []queryCase{
+			{
+				name: "nulls",
+				// The nullable column goes through COALESCE so every engine
+				// routes NULLs through the same sentinel (mysql batch prints
+				// NULL as the literal string NULL; see runMySQLTSV).
+				sql: "SELECT id, COALESCE(handle, '__NULL__') AS handle FROM accounts WHERE handle IS NULL ORDER BY id LIMIT 2",
+				columns: []columnSpec{
+					{"id", "int8"},
+					{"handle", "text"},
+				},
+				check: checkNulls,
+			},
+			{
+				name: "bigint_above_2_53",
+				sql:  "SELECT id, name FROM accounts WHERE id > 9007199254740992 ORDER BY id",
+				columns: []columnSpec{
+					{"id", "int8"},
+					{"name", "text"},
+				},
+				check: checkBigID,
+			},
+			{
+				name: "numeric_precision",
+				sql:  "SELECT 12345678901234567890.123456789012345678::numeric AS balance, 0.000000000000000001::numeric AS tiny",
+				columns: []columnSpec{
+					{"balance", "numeric"},
+					{"tiny", "numeric"},
+				},
+				check: checkDecimal,
+			},
+		}
+	case "mysql":
+		return []queryCase{
+			{
+				name: "nulls",
+				// Same COALESCE sentinel as the other engines (mysql batch
+				// prints NULL as the literal string NULL).
+				sql: "SELECT id, COALESCE(handle, '__NULL__') AS handle FROM accounts WHERE handle IS NULL ORDER BY id LIMIT 2",
+				columns: []columnSpec{
+					{"id", "bigint"},
+					{"handle", "varchar"},
+				},
+				check: checkNulls,
+			},
+			{
+				name: "bigint_above_2_53",
+				sql:  "SELECT id, name FROM accounts WHERE id > 9007199254740992 ORDER BY id",
+				columns: []columnSpec{
+					{"id", "bigint"},
+					{"name", "varchar"},
+				},
+				check: checkBigID,
+			},
+			{
+				name: "numeric_precision",
+				// MySQL DECIMAL tops out at precision 65; 20 integer digits plus
+				// 18 fraction digits round-trip exactly through the cast.
+				sql: "SELECT CAST('12345678901234567890.123456789012345678' AS DECIMAL(65,18)) AS balance, CAST('0.000000000000000001' AS DECIMAL(18,18)) AS tiny",
+				columns: []columnSpec{
+					{"balance", "decimal"},
+					{"tiny", "decimal"},
+				},
+				check: checkDecimal,
+			},
+		}
+	case "mssql":
+		return []queryCase{
+			{
+				name: "nulls",
+				// sqlcmd prints NULL as the literal string NULL with no marker
+				// option, so the nullable column goes through COALESCE and
+				// arrives as the nullSentinel literal.
+				sql: "SELECT TOP 2 id, COALESCE(handle, '__NULL__') AS handle FROM accounts WHERE handle IS NULL ORDER BY id",
+				columns: []columnSpec{
+					{"id", "bigint"},
+					{"handle", "nvarchar"},
+				},
+				check: checkNulls,
+			},
+			{
+				name: "bigint_above_2_53",
+				sql:  "SELECT id, name FROM accounts WHERE id > 9007199254740992 ORDER BY id",
+				columns: []columnSpec{
+					{"id", "bigint"},
+					{"name", "nvarchar"},
+				},
+				check: checkBigID,
+			},
+			{
+				name: "numeric_precision",
+				// SQL Server DECIMAL tops out at precision 38: exactly the 20
+				// integer plus 18 fraction digits of the balance literal.
+				sql: "SELECT CAST('12345678901234567890.123456789012345678' AS DECIMAL(38,18)) AS balance, CAST('0.000000000000000001' AS DECIMAL(18,18)) AS tiny",
+				columns: []columnSpec{
+					{"balance", "decimal"},
+					{"tiny", "decimal"},
+				},
+				check: checkDecimal,
+			},
+		}
+	default:
+		return nil
+	}
+}
+
+// containerCLI returns the container CLI that drives compose. It defaults to
+// podman (local development) and can be overridden with CONTAINER_CLI; CI
+// exports CONTAINER_CLI=docker.
+func containerCLI(t *testing.T) string {
+	t.Helper()
+	cli := os.Getenv("CONTAINER_CLI")
+	if cli == "" {
+		cli = "podman"
+	}
+	if _, err := exec.LookPath(cli); err != nil {
+		t.Skipf("%s not installed; testenv proof skipped", cli)
+	}
+	return cli
+}
+
+// runInContainer executes argv inside a compose service and returns stdout.
+func runInContainer(t *testing.T, cli, service string, argv ...string) string {
+	t.Helper()
 	composeAbs, err := filepath.Abs(composeFile)
 	if err != nil {
 		t.Fatalf("resolving compose file: %v", err)
 	}
-	cmd := exec.Command("podman", "compose", "-f", composeAbs, "exec", "-T", service,
-		"psql", "-U", "testenv", "-d", database, "--csv",
-		"-P", "null="+nullSentinel, "-v", "ON_ERROR_STOP=1", "-c", sql)
+	args := append([]string{"compose", "-f", composeAbs, "exec", "-T", service}, argv...)
+	cmd := exec.Command(cli, args...)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		t.Fatalf("querying %s (is the stack up? podman compose -f testenv/compose.yaml up -d postgres supabase): %v: %s", service, err, stderr.String())
+		t.Fatalf("querying %s (is the stack up? %s compose -f testenv/compose.yaml --profile mssql up -d): %v: %s",
+			service, cli, err, stderr.String())
 	}
-	records, err := csv.NewReader(strings.NewReader(stdout.String())).ReadAll()
+	return stdout.String()
+}
+
+// parseCSV splits client output into rows, header first.
+func parseCSV(t *testing.T, out string, comma rune) [][]string {
+	t.Helper()
+	reader := csv.NewReader(strings.NewReader(out))
+	reader.Comma = comma
+	records, err := reader.ReadAll()
 	if err != nil {
-		t.Fatalf("parsing CSV from %s: %v", service, err)
+		t.Fatalf("parsing client output: %v", err)
 	}
 	if len(records) == 0 {
-		t.Fatalf("no CSV output from %s", service)
+		t.Fatal("no rows in client output")
 	}
 	return records
+}
+
+// runPSQLCSV executes one query inside a postgres-family compose service and
+// returns its CSV rows, header first.
+func runPSQLCSV(t *testing.T, cli, service, database, sql string) [][]string {
+	t.Helper()
+	out := runInContainer(t, cli, service,
+		"psql", "-U", "testenv", "-d", database, "--csv",
+		"-P", "null="+nullSentinel, "-v", "ON_ERROR_STOP=1", "-c", sql)
+	return parseCSV(t, out, ',')
+}
+
+// runMySQLTSV executes one query inside the mysql compose service and returns
+// its rows, header first. mysql --batch prints tab-separated values and NULL
+// as the literal string NULL (the \N marker is a mysqldump convention, not a
+// client one), so any nullable column must arrive through
+// COALESCE(col, nullSentinel) in the SQL itself.
+func runMySQLTSV(t *testing.T, cli, service, database, sql string) [][]string {
+	t.Helper()
+	out := runInContainer(t, cli, service,
+		"mysql", "-u", "testenv", "-ptestenv", "--default-character-set=utf8mb4",
+		database, "--batch", "--raw", "-e", sql)
+	return parseCSV(t, out, '\t')
+}
+
+// runMSSQLCSV executes one query inside the mssql compose service and returns
+// its rows, header first. sqlcmd has no NULL-marker option, so the mssql
+// queries wrap nullable columns in COALESCE(col, '__NULL__') themselves.
+func runMSSQLCSV(t *testing.T, cli, service, sql string) [][]string {
+	t.Helper()
+	out := runInContainer(t, cli, service,
+		"/opt/mssql-tools18/bin/sqlcmd", "-C", "-S", "localhost", "-U", "sa",
+		"-P", "Testenv_local1", "-I", "-b", "-W", "-s", ",", "-Q", sql)
+	return parseCSV(t, out, ',')
 }
 
 // convertCell models how a runtime fills a google.protobuf.Value: null stays
@@ -182,7 +336,7 @@ func convertCell(t *testing.T, raw, typ string) any {
 		return nil
 	}
 	switch typ {
-	case "int2", "int4", "int8":
+	case "int2", "int4", "int8", "bigint":
 		n, err := strconv.ParseInt(raw, 10, 64)
 		if err != nil {
 			t.Fatalf("parsing %q as %s: %v", raw, typ, err)
@@ -191,7 +345,7 @@ func convertCell(t *testing.T, raw, typ string) any {
 			return raw
 		}
 		return n
-	case "numeric":
+	case "numeric", "decimal":
 		return raw
 	case "bool":
 		return raw == "t"
@@ -236,22 +390,38 @@ func toResponse(t *testing.T, records [][]string, columns []columnSpec) *databas
 	return resp
 }
 
-// TestEnvDatabaseQueryRun proves database.query.run against the real Postgres
-// and Supabase (Postgres) services from testenv/compose.yaml: one query with
-// NULLs, one with a bigint above 2^53, one with NUMERIC precision.
+// TestEnvDatabaseQueryRun proves database.query.run against the real database
+// services from testenv/compose.yaml — postgres, supabase (Postgres), mysql
+// and mssql — with the same three queries everywhere: NULLs, a bigint above
+// 2^53 that must travel as a string, and a high-precision decimal that must
+// travel as a string.
 func TestEnvDatabaseQueryRun(t *testing.T) {
+	cli := containerCLI(t)
 	targets := []struct {
 		service  string
+		engine   string
 		database string
 	}{
-		{"postgres", "testenv"},
-		{"supabase", "supabase"},
+		{"postgres", "postgres", "testenv"},
+		{"supabase", "postgres", "supabase"},
+		{"mysql", "mysql", "testenv"},
+		{"mssql", "mssql", ""}, // seed sidecar applies to master; no default database
 	}
 	for _, target := range targets {
 		t.Run(target.service, func(t *testing.T) {
-			for _, tc := range databaseQueryCases() {
+			for _, tc := range databaseQueryCases(target.engine) {
 				t.Run(tc.name, func(t *testing.T) {
-					records := runPSQLCSV(t, target.service, target.database, tc.sql)
+					var records [][]string
+					switch target.engine {
+					case "postgres":
+						records = runPSQLCSV(t, cli, target.service, target.database, tc.sql)
+					case "mysql":
+						records = runMySQLTSV(t, cli, target.service, target.database, tc.sql)
+					case "mssql":
+						records = runMSSQLCSV(t, cli, target.service, tc.sql)
+					default:
+						t.Fatalf("unknown engine %q", target.engine)
+					}
 					resp := toResponse(t, records, tc.columns)
 					if got := len(resp.GetColumns()); got != len(tc.columns) {
 						t.Fatalf("len(columns) = %d, want %d", got, len(tc.columns))
