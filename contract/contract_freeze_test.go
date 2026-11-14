@@ -80,6 +80,9 @@ func TestConnectorContractFreezeProviderCatalog(t *testing.T) {
 		},
 		// The skills repository enters the freeze read-only.
 		ProviderSkillsRepo: {"skills.list": ActionRead, "skills.fetch": ActionRead},
+		// HAI-493: Postgres (and Supabase, which is Postgres) enters the
+		// freeze read-only: query.run is database.query.run, class READ.
+		ProviderPostgres: {"query.run": ActionRead},
 	}
 	for provider, expected := range want {
 		got := CapabilitiesFor(provider)

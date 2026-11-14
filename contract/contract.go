@@ -73,6 +73,13 @@ const (
 	// source never implies access to a repository's issues or pull requests.
 	// Its capabilities are reads: list the skills and fetch one as an archive.
 	ProviderSkillsRepo Provider = "skills_repo"
+
+	// ProviderPostgres runs read-only SQL against a Postgres database with
+	// the DSN of a read-only role behind an opaque_ref. Supabase is Postgres
+	// and uses this provider; the query's dialect (database.v1.Dialect
+	// POSTGRES or SUPABASE) records which. The id matches the catalog's
+	// postgres connector template.
+	ProviderPostgres Provider = "postgres"
 )
 
 // CredentialSource is typed metadata for where a connector's credential
@@ -125,6 +132,10 @@ var definitions = map[Provider][]Capability{
 	// The skills repository is read-only: installing or syncing a skill is
 	// done by the client that fetched it, never by a write to the source.
 	ProviderSkillsRepo: {{Name: "skills.list", Action: ActionRead}, {Name: "skills.fetch", Action: ActionRead}},
+	// Postgres is read-only by contract: query.run is database.query.run
+	// (class READ). Writes are not modeled, and the read-only role in the
+	// DSN is what Postgres enforces.
+	ProviderPostgres: {{Name: "query.run", Action: ActionRead}},
 }
 
 func CapabilitiesFor(provider Provider) []Capability {
@@ -339,7 +350,7 @@ func definedCapability(provider Provider, candidate Capability) bool {
 func validProvider(p Provider) bool {
 	return p == ProviderLinear || p == ProviderGitHub || p == ProviderGoogle || p == ProviderNotion || p == ProviderS3 || p == ProviderHTTPAPI ||
 		p == ProviderFreshBooks || p == ProviderMercury || p == ProviderGmail || p == ProviderTito || p == ProviderDiscord || p == ProviderGrafana ||
-		p == ProviderSkillsRepo
+		p == ProviderSkillsRepo || p == ProviderPostgres
 }
 func validStatus(s Status) bool {
 	return s == StatusPending || s == StatusActive || s == StatusSuspended || s == StatusRevoked || s == StatusFailed
