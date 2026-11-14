@@ -287,28 +287,31 @@ func runPSQLCSV(t *testing.T, cli, service, database, sql string) [][]string {
 }
 
 // runMySQLTSV executes one query inside the mysql compose service and returns
-// its rows, header first. mysql --batch prints tab-separated values and NULL
-// as the literal string NULL (the \N marker is a mysqldump convention, not a
-// client one), so any nullable column must arrive through
-// COALESCE(col, nullSentinel) in the SQL itself.
+// its rows, header first. It connects over TCP: during the image's first-boot
+// init phase a temporary server answers on the socket, so a socket connection
+// can reach a server that is about to be replaced by the real one (the
+// healthcheck guards against the same race; see compose.yaml). mysql --batch
+// prints tab-separated values and NULL as the literal string NULL (the \N
+// marker is a mysqldump convention, not a client one), so any nullable column
+// must arrive through COALESCE(col, nullSentinel) in the SQL itself.
 func runMySQLTSV(t *testing.T, cli, service, database, sql string) [][]string {
 	t.Helper()
 	out := runInContainer(t, cli, service,
-		"mysql", "-u", "testenv", "-ptestenv", "--default-character-set=utf8mb4",
-		database, "--batch", "--raw", "-e", sql)
+		"mysql", "-h", "127.0.0.1", "--protocol=TCP", "-u", "testenv", "-ptestenv",
+		"--default-character-set=utf8mb4", database, "--batch", "--raw", "-e", sql)
 	return parseCSV(t, out, '\t')
 }
 
 // runMSSQLCSV executes one query inside the mssql compose service and returns
 // its rows without a header (-h -1). SET NOCOUNT ON keeps the "(N rows
-// affected)" footer out of the output; sqlcmd has no NULL-marker option, so
-// the mssql queries wrap nullable columns in COALESCE(col, '__NULL__')
-// themselves.
+// affected)" footer out of the output and -f 65001 forces UTF-8 output so
+// unicode values survive; sqlcmd has no NULL-marker option, so the mssql
+// queries wrap nullable columns in COALESCE(col, '__NULL__') themselves.
 func runMSSQLCSV(t *testing.T, cli, service, sql string) [][]string {
 	t.Helper()
 	out := runInContainer(t, cli, service,
 		"/opt/mssql-tools18/bin/sqlcmd", "-C", "-S", "localhost", "-U", "sa",
-		"-P", "Testenv_local1", "-I", "-b", "-h", "-1", "-W", "-s", ",", "-Q",
+		"-P", "Testenv_local1", "-I", "-b", "-h", "-1", "-W", "-s", ",", "-f", "65001", "-Q",
 		"SET NOCOUNT ON; "+sql)
 	return parseCSV(t, out, ',')
 }
