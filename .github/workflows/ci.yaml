@@ -158,9 +158,11 @@ jobs:
 
       - name: Start database stack
         # mssql sits behind the "mssql" profile in compose.yaml; --profile
-        # mssql opts it in (and pulls in the mssql-seed sidecar via
-        # depends_on) so all four dialects run.
-        run: docker compose -f testenv/compose.yaml --profile mssql up -d postgres supabase mysql mssql
+        # mssql opts it in so all four dialects run. The mssql-seed sidecar
+        # must be named explicitly: depends_on only pulls dependencies in, so
+        # naming mssql alone never creates the seed (it waits for mssql to be
+        # healthy, then runs).
+        run: docker compose -f testenv/compose.yaml --profile mssql up -d postgres supabase mysql mssql mssql-seed
 
       - name: Wait for databases to be healthy (max 120s)
         run: |
@@ -183,7 +185,23 @@ jobs:
       - name: Wait for the mssql seed sidecar (max 60s)
         run: |
           compose() { docker compose -f testenv/compose.yaml --profile mssql "$@"; }
-          cid=$(compose ps -aq mssql-seed)
+          cid=""
+          # Fail fast (≈10s) if the seed container was never created instead
+          # of looping on an empty id; dump the compose state to show why.
+          for i in $(seq 1 5); do
+            cid=$(compose ps -aq mssql-seed)
+            if [ -n "$cid" ]; then
+              break
+            fi
+            if [ "$i" -lt 5 ]; then
+              sleep 2
+            fi
+          done
+          if [ -z "$cid" ]; then
+            compose ps -a
+            echo "mssql-seed container was never created; is it named in the up command?"
+            exit 1
+          fi
           for i in $(seq 1 30); do
             state=$(docker inspect -f '{{.State.Status}}/{{.State.ExitCode}}' "$cid" || true)
             if [ "$state" = "exited/0" ]; then
