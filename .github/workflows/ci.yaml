@@ -5,6 +5,10 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    # Nightly, so the four-database testenv proof also runs when no PR touches
+    # the testenv files (e.g. image tag drift or runner changes).
+    - cron: "17 6 * * *"
 
 permissions:
   contents: read
@@ -45,6 +49,18 @@ jobs:
 
       - name: Test
         run: go test -count=1 -race ./...
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Python tests
+        # The generated python module (HAI-990) needs a protobuf runtime at
+        # least as new as the generated code (gencode 7.36.2); pytest is the
+        # runner. PYTHONPATH points at the generated package root.
+        run: |
+          pip install 'protobuf>=7.36.2' pytest
+          PYTHONPATH=gen/python/src python -m pytest -q gen/python/tests
 
       - name: License headers present
         # Apache 2.0 does not strictly require per-file headers, but this
@@ -124,3 +140,87 @@ jobs:
       - name: Rust serde tests
         run: cargo test
         working-directory: gen/rust
+
+  testenv:
+    name: Database testenv
+    # ubuntu-latest is amd64 and ships docker; the mssql image is amd64-only
+    # (see testenv/compose.yaml) and the proof needs no cloud credentials.
+    runs-on: ubuntu-latest
+    env:
+      CONTAINER_CLI: docker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.27"
+          cache-dependency-path: gen/go/go.sum
+
+      - name: Start database stack
+        # mssql sits behind the "mssql" profile in compose.yaml; --profile
+        # mssql opts it in so all four dialects run. The mssql-seed sidecar
+        # must be named explicitly: depends_on only pulls dependencies in, so
+        # naming mssql alone never creates the seed (it waits for mssql to be
+        # healthy, then runs).
+        run: docker compose -f testenv/compose.yaml --profile mssql up -d postgres supabase mysql mssql mssql-seed
+
+      - name: Wait for databases to be healthy (max 120s)
+        run: |
+          compose() { docker compose -f testenv/compose.yaml --profile mssql "$@"; }
+          healthy=0
+          for i in $(seq 1 60); do
+            healthy=$(compose ps postgres supabase mysql mssql --format '{{.Health}}' | grep -c '^healthy$' || true)
+            if [ "$healthy" -eq 4 ]; then
+              echo "All four database services healthy."
+              break
+            fi
+            sleep 2
+          done
+          if [ "$healthy" -ne 4 ]; then
+            compose ps -a
+            echo "Timed out waiting for the database services to become healthy."
+            exit 1
+          fi
+
+      - name: Wait for the mssql seed sidecar (max 60s)
+        run: |
+          compose() { docker compose -f testenv/compose.yaml --profile mssql "$@"; }
+          cid=""
+          # Fail fast (≈10s) if the seed container was never created instead
+          # of looping on an empty id; dump the compose state to show why.
+          for i in $(seq 1 5); do
+            cid=$(compose ps -aq mssql-seed)
+            if [ -n "$cid" ]; then
+              break
+            fi
+            if [ "$i" -lt 5 ]; then
+              sleep 2
+            fi
+          done
+          if [ -z "$cid" ]; then
+            compose ps -a
+            echo "mssql-seed container was never created; is it named in the up command?"
+            exit 1
+          fi
+          for i in $(seq 1 30); do
+            state=$(docker inspect -f '{{.State.Status}}/{{.State.ExitCode}}' "$cid" || true)
+            if [ "$state" = "exited/0" ]; then
+              echo "mssql seed applied."
+              exit 0
+            fi
+            if [ "$state" = "exited/1" ]; then
+              compose logs --tail 50 mssql-seed
+              echo "mssql seed failed."
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "Timed out waiting for the mssql seed sidecar."
+          exit 1
+
+      - name: Contract proof against the real databases
+        run: go -C gen/go test -count=1 -tags testenv ./conformance -run TestEnvDatabaseQueryRun -v
+
+      - name: Tear down
+        if: always()
+        run: docker compose -f testenv/compose.yaml --profile mssql down -v --remove-orphans
