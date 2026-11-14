@@ -1,9 +1,11 @@
 # testenv — local database test environment (HAI-998)
 
-A local-only [podman compose](https://podman.io/docs) stack for exercising the
-connector contracts against real databases. **Not part of CI** and not a
-product surface: the root Go module stays stdlib-only and imports nothing from
-this directory.
+A [podman compose](https://podman.io/docs) stack for exercising the
+connector contracts against real databases. It runs locally with podman and
+in CI: the `Database testenv` job in `.github/workflows/ci.yaml` starts the
+same stack with docker on every pull request to `main`, on pushes to `main`,
+and nightly. It is not a product surface: the root Go module stays
+stdlib-only and imports nothing from this directory.
 
 > **LOCAL DEVELOPMENT ONLY.** Every password in this stack is a weak
 > placeholder (`testenv`, and `Testenv_local1` for MSSQL, which enforces
@@ -19,11 +21,12 @@ this directory.
 | mssql (opt-in)    | `mcr.microsoft.com/mssql/server:2022-CU15-ubuntu-22.04`, `platform: linux/amd64` | 1433 | `master` |
 | mssql-seed (opt-in) | same server image (one-shot sidecar that ships `sqlcmd`) | — | — |
 
-MSSQL is behind the compose profile `mssql` and is **not verified on Apple
-Silicon**: the image is amd64-only, and SQL Server 2022 does not reliably
-start under amd64 emulation on arm64 Macs. It does not start with a plain
-`podman compose up -d`, and to use it you need an amd64 host (Linux x86_64,
-or a Mac with Rosetta-enabled podman).
+MSSQL is behind the compose profile `mssql` and **cannot run locally on
+Apple silicon**: the image is amd64-only, and SQL Server 2022 does not
+reliably start under amd64 emulation on arm64 Macs. It does not start with a
+plain `podman compose up -d`, and to use it locally you need an amd64 host
+(Linux x86_64). CI runs on an amd64 runner, so the `Database testenv` job
+covers MSSQL on every run.
 
 All ports bind to `127.0.0.1` only.
 
@@ -88,29 +91,44 @@ bash smoke.sh                  # postgres, supabase, mysql
 TESTENV_MSSQL=1 bash smoke.sh  # also mssql (needs an amd64 host)
 ```
 
-Local only — do not add it to required CI.
+`smoke.sh` is a local convenience; CI runs the contract proof below instead.
 
 ## Contract proof: database.query.run
 
 The build-tagged Go helper in `gen/go/conformance/testenv_test.go` proves the
-`database.query.run` contract against Postgres and Supabase: it runs three seed
-queries on each service (one with NULLs, one with a bigint above 2^53, one with
-NUMERIC precision), converts each CSV result into the `RunQueryResponse` JSON
-shape, and unmarshals it into the generated type. It shells out to the `psql`
-inside each container, so the contract modules gain no database driver. Normal
-CI skips it because it sits behind the `testenv` build tag.
+`database.query.run` contract against Postgres, Supabase, MySQL and MSSQL: it
+runs three seed queries on each service (one with NULLs, one with a bigint
+above 2^53, one with NUMERIC precision), converts each result into the
+`RunQueryResponse` JSON shape, and unmarshals it into the generated type. It
+shells out to the client inside each container (`psql`, `mysql`, `sqlcmd`),
+so the contract modules gain no database driver. The file only builds with
+the `testenv` build tag, so the ordinary test jobs leave it out; the
+`Database testenv` CI job runs it against all four databases.
 
-From the repository root:
+Locally, from the repository root (Postgres, Supabase and MySQL; MSSQL needs
+an amd64 host, see above):
 
 ```sh
-podman compose -f testenv/compose.yaml up -d postgres supabase
-go -C gen/go test -tags testenv ./conformance -run TestEnvDatabaseQueryRun -v
+podman compose -f testenv/compose.yaml up -d postgres supabase mysql
+go -C gen/go test -tags testenv ./conformance -run 'TestEnvDatabaseQueryRun/^(postgres|supabase|mysql)$' -v
 podman compose -f testenv/compose.yaml down -v --remove-orphans
 ```
 
-Expected: 6 subtests pass (3 queries on `postgres`, 3 on `supabase`), and the
-logged JSON shows `null` for the NULL cell, `"9007199254740993"` as a string,
-and `"12345678901234567890.123456789012345678"` as a NUMERIC string.
+The `-run` filter matters: the test has no skip for a missing service, so
+without it the `mssql` subtests fail when MSSQL is not running. The helper
+uses `podman` by default; CI sets `CONTAINER_CLI=docker`.
+
+On an amd64 host, include MSSQL:
+
+```sh
+podman compose -f testenv/compose.yaml --profile mssql up -d postgres supabase mysql mssql mssql-seed
+go -C gen/go test -tags testenv ./conformance -run TestEnvDatabaseQueryRun -v
+podman compose -f testenv/compose.yaml --profile mssql down -v --remove-orphans
+```
+
+Expected: 3 subtests pass per service, and the logged JSON shows `null` for
+the NULL cell, `"9007199254740993"` as a string, and
+`"12345678901234567890.123456789012345678"` as a NUMERIC string.
 
 ## Teardown
 
