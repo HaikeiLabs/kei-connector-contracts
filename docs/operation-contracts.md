@@ -15,6 +15,15 @@ An operation id is a dotted name: `connector.resource.verb`, for example
 - Segments are lowercase snake_case, and there are at least three segments.
 - A tool discovered from a remote MCP server is `mcp.<server>.<tool>`, and a
   harness built-in is `builtin.<name>`.
+- The `<server>` and `<tool>` segments of an MCP id are normalized: every
+  character outside `[a-z0-9_]` becomes `_`, so an id always matches the
+  dotted-id shape (for example server `my-server`, tool `Create Issue` is
+  `mcp.my_server.create_issue`). An empty server or tool is an error — the
+  harness must reject it rather than mint an id. Assignment happens in the
+  harness when the tool is registered; kei-proxy stays decision-only
+  (ADR-039) and does no routing. MCP payloads are typed in
+  `proto/kei/connectors/mcp/v1/tool.proto` (`ToolCall`/`ToolResult`, free
+  form `google.protobuf.Struct` arguments and content blocks).
 - Ids are policy targets under the existing dot-segment matching, with `*`
   as a segment wildcard: `connector:github.*` matches `github.issues.get`.
   No policy schema change is needed.

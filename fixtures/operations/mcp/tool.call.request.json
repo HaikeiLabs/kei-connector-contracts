@@ -1,0 +1,16 @@
+{
+  "server": "metrics",
+  "tool": "render_dashboard",
+  "arguments": {
+    "dashboard_uid": "synthetic-dash-1",
+    "from": "now-1h",
+    "to": "now",
+    "panel_filter": null,
+    "variables": {
+      "env": "prod",
+      "region": null
+    },
+    "tags": ["latency", "p99"]
+  },
+  "session_extra": "unknown field a provider may add"
+}

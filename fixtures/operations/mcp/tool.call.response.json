@@ -1,0 +1,19 @@
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Rendered synthetic dashboard panel",
+      "meta": null
+    },
+    {
+      "type": "resource",
+      "resource": {
+        "uri": "https://metrics.example.invalid/dashboards/synthetic-dash-1",
+        "mimeType": null,
+        "data": null
+      }
+    }
+  ],
+  "is_error": false,
+  "trace_extra": "unknown field a provider may add"
+}
