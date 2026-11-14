@@ -228,8 +228,12 @@ func databaseQueryCases(engine string) []queryCase {
 			{
 				name: "numeric_precision",
 				// SQL Server DECIMAL tops out at precision 38: exactly the 20
-				// integer plus 18 fraction digits of the balance literal.
-				sql: "SELECT CAST('12345678901234567890.123456789012345678' AS DECIMAL(38,18)) AS balance, CAST('0.000000000000000001' AS DECIMAL(18,18)) AS tiny",
+				// integer plus 18 fraction digits of the balance literal. The
+				// columns go through CONVERT(varchar(64), ...): sqlcmd's decimal
+				// display drops the leading zero of the fraction-only value
+				// ('.000000000000000001'), while the server's own decimal-to-
+				// varchar conversion preserves it.
+				sql: "SELECT CONVERT(varchar(64), CAST('12345678901234567890.123456789012345678' AS DECIMAL(38,18))) AS balance, CONVERT(varchar(64), CAST('0.000000000000000001' AS DECIMAL(18,18))) AS tiny",
 				columns: []columnSpec{
 					{"balance", "decimal"},
 					{"tiny", "decimal"},
