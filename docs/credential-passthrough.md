@@ -23,7 +23,7 @@ session in the `X-Kei-Session` header) and the same identifying shape as
 `/v1/authorize` for the request and releases a credential **only when that
 decision is allow**. It does not trust a client-supplied "I was already
 allowed" claim, and it never falls back to a config token, a cached value, or
-another session's credential.
+another session's credential. For a v2 `connector_binding` tool, the runtime derives every operation from the bundle-registered plan and the submitted inputs, checks the complete plan, and requires the requested credential resource to match a planned operation before release. Missing or invalid plan input denies. Harness-executor tools retain their existing authorization path.
 
 - Request schema: `kei.credential-release-request/v1`
 - Response schema: `kei.credential-release-response/v1`
@@ -45,12 +45,16 @@ targets — the same fields `/v1/authorize` uses to decide.
 | `connector.capability` | body | The capability on that connector. |
 | `resource` | body | The resource the provider call targets. |
 | `span_id`, `parent_span`, `delegation_depth`, `framework`, `agent_id`, `tool_args_digest` | body | Optional audit context, as in `/v1/authorize`. |
+| `tool_args`, `tool_context` | body | For a registered `connector_binding` tool, complete call inputs used to derive and re-authorize its plan locally. Optional context defaults to `{}`. These values stay on the tenant-local socket and are never sent to the control plane or copied to audit. |
 
 ```json
 {
   "schema": "kei.credential-release-request/v1",
   "connector": { "connector_id": "github", "capability": "read" },
   "resource": "repo:owner/name",
+  "tool": "github.get_issue",
+  "tool_args": {"repository": "owner/name", "issue_number": 7},
+  "tool_context": {},
   "span_id": "0af76b1f1c1c1c1c"
 }
 ```
@@ -182,7 +186,7 @@ or a log.
 
 Per-language name and signature (one method on the existing socket client):
 
-- **Python** — `KeiProxySocketAuthorizeClient.release_credential(session, *, tool="", connector_id="", capability="", resource="", span_id="", parent_span="", delegation_depth=0, agent_id="", framework="", tool_args_digest="") -> CredentialRelease`
+- **Python** — `KeiProxySocketAuthorizeClient.release_credential(session, *, tool="", connector_id="", capability="", resource="", span_id="", parent_span="", delegation_depth=0, agent_id="", framework="", tool_args_digest="", tool_args=None, tool_context=None) -> CredentialRelease`
 - **TypeScript** — `KeiProxySocketAuthorizeClient.releaseCredential(session, input): Promise<CredentialRelease>`
 - **Go** — `(*SocketClient).ReleaseCredential(ctx, session, req ReleaseRequest) (ReleaseResult, error)`; Go's socket client mirrors the Python/TypeScript one (Go currently ships the CLI client `CLIClient`; the socket client is the same Unix-socket transport).
 

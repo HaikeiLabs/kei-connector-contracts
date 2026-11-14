@@ -47,6 +47,27 @@ func TestCanonicalExamples(t *testing.T) {
 
 // A request without caller metadata (every request before this field existed)
 // stays valid: the caller is simply unknown.
+func TestConnectorPlanInputsAreLocalToolObjects(t *testing.T) {
+	req, err := Decode([]byte(`{"schema":"kei.authorize-request/v1","tool":"github.get_issue","tool_args":{"issue_number":7},"tool_context":{}}`))
+	if err != nil {
+		t.Fatalf("Decode valid plan inputs: %v", err)
+	}
+	if string(req.ToolArgs) != `{"issue_number":7}` || string(req.ToolContext) != `{}` {
+		t.Fatalf("plan inputs were not preserved: args=%s context=%s", req.ToolArgs, req.ToolContext)
+	}
+	for name, raw := range map[string]string{
+		"connector request with plan args": `{"schema":"kei.authorize-request/v1","connector":{"connector_id":"github","capability":"read"},"tool_args":{}}`,
+		"context without args":             `{"schema":"kei.authorize-request/v1","tool":"github.get_issue","tool_context":{}}`,
+		"non-object args":                  `{"schema":"kei.authorize-request/v1","tool":"github.get_issue","tool_args":[]}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := Decode([]byte(raw)); err == nil {
+				t.Fatal("Decode accepted invalid plan inputs")
+			}
+		})
+	}
+}
+
 func TestCallerIsOptional(t *testing.T) {
 	req, err := Decode([]byte(`{"schema":"kei.authorize-request/v1","tool":"web_search"}`))
 	if err != nil {
