@@ -62,6 +62,18 @@ jobs:
           pip install 'protobuf>=7.36.2' pytest
           PYTHONPATH=gen/python/src python -m pytest -q gen/python/tests
 
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - name: TypeScript tests and build
+        working-directory: gen/ts
+        run: |
+          npm ci
+          npm test
+          npm run build
+
       - name: License headers present
         # Apache 2.0 does not strictly require per-file headers, but this
         # repository is public and its files are meant to be read and copied by

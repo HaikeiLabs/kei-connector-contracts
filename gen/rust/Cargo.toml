@@ -9,7 +9,6 @@ edition = "2021"
 license = "Apache-2.0"
 description = "Kei connector operation contracts: prost types and pbjson serde impls"
 repository = "https://github.com/HaikeiLabs/kei-connector-contracts"
-publish = false
 
 [dependencies]
 prost = "0.14"

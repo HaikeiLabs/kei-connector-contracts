@@ -1,0 +1,156 @@
+name: Publish contracts
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (without v; an existing tag on main)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contracts-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+      sha: ${{ steps.release.outputs.sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - id: release
+        name: Verify release tag and package versions
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            version="$INPUT_VERSION"
+          else
+            version="${REF_NAME#v}"
+          fi
+          if ! [[ "$version" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Invalid release version: $version" >&2
+            exit 1
+          fi
+          tag="v$version"
+          git fetch origin main
+          git fetch origin "refs/tags/$tag:refs/tags/$tag"
+          sha="$(git rev-parse "$tag^{commit}")"
+          if [ "$EVENT_NAME" = push ] && [ "$sha" != "$(git rev-parse 'HEAD^{commit}')" ]; then
+            echo "Release tag does not point to the triggering commit" >&2
+            exit 1
+          fi
+          git merge-base --is-ancestor "$sha" refs/remotes/origin/main
+          git checkout --detach "$sha"
+          python3 scripts/check-package-versions.py
+          actual="$(python3 -c 'import json; print(json.load(open("gen/ts/package.json"))["version"])')"
+          test "$actual" = "$version" || { echo "Tag $tag does not match package version $actual" >&2; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+  npm:
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: gen/ts
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          package-manager-cache: false
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: env -u NODE_AUTH_TOKEN npm publish --provenance --access public
+
+  pypi:
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+      - run: python -m pip install build
+      - run: python -m build
+        working-directory: gen/python
+      - uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        with:
+          packages-dir: gen/python/dist/
+
+  crates:
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master, 2026-10-16
+        with:
+          toolchain: stable
+      - id: auth
+        uses: rust-lang/crates-io-auth-action@3268eb413133e2960fa4ae0e963ca76380c54cd9 # v1.0.6
+      - name: Publish to crates.io
+        working-directory: gen/rust
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ steps.auth.outputs.token }}
+        run: cargo publish
+
+  go-tag:
+    needs: prepare
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          fetch-depth: 0
+      - name: Push the Go module tag on the release commit
+        env:
+          GO_TAG: gen/go/v${{ needs.prepare.outputs.version }}
+        run: |
+          release_sha="$(git rev-parse 'HEAD^{commit}')"
+          if git ls-remote --exit-code --tags origin "refs/tags/$GO_TAG"; then
+            git fetch origin "refs/tags/$GO_TAG:refs/tags/$GO_TAG"
+            tagged_sha="$(git rev-parse "$GO_TAG^{commit}")"
+            if [ "$tagged_sha" != "$release_sha" ]; then
+              echo "$GO_TAG already points at $tagged_sha, not $release_sha" >&2
+              exit 1
+            fi
+            echo "$GO_TAG already points at the release commit"
+          else
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git config user.name "github-actions[bot]"
+            git tag -a "$GO_TAG" -m "Contracts Go ${GO_TAG#gen/go/}" "$release_sha"
+            git push origin "$GO_TAG"
+          fi
