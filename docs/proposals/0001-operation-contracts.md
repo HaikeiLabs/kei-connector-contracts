@@ -26,6 +26,37 @@ Accepted with the following amendments:
   Go, Python and Rust.
 - Languages ship in lockstep from one tag: Go, Python, TS, Rust.
 
+## Amendment (owner, 2026-11-15): separation of concerns
+
+This repository holds agent data contracts. Each part of the platform owns
+one concern:
+
+- Agents (Agentware, `kei-agents`) define tools.
+- The policy catalog defines governable capabilities (connector templates and
+  their capabilities) and the tool manifest.
+- The runtime decides from the policy bundle alone. It never consults this
+  repository's contracts for authorization or provider setup.
+
+What follows for this repository:
+
+- A new connector adds **only** operation-contract protos and fixtures here.
+  It adds no new `contract.Provider` value, no `setup/` entry and no
+  `access/` entry. See "Adding a connector" in
+  [docs/operation-contracts.md](../operation-contracts.md).
+- The legacy packages are frozen and will be deprecated: the provider
+  registry in `contract`, `setup`, `access`, `capability`, `providers`,
+  `calltemplate`, and the `kei.tool-definition/v1` schemas. Frozen means no
+  new providers or entries; fixes only.
+- The runtime and catalog wire formats in this repository (`bundle`,
+  `policy`, `policybundlehealth`, `harnessmatch`, `authorizerequest`,
+  `envelope`, `canonical`) will move to the runtime or to a separate Kei
+  protocol module. Their JSON stays unchanged.
+- Postgres, added as a provider in v0.18.0, is the last connector added the
+  old way. That is accepted as tech debt.
+
+This supersedes the parts of section 4 that said `providers/` stays and that
+the policy package and bundle parsers are unchanged.
+
 ## 1. Motivation
 
 Today this module holds:
@@ -147,12 +178,17 @@ root module. Proposed layout:
 ## 4. What is not changing
 
 This proposal removes nothing and deprecates nothing in this repository.
+(Superseded by the 2026-11-15 amendment; see that section above.)
 
 - The tool call templates (`docs/tool-call-templates.md`, the
   `kei.tool-definition/v1` schemas, `calltemplate`, `schemas.FS`) stay as they
   are and keep working for their consumers.
 - `providers/` stays; whether it is ever retired is a separate question.
+  (Superseded by the 2026-11-15 amendment: `providers/` is frozen and
+  deprecation is planned.)
 - The policy package, bundle parsers and the other schemas are unchanged.
+  (Superseded by the 2026-11-15 amendment: the legacy schemas are frozen, and
+  `policy` and `bundle` move out of this repository with unchanged JSON.)
 - The runtime stays decision-only: it authorizes, passes credentials through
   and audits. Writes remain actions the harness performs; this proposal only
   describes the calls.
