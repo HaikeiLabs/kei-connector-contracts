@@ -41,6 +41,18 @@ files. proto is the contract language only: there are no gRPC services, no
 grpc-gateway, and no generated HTTP clients that relay calls. The harness
 makes every call; kei-proxy stays decision-only (ADR-039).
 
+## Connector pages
+
+The generic contracts each have a page with their operation ids, messages,
+unmarshal snippets, fixtures and tests:
+
+- [http_api](connectors/http_api.md): generic REST records as
+  `google.protobuf.Struct`.
+- [database](connectors/database.md): read-only SQL with positional
+  `ListValue` rows, proven against four databases in CI.
+- [mcp](connectors/mcp.md): the `mcp.<server>.<tool>` id rule and the tool
+  call payloads.
+
 ## json_name
 
 Set `json_name` on every field whose provider JSON key differs from
