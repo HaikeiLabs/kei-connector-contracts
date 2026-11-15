@@ -149,7 +149,7 @@ func scanTree(label, root string) ([]string, error) {
 		}
 		if d.IsDir() {
 			switch d.Name() {
-			case "__pycache__", "node_modules", ".git", "target":
+			case "__pycache__", "node_modules", ".git", "target", "dist", "build":
 				return filepath.SkipDir
 			}
 			return nil
