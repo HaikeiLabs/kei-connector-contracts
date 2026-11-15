@@ -98,9 +98,9 @@ Dependencies point one way: `contract` ← `capability`, `envelope`, `setup`;
 | `.../access` | per-provider access modes (`ProviderAccess`, `AccessMode`, `Access`, `AccessFor`, `CredentialReference`); metadata only | frozen (deprecation planned) |
 | `.../capability` | `LookupCapability`, `CapabilityFor`, `CapabilitiesForProvider`, `Providers` | frozen (deprecation planned) |
 | `.../envelope` | `Envelope`, `EnvelopeVersion1`, `MintedByControlPlane` | moving out (planned) |
-| `.../governance` | `Decision`, `PolicyDecision`, `Decide` | |
-| `.../audit` | `AuditRecord`, `BuildAuditRecord` | |
-| `.../invoke` | `Client`, `NewClient`, `InvokeOutcome` (envelope + decision + audit record) | |
+| `.../governance` | `Decision`, `PolicyDecision`, `Decide` | frozen (deprecation planned) |
+| `.../audit` | `AuditRecord`, `BuildAuditRecord` | frozen (deprecation planned) |
+| `.../invoke` | `Client`, `NewClient`, `InvokeOutcome` (envelope + decision + audit record) | frozen (deprecation planned) |
 | `.../providers` | provider payloads, results, and read-only clients | frozen (deprecation planned) |
 | `.../canonical` | `Resource` (the canonical resource URI of an MCP server, ADR-036 §3.4), `ErrInvalidResource` | moving out (planned) |
 | `.../canonical/canonicaltest` | `ResourceCases`, the shared golden cases for `canonical.Resource`, also published as `canonical/canonicaltest/resource.json` | moving out (planned) |
@@ -110,6 +110,7 @@ Dependencies point one way: `contract` ← `capability`, `envelope`, `setup`;
 | `.../policybundlehealth` | the runtime policy-bundle health wire contract | moving out (planned) |
 | `.../harnessmatch` | the `kei.harness-match/v1` dialect | moving out (planned) |
 | `.../authorizerequest` | the `kei.authorize-request/v1` wire contract | moving out (planned) |
+| `.../manifest` | the tool manifest wire format: `Tool`, `Canonicalize`, `ToolHash`, `Hash` (RFC 8785 canonical form and hash, ADR-036 §5.2) | moving out (planned) |
 
 Account models are a file in `contract`, not a package: `Metadata.AccountModel`
 is a contract field and `Metadata.Validate` enforces the account-model rules,

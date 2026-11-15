@@ -45,11 +45,14 @@ What follows for this repository:
   [docs/operation-contracts.md](../operation-contracts.md).
 - The legacy packages are frozen and will be deprecated: the provider
   registry in `contract`, `setup`, `access`, `capability`, `providers`,
-  `calltemplate`, and the `kei.tool-definition/v1` schemas. Frozen means no
-  new providers or entries; fixes only.
+  `calltemplate`, the `kei.tool-definition/v1` schemas, and the legacy v1
+  decide, invoke and audit path (`governance`, `invoke`, `audit`; the
+  decision-only runtime retired executors and no longer imports them).
+  Frozen means no new providers or entries; fixes only.
 - The runtime and catalog wire formats in this repository (`bundle`,
   `policy`, `policybundlehealth`, `harnessmatch`, `authorizerequest`,
-  `envelope`, `canonical`) will move to the runtime or to a separate Kei
+  `envelope`, `canonical`, and the tool manifest format in `manifest`) will
+  move to the runtime or to a separate Kei
   protocol module. Their JSON stays unchanged.
 - Postgres, added as a provider in v0.18.0, is the last connector added the
   old way. That is accepted as tech debt.

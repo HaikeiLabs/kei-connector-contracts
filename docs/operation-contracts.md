@@ -101,8 +101,9 @@ fixtures unmarshal in Go, Python and Rust.
 Operation contracts are the only new surface in this repository. The legacy
 packages are frozen and their deprecation is planned: the provider registry
 in `contract`, `setup`, `access`, `capability`, `providers`, `calltemplate`,
-and the `kei.tool-definition/v1` schemas (including the call template
-profile in `docs/tool-call-templates.md`). They keep working for their
+the legacy v1 decide, invoke and audit path (`governance`, `invoke`,
+`audit`), and the `kei.tool-definition/v1` schemas (including the call
+template profile in `docs/tool-call-templates.md`). They keep working for their
 current consumers, but they get no new providers or entries. See the
 [2026-11-15 amendment](proposals/0001-operation-contracts.md#amendment-owner-2026-11-15-separation-of-concerns).
 
