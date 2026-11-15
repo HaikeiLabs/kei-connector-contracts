@@ -98,7 +98,28 @@ fixtures unmarshal in Go, Python and Rust.
 
 ## Scope
 
-The existing `kei.tool-definition/v1` schemas, the call template profile
-(`docs/tool-call-templates.md`, `calltemplate`), and `providers/` are
-unchanged by this layer. Operation contracts add a source of truth; they do
-not replace or deprecate anything.
+Operation contracts are the only new surface in this repository. The legacy
+packages are frozen and their deprecation is planned: the provider registry
+in `contract`, `setup`, `access`, `capability`, `providers`, `calltemplate`,
+the legacy v1 decide, invoke and audit path (`governance`, `invoke`,
+`audit`), and the `kei.tool-definition/v1` schemas (including the call
+template profile in `docs/tool-call-templates.md`). They keep working for their
+current consumers, but they get no new providers or entries. See the
+[2026-11-15 amendment](proposals/0001-operation-contracts.md#amendment-owner-2026-11-15-separation-of-concerns).
+
+## Adding a connector
+
+A new connector touches only these:
+
+- [ ] Protos: `proto/kei/connectors/<connector>/v1/<resource>.proto`, with
+      the operation option and `json_name` where needed.
+- [ ] Fixtures: synthetic or sanitized request and response JSON under
+      `fixtures/operations/<connector>/`.
+- [ ] Unmarshal tests in all four languages: Go
+      (`gen/go/conformance/`), Python (`gen/python/tests/`), Rust
+      (`gen/rust/tests/`) and TypeScript (`gen/ts/tests/`).
+- [ ] A page at `docs/connectors/<connector>.md`, linked from
+      [Connector pages](#connector-pages).
+
+Nothing goes in `contract`, `setup` or `access`: no new `contract.Provider`
+value, no setup entry, no access entry.

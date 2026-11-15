@@ -70,33 +70,47 @@ message content.
 
 ## Consumers
 
-- `kei-connector-runtime` — tenant-side evaluation and provider execution
+- `kei-connector-runtime` — tenant-side evaluation only. The runtime is
+  decision-only: it does not execute provider calls. Its current imports of
+  this module are being removed.
 - `kei-policy-catalog` — connector metadata and registrations
 - `kei-cli` — reads and inspects a policy bundle
 - `kei` — integration tests
 
 ## Packages
 
+This repository holds agent data contracts. New work goes into operation
+contracts ([docs/operation-contracts.md](docs/operation-contracts.md)). Under
+the [2026-11-15 amendment](docs/proposals/0001-operation-contracts.md#amendment-owner-2026-11-15-separation-of-concerns), the legacy packages are frozen with
+deprecation planned, and the runtime and catalog wire formats will move to
+the runtime or a separate Kei protocol module with unchanged JSON. The
+Status column below says which is which.
+
 Dependencies point one way: `contract` ← `capability`, `envelope`, `setup`;
 `envelope` ← `governance` ← `audit` ← `invoke`; `providers` imports
 `contract`; `bundle` imports `contract`, `harnessmatch`, `policy` and
 `policybundlehealth`.
 
-| Import path | Contents |
-| --- | --- |
-| `github.com/HaikeiLabs/kei-connector-contracts/contract` | Provider, Status, Action, Capability, and the capability definitions; `Metadata`, `Invocation`, the `http_api` types, and `GrafanaConfig`; `Validate`, `ValidateCall`, `ValidateInvocation`, `ValidateCredentialRef`; credential source and account models (`accountmodel.go`) |
-| `.../setup` | the setup schema (`SetupSchema`, `SetupSchemas`, `SetupSchemaFor`), `ValidateConfig`, and `ValidateMetadata` (the complete connector check: `Metadata.Validate`, then config) |
-| `.../access` | per-provider access modes (`ProviderAccess`, `AccessMode`, `Access`, `AccessFor`, `CredentialReference`); metadata only |
-| `.../capability` | `LookupCapability`, `CapabilityFor`, `CapabilitiesForProvider`, `Providers` |
-| `.../envelope` | `Envelope`, `EnvelopeVersion1`, `MintedByControlPlane` |
-| `.../governance` | `Decision`, `PolicyDecision`, `Decide` |
-| `.../audit` | `AuditRecord`, `BuildAuditRecord` |
-| `.../invoke` | `Client`, `NewClient`, `InvokeOutcome` (envelope + decision + audit record) |
-| `.../providers` | provider payloads, results, and read-only clients |
-| `.../canonical` | `Resource` (the canonical resource URI of an MCP server, ADR-036 §3.4), `ErrInvalidResource` |
-| `.../canonical/canonicaltest` | `ResourceCases`, the shared golden cases for `canonical.Resource`, also published as `canonical/canonicaltest/resource.json` |
-| `.../policy` | `Principal`/`ParsePrincipal`, `Target`/`ParseTarget`, `MatchPrincipal`, `Rule`/`Request`/`Decide`/`Precedence`, `Render` (a thin entry point over `harnessmatch`), and the conformance vectors in `policy/testdata/vectors/` |
-| `.../bundle` | the policy bundle wire types (`Payload`, `Audience`, `Identity`, `Harness`, `AgentModelProfile`, `InstallationSubject`, `Verified`), the bundle validators (`Validate`, `ValidateV2`, `RejectDuplicateJSON`), the decisions a bundle yields (`Evaluate`, `EvaluateConnector`, `EvaluateSession`, `EvaluateV2HarnessTool`, `EvaluateV2Plan`, `EvaluateV2Model`, `EvaluateHarness`) and the validator hooks a caller installs (`SetSchemaValidator`, `SetV2SchemaValidator`, `SetPlanValidator`) |
+| Import path | Contents | Status |
+| --- | --- | --- |
+| `github.com/HaikeiLabs/kei-connector-contracts/contract` | Provider, Status, Action, Capability, and the capability definitions; `Metadata`, `Invocation`, the `http_api` types, and `GrafanaConfig`; `Validate`, `ValidateCall`, `ValidateInvocation`, `ValidateCredentialRef`; credential source and account models (`accountmodel.go`) | frozen (deprecation planned) for the provider registry |
+| `.../setup` | the setup schema (`SetupSchema`, `SetupSchemas`, `SetupSchemaFor`), `ValidateConfig`, and `ValidateMetadata` (the complete connector check: `Metadata.Validate`, then config) | frozen (deprecation planned) |
+| `.../access` | per-provider access modes (`ProviderAccess`, `AccessMode`, `Access`, `AccessFor`, `CredentialReference`); metadata only | frozen (deprecation planned) |
+| `.../capability` | `LookupCapability`, `CapabilityFor`, `CapabilitiesForProvider`, `Providers` | frozen (deprecation planned) |
+| `.../envelope` | `Envelope`, `EnvelopeVersion1`, `MintedByControlPlane` | moving out (planned) |
+| `.../governance` | `Decision`, `PolicyDecision`, `Decide` | frozen (deprecation planned) |
+| `.../audit` | `AuditRecord`, `BuildAuditRecord` | frozen (deprecation planned) |
+| `.../invoke` | `Client`, `NewClient`, `InvokeOutcome` (envelope + decision + audit record) | frozen (deprecation planned) |
+| `.../providers` | provider payloads, results, and read-only clients | frozen (deprecation planned) |
+| `.../canonical` | `Resource` (the canonical resource URI of an MCP server, ADR-036 §3.4), `ErrInvalidResource` | moving out (planned) |
+| `.../canonical/canonicaltest` | `ResourceCases`, the shared golden cases for `canonical.Resource`, also published as `canonical/canonicaltest/resource.json` | moving out (planned) |
+| `.../policy` | `Principal`/`ParsePrincipal`, `Target`/`ParseTarget`, `MatchPrincipal`, `Rule`/`Request`/`Decide`/`Precedence`, `Render` (a thin entry point over `harnessmatch`), and the conformance vectors in `policy/testdata/vectors/` | moving out (planned) |
+| `.../bundle` | the policy bundle wire types (`Payload`, `Audience`, `Identity`, `Harness`, `AgentModelProfile`, `InstallationSubject`, `Verified`), the bundle validators (`Validate`, `ValidateV2`, `RejectDuplicateJSON`), the decisions a bundle yields (`Evaluate`, `EvaluateConnector`, `EvaluateSession`, `EvaluateV2HarnessTool`, `EvaluateV2Plan`, `EvaluateV2Model`, `EvaluateHarness`) and the validator hooks a caller installs (`SetSchemaValidator`, `SetV2SchemaValidator`, `SetPlanValidator`) | moving out (planned) |
+| `.../calltemplate` | tool call template validation for `kei.tool-definition/v1` entries | frozen (deprecation planned) |
+| `.../policybundlehealth` | the runtime policy-bundle health wire contract | moving out (planned) |
+| `.../harnessmatch` | the `kei.harness-match/v1` dialect | moving out (planned) |
+| `.../authorizerequest` | the `kei.authorize-request/v1` wire contract | moving out (planned) |
+| `.../manifest` | the tool manifest wire format: `Tool`, `Canonicalize`, `ToolHash`, `Hash` (RFC 8785 canonical form and hash, ADR-036 §5.2) | moving out (planned) |
 
 Account models are a file in `contract`, not a package: `Metadata.AccountModel`
 is a contract field and `Metadata.Validate` enforces the account-model rules,
@@ -422,8 +436,11 @@ directives.
 ## Building a connector
 
 The contract is public and Apache 2.0 licensed so that anyone can implement a
-connector against it without going through Haikei. Model the provider's shapes
-in `providers/`, declare capabilities, and the runtime enforces policy over them.
+connector against it without going through Haikei. A new connector adds
+operation-contract protos and fixtures only; follow the checklist in
+[docs/operation-contracts.md](docs/operation-contracts.md#adding-a-connector).
+`providers/`, `setup` and `access` are frozen and take no new connectors
+(see the [2026-11-15 amendment](docs/proposals/0001-operation-contracts.md#amendment-owner-2026-11-15-separation-of-concerns)).
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the rules that keep the contract
 safe to depend on — chiefly that it stays metadata-only, stdlib-only, and that
