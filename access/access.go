@@ -212,6 +212,7 @@ var providerAccess = []ProviderAccess{
 	apiOnly(contract.ProviderGrafana),
 	apiOnly(contract.ProviderHTTPAPI),
 	apiOnly(contract.ProviderSkillsRepo),
+	apiOnly(contract.ProviderPostgres),
 }
 
 // Access returns every provider's access modes in display order.

@@ -30,7 +30,7 @@ var updateSetupGolden = flag.Bool("update-setup", false, "rewrite schemas/connec
 // Only the connectors we build are configurable: s3 and the finance
 // providers have no setup schema.
 func TestSetupSchemasCoverExactlyTheSupportedProviders(t *testing.T) {
-	want := []contract.Provider{contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderLinear, contract.ProviderGitHub, contract.ProviderTito, contract.ProviderNotion, contract.ProviderDiscord, contract.ProviderGrafana, contract.ProviderSkillsRepo, contract.ProviderHTTPAPI}
+	want := []contract.Provider{contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderLinear, contract.ProviderGitHub, contract.ProviderTito, contract.ProviderNotion, contract.ProviderDiscord, contract.ProviderGrafana, contract.ProviderSkillsRepo, contract.ProviderHTTPAPI, contract.ProviderPostgres}
 	got := SetupSchemas()
 	if len(got) != len(want) {
 		t.Fatalf("SetupSchemas() has %d providers, want %d", len(got), len(want))

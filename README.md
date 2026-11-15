@@ -247,6 +247,18 @@ access to a repository's issues or pull requests.
 `skills_repo` is in the access manifest with an `api` mode that reads
 `skills.list` and `skills.fetch`; kei-connector-runtime executes it (HAI-431).
 
+## Postgres provider (HAI-493, unreleased)
+
+`postgres` is read-only. Its one capability is `query.run` (`read`): the
+`database.query.run` operation in
+`proto/kei/connectors/database/v1/query.proto`. Writes are not modeled. It
+uses `opaque_ref` only, with no account model. Setup takes one secret, `dsn`:
+the connection string of a role that has read grants only (for example
+`pg_read_all_data`). That role is the read-only guarantee. Supabase is
+Postgres, so it uses this provider with a Supabase connection string, and
+the query's `dialect` is `DIALECT_SUPABASE`. The provider id matches the
+policy catalog's `postgres` connector template.
+
 ## Provider access modes (HAI-319, unreleased)
 
 `access.Access()` lists how each provider can be reached. The JSON export is
@@ -272,7 +284,8 @@ Each provider has an `access` list. Each mode has:
 
 Today only `api` is populated. It is set for the providers with a runtime
 adapter: gmail, google_drive, linear, github, tito, notion, discord, grafana,
-http_api and skills_repo. Only linear and http_api list writes, because the
+http_api and skills_repo, plus postgres, whose runtime adapter is pending
+(HAI-493). Only linear and http_api list writes, because the
 runtime executes them: Linear `issue.create` and `comment.create`, and
 http_api `http.post` and `http.patch`. No provider has a cli, mcp or webhook
 mode yet. There is no dedicated CRM provider (HAI-384): a CRM API is an

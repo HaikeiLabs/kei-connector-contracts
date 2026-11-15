@@ -200,6 +200,13 @@ var setupSchemas = []SetupSchema{
 		{Name: "http_api", Label: "HTTP API registration", Type: SetupFieldHTTPAPI, Location: SetupLocationHTTPAPI, Required: true},
 		{Name: "api_key", Label: "API key", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, Pattern: `^\S+$`, MinLength: 1, MaxLength: 4096},
 	}},
+	// Postgres: the DSN (a postgres:// URL or key=value pairs, so spaces are
+	// allowed) of a role with read grants only, such as pg_read_all_data. That
+	// role is the read-only guarantee. Supabase is Postgres: use the
+	// project's connection string for a read-only role.
+	{Schema: SetupSchemaVersion, Provider: contract.ProviderPostgres, Auth: sharedSecretAuth(), Fields: []SetupField{
+		{Name: "dsn", Label: "Connection string (DSN) for a read-only role (Postgres or Supabase)", Type: SetupFieldString, Location: SetupLocationCredential, Required: true, Secret: true, MinLength: 8, MaxLength: 4096},
+	}},
 }
 
 // SetupSchemas returns every provider's setup schema in display order.

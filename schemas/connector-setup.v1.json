@@ -336,5 +336,26 @@
         "max_length": 4096
       }
     ]
+  },
+  {
+    "schema": "kei.connector-setup/v1",
+    "provider": "postgres",
+    "auth": [
+      {
+        "credential_source": "opaque_ref"
+      }
+    ],
+    "fields": [
+      {
+        "name": "dsn",
+        "label": "Connection string (DSN) for a read-only role (Postgres or Supabase)",
+        "type": "string",
+        "location": "credential",
+        "required": true,
+        "secret": true,
+        "min_length": 8,
+        "max_length": 4096
+      }
+    ]
   }
 ]

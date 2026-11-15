@@ -34,7 +34,7 @@ var updateAccessGolden = flag.Bool("update-access", false, "rewrite schemas/conn
 var adapterProviders = []contract.Provider{
 	contract.ProviderGmail, contract.ProviderGoogle, contract.ProviderLinear, contract.ProviderGitHub,
 	contract.ProviderTito, contract.ProviderNotion, contract.ProviderDiscord, contract.ProviderGrafana,
-	contract.ProviderHTTPAPI, contract.ProviderSkillsRepo,
+	contract.ProviderHTTPAPI, contract.ProviderSkillsRepo, contract.ProviderPostgres,
 }
 
 // HAI-319 freeze: every adapter provider has exactly one api mode, and no
