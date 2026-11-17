@@ -26,7 +26,7 @@ from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 from kei.contracts.v1 import options_pb2 as kei_dot_contracts_dot_v1_dot_options__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(kei/connectors/http_api/v1/records.proto\x12\x1akei.connectors.http_api.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1ekei/contracts/v1/options.proto\"\xce\x01\n\x12ListRecordsRequest\x12\x1e\n\ncollection\x18\x01 \x01(\tR\ncollection\x12\x19\n\x05limit\x18\x02 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n\x06\x63ursor\x18\x03 \x01(\tH\x01R\x06\x63ursor\x88\x01\x01:K\x92\x82\x19G\n\x15http_api.records.list\x12\x08http_api\x18\x01*\x03GET2\r/{collection}:\x0crecords:read@\x01\x42\x08\n\x06_limitB\t\n\x07_cursor\"~\n\x13ListRecordsResponse\x12\x31\n\x07records\x18\x01 \x03(\x0b\x32\x17.google.protobuf.StructR\x07records\x12$\n\x0bnext_cursor\x18\x02 \x01(\tH\x00R\nnextCursor\x88\x01\x01\x42\x0e\n\x0c_next_cursor\"\xa7\x01\n\x10GetRecordRequest\x12\x1e\n\ncollection\x18\x01 \x01(\tR\ncollection\x12\x1b\n\trecord_id\x18\x02 \x01(\tR\x08recordId:V\x92\x82\x19R\n\x14http_api.records.get\x12\x08http_api\x18\x01*\x03GET2\x19/{collection}/{record_id}:\x0crecords:read@\x01\"D\n\x11GetRecordResponse\x12/\n\x06record\x18\x01 \x01(\x0b\x32\x17.google.protobuf.StructR\x06recordBZZXgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/http_api/v1;http_apib\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n(kei/connectors/http_api/v1/records.proto\x12\x1akei.connectors.http_api.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1ekei/contracts/v1/options.proto\"\xb5\x02\n\x12ListRecordsRequest\x12&\n\ncollection\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\ncollection\x12\x19\n\x05limit\x18\x02 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n\x06\x63ursor\x18\x03 \x01(\tH\x01R\x06\x63ursor\x88\x01\x01:\xa9\x01\x92\x82\x19\xa4\x01\n\x15http_api.records.list\x12\x08http_api\x18\x01*\x03GET2\r/{collection}:\x0crecords:read@\x01J\x0bListRecordsR\x07\x61pi_keyZ\x18\x63ollections/{collection}b\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\x0c\x08\x01\x12\x06record\x18\x01\x42\x08\n\x06_limitB\t\n\x07_cursor\"~\n\x13ListRecordsResponse\x12\x31\n\x07records\x18\x01 \x03(\x0b\x32\x17.google.protobuf.StructR\x07records\x12$\n\x0bnext_cursor\x18\x02 \x01(\tH\x00R\nnextCursor\x88\x01\x01\x42\x0e\n\x0c_next_cursor\"\x94\x02\n\x10GetRecordRequest\x12&\n\ncollection\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\ncollection\x12#\n\trecord_id\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\x08recordId:\xb2\x01\x92\x82\x19\xad\x01\n\x14http_api.records.get\x12\x08http_api\x18\x01*\x03GET2\x19/{collection}/{record_id}:\x0crecords:read@\x01J\tGetRecordR\x07\x61pi_keyZ\x18\x63ollections/{collection}b\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\x0c\x08\x01\x12\x06record\x18\x01\"D\n\x11GetRecordResponse\x12/\n\x06record\x18\x01 \x01(\x0b\x32\x17.google.protobuf.StructR\x06recordBZZXgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/http_api/v1;http_apib\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -34,16 +34,22 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'kei.connectors.http_api.v1.
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'ZXgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/http_api/v1;http_api'
+  _globals['_LISTRECORDSREQUEST'].fields_by_name['collection']._loaded_options = None
+  _globals['_LISTRECORDSREQUEST'].fields_by_name['collection']._serialized_options = b'\242\202\031\002\010\001'
   _globals['_LISTRECORDSREQUEST']._loaded_options = None
-  _globals['_LISTRECORDSREQUEST']._serialized_options = b'\222\202\031G\n\025http_api.records.list\022\010http_api\030\001*\003GET2\r/{collection}:\014records:read@\001'
+  _globals['_LISTRECORDSREQUEST']._serialized_options = b'\222\202\031\244\001\n\025http_api.records.list\022\010http_api\030\001*\003GET2\r/{collection}:\014records:read@\001J\013ListRecordsR\007api_keyZ\030collections/{collection}b\005\010\221\003\020\002b\005\010\223\003\020\003b\005\010\224\003\020\001b\007\010\255\003\020\004\030\001\212\001\014\010\001\022\006record\030\001'
+  _globals['_GETRECORDREQUEST'].fields_by_name['collection']._loaded_options = None
+  _globals['_GETRECORDREQUEST'].fields_by_name['collection']._serialized_options = b'\242\202\031\002\010\001'
+  _globals['_GETRECORDREQUEST'].fields_by_name['record_id']._loaded_options = None
+  _globals['_GETRECORDREQUEST'].fields_by_name['record_id']._serialized_options = b'\242\202\031\002\010\001'
   _globals['_GETRECORDREQUEST']._loaded_options = None
-  _globals['_GETRECORDREQUEST']._serialized_options = b'\222\202\031R\n\024http_api.records.get\022\010http_api\030\001*\003GET2\031/{collection}/{record_id}:\014records:read@\001'
+  _globals['_GETRECORDREQUEST']._serialized_options = b'\222\202\031\255\001\n\024http_api.records.get\022\010http_api\030\001*\003GET2\031/{collection}/{record_id}:\014records:read@\001J\tGetRecordR\007api_keyZ\030collections/{collection}b\005\010\221\003\020\002b\005\010\223\003\020\003b\005\010\224\003\020\001b\007\010\255\003\020\004\030\001\212\001\014\010\001\022\006record\030\001'
   _globals['_LISTRECORDSREQUEST']._serialized_start=135
-  _globals['_LISTRECORDSREQUEST']._serialized_end=341
-  _globals['_LISTRECORDSRESPONSE']._serialized_start=343
-  _globals['_LISTRECORDSRESPONSE']._serialized_end=469
-  _globals['_GETRECORDREQUEST']._serialized_start=472
-  _globals['_GETRECORDREQUEST']._serialized_end=639
-  _globals['_GETRECORDRESPONSE']._serialized_start=641
-  _globals['_GETRECORDRESPONSE']._serialized_end=709
+  _globals['_LISTRECORDSREQUEST']._serialized_end=444
+  _globals['_LISTRECORDSRESPONSE']._serialized_start=446
+  _globals['_LISTRECORDSRESPONSE']._serialized_end=572
+  _globals['_GETRECORDREQUEST']._serialized_start=575
+  _globals['_GETRECORDREQUEST']._serialized_end=851
+  _globals['_GETRECORDRESPONSE']._serialized_start=853
+  _globals['_GETRECORDRESPONSE']._serialized_end=921
 # @@protoc_insertion_point(module_scope)

@@ -397,14 +397,15 @@ var File_kei_connectors_github_v1_issues_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_github_v1_issues_proto_rawDesc = "" +
 	"\n" +
-	"%kei/connectors/github/v1/issues.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xd4\x01\n" +
-	"\x0fGetIssueRequest\x12\x14\n" +
-	"\x05owner\x18\x01 \x01(\tR\x05owner\x12\x1e\n" +
+	"%kei/connectors/github/v1/issues.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xd1\x02\n" +
+	"\x0fGetIssueRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
 	"\n" +
-	"repository\x18\x02 \x01(\tR\n" +
-	"repository\x12!\n" +
-	"\fissue_number\x18\x03 \x01(\x03R\vissueNumber:h\x92\x82\x19d\n" +
-	"\x11github.issues.get\x12\x06github\x18\x01*\x03GET21/repos/{owner}/{repository}/issues/{issue_number}:\vissues:read@\x01\"\xa3\x01\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12)\n" +
+	"\fissue_number\x18\x03 \x01(\x03B\x06\xa2\x82\x19\x02\b\x01R\vissueNumber:\xcc\x01\x92\x82\x19\xc7\x01\n" +
+	"\x11github.issues.get\x12\x06github\x18\x01*\x03GET21/repos/{owner}/{repository}/issues/{issue_number}:\vissues:read@\x01J\bGetIssueR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\v\b\x01\x12\x05issue\x18\x01\"\xa3\x01\n" +
 	"\x10GetIssueResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
@@ -412,15 +413,17 @@ const file_kei_connectors_github_v1_issues_proto_rawDesc = "" +
 	"\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n" +
 	"\x04body\x18\x05 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x19\n" +
 	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrlB\a\n" +
-	"\x05_body\"\xf7\x01\n" +
-	"\x11ListIssuesRequest\x12\x14\n" +
-	"\x05owner\x18\x01 \x01(\tR\x05owner\x12\x1e\n" +
+	"\x05_body\"\xee\x02\n" +
+	"\x11ListIssuesRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
 	"\n" +
-	"repository\x18\x02 \x01(\tR\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
 	"repository\x12\x19\n" +
 	"\x05state\x18\x03 \x01(\tH\x00R\x05state\x88\x01\x01\x12\x1e\n" +
-	"\bper_page\x18\x04 \x01(\x05H\x01R\aperPage\x88\x01\x01:Z\x92\x82\x19V\n" +
-	"\x12github.issues.list\x12\x06github\x18\x01*\x03GET2\"/repos/{owner}/{repository}/issues:\vissues:read@\x01B\b\n" +
+	"\bper_page\x18\x04 \x01(\x05H\x01R\aperPage\x88\x01\x01:\xc0\x01\x92\x82\x19\xbb\x01\n" +
+	"\x12github.issues.list\x12\x06github\x18\x01*\x03GET2\"/repos/{owner}/{repository}/issues:\vissues:read@\x01J\n" +
+	"ListIssuesR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\v\b\x01\x12\x05issue\x18\x01B\b\n" +
 	"\x06_stateB\v\n" +
 	"\t_per_page\"\x9f\x01\n" +
 	"\fIssueSummary\x12\x0e\n" +

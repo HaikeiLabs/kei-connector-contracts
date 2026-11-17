@@ -205,16 +205,17 @@ var File_kei_connectors_github_v1_pulls_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_github_v1_pulls_proto_rawDesc = "" +
 	"\n" +
-	"$kei/connectors/github/v1/pulls.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xd4\x01\n" +
-	"\x15GetPullRequestRequest\x12\x14\n" +
-	"\x05owner\x18\x01 \x01(\tR\x05owner\x12\x1e\n" +
+	"$kei/connectors/github/v1/pulls.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xde\x02\n" +
+	"\x15GetPullRequestRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
 	"\n" +
-	"repository\x18\x02 \x01(\tR\n" +
-	"repository\x12\x1f\n" +
-	"\vpull_number\x18\x03 \x01(\x03R\n" +
-	"pullNumber:d\x92\x82\x19`\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12'\n" +
+	"\vpull_number\x18\x03 \x01(\x03B\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"pullNumber:\xd5\x01\x92\x82\x19\xd0\x01\n" +
 	"\x10github.pulls.get\x12\x06github\x18\x01*\x03GET2//repos/{owner}/{repository}/pulls/{pull_number}:\n" +
-	"pulls:read@\x01\"\xef\x01\n" +
+	"pulls:read@\x01J\x0eGetPullRequestR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x12\b\x01\x12\fpull_request\x18\x01\"\xef\x01\n" +
 	"\x16GetPullRequestResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
