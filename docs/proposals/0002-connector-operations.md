@@ -113,15 +113,18 @@ call: it has no model-facing description and no model-specific schema.
 | `method_name` | Generated function name; defaults to the request message name without `Request` | new |
 | `connections` | Connection kinds this operation accepts | new |
 | `params` | Where each request field goes (path, query, body, header); defaults: path-template fields go in the path, the rest in the query for `GET` and in the body otherwise | new, as a field option |
-| `resource_template` | The default policy resource the call touches, for example `repos/{owner}/{repository}`; an optional tool binding is under consideration (section 15) | new |
-| `positional_helper` | Also generate a positional-argument helper for this operation (proposal, section 15) | new |
-| `graphql_document` | For a GraphQL connector, the one fixed document this operation sends; its variables are request fields (proposal, section 15) | new |
-| `cursor_field`, `next_cursor_field` | The request field that carries the page cursor and the response field that returns the next one (owner direction; details proposed) | new |
+| `resource_template` | The default policy resource the call touches, for example `repos/{owner}/{repository}`; a tool may override it within its constraints (decision 7) | new |
+| `positional_helper` | Also generate a positional-argument helper for this operation (decision 1) | new |
+| `graphql_document` | For a GraphQL connector, the one fixed document this operation sends; its variables are typed request fields (decision 4) | new |
+| `cursor_field`, `next_cursor_field` | The request field that carries the page cursor and the response field that returns the next one, empty when there are no more pages (decision 5) | new |
 | `errors` | Provider status to error kind, and whether it is retryable | new |
+| `semantics` | The versioned semantic mapping: action (`read`, `create`, `update`, `delete`), resource type and mapping version (section 8.3) | new |
 
-The cursor is on the request (owner decision). One page per call is a
-proposal. For GraphQL, a fixed document checked against the provider schema
-with variables from request fields is a proposal (section 15). A SQL operation
+Each call returns one page: the cursor is a request field, and the response
+carries the next cursor, empty when there are no more pages. There are no
+generated iterators (decision 5). For GraphQL, each operation sends one reviewed, fixed document
+checked against the provider schema, with typed variables from request fields
+(decision 4). A SQL operation
 (database) sends the statement and bind parameters from its request, and the
 dialect is a request field.
 
@@ -177,6 +180,7 @@ message GetIssueRequest {
     method_name: "GetIssue"
     connections: ["user_oauth", "pat"]
     resource_template: "repos/{owner}/{repository}"
+    semantics: { action: SEMANTIC_ACTION_READ resource_type: "issue" version: 1 }
     errors: [
       { status: 404 kind: ERROR_KIND_NOT_FOUND },
       { status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true }
@@ -258,7 +262,7 @@ type Queries struct{ conn connection.SQL } // wraps a *sql.DB, like sqlc
 func New(conn connection.SQL) *Queries
 ```
 
-**PROPOSAL (OPEN, owner to confirm):** Methods take the request message by default. A generator option,
+Methods take the request message by default (decision 1). A generator option,
 `signature=message|positional`, switches a whole package to positional
 arguments (`GetIssue(ctx, owner, repository, issueNumber)`), and the
 per-operation `positional_helper` option adds a positional helper next to the
@@ -322,12 +326,17 @@ sequenceDiagram
 
 - Authorization uses the existing socket client and `KeiProxyEvaluator`. The
   target is `connector:<operation id>`, which the policy package already
-  supports connector dot-segment matching (`connector:github.issues.*`).
-  Sending the tool name for audit is proposed; compatibility with the current
-  compiled policy model needs verification (section 15).
-- **PROPOSAL (OPEN):** the runner renders a resource from a locally delivered
-  operation template and request. Template overrides, validation, and proxy
-  checks require design and implementation; see section 15.
+  matches by dot segment (`connector:github.issues.*`). The tool name rides
+  along for audit only; it is not what policy decides on (decision 6).
+  Operation-id targets still need compatibility work in the catalog's policy
+  compiler (section 15, implementation notes).
+- Ahead of any call, the policy bundle gives the runtime the versioned
+  connector-to-tool bindings and each operation's constrained resource
+  template (every template variable has a constraint, such as a pattern). The
+  runner renders the resource from the template (or the tool's override) and
+  the request, for example `repos/acme/widgets`. The local kei-proxy
+  authorizes that rendered resource against the bundle's template and rejects
+  it if it does not meet the template's constraints (decision 7).
 - A tool or workflow that calls two operations is authorized twice, once per
   operation (owner decision, 2026-11-17).
 - Credential release uses the existing
@@ -407,6 +416,7 @@ reads this repository at run time.
         { "id": "github.issues.get", "class": "read", "destructive": false,
           "scopes": ["issues:read"], "connections": ["user_oauth", "pat"],
           "resource_template": "repos/{owner}/{repository}",
+          "semantics": { "action": "read", "resource_type": "issue", "version": 1 },
           "request": "kei.connectors.github.v1.GetIssueRequest",
           "response": "kei.connectors.github.v1.GetIssueResponse" }
       ]
@@ -524,7 +534,7 @@ ship a mock for each interface so tests do not have to.
 | `calltemplate` and the `kei.tool-definition/v1` schemas (frozen) | Retired. Tools are defined in Agentware and wrap operations |
 | [connector-auth.md](../connector-auth.md) matrix | Its decided rows become connection kinds; the document stays as the place where proposed methods are researched before they become proto |
 | Catalog setup tables (the connector template, capability and setup-field rows written during the separation-of-concerns work) | Generated from the manifest through the build-time pull request. Per-org rows stay catalog-owned |
-| Tool manifests (`manifest` package, Agentware `KeiScope` and `ExportKeiToolManifest`) | Stay as the harness's tool registration and grant nothing. A tool entry could gain operation references and an optional constrained `resource_template` binding. Authorization is by operation id; retaining the tool name for audit is proposed (operation-id authorization decided; wiring proposed in section 15) |
+| Tool manifests (`manifest` package, Agentware `KeiScope` and `ExportKeiToolManifest`) | Stay as the harness's tool registration and grant nothing. A tool entry lists the operations it calls and an optional constrained `resource_template` override per operation. Authorization is by operation id; the tool name is kept for audit (decisions 6 and 7) |
 | MCP (`mcp.<server>.<tool>`) and `builtin.<name>` ids | Unchanged: assigned by the harness at registration, not generated |
 | kei-proxy authorize and credential release | Agentware calls locally; operation-resource authorization and compatibility with existing interfaces require design and verification |
 
@@ -609,6 +619,30 @@ Missing response fields (additive, no new operation):
 - `labels` on GitHub issue and pull request responses, and on Linear issues;
 - branch refs (`head.ref`, `base.ref`) on GitHub pull request responses.
 
+### 8.3 Semantic mappings
+
+Each operation carries a versioned **semantic mapping**: what kind of action
+it is and on what kind of resource, in a vocabulary shared across connectors.
+
+```proto
+semantics: { action: SEMANTIC_ACTION_READ resource_type: "issue" version: 1 }
+```
+
+- `action` is one of `read`, `create`, `update`, `delete`. `resource_type` is
+  a shared name (`issue`, `pull_request`, `comment`, `file`, `query`, ...),
+  so `github.issues.get` and `linear.issues.get` both map to read `issue`.
+- The mapping is used for **semantic policy** (for example "allow reading
+  issues in any connector") and for **audit** (reports by action and resource
+  type across connectors).
+- It is never used **instead of** the operation id. The operation id stays
+  the policy target and the capability; a semantic rule widens or narrows
+  nothing by itself, it is evaluated alongside the operation-id rules.
+- `version` changes when a mapping changes, so a policy or report written
+  against version 1 keeps its meaning. Changing an operation's mapping is a
+  breaking change under section 6 unless it ships as a new version.
+- The mapping goes into the manifest with the operation and from there into
+  the catalog.
+
 ## 9. Migration plan
 
 The rollout order is fixed (owner, 2026-11-17): **contracts, then catalog,
@@ -649,15 +683,17 @@ reads the manifest yet.
 Deliverables:
 
 - The release workflow opens a generated pull request in `kei-policy-catalog`
-  for each contracts release. A migration per release is one option, not a
-  decision (section 15). The catalog builds its connector templates,
+  for each contracts release, adding one migration per release. The catalog
+  maintainers review and merge it; it is never auto-merged (decision 8). The
+  catalog builds its connector templates,
   capability list and setup forms from the manifest at build time; it never
   reads this repository at run time.
 - The one-time migration of section 8.1: existing grants rewritten from
   coarse capabilities to operation ids, recorded in the audit log, never
   widened.
 - Policy bundles carry operation-id targets (`connector:github.issues.get`)
-  and, if the resource-wiring proposal is accepted, operation resource templates.
+  plus the versioned connector-to-tool bindings and each operation's
+  constrained resource template (decision 7).
 - The `setup` and `access` JSON exports, where still consumed, generated from
   the manifest.
 
@@ -682,8 +718,9 @@ Deliverables:
   Pydantic AI first, plus the bespoke-loop tool registry. The adapter takes
   model-facing text from the harness author.
 - Tool manifests list the operations each tool calls, with an optional
-  optional resource binding per operation if the proposal in section 15 is
-  accepted. Console wiring and runtime reconciliation are proposed work.
+  constrained `resource_template` override per operation (decision 7). The
+  console shows which connector each tool is wired to, and the runtime
+  reconciles that wiring against the registered manifest.
 
 Gate to phase 4: an Agentware release whose runner passes the shared
 authorize fixtures and an end-to-end test (allow, deny, enrollment, connect,
@@ -720,8 +757,7 @@ registry and the coarse capability rows are removed in one major version.
 
 A small builder API per language that lets a customer declare a connector,
 its connection kinds and its operations in code, and emits the same manifest
-shape under a reserved customer-defined connector prefix (owner decision);
-the exact spelling `custom.<org>.` is proposed pending confirmation. The catalog
+shape under the reserved id prefix `custom.<org_id>.` (decision 9). The catalog
 takes it in through the same import path.
 
 ## 10. Testing
@@ -847,7 +883,7 @@ repository's CI without a live model call where possible.
   language is maintained in lockstep. Mitigation: one plugin, shared
   fixtures, and one replay gate for all four languages.
 - **Provider shapes that do not fit an HTTP path.** GraphQL (Linear) and SQL
-  need their own transport fields (dialect decided; GraphQL proposed in section 15), and a hand-written
+  need their own transport fields (decisions 2 and 4), and a hand-written
   GraphQL document can drift from the provider schema; CI checks each one
   against the schema.
 - **Generated code now executes provider calls.** The 0001 amendment ruled
@@ -861,96 +897,91 @@ repository's CI without a live model call where possible.
   real access. Mitigation: the mapping never widens, it ships as reviewed
   data in the manifest, and the catalog records every rewritten policy.
 
-## 15. Owner review: decisions and open proposals
+## 15. Owner review: decisions
 
-### DECIDED (owner, 2026-11-17)
+Owner review and confirmation, 2026-11-17. The open questions of the first
+draft are decided below; the implementation notes after the list record what
+the review found still has to be built or verified.
 
-- The database operation carries its dialect on the request. The existing
-  `database.query.run` request already has `dialect` in
-  `proto/kei/connectors/database/v1/query.proto`.
-- One capability corresponds to one operation; a tool may combine operations,
-  each authorized separately. Authorize by operation id.
-- Put the pagination cursor on the request. The page size, response cursor
-  convention and iterator design remain proposals.
-- Reserve a namespace for customer-defined connectors. Its exact syntax and
-  permitted connection kinds remain open.
+### Decisions
 
-### PROPOSAL: signature configuration — OPEN, owner to confirm
+1. **Request message by default.** Generated operations take the request
+   message. Positional helpers are optional and configured at generation
+   time: the generator option `signature=message|positional` switches a
+   package, and the per-operation `positional_helper` option adds a
+   positional helper beside the message form.
+2. **One generic database connector.** `database.query.run` serves every
+   engine; the dialect is a field of the operation request
+   (`RunQueryRequest.dialect`), not a separate connector or a connection
+   property.
+3. **One capability is one operation.** Tools and workflows combine
+   operations, and each operation they call is authorized separately.
+4. **GraphQL: one reviewed, fixed document per operation.** Linear
+   operations each send one fixed GraphQL document (`graphql_document`),
+   reviewed like any contract change and checked against a pinned provider
+   schema in CI. Its variables are typed request fields. Arbitrary
+   caller-supplied documents are not allowed. An optional `fields` selector,
+   limited to fields of the response message, may be added later.
+5. **Pagination: one page per call.** The cursor is a request field
+   (`cursor_field`), and the response carries the next cursor
+   (`next_cursor_field`), empty when there are no more pages. No generated
+   iterators; a caller that wants every page loops on the next cursor.
+6. **Authorize by operation id.** Policy decides on `connector:<operation
+   id>`. The tool name is still sent and kept for audit.
+7. **Bindings and resource templates arrive ahead of calls.** The runtime
+   receives, in the policy bundle and before any call, the versioned
+   connector-to-tool bindings and each operation's constrained resource
+   template. Each operation's default template comes from the manifest; an
+   Agentware tool template may override it per operation, within the
+   operation's constraints. The runner renders the resource at call time,
+   and the local kei-proxy authorizes each rendered resource against the
+   bundle's template, rejecting one that does not meet the template's
+   constraints. A missing, stale, incompatible or unrenderable binding fails
+   closed. The console shows the connector-to-tool wiring, which the runtime
+   reconciles. No per-call control-plane access is needed.
+8. **The catalog is `kei-policy-catalog`.** Operation metadata (the
+   manifest) is imported through a generated pull request. Ingest is one
+   migration per contracts release. Contracts change slowly, so the catalog
+   maintainers always review and merge that pull request. There is no
+   auto-merge, even for an additive-only manifest diff.
+9. **Customer-defined connectors** use the reserved id prefix
+   `custom.<org_id>.`, built from the organization's stable id, never from a
+   slug that can be renamed.
+10. **Semantic mappings attach to operations.** Operation descriptors stay
+    the policy targets. Each operation carries a versioned semantic mapping
+    (`semantics: {action, resource_type, version}`) used for semantic policy
+    and audit, never instead of the operation id (section 8.3). A mapping is
+    metadata, not a grant.
 
-Options: message-only signatures; a generator configuration selecting message
-or positional signatures; or a message signature plus per-operation helpers.
-Recommend message signatures by default with optional positional helpers, so
-adding fields does not break existing callers. A package-wide plugin setting
-in `buf.gen.yaml` is possible in principle, and per-operation annotations are
-another option; neither setting is implemented or verified in this repository.
-The owner asked whether this can be configured, not to select a signature.
+### Implementation notes (from the review)
 
-### PROPOSAL: GraphQL parameters — OPEN, owner to confirm
-
-The existing Linear proto documents POST `/graphql` and models request fields
-and response shapes; it does not supply an executable GraphQL document.
-Options: a reviewed fixed document per operation with typed variables; a
-bounded selection of response fields; or arbitrary caller-supplied documents.
-Recommend the fixed document and typed variables (IDs, filters and cursors),
-validated against a pinned provider schema in CI. Arbitrary documents can
-change the provider action or resource without changing the operation id;
-that requires a separate authorization design. Schema availability and field
-selection support have not been verified.
-
-### PROPOSAL: catalog and resource wiring — OPEN, owner to confirm
-
-Here the catalog means the `kei-policy-catalog` repository/service, not the
-provider's catalog. Existing Agentware `docs/tool-manifest-v3.md` describes a
-connector binding and required capabilities; registration itself is not a
-grant. Catalog `pkg/policy/compile/compile.go` compiles capability checks, and
-its v2 selector validation does not accept wildcard capabilities. Operation-id
-policies and their migration therefore need explicit compatibility work; the
-existing connector target matcher alone does not establish end-to-end support.
-
-Options for delivery are a reviewed generated catalog PR (manifest import or
-a migration), or a separately versioned deployment artifact. Recommend a
-reviewed generated PR, with its ingest format and approval policy open; one
-migration per release and automatic merging are unverified choices.
-
-For wiring, options are (1) operation-owned templates only, (2) an optional
-per-operation template in an Agentware tool definition, constrained by the
-operation's resource contract, or (3) unrestricted tool overrides. Recommend
-(2): catalog imports operation metadata; console binds an agent/tool to an
-installed connector and operation; a versioned, validated configuration and
-policy bundle are delivered to the runtime ahead of calls. Agentware reconciles
-the binding against registered tools, renders the resource from validated
-request fields, and asks local kei-proxy to authorize the operation and
-resource before execution. A missing, stale, incompatible or unrenderable
-binding fails closed. A tool template must not widen authorization: define
-canonical encoding, template grammar and containment checks before accepting
-an override; otherwise reject it. The proxy must enforce the resulting policy,
-but whether it also validates template provenance needs design. This is not
-implemented or verified end to end. No per-call control-plane access is needed.
-The tool name for audit, bundle representation, and rollout compatibility are
-also open.
-
-### PROPOSAL: policy and semantic mappings — OPEN, owner to confirm
-
-Keep named operation descriptors even if generated execution is deferred.
-Policies can target the operation id and a canonical resource, with each
-operation in a composed tool checked independently. Semantic mappings can
-attach a versioned semantic action and resource type to one or more operation
-ids, plus explicit request-field to resource-field mappings; a mapping is
-metadata, not a grant. For example, a generic `issue.read` semantic action
-could map to `github.issues.get` and a repository/issue resource mapping.
-Validate references and resource extraction at build or deployment time, and
-test deny, missing mapping, and multi-operation cases. An alternative is to
-keep today's coarse capabilities and hand-maintained tool plans, but it leaves
-the operation-to-policy relationship duplicated. The mapping schema and its
-current runtime support are unverified.
+- **Operation-id policies need catalog work.** The catalog's policy compiler
+  (`pkg/policy/compile/compile.go`) compiles capability checks, and its v2
+  selector validation does not accept wildcard capabilities. Operation-id
+  targets and wildcards (`github.issues.*`) need explicit compatibility work
+  there; the connector target matcher in this repository alone does not make
+  them work end to end.
+- **Registration is not a grant.** Agentware's tool manifest v3 describes a
+  connector binding and required capabilities; registering a tool grants
+  nothing.
+- **A tool override must not widen authorization.** Before overrides are
+  accepted, define the canonical resource encoding, the template grammar and
+  the containment check; until then, reject overrides.
+- **Template provenance.** kei-proxy enforces the rendered resource against
+  the bundle's template; whether it also checks where a template came from
+  needs design.
+- **Semantic mappings** need a schema and validation at build or deployment
+  time (references, resource extraction), with tests for deny, a missing
+  mapping and multi-operation tools.
+- None of the above is implemented or verified end to end yet.
 
 ## 16. The strongest argument against
 
 Generated code that executes calls is a bigger surface to maintain than
 generated types that harnesses fill themselves, and most of today's value
 (uniform policy targets, one list of capabilities) could come from the
-manifest alone. Named operation descriptors remain necessary for the
-proposed policy and semantic mappings (section 15), even if generated
+manifest alone. Named operation descriptors remain necessary for policy
+and semantic mappings (decision 10), even if generated
 execution is deferred. The catalog phase can consume those descriptors before
 the generated execution libraries are ready. If moving Pedro in
 phase 4 does not delete hand-written provider code, stop adding generated
