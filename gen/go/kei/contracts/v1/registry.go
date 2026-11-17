@@ -54,6 +54,52 @@ func Lookup(id string) (*Operation, bool) {
 	return nil, false
 }
 
+// Connectors returns every connector declared by a file option in a file
+// descriptor linked into this binary, sorted by id. Like All, discovery is
+// static: a connector appears once its generated Go package is imported.
+// It returns an empty, non-nil slice when no linked file declares one.
+func Connectors() []*Connector {
+	cs := []*Connector{}
+	protoregistry.GlobalFiles.RangeFiles(func(fd protoreflect.FileDescriptor) bool {
+		if c := connectorOf(fd); c != nil {
+			cs = append(cs, c)
+		}
+		return true
+	})
+	slices.SortFunc(cs, func(a, b *Connector) int {
+		return strings.Compare(a.GetId(), b.GetId())
+	})
+	return cs
+}
+
+// LookupConnector returns the connector with the given id, if one is
+// registered.
+func LookupConnector(id string) (*Connector, bool) {
+	for _, c := range Connectors() {
+		if c.GetId() == id {
+			return c, true
+		}
+	}
+	return nil, false
+}
+
+// connectorOf reads the kei.contracts.v1.connector extension from a file's
+// options; unset means the file declares no connector.
+func connectorOf(fd protoreflect.FileDescriptor) *Connector {
+	opts, ok := fd.Options().(*descriptorpb.FileOptions)
+	if !ok || opts == nil {
+		return nil
+	}
+	if !proto.HasExtension(opts, E_Connector) {
+		return nil
+	}
+	c, ok := proto.GetExtension(opts, E_Connector).(*Connector)
+	if !ok {
+		return nil
+	}
+	return c
+}
+
 // collectOperations appends the operation declared by each message (nested
 // messages included) that carries the operation option.
 func collectOperations(messages protoreflect.MessageDescriptors, ops *[]*Operation) {
