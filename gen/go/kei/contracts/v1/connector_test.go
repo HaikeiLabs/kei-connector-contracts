@@ -20,6 +20,7 @@ import (
 	"testing"
 
 	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/reflect/protoreflect"
 
 	contracts "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1"
 )
@@ -37,6 +38,13 @@ func TestConnectorOptionRoundTrip(t *testing.T) {
 			AuthMethod:   "secret_ref",
 			AccountModel: contracts.AccountModel_ACCOUNT_MODEL_SHARED,
 			SetupFields:  []*contracts.SetupField{{Name: "token", Type: "string", Secret: true}},
+		}, {
+			Name:         "api_key",
+			Kind:         contracts.ConnectionKind_CONNECTION_KIND_HTTP_HEADER,
+			AuthMethod:   "secret_ref",
+			AccountModel: contracts.AccountModel_ACCOUNT_MODEL_SHARED,
+			HeaderName:   "X-Api-Key",
+			SetupFields:  []*contracts.SetupField{{Name: "api_key", Type: "string", Secret: true}},
 		}},
 	}
 
@@ -53,6 +61,35 @@ func TestConnectorOptionRoundTrip(t *testing.T) {
 	}
 	if !got.GetConnections()[0].GetSetupFields()[0].GetSecret() {
 		t.Error("setup field token lost its secret flag")
+	}
+	// An HTTP_HEADER connection is unusable without the header it puts the
+	// credential in.
+	if h := got.GetConnections()[1].GetHeaderName(); h != "X-Api-Key" {
+		t.Errorf("header_name = %q, want X-Api-Key", h)
+	}
+}
+
+// Field numbers are wire contract: annotations compiled against them must
+// keep decoding. Pin the numbers added for header placement and pagination.
+func TestNewFieldNumbersAreStable(t *testing.T) {
+	cases := []struct {
+		msg   protoreflect.MessageDescriptor
+		field protoreflect.Name
+		want  protoreflect.FieldNumber
+	}{
+		{(&contracts.Connection{}).ProtoReflect().Descriptor(), "header_name", 10},
+		{(&contracts.Operation{}).ProtoReflect().Descriptor(), "cursor_field", 18},
+		{(&contracts.Operation{}).ProtoReflect().Descriptor(), "next_cursor_field", 19},
+	}
+	for _, c := range cases {
+		fd := c.msg.Fields().ByName(c.field)
+		if fd == nil {
+			t.Errorf("%s has no field %s", c.msg.FullName(), c.field)
+			continue
+		}
+		if fd.Number() != c.want || fd.Kind() != protoreflect.StringKind {
+			t.Errorf("%s.%s = #%d %v, want #%d string", c.msg.FullName(), c.field, fd.Number(), fd.Kind(), c.want)
+		}
 	}
 }
 

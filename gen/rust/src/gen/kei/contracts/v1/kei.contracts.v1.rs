@@ -44,6 +44,10 @@ pub struct Connection {
     /// means any. The query dialect itself is a field of the request.
     #[prost(string, tag="9")]
     pub engine: ::prost::alloc::string::String,
+    /// For CONNECTION_KIND_HTTP_HEADER, the header that carries the credential
+    /// as is (for example X-Api-Key, or Authorization with no scheme).
+    #[prost(string, tag="10")]
+    pub header_name: ::prost::alloc::string::String,
 }
 /// Connector declares a connector and its connection kinds, once per
 /// connector, as a file option on its connector.proto.

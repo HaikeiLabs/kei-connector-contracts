@@ -549,7 +549,10 @@ type Connection struct {
 	Scopes []string `protobuf:"bytes,8,rep,name=scopes,proto3" json:"scopes,omitempty"`
 	// For CONNECTION_KIND_SQL_DSN, the engine(s) the DSN may name; empty
 	// means any. The query dialect itself is a field of the request.
-	Engine        string `protobuf:"bytes,9,opt,name=engine,proto3" json:"engine,omitempty"`
+	Engine string `protobuf:"bytes,9,opt,name=engine,proto3" json:"engine,omitempty"`
+	// For CONNECTION_KIND_HTTP_HEADER, the header that carries the credential
+	// as is (for example X-Api-Key, or Authorization with no scheme).
+	HeaderName    string `protobuf:"bytes,10,opt,name=header_name,json=headerName,proto3" json:"header_name,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -643,6 +646,13 @@ func (x *Connection) GetScopes() []string {
 func (x *Connection) GetEngine() string {
 	if x != nil {
 		return x.Engine
+	}
+	return ""
+}
+
+func (x *Connection) GetHeaderName() string {
+	if x != nil {
+		return x.HeaderName
 	}
 	return ""
 }
@@ -1158,7 +1168,7 @@ const file_kei_contracts_v1_options_proto_rawDesc = "" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x18\n" +
 	"\apattern\x18\x03 \x01(\tR\apattern\x12\x16\n" +
-	"\x06secret\x18\x04 \x01(\bR\x06secret\"\xee\x02\n" +
+	"\x06secret\x18\x04 \x01(\bR\x06secret\"\x8f\x03\n" +
 	"\n" +
 	"Connection\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x124\n" +
@@ -1170,7 +1180,10 @@ const file_kei_contracts_v1_options_proto_rawDesc = "" +
 	"\x0ebase_url_field\x18\x06 \x01(\tR\fbaseUrlField\x12?\n" +
 	"\fsetup_fields\x18\a \x03(\v2\x1c.kei.contracts.v1.SetupFieldR\vsetupFields\x12\x16\n" +
 	"\x06scopes\x18\b \x03(\tR\x06scopes\x12\x16\n" +
-	"\x06engine\x18\t \x01(\tR\x06engine\"v\n" +
+	"\x06engine\x18\t \x01(\tR\x06engine\x12\x1f\n" +
+	"\vheader_name\x18\n" +
+	" \x01(\tR\n" +
+	"headerName\"v\n" +
 	"\tConnector\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\bbase_url\x18\x02 \x01(\tR\abaseUrl\x12>\n" +

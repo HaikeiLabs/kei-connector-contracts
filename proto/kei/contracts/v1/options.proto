@@ -138,6 +138,9 @@ message Connection {
   // For CONNECTION_KIND_SQL_DSN, the engine(s) the DSN may name; empty
   // means any. The query dialect itself is a field of the request.
   string engine = 9;
+  // For CONNECTION_KIND_HTTP_HEADER, the header that carries the credential
+  // as is (for example X-Api-Key, or Authorization with no scheme).
+  string header_name = 10;
 }
 
 // Connector declares a connector and its connection kinds, once per

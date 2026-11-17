@@ -122,7 +122,7 @@ class SetupField(_message.Message):
     def __init__(self, name: _Optional[str] = ..., type: _Optional[str] = ..., pattern: _Optional[str] = ..., secret: _Optional[bool] = ...) -> None: ...
 
 class Connection(_message.Message):
-    __slots__ = ("name", "kind", "auth_method", "account_model", "base_url", "base_url_field", "setup_fields", "scopes", "engine")
+    __slots__ = ("name", "kind", "auth_method", "account_model", "base_url", "base_url_field", "setup_fields", "scopes", "engine", "header_name")
     NAME_FIELD_NUMBER: _ClassVar[int]
     KIND_FIELD_NUMBER: _ClassVar[int]
     AUTH_METHOD_FIELD_NUMBER: _ClassVar[int]
@@ -132,6 +132,7 @@ class Connection(_message.Message):
     SETUP_FIELDS_FIELD_NUMBER: _ClassVar[int]
     SCOPES_FIELD_NUMBER: _ClassVar[int]
     ENGINE_FIELD_NUMBER: _ClassVar[int]
+    HEADER_NAME_FIELD_NUMBER: _ClassVar[int]
     name: str
     kind: ConnectionKind
     auth_method: str
@@ -141,7 +142,8 @@ class Connection(_message.Message):
     setup_fields: _containers.RepeatedCompositeFieldContainer[SetupField]
     scopes: _containers.RepeatedScalarFieldContainer[str]
     engine: str
-    def __init__(self, name: _Optional[str] = ..., kind: _Optional[_Union[ConnectionKind, str]] = ..., auth_method: _Optional[str] = ..., account_model: _Optional[_Union[AccountModel, str]] = ..., base_url: _Optional[str] = ..., base_url_field: _Optional[str] = ..., setup_fields: _Optional[_Iterable[_Union[SetupField, _Mapping]]] = ..., scopes: _Optional[_Iterable[str]] = ..., engine: _Optional[str] = ...) -> None: ...
+    header_name: str
+    def __init__(self, name: _Optional[str] = ..., kind: _Optional[_Union[ConnectionKind, str]] = ..., auth_method: _Optional[str] = ..., account_model: _Optional[_Union[AccountModel, str]] = ..., base_url: _Optional[str] = ..., base_url_field: _Optional[str] = ..., setup_fields: _Optional[_Iterable[_Union[SetupField, _Mapping]]] = ..., scopes: _Optional[_Iterable[str]] = ..., engine: _Optional[str] = ..., header_name: _Optional[str] = ...) -> None: ...
 
 class Connector(_message.Message):
     __slots__ = ("id", "base_url", "connections")
