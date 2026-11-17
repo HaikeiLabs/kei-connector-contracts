@@ -12,12 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// GitHub connector contract.
-//
-// This file is the toolchain sample: one operation proving that a request
-// message can declare its operation contract, that the contract survives
-// code generation into every supported language, and that a registry can
-// walk the compiled descriptors to answer "what operations exist".
+// GitHub connector declaration: the connector id and the connection kinds
+// its operations run over (proposal 0002, section 4.1).
 syntax = "proto3";
 
 package kei.connectors.github.v1;
@@ -25,6 +21,7 @@ package kei.connectors.github.v1;
 import "kei/contracts/v1/options.proto";
 
 option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;github";
+
 // GitHub connector and its connection kinds. A user's own OAuth token
 // (reused from SSO) or a fine-grained personal access token configured by an
 // admin; both go on the wire as a bearer token.
