@@ -116,12 +116,13 @@ call: it has no model-facing description and no model-specific schema.
 | `resource_template` | The default policy resource the call touches, for example `repos/{owner}/{repository}`; a tool may override it within its constraints (decision 7) | new |
 | `positional_helper` | Also generate a positional-argument helper for this operation (decision 1) | new |
 | `graphql_document` | For a GraphQL connector, the one fixed document this operation sends; its variables are typed request fields (decision 4) | new |
-| `cursor_field`, `next_cursor_field` | The request field that carries the page cursor and the response field that returns the next one (owner direction; details proposed) | new |
+| `cursor_field`, `next_cursor_field` | The request field that carries the page cursor and the response field that returns the next one, empty when there are no more pages (decision 5) | new |
 | `errors` | Provider status to error kind, and whether it is retryable | new |
 | `semantics` | The versioned semantic mapping: action (`read`, `create`, `update`, `delete`), resource type and mapping version (section 8.3) | new |
 
-The cursor is on the request (decision 5); one page per call is the
-recommendation. For GraphQL, each operation sends one reviewed, fixed document
+Each call returns one page: the cursor is a request field, and the response
+carries the next cursor, empty when there are no more pages. There are no
+generated iterators (decision 5). For GraphQL, each operation sends one reviewed, fixed document
 checked against the provider schema, with typed variables from request fields
 (decision 4). A SQL operation
 (database) sends the statement and bind parameters from its request, and the
@@ -921,9 +922,10 @@ the review found still has to be built or verified.
    schema in CI. Its variables are typed request fields. Arbitrary
    caller-supplied documents are not allowed. An optional `fields` selector,
    limited to fields of the response message, may be added later.
-5. **Pagination: the cursor is on the request.** The page size, the response
-   cursor convention and any iterator design remain proposals (one page per
-   call with `cursor_field` and `next_cursor_field` is the recommendation).
+5. **Pagination: one page per call.** The cursor is a request field
+   (`cursor_field`), and the response carries the next cursor
+   (`next_cursor_field`), empty when there are no more pages. No generated
+   iterators; a caller that wants every page loops on the next cursor.
 6. **Authorize by operation id.** Policy decides on `connector:<operation
    id>`. The tool name is still sent and kept for audit.
 7. **Bindings and resource templates arrive ahead of calls.** The runtime
