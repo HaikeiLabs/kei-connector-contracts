@@ -471,7 +471,7 @@ permanent.
 | Add an operation, a connector or a connection kind | Additive |
 | Add an optional request field or a response field | Additive |
 | Add an error mapping | Additive |
-| Rename or remove an operation id | Breaking. Add the new id, mark the old one `deprecated`, keep it for at least two minor releases |
+| Rename or remove an operation id | Breaking. Add the new id, mark the old one `deprecated`, add a capability mapping row from old to new, keep the old id for at least two minor releases |
 | Change `class` from read to write, or set `destructive` | Breaking: policies granted for a read would now cover a write |
 | Add a required scope, or remove a connection kind an operation accepts | Breaking: configured connectors would stop working |
 | Change the HTTP method, path template or resource template | Breaking |
@@ -695,7 +695,123 @@ its connection kinds and its operations in code, and emits the same manifest
 shape under a reserved id prefix. The catalog takes it in through the same
 import path.
 
-## 10. Risks
+## 10. Testing
+
+Every phase adds tests that run in CI on every pull request. Fixtures are
+synthetic or sanitized, as today.
+
+| Phase | Tests |
+| --- | --- |
+| 1. Contracts | **Generator golden tests, per language.** Each plugin template runs over a small set of test protos and its output is compared byte for byte with checked-in golden files for Go, Python, TypeScript and Rust. A template change shows up as a golden diff in review. **Validation tests.** One failing proto per validation rule (duplicate id, write without scope, unknown path variable, undeclared connection kind) proves the plugin rejects it. **Fixture round-trip tests, reused for every operation.** One test per language walks every operation in the manifest, unmarshals its request and response fixtures, marshals them back and compares; a new operation is covered by adding its fixtures, not by writing a test. **Replay tests.** Each generated operation runs against a local test server (or a test database for SQL) that checks the rendered method, path, query, body and credential placement, then returns the fixture. **Manifest schema test.** The generated manifest validates against `kei.connector-manifest/v1`'s JSON Schema, and the generator is deterministic (two runs, same bytes). |
+| 2. Catalog | **Manifest ingest tests.** The catalog builds its templates, capabilities and setup forms from a fixture manifest; ingesting the same manifest twice changes nothing; an unknown schema version is refused. **Grant mapping tests.** Each row of the `legacy_capabilities` table rewrites a policy to exactly the listed operation ids, never more; a coarse capability with no operation stays unchanged; wildcard targets are untouched. **Bundle tests.** An issued bundle carries operation-id targets and decides them with the shared policy vectors. |
+| 3. Agentware | **Operation runner tests with a fake kei-proxy**, in every port, driven by shared fixtures: allow then call; deny before any connection is built; enrollment and connect returned untouched; credential release failure, timeout and unavailable socket all deny; the credential never appears in a log line, an error or an audit record. **Framework adapter tests.** A LangChain tool and a Pydantic AI tool built on an operation call the runner with the right operation and request, and surface a deny as a tool error the model can read. |
+| 4. Harnesses | **End-to-end tests on the local stack** (catalog, `kei-proxy` and a harness against a provider test double): an allowed operation returns a **typed result**; a policy without the operation is **denied**; a call to a connector the workspace has not configured is denied with `connector_not_named`; a wildcard grant (`github.issues.*`) allows each operation it covers and no other. |
+
+## 11. Regression
+
+These gates keep a release from breaking a consumer:
+
+- **`buf breaking` and a generated-code diff gate.** `buf breaking` against
+  the last tag checks the messages. CI regenerates every language and fails
+  if the checked-in generated code differs from the output, so generated code
+  is never edited by hand and a generator change is always reviewed as a
+  diff.
+- **Manifest diff gate.** CI compares the manifest with the last tag's. It
+  fails on any breaking row in section 6, and in particular on a removed or
+  renamed capability that has no entry in the capability mapping. A rename
+  passes only with the old id marked `deprecated` and a mapping row from the
+  old id to the new one.
+- **Nightly sandbox drift check.** A scheduled job calls each provider's
+  sandbox or test account with the read operations and unmarshals the live
+  responses **strictly** (unknown fields are errors). A failure opens an
+  issue naming the operation and the unexpected keys. Runtime unmarshal stays
+  lenient, so drift never breaks a running harness.
+- **Cross-language parity test.** The same fixture goes through the generated
+  Go, Python, TypeScript and Rust operations against the same test server.
+  The rendered requests must be identical, and the decoded results, marshaled
+  to canonical JSON, must be equal. A difference in any language fails the
+  release for all of them.
+
+## 12. Maintenance
+
+### Adding an operation
+
+- [ ] The `<Op>Request` and `<Op>Response` messages, with `json_name` where
+      the provider key differs.
+- [ ] The `operation` option: id, class, `destructive` if it deletes or
+      overwrites, scopes, connections, method and path (or the SQL or GraphQL
+      transport fields), resource template and error table.
+- [ ] Synthetic or sanitized request and response fixtures.
+- [ ] Regenerate; commit the generated code and the manifest diff.
+- [ ] If the operation covers part of a coarse capability, add it to the
+      capability mapping.
+- [ ] Update the connector page under `docs/connectors/`.
+
+No hand-written test is needed: the round-trip, replay and parity tests pick
+up every operation from the manifest.
+
+### Deprecating or renaming an operation
+
+A capability id is permanent, so a rename is an addition plus a deprecation:
+
+1. Add the operation under the new id.
+2. Mark the old one `deprecated` and add a mapping row from the old id to
+   the new one. The catalog rewrites grants with the same never-widen rule as
+   section 8.1.
+3. Keep the old id for at least two minor releases. Generated code marks it
+   deprecated in each language.
+4. Remove it in a major version, after the catalog reports no policy still
+   naming it.
+
+### Provider API drift
+
+When the nightly drift check opens an issue:
+
+- **A new field:** add it as an optional field. Additive, next minor release.
+- **A changed type or removed field:** a new operation version or a `v2`
+  package for the connector, never an edit in place; the old operation stays
+  until its deprecation window ends.
+- **A provider endpoint retired:** deprecate the operation and record the
+  provider's retirement date in its documentation.
+
+### Releases
+
+All languages release together from one tag, at one version, as today. A
+release happens when operations are added or fixed, not on a timer, and every
+release passes all the gates in sections 10 and 11. The generated catalog pull
+request follows each release.
+
+### Ownership
+
+- Proto, options, plugins and the runtime packages: the contracts
+  maintainers, enforced by a code owners file.
+- Each connector's protos and fixtures: a named owner per connector in the
+  code owners file, who triages its drift issues.
+- The catalog ingest and grant mapping: the catalog maintainers.
+- The operation runner and framework adapters: the Agentware maintainers.
+
+## 13. Skills
+
+The public skills repository is how agents learn to use these pieces. It
+gets or updates:
+
+- **A new connector-operations authoring skill:** how to add an operation
+  (the checklist in section 12), the option fields, connection kinds,
+  fixtures, the versioning rules and the deprecation path.
+- **The `agentware-sdk` skill:** the operation runner (authorize, credential
+  release, connection, call, audit), the LangChain and Pydantic AI adapters,
+  and the rule that tools wrap operations and connector libraries never call
+  kei-proxy.
+- **The `kei-cli` skill and the console policy docs:** writing policies with
+  operation-id capabilities and wildcards (`connector:github.issues.*`), and
+  what happened to the coarse capability names.
+
+Each skill ships with **deterministic evals**: fixed prompts with expected
+answers checked by exact or pattern match (for example, that a policy answer
+names `connector:github.issues.get` and not `issue.read`), run in that
+repository's CI without a live model call where possible.
+
+## 14. Risks
 
 - **Four generators and four runtimes.** The templates are small, but every
   language is maintained in lockstep. Mitigation: one plugin, shared
@@ -713,7 +829,7 @@ import path.
   real access. Mitigation: the mapping never widens, it ships as reviewed
   data in the manifest, and the catalog records every rewritten policy.
 
-## 11. Open questions
+## 15. Open questions
 
 1. **Request message or positional arguments?** sqlc generates
    `GetIssue(ctx, owner, repo, n)`. A positional signature breaks every caller
@@ -748,7 +864,7 @@ import path.
    prefix such as `custom.<org>.`, and whether those connectors can use every
    connection kind.
 
-## 12. The strongest argument against
+## 16. The strongest argument against
 
 Generated code that executes calls is a bigger surface to maintain than
 generated types that harnesses fill themselves, and most of today's value
