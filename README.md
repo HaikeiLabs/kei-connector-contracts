@@ -6,6 +6,24 @@ audit shapes, and provider definitions.
 
 [Docs](https://docs.haikeilabs.com) · [Discord](https://discord.gg/g6QaTYWXDa)
 
+## Status
+
+Operations design: draft
+[proposal 0002](docs/proposals/0002-connector-operations.md). A connector
+becomes a generated library, like sqlc's `Queries` over a database
+connection, that ties together the API contract (request and response
+messages), the connection contract (what credential a connection needs and
+how it is built) and the operations (typed functions such as `GetIssue`).
+The operation id is the capability policies grant (`github.issues.get`, or
+`github.issues.*`); it replaces the coarse catalog capabilities through a
+one-time grant mapping. A buf plugin generates the
+operations for Go, Python, TypeScript and Rust, plus a capability and setup
+manifest the policy catalog takes in at build time. Agentware calls kei-proxy
+to authorize each operation and release its credential; the connector
+libraries never do. Rollout order: contracts, catalog, Agentware, harnesses.
+Until the proposal is accepted, the rules in
+[docs/operation-contracts.md](docs/operation-contracts.md) apply.
+
 Extracted from `kei` under
 [ADR-017](https://github.com/HaikeiLabs/kei/blob/main/docs/adr/017-service-repository-boundaries-and-naming.md),
 which names this package "the first extraction seam". Previously it lived at
