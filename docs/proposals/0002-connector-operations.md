@@ -816,7 +816,8 @@ request follows each release.
   maintainers, enforced by a code owners file.
 - Each connector's protos and fixtures: a named owner per connector in the
   code owners file, who triages its drift issues.
-- The catalog ingest and grant mapping: the catalog maintainers.
+- The catalog ingest, the grant mapping and the review of every generated
+  catalog pull request: the catalog maintainers.
 - The operation runner and framework adapters: the Agentware maintainers.
 
 ## 13. Skills
