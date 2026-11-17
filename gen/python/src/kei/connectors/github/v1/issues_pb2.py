@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from kei.contracts.v1 import options_pb2 as kei_dot_contracts_dot_v1_dot_options__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%kei/connectors/github/v1/issues.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xd4\x01\n\x0fGetIssueRequest\x12\x14\n\x05owner\x18\x01 \x01(\tR\x05owner\x12\x1e\n\nrepository\x18\x02 \x01(\tR\nrepository\x12!\n\x0cissue_number\x18\x03 \x01(\x03R\x0bissueNumber:h\x92\x82\x19\x64\n\x11github.issues.get\x12\x06github\x18\x01*\x03GET21/repos/{owner}/{repository}/issues/{issue_number}:\x0bissues:read@\x01\"\xa3\x01\n\x10GetIssueResponse\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n\x04\x62ody\x18\x05 \x01(\tH\x00R\x04\x62ody\x88\x01\x01\x12\x19\n\x08html_url\x18\x06 \x01(\tR\x07htmlUrlB\x07\n\x05_body\"\xf7\x01\n\x11ListIssuesRequest\x12\x14\n\x05owner\x18\x01 \x01(\tR\x05owner\x12\x1e\n\nrepository\x18\x02 \x01(\tR\nrepository\x12\x19\n\x05state\x18\x03 \x01(\tH\x00R\x05state\x88\x01\x01\x12\x1e\n\x08per_page\x18\x04 \x01(\x05H\x01R\x07perPage\x88\x01\x01:Z\x92\x82\x19V\n\x12github.issues.list\x12\x06github\x18\x01*\x03GET2\"/repos/{owner}/{repository}/issues:\x0bissues:read@\x01\x42\x08\n\x06_stateB\x0b\n\t_per_page\"\x9f\x01\n\x0cIssueSummary\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n\x04\x62ody\x18\x05 \x01(\tH\x00R\x04\x62ody\x88\x01\x01\x12\x19\n\x08html_url\x18\x06 \x01(\tR\x07htmlUrlB\x07\n\x05_body\"T\n\x12ListIssuesResponse\x12>\n\x06issues\x18\x01 \x03(\x0b\x32&.kei.connectors.github.v1.IssueSummaryR\x06issuesBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n%kei/connectors/github/v1/issues.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xd1\x02\n\x0fGetIssueRequest\x12\x1c\n\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\x05owner\x12&\n\nrepository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\nrepository\x12)\n\x0cissue_number\x18\x03 \x01(\x03\x42\x06\xa2\x82\x19\x02\x08\x01R\x0bissueNumber:\xcc\x01\x92\x82\x19\xc7\x01\n\x11github.issues.get\x12\x06github\x18\x01*\x03GET21/repos/{owner}/{repository}/issues/{issue_number}:\x0bissues:read@\x01J\x08GetIssueR\nuser_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\x0b\x08\x01\x12\x05issue\x18\x01\"\xa3\x01\n\x10GetIssueResponse\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n\x04\x62ody\x18\x05 \x01(\tH\x00R\x04\x62ody\x88\x01\x01\x12\x19\n\x08html_url\x18\x06 \x01(\tR\x07htmlUrlB\x07\n\x05_body\"\xee\x02\n\x11ListIssuesRequest\x12\x1c\n\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\x05owner\x12&\n\nrepository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\nrepository\x12\x19\n\x05state\x18\x03 \x01(\tH\x00R\x05state\x88\x01\x01\x12\x1e\n\x08per_page\x18\x04 \x01(\x05H\x01R\x07perPage\x88\x01\x01:\xc0\x01\x92\x82\x19\xbb\x01\n\x12github.issues.list\x12\x06github\x18\x01*\x03GET2\"/repos/{owner}/{repository}/issues:\x0bissues:read@\x01J\nListIssuesR\nuser_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\x0b\x08\x01\x12\x05issue\x18\x01\x42\x08\n\x06_stateB\x0b\n\t_per_page\"\x9f\x01\n\x0cIssueSummary\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n\x04\x62ody\x18\x05 \x01(\tH\x00R\x04\x62ody\x88\x01\x01\x12\x19\n\x08html_url\x18\x06 \x01(\tR\x07htmlUrlB\x07\n\x05_body\"T\n\x12ListIssuesResponse\x12>\n\x06issues\x18\x01 \x03(\x0b\x32&.kei.connectors.github.v1.IssueSummaryR\x06issuesBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,18 +33,28 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'kei.connectors.github.v1.is
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'ZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;github'
+  _globals['_GETISSUEREQUEST'].fields_by_name['owner']._loaded_options = None
+  _globals['_GETISSUEREQUEST'].fields_by_name['owner']._serialized_options = b'\242\202\031\002\010\001'
+  _globals['_GETISSUEREQUEST'].fields_by_name['repository']._loaded_options = None
+  _globals['_GETISSUEREQUEST'].fields_by_name['repository']._serialized_options = b'\242\202\031\002\010\001'
+  _globals['_GETISSUEREQUEST'].fields_by_name['issue_number']._loaded_options = None
+  _globals['_GETISSUEREQUEST'].fields_by_name['issue_number']._serialized_options = b'\242\202\031\002\010\001'
   _globals['_GETISSUEREQUEST']._loaded_options = None
-  _globals['_GETISSUEREQUEST']._serialized_options = b'\222\202\031d\n\021github.issues.get\022\006github\030\001*\003GET21/repos/{owner}/{repository}/issues/{issue_number}:\013issues:read@\001'
+  _globals['_GETISSUEREQUEST']._serialized_options = b'\222\202\031\307\001\n\021github.issues.get\022\006github\030\001*\003GET21/repos/{owner}/{repository}/issues/{issue_number}:\013issues:read@\001J\010GetIssueR\nuser_oauthR\003patZ\032repos/{owner}/{repository}b\005\010\221\003\020\002b\005\010\223\003\020\003b\005\010\224\003\020\001b\007\010\255\003\020\004\030\001\212\001\013\010\001\022\005issue\030\001'
+  _globals['_LISTISSUESREQUEST'].fields_by_name['owner']._loaded_options = None
+  _globals['_LISTISSUESREQUEST'].fields_by_name['owner']._serialized_options = b'\242\202\031\002\010\001'
+  _globals['_LISTISSUESREQUEST'].fields_by_name['repository']._loaded_options = None
+  _globals['_LISTISSUESREQUEST'].fields_by_name['repository']._serialized_options = b'\242\202\031\002\010\001'
   _globals['_LISTISSUESREQUEST']._loaded_options = None
-  _globals['_LISTISSUESREQUEST']._serialized_options = b'\222\202\031V\n\022github.issues.list\022\006github\030\001*\003GET2\"/repos/{owner}/{repository}/issues:\013issues:read@\001'
+  _globals['_LISTISSUESREQUEST']._serialized_options = b'\222\202\031\273\001\n\022github.issues.list\022\006github\030\001*\003GET2\"/repos/{owner}/{repository}/issues:\013issues:read@\001J\nListIssuesR\nuser_oauthR\003patZ\032repos/{owner}/{repository}b\005\010\221\003\020\002b\005\010\223\003\020\003b\005\010\224\003\020\001b\007\010\255\003\020\004\030\001\212\001\013\010\001\022\005issue\030\001'
   _globals['_GETISSUEREQUEST']._serialized_start=100
-  _globals['_GETISSUEREQUEST']._serialized_end=312
-  _globals['_GETISSUERESPONSE']._serialized_start=315
-  _globals['_GETISSUERESPONSE']._serialized_end=478
-  _globals['_LISTISSUESREQUEST']._serialized_start=481
-  _globals['_LISTISSUESREQUEST']._serialized_end=728
-  _globals['_ISSUESUMMARY']._serialized_start=731
-  _globals['_ISSUESUMMARY']._serialized_end=890
-  _globals['_LISTISSUESRESPONSE']._serialized_start=892
-  _globals['_LISTISSUESRESPONSE']._serialized_end=976
+  _globals['_GETISSUEREQUEST']._serialized_end=437
+  _globals['_GETISSUERESPONSE']._serialized_start=440
+  _globals['_GETISSUERESPONSE']._serialized_end=603
+  _globals['_LISTISSUESREQUEST']._serialized_start=606
+  _globals['_LISTISSUESREQUEST']._serialized_end=972
+  _globals['_ISSUESUMMARY']._serialized_start=975
+  _globals['_ISSUESUMMARY']._serialized_end=1134
+  _globals['_LISTISSUESRESPONSE']._serialized_start=1136
+  _globals['_LISTISSUESRESPONSE']._serialized_end=1220
 # @@protoc_insertion_point(module_scope)

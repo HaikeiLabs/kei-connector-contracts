@@ -23,9 +23,9 @@ option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/co
 
 // GetPullRequestRequest reads a single pull request from a GitHub repository.
 message GetPullRequestRequest {
-  string owner = 1;
-  string repository = 2;
-  int64 pull_number = 3;
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  int64 pull_number = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
 
   option (kei.contracts.v1.operation) = {
     id: "github.pulls.get"
@@ -35,6 +35,16 @@ message GetPullRequestRequest {
     path_template: "/repos/{owner}/{repository}/pulls/{pull_number}"
     scopes: ["pulls:read"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetPullRequest"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "pull_request" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
   };
 }
 

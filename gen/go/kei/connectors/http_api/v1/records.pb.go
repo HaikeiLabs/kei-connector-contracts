@@ -259,27 +259,27 @@ var File_kei_connectors_http_api_v1_records_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_http_api_v1_records_proto_rawDesc = "" +
 	"\n" +
-	"(kei/connectors/http_api/v1/records.proto\x12\x1akei.connectors.http_api.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1ekei/contracts/v1/options.proto\"\xce\x01\n" +
-	"\x12ListRecordsRequest\x12\x1e\n" +
+	"(kei/connectors/http_api/v1/records.proto\x12\x1akei.connectors.http_api.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1ekei/contracts/v1/options.proto\"\xb5\x02\n" +
+	"\x12ListRecordsRequest\x12&\n" +
 	"\n" +
-	"collection\x18\x01 \x01(\tR\n" +
+	"collection\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
 	"collection\x12\x19\n" +
 	"\x05limit\x18\x02 \x01(\x05H\x00R\x05limit\x88\x01\x01\x12\x1b\n" +
-	"\x06cursor\x18\x03 \x01(\tH\x01R\x06cursor\x88\x01\x01:K\x92\x82\x19G\n" +
-	"\x15http_api.records.list\x12\bhttp_api\x18\x01*\x03GET2\r/{collection}:\frecords:read@\x01B\b\n" +
+	"\x06cursor\x18\x03 \x01(\tH\x01R\x06cursor\x88\x01\x01:\xa9\x01\x92\x82\x19\xa4\x01\n" +
+	"\x15http_api.records.list\x12\bhttp_api\x18\x01*\x03GET2\r/{collection}:\frecords:read@\x01J\vListRecordsR\aapi_keyZ\x18collections/{collection}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\f\b\x01\x12\x06record\x18\x01B\b\n" +
 	"\x06_limitB\t\n" +
 	"\a_cursor\"~\n" +
 	"\x13ListRecordsResponse\x121\n" +
 	"\arecords\x18\x01 \x03(\v2\x17.google.protobuf.StructR\arecords\x12$\n" +
 	"\vnext_cursor\x18\x02 \x01(\tH\x00R\n" +
 	"nextCursor\x88\x01\x01B\x0e\n" +
-	"\f_next_cursor\"\xa7\x01\n" +
-	"\x10GetRecordRequest\x12\x1e\n" +
+	"\f_next_cursor\"\x94\x02\n" +
+	"\x10GetRecordRequest\x12&\n" +
 	"\n" +
-	"collection\x18\x01 \x01(\tR\n" +
-	"collection\x12\x1b\n" +
-	"\trecord_id\x18\x02 \x01(\tR\brecordId:V\x92\x82\x19R\n" +
-	"\x14http_api.records.get\x12\bhttp_api\x18\x01*\x03GET2\x19/{collection}/{record_id}:\frecords:read@\x01\"D\n" +
+	"collection\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"collection\x12#\n" +
+	"\trecord_id\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\brecordId:\xb2\x01\x92\x82\x19\xad\x01\n" +
+	"\x14http_api.records.get\x12\bhttp_api\x18\x01*\x03GET2\x19/{collection}/{record_id}:\frecords:read@\x01J\tGetRecordR\aapi_keyZ\x18collections/{collection}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\f\b\x01\x12\x06record\x18\x01\"D\n" +
 	"\x11GetRecordResponse\x12/\n" +
 	"\x06record\x18\x01 \x01(\v2\x17.google.protobuf.StructR\x06recordBZZXgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/http_api/v1;http_apib\x06proto3"
 
