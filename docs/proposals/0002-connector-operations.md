@@ -650,7 +650,8 @@ reads the manifest yet.
 Deliverables:
 
 - The release workflow opens a generated pull request in `kei-policy-catalog`
-  for each contracts release, adding one migration per release. The catalog builds its connector templates,
+  for each contracts release, adding one migration per release. The catalog
+  maintainers review and merge it; it is never auto-merged. The catalog builds its connector templates,
   capability list and setup forms from the manifest at build time; it never
   reads this repository at run time.
 - The one-time migration of section 8.1: existing grants rewritten from
@@ -816,7 +817,8 @@ request follows each release.
   maintainers, enforced by a code owners file.
 - Each connector's protos and fixtures: a named owner per connector in the
   code owners file, who triages its drift issues.
-- The catalog ingest and grant mapping: the catalog maintainers.
+- The catalog ingest, the grant mapping and the review of every generated
+  catalog pull request: the catalog maintainers.
 - The operation runner and framework adapters: the Agentware maintainers.
 
 ## 13. Skills
@@ -891,14 +893,10 @@ Owner review, 2026-11-17. These were the open questions of the first draft.
    the runtime reconciles.
 8. **The catalog is `kei-policy-catalog`.** Each contracts release opens a
    generated pull request there that adds one migration for that release.
-   Who merges it is still open (below).
+   Contracts change slowly, so the catalog maintainers always review and
+   merge that pull request. There is no auto-merge, even for an additive-only
+   manifest diff.
 9. **Customer-defined connectors** use the reserved id prefix `custom.<org>.`.
-
-### Still open
-
-- **Who merges the generated catalog pull request:** the catalog
-  maintainers every time, or an automated merge when the manifest diff is
-  additive only?
 
 ## 16. The strongest argument against
 
