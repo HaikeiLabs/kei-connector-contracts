@@ -45,9 +45,9 @@ type rustOperation struct {
 	Method, Doc         string
 	// Deprecated is the #[deprecated] attribute line, empty when the
 	// operation is not deprecated.
-	Deprecated       string
-	Req, Resp        string
-	Body, Call       string
+	Deprecated string
+	Req, Resp  string
+	Body, Call string
 }
 
 type rustFile struct {

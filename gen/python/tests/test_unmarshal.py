@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""HAI-990 gate: the 12 pilot operation fixtures unmarshal in Python.
+"""HAI-990 gate: the 16 pilot operation fixtures unmarshal in Python.
 
 Every registered pilot operation needs synthetic request and response
 fixtures under fixtures/operations/<connector>/, and both must parse into
@@ -34,6 +34,8 @@ from kei.connectors.linear.v1 import (
     issues_pb2 as linear_issues_pb2,
     teams_pb2,
 )
+from kei.connectors.notion.v1 import databases_pb2, pages_pb2
+from kei.connectors.sentry.v1 import issues_pb2 as sentry_issues_pb2
 
 FIXTURES = Path(__file__).resolve().parents[3] / "fixtures" / "operations"
 
@@ -87,6 +89,28 @@ def _spot_linear_comments_create(response):
     assert response.comment.body == "Synthetic comment"
 
 
+def _spot_notion_pages_get(response):
+    assert response.id == "5f8b7e4a-0000-4000-8000-000000000001"
+    assert not response.HasField("public_url")
+
+
+def _spot_notion_databases_query(response):
+    assert len(response.results) == 2
+    assert response.next_cursor == "synthetic-next-cursor"
+    assert response.has_more is True
+    assert not response.results[1].HasField("public_url")
+
+
+def _spot_sentry_issues_get(response):
+    assert response.short_id == "PROJ-103"
+    assert not response.HasField("share_id")
+
+
+def _spot_sentry_issues_list(response):
+    assert len(response.issues) == 2
+    assert response.issues[1].share_id == "synthetic-share-id-2"
+
+
 def _spot_http_api_records_list(response):
     assert len(response.records) == 2
 
@@ -133,6 +157,10 @@ OPS = [
     ("linear.issues.search", "linear", linear_issues_pb2.SearchIssuesRequest, linear_issues_pb2.SearchIssuesResponse, _spot_linear_issues_search),
     ("linear.teams.get", "linear", teams_pb2.GetTeamRequest, teams_pb2.GetTeamResponse, _spot_linear_teams_get),
     ("linear.comments.create", "linear", comments_pb2.CreateCommentRequest, comments_pb2.CreateCommentResponse, _spot_linear_comments_create),
+    ("notion.pages.get", "notion", pages_pb2.GetPageRequest, pages_pb2.GetPageResponse, _spot_notion_pages_get),
+    ("notion.databases.query", "notion", databases_pb2.QueryDatabaseRequest, databases_pb2.QueryDatabaseResponse, _spot_notion_databases_query),
+    ("sentry.issues.get", "sentry", sentry_issues_pb2.GetIssueRequest, sentry_issues_pb2.GetIssueResponse, _spot_sentry_issues_get),
+    ("sentry.issues.list", "sentry", sentry_issues_pb2.ListIssuesRequest, sentry_issues_pb2.ListIssuesResponse, _spot_sentry_issues_list),
     ("http_api.records.list", "http_api", records_pb2.ListRecordsRequest, records_pb2.ListRecordsResponse, _spot_http_api_records_list),
     ("http_api.records.get", "http_api", records_pb2.GetRecordRequest, records_pb2.GetRecordResponse, _spot_http_api_records_get),
     ("database.query.run", "database", query_pb2.RunQueryRequest, query_pb2.RunQueryResponse, _spot_database_query_run),

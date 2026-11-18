@@ -93,6 +93,32 @@ pub mod kei {
                 }
             }
         }
+        /// Notion connector contract.
+        pub mod notion {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/notion/v1/kei.connectors.notion.v1.rs");
+                /// Generated Notion connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/notion/v1/ops.rs");
+                }
+            }
+        }
+        /// Sentry connector contract.
+        pub mod sentry {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/sentry/v1/kei.connectors.sentry.v1.rs");
+                /// Generated Sentry connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/sentry/v1/ops.rs");
+                }
+            }
+        }
         /// MCP connector contract: tool calls against remote MCP servers.
         pub mod mcp {
             /// Version 1.

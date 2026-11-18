@@ -210,6 +210,36 @@ func TestManifest_LegacyRowsReferenceKnownOps(t *testing.T) {
 	}
 }
 
+// TestLegacyRows_Expected pins the section 8.1 rows whose operations exist,
+// so a dropped, widened or narrowed row shows up as a test diff.
+func TestLegacyRows_Expected(t *testing.T) {
+	want := map[string]string{
+		"github issue.read":     "github.issues.get github.issues.list",
+		"linear comment.create": "linear.comments.create",
+		"linear issue.create":   "linear.issues.create",
+		"linear issue.read":     "linear.issues.get linear.issues.search",
+		"linear team.read":      "linear.teams.get",
+	}
+	m, err := manifest.Build(loadSet(t), testVersion, loadLegacy(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := map[string]string{}
+	for _, r := range m.LegacyCapabilities {
+		got[r.Connector+" "+r.Capability] = strings.Join(r.Operations, " ")
+	}
+	for k, v := range want {
+		if got[k] != v {
+			t.Errorf("legacy %s = %q, want %q", k, got[k], v)
+		}
+	}
+	for k := range got {
+		if _, ok := want[k]; !ok {
+			t.Errorf("unexpected legacy row %s", k)
+		}
+	}
+}
+
 // TestManifest_NoWidening: a coarse capability maps only to operations of
 // its own class (".read" capabilities to read operations, the rest to
 // write operations), and never to a destructive one.
@@ -269,14 +299,21 @@ func TestLegacyExports_Consistent(t *testing.T) {
 	for _, p := range access {
 		accessBy[p.Provider] = true
 	}
+	legacy := 0
 	for _, c := range loadSet(t).Connectors {
 		provider := manifest.LegacyProvider(c.ID)
-		fields, ok := setupBy[provider]
-		if !ok {
-			t.Errorf("connector %s: no %q entry in connector-setup.v1.json", c.ID, provider)
+		fields, inSetup := setupBy[provider]
+		// A connector added after the exports were frozen is in neither,
+		// and that is fine; one export without the other is not.
+		if !inSetup && !accessBy[provider] {
+			continue
+		}
+		legacy++
+		if !inSetup {
+			t.Errorf("connector %s: %q is in connector-access.v1.json but not connector-setup.v1.json", c.ID, provider)
 		}
 		if !accessBy[provider] {
-			t.Errorf("connector %s: no %q entry in connector-access.v1.json", c.ID, provider)
+			t.Errorf("connector %s: %q is in connector-setup.v1.json but not connector-access.v1.json", c.ID, provider)
 		}
 		for _, conn := range c.Opt.GetConnections() {
 			for _, sf := range conn.GetSetupFields() {
@@ -287,6 +324,10 @@ func TestLegacyExports_Consistent(t *testing.T) {
 				}
 			}
 		}
+	}
+	// The four connectors the exports already covered must all be found.
+	if legacy < 4 {
+		t.Errorf("only %d manifest connectors matched a legacy export entry, want at least github, linear, http_api and database", legacy)
 	}
 	if manifest.LegacyProvider("database") != "postgres" {
 		t.Fatalf("database must alias postgres")

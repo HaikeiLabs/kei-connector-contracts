@@ -84,6 +84,8 @@ func Generate(gen *protogen.Plugin, opts Options) error {
 			err = renderTS(gen, c, opts)
 		case "rust":
 			err = renderRust(gen, c, opts)
+		case "python":
+			err = renderPython(gen, c, opts)
 		default:
 			err = fmt.Errorf("protoc-gen-kei-ops: lang %q is not implemented yet", opts.Lang)
 		}
