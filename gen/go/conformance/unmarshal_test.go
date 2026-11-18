@@ -35,11 +35,14 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 
 	airtablev1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/airtable/v1"
+	atlassianv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1"
 	databasev1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1"
 	githubv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1"
 	httpapiv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/http_api/v1"
 	hubspotv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/hubspot/v1"
 	linearv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/linear/v1"
+	notionv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/notion/v1"
+	sentryv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/sentry/v1"
 	contracts "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1"
 )
 
@@ -164,6 +167,75 @@ var fixtureCases = []fixtureCase{
 			}
 			if got := created.GetComment().GetId(); got == "" {
 				t.Errorf("comment.id is empty, want a synthetic id")
+			}
+		},
+	},
+	{
+		op:        "atlassian.jira.issues.get",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.GetJiraIssueRequest{} },
+		response:  func() proto.Message { return &atlassianv1.GetJiraIssueResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.GetJiraIssueResponse)
+			if got.GetKey() != "SYN-101" {
+				t.Errorf("key = %q, want SYN-101", got.GetKey())
+			}
+			if got.GetFields().GetSummary() != "Synthetic Jira issue" {
+				t.Errorf("fields.summary = %q, want Synthetic Jira issue", got.GetFields().GetSummary())
+			}
+			if got.GetFields().Description != nil {
+				t.Errorf("fields.description = %v, want nil (provider null)", got.GetFields().Description)
+			}
+		},
+	},
+	{
+		op:        "atlassian.jira.issues.search",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.SearchJiraIssuesRequest{} },
+		response:  func() proto.Message { return &atlassianv1.SearchJiraIssuesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.SearchJiraIssuesResponse)
+			if len(got.GetIssues()) != 2 {
+				t.Errorf("len(issues) = %d, want 2", len(got.GetIssues()))
+			}
+			if got.GetNextPageToken() != "synthetic-next-token" {
+				t.Errorf("next_page_token = %q, want synthetic-next-token", got.GetNextPageToken())
+			}
+			if got.GetIssues()[1].GetFields().Description != nil {
+				t.Errorf("issues[1].fields.description = %v, want nil (provider null)", got.GetIssues()[1].GetFields().Description)
+			}
+		},
+	},
+	{
+		op:        "atlassian.confluence.pages.get",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.GetConfluencePageRequest{} },
+		response:  func() proto.Message { return &atlassianv1.GetConfluencePageResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.GetConfluencePageResponse)
+			if got.GetId() != 78643201 {
+				t.Errorf("id = %d, want 78643201", got.GetId())
+			}
+			if got.GetTitle() != "Synthetic Confluence page" {
+				t.Errorf("title = %q, want Synthetic Confluence page", got.GetTitle())
+			}
+			if got.ParentId != nil {
+				t.Errorf("parent_id = %v, want nil (provider null)", got.ParentId)
+			}
+		},
+	},
+	{
+		op:        "atlassian.confluence.pages.list",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.ListConfluencePagesRequest{} },
+		response:  func() proto.Message { return &atlassianv1.ListConfluencePagesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.ListConfluencePagesResponse)
+			if len(got.GetResults()) != 2 {
+				t.Errorf("len(results) = %d, want 2", len(got.GetResults()))
+			}
+			if got.GetResults()[0].GetTitle() != "Synthetic first page" {
+				t.Errorf("results[0].title = %q, want Synthetic first page", got.GetResults()[0].GetTitle())
 			}
 		},
 	},
@@ -311,6 +383,72 @@ var fixtureCases = []fixtureCase{
 			}
 			if got := list.GetResults()[0].GetProperties().GetFields()["description"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
 				t.Errorf("results[0].properties.description = %v, want null", got)
+			}
+		},
+	},
+	{
+		op:        "notion.pages.get",
+		connector: "notion",
+		request:   func() proto.Message { return &notionv1.GetPageRequest{} },
+		response:  func() proto.Message { return &notionv1.GetPageResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			page := resp.(*notionv1.GetPageResponse)
+			if page.GetId() != "5f8b7e4a-0000-4000-8000-000000000001" {
+				t.Errorf("id = %q, want the synthetic page id", page.GetId())
+			}
+			if page.PublicUrl != nil {
+				t.Error("public_url is set, want nil (null in the fixture)")
+			}
+		},
+	},
+	{
+		op:        "notion.databases.query",
+		connector: "notion",
+		request:   func() proto.Message { return &notionv1.QueryDatabaseRequest{} },
+		response:  func() proto.Message { return &notionv1.QueryDatabaseResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			q := resp.(*notionv1.QueryDatabaseResponse)
+			if got := len(q.GetResults()); got != 2 {
+				t.Errorf("len(results) = %d, want 2", got)
+			}
+			if q.GetNextCursor() != "synthetic-next-cursor" {
+				t.Errorf("next_cursor = %q, want synthetic-next-cursor", q.GetNextCursor())
+			}
+			if !q.GetHasMore() {
+				t.Error("has_more = false, want true")
+			}
+			if q.GetResults()[1].PublicUrl != nil {
+				t.Error("results[1].public_url is set, want nil (null in the fixture)")
+			}
+		},
+	},
+	{
+		op:        "sentry.issues.get",
+		connector: "sentry",
+		request:   func() proto.Message { return &sentryv1.GetIssueRequest{} },
+		response:  func() proto.Message { return &sentryv1.GetIssueResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			issue := resp.(*sentryv1.GetIssueResponse)
+			if issue.GetShortId() != "PROJ-103" {
+				t.Errorf("short_id = %q, want PROJ-103", issue.GetShortId())
+			}
+			if issue.ShareId != nil {
+				t.Error("share_id is set, want nil (null in the fixture)")
+			}
+		},
+	},
+	{
+		op:        "sentry.issues.list",
+		connector: "sentry",
+		request:   func() proto.Message { return &sentryv1.ListIssuesRequest{} },
+		response:  func() proto.Message { return &sentryv1.ListIssuesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			issues := resp.(*sentryv1.ListIssuesResponse).GetIssues()
+			if got := len(issues); got != 2 {
+				t.Errorf("len(issues) = %d, want 2", got)
+			}
+			if issues[1].ShareId == nil || issues[1].GetShareId() != "synthetic-share-id-2" {
+				t.Errorf("issues[1].share_id = %v, want synthetic-share-id-2", issues[1].ShareId)
 			}
 		},
 	},

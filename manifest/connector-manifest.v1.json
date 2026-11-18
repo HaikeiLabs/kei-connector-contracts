@@ -3,6 +3,210 @@
   "contracts_version": "v0.19.0",
   "connectors": [
     {
+      "id": "airtable",
+      "base_url": "https://api.airtable.com",
+      "connections": [
+        {
+          "name": "pat",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "airtable.records.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "data.records:read"
+          ],
+          "connections": [
+            "pat"
+          ],
+          "resource_template": "bases/{base_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "record",
+            "version": 1
+          },
+          "request": "kei.connectors.airtable.v1.GetRecordRequest",
+          "response": "kei.connectors.airtable.v1.GetRecordResponse"
+        },
+        {
+          "id": "airtable.records.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "data.records:read"
+          ],
+          "connections": [
+            "pat"
+          ],
+          "resource_template": "bases/{base_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "record",
+            "version": 1
+          },
+          "request": "kei.connectors.airtable.v1.ListRecordsRequest",
+          "response": "kei.connectors.airtable.v1.ListRecordsResponse"
+        }
+      ]
+    },
+    {
+      "id": "atlassian",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "base_url_field": "site_url",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "site_url",
+              "type": "url",
+              "pattern": "^https://\\S+$",
+              "secret": false
+            }
+          ]
+        },
+        {
+          "name": "api_token",
+          "kind": "http_basic",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "base_url_field": "site_url",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "site_url",
+              "type": "url",
+              "pattern": "^https://\\S+$",
+              "secret": false
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": false
+            },
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "atlassian.confluence.pages.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "read:page:confluence"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "confluence/pages/{page_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.GetConfluencePageRequest",
+          "response": "kei.connectors.atlassian.v1.GetConfluencePageResponse"
+        },
+        {
+          "id": "atlassian.confluence.pages.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "read:page:confluence"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "confluence/pages",
+          "semantics": {
+            "action": "read",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.ListConfluencePagesRequest",
+          "response": "kei.connectors.atlassian.v1.ListConfluencePagesResponse"
+        },
+        {
+          "id": "atlassian.jira.issues.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "read:jira-work"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "jira/issues/{issue_key}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.GetJiraIssueRequest",
+          "response": "kei.connectors.atlassian.v1.GetJiraIssueResponse"
+        },
+        {
+          "id": "atlassian.jira.issues.search",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "read:jira-work"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "jira/issues",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.SearchJiraIssuesRequest",
+          "response": "kei.connectors.atlassian.v1.SearchJiraIssuesResponse"
+        }
+      ]
+    },
+    {
       "id": "database",
       "connections": [
         {
@@ -235,6 +439,103 @@
       ]
     },
     {
+      "id": "hubspot",
+      "base_url": "https://api.hubapi.com",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "scopes": [],
+          "setup_fields": []
+        },
+        {
+          "name": "private_app",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "hubspot.contacts.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "crm.objects.contacts.read"
+          ],
+          "connections": [
+            "user_oauth",
+            "private_app"
+          ],
+          "resource_template": "contacts/{contact_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "contact",
+            "version": 1
+          },
+          "request": "kei.connectors.hubspot.v1.GetContactRequest",
+          "response": "kei.connectors.hubspot.v1.GetContactResponse"
+        },
+        {
+          "id": "hubspot.contacts.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "crm.objects.contacts.read"
+          ],
+          "connections": [
+            "user_oauth",
+            "private_app"
+          ],
+          "resource_template": "contacts",
+          "semantics": {
+            "action": "read",
+            "resource_type": "contact",
+            "version": 1
+          },
+          "request": "kei.connectors.hubspot.v1.ListContactsRequest",
+          "response": "kei.connectors.hubspot.v1.ListContactsResponse"
+        },
+        {
+          "id": "hubspot.deals.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "crm.objects.deals.read"
+          ],
+          "connections": [
+            "user_oauth",
+            "private_app"
+          ],
+          "resource_template": "deals",
+          "semantics": {
+            "action": "read",
+            "resource_type": "deal",
+            "version": 1
+          },
+          "request": "kei.connectors.hubspot.v1.ListDealsRequest",
+          "response": "kei.connectors.hubspot.v1.ListDealsResponse"
+        }
+      ]
+    },
+    {
       "id": "linear",
       "base_url": "https://api.linear.app",
       "connections": [
@@ -264,6 +565,28 @@
         }
       ],
       "capabilities": [
+        {
+          "id": "linear.comments.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "comments:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_key"
+          ],
+          "resource_template": "issues/{issue_id}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "comment",
+            "version": 1
+          },
+          "request": "kei.connectors.linear.v1.CreateCommentRequest",
+          "response": "kei.connectors.linear.v1.CreateCommentResponse"
+        },
         {
           "id": "linear.issues.create",
           "class": "write",
@@ -329,6 +652,173 @@
           },
           "request": "kei.connectors.linear.v1.SearchIssuesRequest",
           "response": "kei.connectors.linear.v1.SearchIssuesResponse"
+        },
+        {
+          "id": "linear.teams.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "teams:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_key"
+          ],
+          "resource_template": "teams/{team_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "team",
+            "version": 1
+          },
+          "request": "kei.connectors.linear.v1.GetTeamRequest",
+          "response": "kei.connectors.linear.v1.GetTeamResponse"
+        }
+      ]
+    },
+    {
+      "id": "notion",
+      "base_url": "https://api.notion.com",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "scopes": [],
+          "setup_fields": []
+        },
+        {
+          "name": "integration_token",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "notion.databases.query",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pages:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "integration_token"
+          ],
+          "resource_template": "databases/{database_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.notion.v1.QueryDatabaseRequest",
+          "response": "kei.connectors.notion.v1.QueryDatabaseResponse"
+        },
+        {
+          "id": "notion.pages.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pages:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "integration_token"
+          ],
+          "resource_template": "pages/{page_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.notion.v1.GetPageRequest",
+          "response": "kei.connectors.notion.v1.GetPageResponse"
+        }
+      ]
+    },
+    {
+      "id": "sentry",
+      "base_url": "https://sentry.io",
+      "connections": [
+        {
+          "name": "auth_token",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            },
+            {
+              "name": "organization_slug",
+              "type": "string",
+              "secret": false
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "sentry.issues.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issue:read"
+          ],
+          "connections": [
+            "auth_token"
+          ],
+          "resource_template": "organizations/{organization_slug}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.sentry.v1.GetIssueRequest",
+          "response": "kei.connectors.sentry.v1.GetIssueResponse"
+        },
+        {
+          "id": "sentry.issues.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issue:read"
+          ],
+          "connections": [
+            "auth_token"
+          ],
+          "resource_template": "organizations/{organization_slug}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.sentry.v1.ListIssuesRequest",
+          "response": "kei.connectors.sentry.v1.ListIssuesResponse"
         }
       ]
     }
@@ -344,6 +834,13 @@
     },
     {
       "connector": "linear",
+      "capability": "comment.create",
+      "operations": [
+        "linear.comments.create"
+      ]
+    },
+    {
+      "connector": "linear",
       "capability": "issue.create",
       "operations": [
         "linear.issues.create"
@@ -355,6 +852,13 @@
       "operations": [
         "linear.issues.get",
         "linear.issues.search"
+      ]
+    },
+    {
+      "connector": "linear",
+      "capability": "team.read",
+      "operations": [
+        "linear.teams.get"
       ]
     }
   ]

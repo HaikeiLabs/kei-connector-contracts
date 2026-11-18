@@ -132,6 +132,25 @@ func TestGoGolden_Positional(t *testing.T) {
 	checkGolden(t, "testdata/golden/go-positional", generate(t, "paths=source_relative,lang=go,signature=positional"))
 }
 
+func TestPythonGolden(t *testing.T) {
+	checkGolden(t, "testdata/golden/python", generate(t, "paths=source_relative,lang=python"))
+}
+
+func TestPythonGolden_Positional(t *testing.T) {
+	got := generate(t, "paths=source_relative,lang=python,signature=positional")
+	if !strings.Contains(got["kei/testconn/v1/ops.py"], "get_thing(self, space: str, thing_id: int)") {
+		t.Fatal("positional signature missing")
+	}
+	checkGolden(t, "testdata/golden/python-positional", got)
+}
+
+func TestPythonPositionalHelper(t *testing.T) {
+	got := generate(t, "paths=source_relative,lang=python")
+	if !strings.Contains(got["kei/testconn/v1/ops.py"], "get_thing_positional(") {
+		t.Fatal("positional helper missing")
+	}
+}
+
 func TestGenerate_Deterministic(t *testing.T) {
 	a := generate(t, "paths=source_relative,lang=go")
 	b := generate(t, "paths=source_relative,lang=go")
