@@ -1,0 +1,63 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Omni connector contract: queries.
+//
+// omni.queries.run executes one query against an Omni model and returns the
+// result rows. It is a read: running a query never changes workspace state.
+// The model is addressed in the body, so the resource template names it from
+// the request field.
+syntax = "proto3";
+
+package kei.connectors.omni.v1;
+
+import "google/protobuf/struct.proto";
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/omni/v1;omni";
+
+// RunQueryRequest runs one query against an Omni model. model_id names the
+// model; limit caps the rows the runtime returns. Both travel in the body.
+message RunQueryRequest {
+  string model_id = 1;
+  optional int32 limit = 2;
+
+  option (kei.contracts.v1.operation) = {
+    id: "omni.queries.run"
+    connector: "omni"
+    class: OPERATION_CLASS_READ
+    http_method: "POST"
+    path_template: "/api/v1/query/run"
+    scopes: ["queries:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "RunQuery"
+    connections: ["api_key"]
+    resource_template: "models/{model_id}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "query" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// RunQueryResponse models one query result page. rows are Struct records:
+// Omni returns the query result's columns per row, so the row shape stays
+// provider-specific. It is filled by JSON unmarshal of the provider
+// response.
+message RunQueryResponse {
+  repeated google.protobuf.Struct rows = 1;
+}

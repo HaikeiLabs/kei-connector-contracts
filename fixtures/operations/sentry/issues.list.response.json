@@ -1,0 +1,23 @@
+{
+  "issues": [
+    {
+      "id": "71001",
+      "shortId": "PROJ-101",
+      "title": "Synthetic first issue",
+      "status": "unresolved",
+      "level": "error",
+      "shareId": null,
+      "permalink": "https://example.invalid/organizations/acme-corp/issues/71001/",
+      "numComments": 0
+    },
+    {
+      "id": "71002",
+      "shortId": "PROJ-102",
+      "title": "Synthetic second issue",
+      "status": "resolved",
+      "level": "warning",
+      "shareId": "synthetic-share-id-2",
+      "permalink": "https://example.invalid/organizations/acme-corp/issues/71002/"
+    }
+  ]
+}

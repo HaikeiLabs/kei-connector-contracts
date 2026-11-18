@@ -8,16 +8,41 @@
 #   destructive operation.
 # - A row lists only operations that exist. A coarse capability whose
 #   operations are not all in the contracts yet is left out: it stays on its
-#   policies unchanged and is added in the release that adds its operations
-#   (pending: github pull_request.read, workflow.read, issue.create,
-#   issue.comment, pull_request.create, pull_request.update; linear team.read,
-#   comment.create).
+#   policies unchanged and is added in the release that adds its operations.
 # - Capabilities with no operation at all stay out (github repository.read,
 #   check.read, issue.update; linear project.read, cycle.read, issue.update).
 
 - connector: github
+  capability: issue.comment
+  operations: [github.issues.comments.create]
+
+- connector: github
+  capability: issue.create
+  operations: [github.issues.create]
+
+- connector: github
   capability: issue.read
   operations: [github.issues.get, github.issues.list]
+
+- connector: github
+  capability: pull_request.create
+  operations: [github.pulls.create]
+
+- connector: github
+  capability: pull_request.read
+  operations: [github.pulls.get, github.pulls.list, github.pulls.reviews.list]
+
+- connector: github
+  capability: pull_request.update
+  operations: [github.pulls.update]
+
+- connector: github
+  capability: workflow.read
+  operations: [github.actions.runs.list]
+
+- connector: linear
+  capability: comment.create
+  operations: [linear.comments.create]
 
 - connector: linear
   capability: issue.create
@@ -26,3 +51,7 @@
 - connector: linear
   capability: issue.read
   operations: [linear.issues.get, linear.issues.search]
+
+- connector: linear
+  capability: team.read
+  operations: [linear.teams.get]

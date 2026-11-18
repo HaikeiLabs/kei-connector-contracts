@@ -1,0 +1,22 @@
+{
+  "records": [
+    {
+      "id": "recSynthetic00001",
+      "createdTime": "2026-01-20T08:00:00.000Z",
+      "fields": {
+        "Name": "Synthetic first task",
+        "Hours": 3.5
+      }
+    },
+    {
+      "id": "recSynthetic00002",
+      "createdTime": "2026-01-22T08:30:00.000Z",
+      "fields": {
+        "Name": "Synthetic second task",
+        "Priority": null
+      },
+      "lastModifiedTime": "2026-02-06T11:45:00.000Z"
+    }
+  ],
+  "offset": "synthetic-next-offset"
+}

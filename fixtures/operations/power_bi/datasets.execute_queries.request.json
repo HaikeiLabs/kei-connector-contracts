@@ -1,0 +1,7 @@
+{
+  "group_id": "synthetic-group-1",
+  "dataset_id": "synthetic-dataset-1",
+  "queries": [
+    {"query": "EVALUATE ROW(\"Synthetic\", 1)"}
+  ]
+}

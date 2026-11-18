@@ -1,0 +1,5 @@
+{
+  "user_id": "synthetic-user",
+  "q": "is:inbox",
+  "max_results": 2
+}

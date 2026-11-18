@@ -1,0 +1,121 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Power BI connector contract: datasets.
+//
+// power_bi.datasets.list reads the datasets of one workspace (group);
+// power_bi.datasets.execute_queries runs DAX queries against one dataset.
+// Both are reads. The dataset payload keys are PascalCase on the wire, so
+// those fields set json_name to match (protojson still accepts the field's
+// snake_case name).
+syntax = "proto3";
+
+package kei.connectors.power_bi.v1;
+
+import "google/protobuf/struct.proto";
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/power_bi/v1;power_bi";
+
+// ListDatasetsRequest lists the datasets of one Power BI workspace (group).
+message ListDatasetsRequest {
+  string group_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "power_bi.datasets.list"
+    connector: "power_bi"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/v1.0/myorg/groups/{group_id}/datasets"
+    scopes: ["https://analysis.windows.net/powerbi/api/.default"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListDatasets"
+    connections: ["user_obo"]
+    resource_template: "groups/{group_id}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "dataset" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// DatasetSummary models the subset of each dataset entry a list response
+// carries. ConfiguredBy and TargetStorageMode are PascalCase on the wire.
+message DatasetSummary {
+  string id = 1;
+  string name = 2;
+  optional string configured_by = 3 [json_name = "ConfiguredBy"];
+  optional string target_storage_mode = 4 [json_name = "TargetStorageMode"];
+}
+
+// ListDatasetsResponse wraps the dataset entries of a listing. Power BI
+// returns the entries under value, with the OData envelope keys beside it.
+// It is filled by JSON unmarshal of the provider response.
+message ListDatasetsResponse {
+  repeated DatasetSummary value = 1;
+}
+
+// ExecuteQueriesRequest runs DAX queries against one dataset. Each entry of
+// queries carries one query text; both travel in the body.
+message ExecuteQueriesRequest {
+  string group_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string dataset_id = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  repeated QueryDefinition queries = 3;
+
+  option (kei.contracts.v1.operation) = {
+    id: "power_bi.datasets.execute_queries"
+    connector: "power_bi"
+    class: OPERATION_CLASS_READ
+    http_method: "POST"
+    path_template: "/v1.0/myorg/groups/{group_id}/datasets/{dataset_id}/executeQueries"
+    scopes: ["https://analysis.windows.net/powerbi/api/.default"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ExecuteQueries"
+    connections: ["user_obo"]
+    resource_template: "groups/{group_id}/datasets/{dataset_id}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "dataset_query" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// QueryDefinition is one DAX query text in the request body.
+message QueryDefinition {
+  string query = 1;
+}
+
+// QueryTable models one result table: its rows are Struct records, since a
+// DAX query's columns are query-specific.
+message QueryTable {
+  repeated google.protobuf.Struct rows = 1;
+}
+
+// QueryResult models the tables one query produced.
+message QueryResult {
+  repeated QueryTable tables = 1;
+}
+
+// ExecuteQueriesResponse models one ExecuteQueries result: each query
+// returns its tables under results. It is filled by JSON unmarshal of the
+// provider response.
+message ExecuteQueriesResponse {
+  repeated QueryResult results = 1;
+}

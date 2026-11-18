@@ -1,0 +1,54 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Atlassian connector declaration: the connector id and the connection kinds
+// its operations run over (proposal 0002, section 4.1). One connector serves
+// both Jira and Confluence REST APIs on the user's cloud site.
+syntax = "proto3";
+
+package kei.connectors.atlassian.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1;atlassian";
+
+// Atlassian connector and its connection kinds. The site origin
+// (https://<site>.atlassian.net) is a setup field, not a secret; a user's own
+// OAuth token goes on the wire as a bearer token, while an admin-configured
+// API token is sent as HTTP basic auth over the 'email:token' pair.
+option (kei.contracts.v1.connector) = {
+  id: "atlassian"
+  connections: [
+    {
+      name: "user_oauth"
+      kind: CONNECTION_KIND_HTTP_BEARER
+      auth_method: "oauth"
+      account_model: ACCOUNT_MODEL_PER_USER
+      base_url_field: "site_url"
+      setup_fields: [{name: "site_url" type: "url" pattern: "^https://\\S+$"}]
+    },
+    {
+      name: "api_token"
+      kind: CONNECTION_KIND_HTTP_BASIC
+      auth_method: "secret_ref"
+      account_model: ACCOUNT_MODEL_SHARED
+      base_url_field: "site_url"
+      setup_fields: [
+        {name: "site_url" type: "url" pattern: "^https://\\S+$"},
+        {name: "email" type: "string" pattern: "^\\S+$"},
+        {name: "token" type: "string" pattern: "^\\S+$" secret: true}
+      ]
+    }
+  ]
+};

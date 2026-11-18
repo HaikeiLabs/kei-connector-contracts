@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""HAI-990 gate: the pilot operation fixtures unmarshal in Python.
+"""HAI-990 gate: every pilot operation fixture unmarshals in Python.
 
 Every registered pilot operation needs synthetic request and response
 fixtures under fixtures/operations/<connector>/, and both must parse into
@@ -26,6 +26,8 @@ from pathlib import Path
 import pytest
 from google.protobuf import json_format
 
+from kei.connectors.atlassian.v1 import confluence_pb2, jira_pb2
+from kei.connectors.airtable.v1 import records_pb2 as airtable_records_pb2
 from kei.connectors.database.v1 import query_pb2
 from kei.connectors.github.v1 import (
     actions_pb2,
@@ -34,12 +36,19 @@ from kei.connectors.github.v1 import (
     issues_pb2,
     pulls_pb2,
 )
+from kei.connectors.gmail.v1 import messages_pb2
+from kei.connectors.google_sheets.v1 import spreadsheets_pb2
 from kei.connectors.http_api.v1 import records_pb2
+from kei.connectors.hubspot.v1 import contacts_pb2, deals_pb2
 from kei.connectors.linear.v1 import (
     comments_pb2,
     issues_pb2 as linear_issues_pb2,
     teams_pb2,
 )
+from kei.connectors.omni.v1 import documents_pb2, queries_pb2
+from kei.connectors.power_bi.v1 import datasets_pb2
+from kei.connectors.notion.v1 import databases_pb2, pages_pb2
+from kei.connectors.sentry.v1 import issues_pb2 as sentry_issues_pb2
 
 FIXTURES = Path(__file__).resolve().parents[3] / "fixtures" / "operations"
 
@@ -169,6 +178,103 @@ def _spot_linear_comments_create(response):
     assert response.comment.body == "Synthetic comment"
 
 
+def _spot_gmail_messages_list(response):
+    assert len(response.messages) == 2
+    assert response.next_page_token == "synthetic-next-token"
+
+
+def _spot_gmail_messages_get(response):
+    assert response.id == "msg-1001"
+    assert response.snippet == "Synthetic message preview text"
+    assert not response.HasField("internal_date")
+
+
+def _spot_google_sheets_values_get(response):
+    assert response.range == "Sheet1!A1:B2"
+    assert len(response.values) == 2
+    assert response.values[0].values[1].WhichOneof("kind") == "null_value"
+
+
+def _spot_google_sheets_spreadsheets_get(response):
+    assert response.spreadsheet_id == "synthetic-sheet-1"
+    assert response.properties.title == "Synthetic sheet"
+
+
+def _spot_atlassian_jira_issues_get(response):
+    assert response.key == "SYN-101"
+    assert response.fields.summary == "Synthetic Jira issue"
+    assert not response.fields.HasField("description")
+
+
+def _spot_atlassian_jira_issues_search(response):
+    assert len(response.issues) == 2
+    assert response.next_page_token == "synthetic-next-token"
+    assert not response.issues[1].fields.HasField("description")
+
+
+def _spot_atlassian_confluence_pages_get(response):
+    assert response.id == 78643201
+    assert response.title == "Synthetic Confluence page"
+    assert not response.HasField("parent_id")
+
+
+def _spot_atlassian_confluence_pages_list(response):
+    assert len(response.results) == 2
+    assert response.results[0].title == "Synthetic first page"
+
+
+def _spot_airtable_records_get(response):
+    assert response.id == "recSynthetic00003"
+    assert response.fields.fields["Name"].string_value == "Synthetic third task"
+    assert response.fields.fields["Priority"].WhichOneof("kind") == "null_value"
+
+
+def _spot_airtable_records_list(response):
+    assert len(response.records) == 2
+    assert response.offset == "synthetic-next-offset"
+    assert response.records[1].fields.fields["Priority"].WhichOneof("kind") == "null_value"
+
+
+def _spot_hubspot_contacts_get(response):
+    assert response.id == "701"
+    assert response.properties.fields["email"].string_value == "synthetic.contact@example.invalid"
+    assert response.properties.fields["lastname"].WhichOneof("kind") == "null_value"
+
+
+def _spot_hubspot_contacts_list(response):
+    assert len(response.results) == 2
+    assert response.next_after == "synthetic-next-cursor"
+    assert response.results[1].properties.fields["lastname"].WhichOneof("kind") == "null_value"
+
+
+def _spot_hubspot_deals_list(response):
+    assert len(response.results) == 2
+    assert response.results[0].properties.fields["dealname"].string_value == "Synthetic first deal"
+    assert response.results[0].properties.fields["description"].WhichOneof("kind") == "null_value"
+
+
+def _spot_notion_pages_get(response):
+    assert response.id == "5f8b7e4a-0000-4000-8000-000000000001"
+    assert not response.HasField("public_url")
+
+
+def _spot_notion_databases_query(response):
+    assert len(response.results) == 2
+    assert response.next_cursor == "synthetic-next-cursor"
+    assert response.has_more is True
+    assert not response.results[1].HasField("public_url")
+
+
+def _spot_sentry_issues_get(response):
+    assert response.short_id == "PROJ-103"
+    assert not response.HasField("share_id")
+
+
+def _spot_sentry_issues_list(response):
+    assert len(response.issues) == 2
+    assert response.issues[1].share_id == "synthetic-share-id-2"
+
+
 def _spot_http_api_records_list(response):
     assert len(response.records) == 2
 
@@ -195,6 +301,37 @@ def _spot_database_query_run(response):
     small = response.rows[1].values
     assert small[3].string_value == "0.000000000000000001"
     assert response.truncated is False
+
+
+def _spot_omni_documents_list(response):
+    assert len(response.documents) == 2
+    assert response.documents[0].name == "Q3 Revenue — ünïcodé ✓"
+    assert response.next_cursor == "synthetic-cursor-2"
+
+
+def _spot_omni_queries_run(response):
+    assert len(response.rows) == 2
+    assert response.rows[0].fields["region"].string_value == "EMEA"
+    assert response.rows[0].fields["revenue"].number_value == 1234567.89
+
+
+def _spot_power_bi_datasets_list(response):
+    assert len(response.value) == 2
+    dataset = response.value[0]
+    assert dataset.name == "Sales Marketing"
+    # ConfiguredBy and TargetStorageMode are PascalCase on the wire; the
+    # fields set json_name to match.
+    assert dataset.configured_by == "synthetic-admin@example.invalid"
+    assert dataset.target_storage_mode == "Abf"
+
+
+def _spot_power_bi_datasets_execute_queries(response):
+    assert len(response.results) == 1
+    assert len(response.results[0].tables) == 1
+    rows = response.results[0].tables[0].rows
+    assert len(rows) == 2
+    assert rows[0].fields["Region"].string_value == "EMEA"
+    assert rows[0].fields["Sales Amount"].number_value == 1234567.89
 
 
 def _check_database_query_run_request(request):
@@ -229,9 +366,30 @@ OPS = [
     ("linear.issues.search", "linear", linear_issues_pb2.SearchIssuesRequest, linear_issues_pb2.SearchIssuesResponse, _spot_linear_issues_search),
     ("linear.teams.get", "linear", teams_pb2.GetTeamRequest, teams_pb2.GetTeamResponse, _spot_linear_teams_get),
     ("linear.comments.create", "linear", comments_pb2.CreateCommentRequest, comments_pb2.CreateCommentResponse, _spot_linear_comments_create),
+    ("gmail.messages.list", "gmail", messages_pb2.ListMessagesRequest, messages_pb2.ListMessagesResponse, _spot_gmail_messages_list),
+    ("gmail.messages.get", "gmail", messages_pb2.GetMessageRequest, messages_pb2.GetMessageResponse, _spot_gmail_messages_get),
+    ("google_sheets.values.get", "google_sheets", spreadsheets_pb2.GetValuesRequest, spreadsheets_pb2.GetValuesResponse, _spot_google_sheets_values_get),
+    ("google_sheets.spreadsheets.get", "google_sheets", spreadsheets_pb2.GetSpreadsheetRequest, spreadsheets_pb2.GetSpreadsheetResponse, _spot_google_sheets_spreadsheets_get),
+    ("atlassian.jira.issues.get", "atlassian", jira_pb2.GetJiraIssueRequest, jira_pb2.GetJiraIssueResponse, _spot_atlassian_jira_issues_get),
+    ("atlassian.jira.issues.search", "atlassian", jira_pb2.SearchJiraIssuesRequest, jira_pb2.SearchJiraIssuesResponse, _spot_atlassian_jira_issues_search),
+    ("atlassian.confluence.pages.get", "atlassian", confluence_pb2.GetConfluencePageRequest, confluence_pb2.GetConfluencePageResponse, _spot_atlassian_confluence_pages_get),
+    ("atlassian.confluence.pages.list", "atlassian", confluence_pb2.ListConfluencePagesRequest, confluence_pb2.ListConfluencePagesResponse, _spot_atlassian_confluence_pages_list),
+    ("airtable.records.get", "airtable", airtable_records_pb2.GetRecordRequest, airtable_records_pb2.GetRecordResponse, _spot_airtable_records_get),
+    ("airtable.records.list", "airtable", airtable_records_pb2.ListRecordsRequest, airtable_records_pb2.ListRecordsResponse, _spot_airtable_records_list),
+    ("hubspot.contacts.get", "hubspot", contacts_pb2.GetContactRequest, contacts_pb2.GetContactResponse, _spot_hubspot_contacts_get),
+    ("hubspot.contacts.list", "hubspot", contacts_pb2.ListContactsRequest, contacts_pb2.ListContactsResponse, _spot_hubspot_contacts_list),
+    ("hubspot.deals.list", "hubspot", deals_pb2.ListDealsRequest, deals_pb2.ListDealsResponse, _spot_hubspot_deals_list),
+    ("notion.pages.get", "notion", pages_pb2.GetPageRequest, pages_pb2.GetPageResponse, _spot_notion_pages_get),
+    ("notion.databases.query", "notion", databases_pb2.QueryDatabaseRequest, databases_pb2.QueryDatabaseResponse, _spot_notion_databases_query),
+    ("sentry.issues.get", "sentry", sentry_issues_pb2.GetIssueRequest, sentry_issues_pb2.GetIssueResponse, _spot_sentry_issues_get),
+    ("sentry.issues.list", "sentry", sentry_issues_pb2.ListIssuesRequest, sentry_issues_pb2.ListIssuesResponse, _spot_sentry_issues_list),
     ("http_api.records.list", "http_api", records_pb2.ListRecordsRequest, records_pb2.ListRecordsResponse, _spot_http_api_records_list),
     ("http_api.records.get", "http_api", records_pb2.GetRecordRequest, records_pb2.GetRecordResponse, _spot_http_api_records_get),
     ("database.query.run", "database", query_pb2.RunQueryRequest, query_pb2.RunQueryResponse, _spot_database_query_run),
+    ("omni.documents.list", "omni", documents_pb2.ListDocumentsRequest, documents_pb2.ListDocumentsResponse, _spot_omni_documents_list),
+    ("omni.queries.run", "omni", queries_pb2.RunQueryRequest, queries_pb2.RunQueryResponse, _spot_omni_queries_run),
+    ("power_bi.datasets.list", "power_bi", datasets_pb2.ListDatasetsRequest, datasets_pb2.ListDatasetsResponse, _spot_power_bi_datasets_list),
+    ("power_bi.datasets.execute_queries", "power_bi", datasets_pb2.ExecuteQueriesRequest, datasets_pb2.ExecuteQueriesResponse, _spot_power_bi_datasets_execute_queries),
 ]
 
 
