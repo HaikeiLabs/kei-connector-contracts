@@ -82,6 +82,12 @@ pub struct Param {
     /// Wire name, when it differs from the field's JSON name.
     #[prost(string, tag="2")]
     pub name: ::prost::alloc::string::String,
+    /// A path param whose value may contain '/' (a file path, a git ref). The
+    /// renderer escapes each '/'-separated segment of the value and keeps the
+    /// slashes; '.' and '..' segments are still rejected. Default false: the
+    /// whole value is one escaped segment.
+    #[prost(bool, tag="3")]
+    pub multi_segment: bool,
 }
 /// Semantics is an operation's versioned semantic mapping: what kind of
 /// action it is on what kind of resource. It is metadata for semantic policy

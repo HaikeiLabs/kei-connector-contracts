@@ -166,11 +166,13 @@ class ErrorMapping(_message.Message):
     def __init__(self, status: _Optional[int] = ..., kind: _Optional[_Union[ErrorKind, str]] = ..., retryable: _Optional[bool] = ...) -> None: ...
 
 class Param(_message.Message):
-    __slots__ = ("name",)
+    __slots__ = ("name", "multi_segment")
     IN_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
+    MULTI_SEGMENT_FIELD_NUMBER: _ClassVar[int]
     name: str
-    def __init__(self, name: _Optional[str] = ..., **kwargs) -> None: ...
+    multi_segment: bool
+    def __init__(self, name: _Optional[str] = ..., multi_segment: _Optional[bool] = ..., **kwargs) -> None: ...
 
 class Semantics(_message.Message):
     __slots__ = ("action", "resource_type", "version")
