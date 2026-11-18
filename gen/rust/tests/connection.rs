@@ -181,7 +181,7 @@ async fn no_credential_in_errors() {
     assert_eq!(resp.status, 401);
     let err = map_error(
         &Op {
-            id: "github.issues.get".to_string(),
+            id: "github.issues.get",
             class: Class::Read,
             destructive: false,
         },
