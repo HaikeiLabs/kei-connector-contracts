@@ -1,0 +1,28 @@
+# Legacy capability mapping (proposal 0002, section 8.1): each coarse catalog
+# capability and the operation ids it covers. The policy catalog rewrites
+# existing grants with it once, recording every rewrite in its audit log.
+#
+# Rules, enforced by protoc-gen-kei-manifest:
+# - The mapping never widens a grant: a ".read" capability maps only to read
+#   operations, every other verb only to write operations, and never to a
+#   destructive operation.
+# - A row lists only operations that exist. A coarse capability whose
+#   operations are not all in the contracts yet is left out: it stays on its
+#   policies unchanged and is added in the release that adds its operations
+#   (pending: github pull_request.read, workflow.read, issue.create,
+#   issue.comment, pull_request.create, pull_request.update; linear team.read,
+#   comment.create).
+# - Capabilities with no operation at all stay out (github repository.read,
+#   check.read, issue.update; linear project.read, cycle.read, issue.update).
+
+- connector: github
+  capability: issue.read
+  operations: [github.issues.get, github.issues.list]
+
+- connector: linear
+  capability: issue.create
+  operations: [linear.issues.create]
+
+- connector: linear
+  capability: issue.read
+  operations: [linear.issues.get, linear.issues.search]
