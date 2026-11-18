@@ -1,0 +1,158 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Sentry connector contract.
+syntax = "proto3";
+
+package kei.connectors.sentry.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/sentry/v1;sentry";
+
+// ListIssuesRequest lists the issues of a Sentry organization. The contract
+// models only the search filter and the page size of the query parameters;
+// pagination follows the Link response header, like GitHub's.
+message ListIssuesRequest {
+  string organization_slug = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional string query = 2;
+  optional int32 per_page = 3;
+
+  option (kei.contracts.v1.operation) = {
+    id: "sentry.issues.list"
+    connector: "sentry"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/api/0/organizations/{organization_slug}/issues/"
+    scopes: ["issue:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListIssues"
+    connections: ["auth_token"]
+    resource_template: "organizations/{organization_slug}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "issue" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// IssueSummary models the subset of each issue entry a list response carries.
+// Sentry issue ids are numeric strings and share_id is null unless the issue
+// has been shared.
+message IssueSummary {
+  string id = 1;
+  string short_id = 2;
+  string title = 3;
+  string status = 4;
+  string level = 5;
+  optional string share_id = 6;
+  string permalink = 7;
+}
+
+// ListIssuesResponse wraps the issue entries of a list response. Sentry
+// returns a bare JSON array here; the contract envelopes it under issues so
+// the response stays a protojson object and envelope keys stay
+// drift-checkable. It is filled by JSON unmarshal of the provider response.
+message ListIssuesResponse {
+  repeated IssueSummary issues = 1;
+}
+
+// GetIssueRequest reads a single issue from a Sentry organization.
+message GetIssueRequest {
+  string organization_slug = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string issue_id = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "sentry.issues.get"
+    connector: "sentry"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/api/0/organizations/{organization_slug}/issues/{issue_id}/"
+    scopes: ["issue:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetIssue"
+    connections: ["auth_token"]
+    resource_template: "organizations/{organization_slug}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "issue" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// GetIssueResponse models the subset of the Sentry issue payload the contract
+// needs. It is filled by JSON unmarshal of the provider response.
+message GetIssueResponse {
+  string id = 1;
+  string short_id = 2;
+  string title = 3;
+  string status = 4;
+  string level = 5;
+  optional string share_id = 6;
+  string permalink = 7;
+}
+
+// UpdateIssueRequest updates a Sentry issue's triage state: status
+// (resolved, unresolved, ignored, ...), assignee, seen and bookmark flags.
+// Sentry's JSON keys are camelCase (assignedTo, hasSeen, isBookmarked);
+// the fields' lowerCamel JSON names already match, so no json_name is set.
+message UpdateIssueRequest {
+  string organization_slug = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string issue_id = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional string status = 3;
+  optional string assigned_to = 4;
+  optional bool has_seen = 5;
+  optional bool is_bookmarked = 6;
+
+  option (kei.contracts.v1.operation) = {
+    id: "sentry.issues.update"
+    connector: "sentry"
+    class: OPERATION_CLASS_WRITE
+    destructive: false
+    http_method: "PUT"
+    path_template: "/api/0/organizations/{organization_slug}/issues/{issue_id}/"
+    scopes: ["issue:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "UpdateIssue"
+    connections: ["auth_token"]
+    resource_template: "organizations/{organization_slug}"
+    semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "issue" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// UpdateIssueResponse models the same issue subset the read returns; Sentry
+// echoes the updated issue. It is filled by JSON unmarshal of the provider
+// response.
+message UpdateIssueResponse {
+  string id = 1;
+  string short_id = 2;
+  string title = 3;
+  string status = 4;
+  string level = 5;
+  optional string share_id = 6;
+  string permalink = 7;
+}

@@ -27,7 +27,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file kei/connectors/github/v1/pulls.proto.
  */
 export const file_kei_connectors_github_v1_pulls: GenFile = /*@__PURE__*/
-  fileDesc("CiRrZWkvY29ubmVjdG9ycy9naXRodWIvdjEvcHVsbHMucHJvdG8SGGtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MSK/AgoVR2V0UHVsbFJlcXVlc3RSZXF1ZXN0EhUKBW93bmVyGAEgASgJQgaighkCCAESGgoKcmVwb3NpdG9yeRgCIAEoCUIGooIZAggBEhsKC3B1bGxfbnVtYmVyGAMgASgDQgaighkCCAE61QGSghnQAQoQZ2l0aHViLnB1bGxzLmdldBIGZ2l0aHViGAEqA0dFVDIvL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L3B1bGxzL3twdWxsX251bWJlcn06CnB1bGxzOnJlYWRAAUoOR2V0UHVsbFJlcXVlc3RSCnVzZXJfb2F1dGhSA3BhdFoacmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKARIIARIMcHVsbF9yZXF1ZXN0GAEitQEKFkdldFB1bGxSZXF1ZXN0UmVzcG9uc2USCgoCaWQYASABKAMSDgoGbnVtYmVyGAIgASgDEg0KBXRpdGxlGAMgASgJEg0KBXN0YXRlGAQgASgJEhEKBGJvZHkYBSABKAlIAIgBARIQCghodG1sX3VybBgGIAEoCRINCgVkcmFmdBgHIAEoCBIWCgltZXJnZWRfYXQYCCABKAlIAYgBAUIHCgVfYm9keUIMCgpfbWVyZ2VkX2F0QlZaVGdpdGh1Yi5jb20vSGFpa2VpTGFicy9rZWktY29ubmVjdG9yLWNvbnRyYWN0cy9nZW4vZ28va2VpL2Nvbm5lY3RvcnMvZ2l0aHViL3YxO2dpdGh1YmIGcHJvdG8z", [file_kei_contracts_v1_options]);
+  fileDesc("CiRrZWkvY29ubmVjdG9ycy9naXRodWIvdjEvcHVsbHMucHJvdG8SGGtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MSK/AgoVR2V0UHVsbFJlcXVlc3RSZXF1ZXN0EhUKBW93bmVyGAEgASgJQgaighkCCAESGgoKcmVwb3NpdG9yeRgCIAEoCUIGooIZAggBEhsKC3B1bGxfbnVtYmVyGAMgASgDQgaighkCCAE61QGSghnQAQoQZ2l0aHViLnB1bGxzLmdldBIGZ2l0aHViGAEqA0dFVDIvL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L3B1bGxzL3twdWxsX251bWJlcn06CnB1bGxzOnJlYWRAAUoOR2V0UHVsbFJlcXVlc3RSCnVzZXJfb2F1dGhSA3BhdFoacmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKARIIARIMcHVsbF9yZXF1ZXN0GAEi/gIKFkdldFB1bGxSZXF1ZXN0UmVzcG9uc2USCgoCaWQYASABKAMSDgoGbnVtYmVyGAIgASgDEg0KBXRpdGxlGAMgASgJEg0KBXN0YXRlGAQgASgJEhEKBGJvZHkYBSABKAlIAIgBARIQCghodG1sX3VybBgGIAEoCRINCgVkcmFmdBgHIAEoCBIWCgltZXJnZWRfYXQYCCABKAlIAYgBARIvCgRoZWFkGAkgASgLMiEua2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxLlB1bGxSZWYSLwoEYmFzZRgKIAEoCzIhLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5QdWxsUmVmEjQKBmF1dGhvchgLIAEoCzIeLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5Vc2VyUgR1c2VyEi8KBmxhYmVscxgMIAMoCzIfLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5MYWJlbEIHCgVfYm9keUIMCgpfbWVyZ2VkX2F0IhYKB1B1bGxSZWYSCwoDcmVmGAEgASgJIiEKBFVzZXISCgoCaWQYASABKAMSDQoFbG9naW4YAiABKAkiIQoFTGFiZWwSCgoCaWQYASABKAMSDAoEbmFtZRgCIAEoCSLeAgoQTGlzdFB1bGxzUmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIVCghwZXJfcGFnZRgDIAEoBUgAiAEBEhEKBHBhZ2UYBCABKAVIAYgBATrWAZKCGdEBChFnaXRodWIucHVsbHMubGlzdBIGZ2l0aHViGAEqA0dFVDIhL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L3B1bGxzOgpwdWxsczpyZWFkQAFKCUxpc3RQdWxsc1IKdXNlcl9vYXV0aFIDcGF0WhpyZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fWIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAYoBEggBEgxwdWxsX3JlcXVlc3QYAZIBBHBhZ2WaAQluZXh0X3BhZ2VCCwoJX3Blcl9wYWdlQgcKBV9wYWdlItQCChJQdWxsUmVxdWVzdFN1bW1hcnkSCgoCaWQYASABKAMSDgoGbnVtYmVyGAIgASgDEg0KBXRpdGxlGAMgASgJEg0KBXN0YXRlGAQgASgJEhEKBGJvZHkYBSABKAlIAIgBARIQCghodG1sX3VybBgGIAEoCRINCgVkcmFmdBgHIAEoCBIvCgRoZWFkGAggASgLMiEua2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxLlB1bGxSZWYSLwoEYmFzZRgJIAEoCzIhLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5QdWxsUmVmEjQKBmF1dGhvchgKIAEoCzIeLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5Vc2VyUgR1c2VyEi8KBmxhYmVscxgLIAMoCzIfLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5MYWJlbEIHCgVfYm9keSJ2ChFMaXN0UHVsbHNSZXNwb25zZRI7CgVwdWxscxgBIAMoCzIsLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5QdWxsUmVxdWVzdFN1bW1hcnkSFgoJbmV4dF9wYWdlGAIgASgDSACIAQFCDAoKX25leHRfcGFnZSKSAwoYQ3JlYXRlUHVsbFJlcXVlc3RSZXF1ZXN0EhUKBW93bmVyGAEgASgJQgaighkCCAESGgoKcmVwb3NpdG9yeRgCIAEoCUIGooIZAggBEg0KBXRpdGxlGAMgASgJEgwKBGhlYWQYBCABKAkSDAoEYmFzZRgFIAEoCRIRCgRib2R5GAYgASgJSACIAQESEgoFZHJhZnQYByABKAhIAYgBATrdAZKCGdgBChNnaXRodWIucHVsbHMuY3JlYXRlEgZnaXRodWIYAioEUE9TVDIhL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L3B1bGxzOgtwdWxsczp3cml0ZUABShFDcmVhdGVQdWxsUmVxdWVzdFIKdXNlcl9vYXV0aFIDcGF0WhpyZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fWIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAWIFCJkDEAViBQimAxAGigESCAISDHB1bGxfcmVxdWVzdBgBQgcKBV9ib2R5QggKBl9kcmFmdCK/AgoZQ3JlYXRlUHVsbFJlcXVlc3RSZXNwb25zZRIKCgJpZBgBIAEoAxIOCgZudW1iZXIYAiABKAMSDQoFdGl0bGUYAyABKAkSDQoFc3RhdGUYBCABKAkSEAoIaHRtbF91cmwYBSABKAkSDQoFZHJhZnQYBiABKAgSLwoEaGVhZBgHIAEoCzIhLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5QdWxsUmVmEi8KBGJhc2UYCCABKAsyIS5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuUHVsbFJlZhI0CgZhdXRob3IYCSABKAsyHi5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuVXNlclIEdXNlchIvCgZsYWJlbHMYCiADKAsyHy5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuTGFiZWwizQMKGFVwZGF0ZVB1bGxSZXF1ZXN0UmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIbCgtwdWxsX251bWJlchgDIAEoA0IGooIZAggBEhIKBXRpdGxlGAQgASgJSACIAQESEQoEYm9keRgFIAEoCUgBiAEBEhIKBXN0YXRlGAYgASgJSAKIAQESEQoEYmFzZRgHIAEoCUgDiAEBOuwBkoIZ5wEKE2dpdGh1Yi5wdWxscy51cGRhdGUSBmdpdGh1YhgCKgVQQVRDSDIvL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L3B1bGxzL3twdWxsX251bWJlcn06C3B1bGxzOndyaXRlQAFKEVVwZGF0ZVB1bGxSZXF1ZXN0Ugp1c2VyX29hdXRoUgNwYXRaGnJlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9YgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBYgUImQMQBWIFCKYDEAaKARIIAxIMcHVsbF9yZXF1ZXN0GAFCCAoGX3RpdGxlQgcKBV9ib2R5QggKBl9zdGF0ZUIHCgVfYmFzZSKBAwoZVXBkYXRlUHVsbFJlcXVlc3RSZXNwb25zZRIKCgJpZBgBIAEoAxIOCgZudW1iZXIYAiABKAMSDQoFdGl0bGUYAyABKAkSDQoFc3RhdGUYBCABKAkSEQoEYm9keRgFIAEoCUgAiAEBEhAKCGh0bWxfdXJsGAYgASgJEg0KBWRyYWZ0GAcgASgIEhYKCW1lcmdlZF9hdBgIIAEoCUgBiAEBEi8KBGhlYWQYCSABKAsyIS5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuUHVsbFJlZhIvCgRiYXNlGAogASgLMiEua2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxLlB1bGxSZWYSNAoGYXV0aG9yGAsgASgLMh4ua2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxLlVzZXJSBHVzZXISLwoGbGFiZWxzGAwgAygLMh8ua2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxLkxhYmVsQgcKBV9ib2R5QgwKCl9tZXJnZWRfYXQiqAMKFkxpc3RQdWxsUmV2aWV3c1JlcXVlc3QSFQoFb3duZXIYASABKAlCBqKCGQIIARIaCgpyZXBvc2l0b3J5GAIgASgJQgaighkCCAESGwoLcHVsbF9udW1iZXIYAyABKANCBqKCGQIIARIVCghwZXJfcGFnZRgEIAEoBUgAiAEBEhEKBHBhZ2UYBSABKAVIAYgBATr9AZKCGfgBChlnaXRodWIucHVsbHMucmV2aWV3cy5saXN0EgZnaXRodWIYASoDR0VUMjcvcmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX0vcHVsbHMve3B1bGxfbnVtYmVyfS9yZXZpZXdzOgpwdWxsczpyZWFkQAFKC0xpc3RSZXZpZXdzUgp1c2VyX29hdXRoUgNwYXRaGnJlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9YgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBigEZCAESE3B1bGxfcmVxdWVzdF9yZXZpZXcYAZIBBHBhZ2WaAQluZXh0X3BhZ2VCCwoJX3Blcl9wYWdlQgcKBV9wYWdlIroBCg1SZXZpZXdTdW1tYXJ5EgoKAmlkGAEgASgDEg0KBXN0YXRlGAIgASgJEhEKBGJvZHkYAyABKAlIAIgBARIQCghodG1sX3VybBgEIAEoCRIZCgxzdWJtaXR0ZWRfYXQYBSABKAlIAYgBARI0CgZhdXRob3IYBiABKAsyHi5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuVXNlclIEdXNlckIHCgVfYm9keUIPCg1fc3VibWl0dGVkX2F0InkKF0xpc3RQdWxsUmV2aWV3c1Jlc3BvbnNlEjgKB3Jldmlld3MYASADKAsyJy5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuUmV2aWV3U3VtbWFyeRIWCgluZXh0X3BhZ2UYAiABKANIAIgBAUIMCgpfbmV4dF9wYWdlIqMDChdDcmVhdGVQdWxsUmV2aWV3UmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIbCgtwdWxsX251bWJlchgDIAEoA0IGooIZAggBEhEKBGJvZHkYBCABKAlIAIgBARISCgVldmVudBgFIAEoCUgBiAEBOv0BkoIZ+AEKG2dpdGh1Yi5wdWxscy5yZXZpZXdzLmNyZWF0ZRIGZ2l0aHViGAIqBFBPU1QyNy9yZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fS9wdWxscy97cHVsbF9udW1iZXJ9L3Jldmlld3M6C3B1bGxzOndyaXRlQAFKDENyZWF0ZVJldmlld1IKdXNlcl9vYXV0aFIDcGF0WhpyZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fWIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAWIFCJkDEAViBQimAxAGigEZCAISE3B1bGxfcmVxdWVzdF9yZXZpZXcYAUIHCgVfYm9keUIICgZfZXZlbnQixQEKGENyZWF0ZVB1bGxSZXZpZXdSZXNwb25zZRIKCgJpZBgBIAEoAxINCgVzdGF0ZRgCIAEoCRIRCgRib2R5GAMgASgJSACIAQESEAoIaHRtbF91cmwYBCABKAkSGQoMc3VibWl0dGVkX2F0GAUgASgJSAGIAQESNAoGYXV0aG9yGAYgASgLMh4ua2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxLlVzZXJSBHVzZXJCBwoFX2JvZHlCDwoNX3N1Ym1pdHRlZF9hdEJWWlRnaXRodWIuY29tL0hhaWtlaUxhYnMva2VpLWNvbm5lY3Rvci1jb250cmFjdHMvZ2VuL2dvL2tlaS9jb25uZWN0b3JzL2dpdGh1Yi92MTtnaXRodWJiBnByb3RvMw", [file_kei_contracts_v1_options]);
 
 /**
  * GetPullRequestRequest reads a single pull request from a GitHub repository.
@@ -104,6 +104,26 @@ export type GetPullRequestResponse = Message<"kei.connectors.github.v1.GetPullRe
    * @generated from field: optional string merged_at = 8;
    */
   mergedAt?: string | undefined;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.PullRef head = 9;
+   */
+  head?: PullRef | undefined;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.PullRef base = 10;
+   */
+  base?: PullRef | undefined;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.User author = 11 [json_name = "user"];
+   */
+  author?: User | undefined;
+
+  /**
+   * @generated from field: repeated kei.connectors.github.v1.Label labels = 12;
+   */
+  labels: Label[];
 };
 
 /**
@@ -112,4 +132,646 @@ export type GetPullRequestResponse = Message<"kei.connectors.github.v1.GetPullRe
  */
 export const GetPullRequestResponseSchema: GenMessage<GetPullRequestResponse> = /*@__PURE__*/
   messageDesc(file_kei_connectors_github_v1_pulls, 1);
+
+/**
+ * PullRef models the branch side of a pull request.
+ *
+ * @generated from message kei.connectors.github.v1.PullRef
+ */
+export type PullRef = Message<"kei.connectors.github.v1.PullRef"> & {
+  /**
+   * @generated from field: string ref = 1;
+   */
+  ref: string;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.PullRef.
+ * Use `create(PullRefSchema)` to create a new message.
+ */
+export const PullRefSchema: GenMessage<PullRef> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 2);
+
+/**
+ * User models the GitHub account that authored an issue or pull request.
+ *
+ * @generated from message kei.connectors.github.v1.User
+ */
+export type User = Message<"kei.connectors.github.v1.User"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: string login = 2;
+   */
+  login: string;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.User.
+ * Use `create(UserSchema)` to create a new message.
+ */
+export const UserSchema: GenMessage<User> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 3);
+
+/**
+ * Label models a repository label attached to an issue or pull request.
+ *
+ * @generated from message kei.connectors.github.v1.Label
+ */
+export type Label = Message<"kei.connectors.github.v1.Label"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.Label.
+ * Use `create(LabelSchema)` to create a new message.
+ */
+export const LabelSchema: GenMessage<Label> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 4);
+
+/**
+ * ListPullsRequest lists the pull requests of a GitHub repository. The
+ * contract models the page size and page number of the query parameters.
+ *
+ * @generated from message kei.connectors.github.v1.ListPullsRequest
+ */
+export type ListPullsRequest = Message<"kei.connectors.github.v1.ListPullsRequest"> & {
+  /**
+   * @generated from field: string owner = 1;
+   */
+  owner: string;
+
+  /**
+   * @generated from field: string repository = 2;
+   */
+  repository: string;
+
+  /**
+   * @generated from field: optional int32 per_page = 3;
+   */
+  perPage?: number | undefined;
+
+  /**
+   * @generated from field: optional int32 page = 4;
+   */
+  page?: number | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ListPullsRequest.
+ * Use `create(ListPullsRequestSchema)` to create a new message.
+ */
+export const ListPullsRequestSchema: GenMessage<ListPullsRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 5);
+
+/**
+ * PullRequestSummary models the subset of each pull request entry a list
+ * response carries. It is filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.PullRequestSummary
+ */
+export type PullRequestSummary = Message<"kei.connectors.github.v1.PullRequestSummary"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: int64 number = 2;
+   */
+  number: bigint;
+
+  /**
+   * @generated from field: string title = 3;
+   */
+  title: string;
+
+  /**
+   * @generated from field: string state = 4;
+   */
+  state: string;
+
+  /**
+   * @generated from field: optional string body = 5;
+   */
+  body?: string | undefined;
+
+  /**
+   * @generated from field: string html_url = 6;
+   */
+  htmlUrl: string;
+
+  /**
+   * @generated from field: bool draft = 7;
+   */
+  draft: boolean;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.PullRef head = 8;
+   */
+  head?: PullRef | undefined;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.PullRef base = 9;
+   */
+  base?: PullRef | undefined;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.User author = 10 [json_name = "user"];
+   */
+  author?: User | undefined;
+
+  /**
+   * @generated from field: repeated kei.connectors.github.v1.Label labels = 11;
+   */
+  labels: Label[];
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.PullRequestSummary.
+ * Use `create(PullRequestSummarySchema)` to create a new message.
+ */
+export const PullRequestSummarySchema: GenMessage<PullRequestSummary> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 6);
+
+/**
+ * ListPullsResponse wraps the pull request entries of a list response. GitHub
+ * returns a bare JSON array here; the contract envelopes it under pulls so
+ * the response stays a protojson object and envelope keys stay
+ * drift-checkable. next_page carries the next page number from the Link
+ * header. It is filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.ListPullsResponse
+ */
+export type ListPullsResponse = Message<"kei.connectors.github.v1.ListPullsResponse"> & {
+  /**
+   * @generated from field: repeated kei.connectors.github.v1.PullRequestSummary pulls = 1;
+   */
+  pulls: PullRequestSummary[];
+
+  /**
+   * @generated from field: optional int64 next_page = 2;
+   */
+  nextPage?: bigint | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ListPullsResponse.
+ * Use `create(ListPullsResponseSchema)` to create a new message.
+ */
+export const ListPullsResponseSchema: GenMessage<ListPullsResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 7);
+
+/**
+ * CreatePullRequestRequest opens a pull request in a GitHub repository. head
+ * and base name the branches; the title is the provider's only required
+ * field.
+ *
+ * @generated from message kei.connectors.github.v1.CreatePullRequestRequest
+ */
+export type CreatePullRequestRequest = Message<"kei.connectors.github.v1.CreatePullRequestRequest"> & {
+  /**
+   * @generated from field: string owner = 1;
+   */
+  owner: string;
+
+  /**
+   * @generated from field: string repository = 2;
+   */
+  repository: string;
+
+  /**
+   * @generated from field: string title = 3;
+   */
+  title: string;
+
+  /**
+   * @generated from field: string head = 4;
+   */
+  head: string;
+
+  /**
+   * @generated from field: string base = 5;
+   */
+  base: string;
+
+  /**
+   * @generated from field: optional string body = 6;
+   */
+  body?: string | undefined;
+
+  /**
+   * @generated from field: optional bool draft = 7;
+   */
+  draft?: boolean | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.CreatePullRequestRequest.
+ * Use `create(CreatePullRequestRequestSchema)` to create a new message.
+ */
+export const CreatePullRequestRequestSchema: GenMessage<CreatePullRequestRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 8);
+
+/**
+ * CreatePullRequestResponse models the opened pull request. It is filled by
+ * JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.CreatePullRequestResponse
+ */
+export type CreatePullRequestResponse = Message<"kei.connectors.github.v1.CreatePullRequestResponse"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: int64 number = 2;
+   */
+  number: bigint;
+
+  /**
+   * @generated from field: string title = 3;
+   */
+  title: string;
+
+  /**
+   * @generated from field: string state = 4;
+   */
+  state: string;
+
+  /**
+   * @generated from field: string html_url = 5;
+   */
+  htmlUrl: string;
+
+  /**
+   * @generated from field: bool draft = 6;
+   */
+  draft: boolean;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.PullRef head = 7;
+   */
+  head?: PullRef | undefined;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.PullRef base = 8;
+   */
+  base?: PullRef | undefined;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.User author = 9 [json_name = "user"];
+   */
+  author?: User | undefined;
+
+  /**
+   * @generated from field: repeated kei.connectors.github.v1.Label labels = 10;
+   */
+  labels: Label[];
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.CreatePullRequestResponse.
+ * Use `create(CreatePullRequestResponseSchema)` to create a new message.
+ */
+export const CreatePullRequestResponseSchema: GenMessage<CreatePullRequestResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 9);
+
+/**
+ * UpdatePullRequestRequest edits an open pull request. Every field is
+ * optional: the provider applies a partial update. The provider answers a
+ * PATCH with the full pull payload, so the operation reuses the read
+ * response message.
+ *
+ * @generated from message kei.connectors.github.v1.UpdatePullRequestRequest
+ */
+export type UpdatePullRequestRequest = Message<"kei.connectors.github.v1.UpdatePullRequestRequest"> & {
+  /**
+   * @generated from field: string owner = 1;
+   */
+  owner: string;
+
+  /**
+   * @generated from field: string repository = 2;
+   */
+  repository: string;
+
+  /**
+   * @generated from field: int64 pull_number = 3;
+   */
+  pullNumber: bigint;
+
+  /**
+   * @generated from field: optional string title = 4;
+   */
+  title?: string | undefined;
+
+  /**
+   * @generated from field: optional string body = 5;
+   */
+  body?: string | undefined;
+
+  /**
+   * @generated from field: optional string state = 6;
+   */
+  state?: string | undefined;
+
+  /**
+   * @generated from field: optional string base = 7;
+   */
+  base?: string | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.UpdatePullRequestRequest.
+ * Use `create(UpdatePullRequestRequestSchema)` to create a new message.
+ */
+export const UpdatePullRequestRequestSchema: GenMessage<UpdatePullRequestRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 10);
+
+/**
+ * UpdatePullRequestResponse models the updated pull request: the provider
+ * answers a PATCH with the full payload. It is filled by JSON unmarshal of
+ * the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.UpdatePullRequestResponse
+ */
+export type UpdatePullRequestResponse = Message<"kei.connectors.github.v1.UpdatePullRequestResponse"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: int64 number = 2;
+   */
+  number: bigint;
+
+  /**
+   * @generated from field: string title = 3;
+   */
+  title: string;
+
+  /**
+   * @generated from field: string state = 4;
+   */
+  state: string;
+
+  /**
+   * @generated from field: optional string body = 5;
+   */
+  body?: string | undefined;
+
+  /**
+   * @generated from field: string html_url = 6;
+   */
+  htmlUrl: string;
+
+  /**
+   * @generated from field: bool draft = 7;
+   */
+  draft: boolean;
+
+  /**
+   * @generated from field: optional string merged_at = 8;
+   */
+  mergedAt?: string | undefined;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.PullRef head = 9;
+   */
+  head?: PullRef | undefined;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.PullRef base = 10;
+   */
+  base?: PullRef | undefined;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.User author = 11 [json_name = "user"];
+   */
+  author?: User | undefined;
+
+  /**
+   * @generated from field: repeated kei.connectors.github.v1.Label labels = 12;
+   */
+  labels: Label[];
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.UpdatePullRequestResponse.
+ * Use `create(UpdatePullRequestResponseSchema)` to create a new message.
+ */
+export const UpdatePullRequestResponseSchema: GenMessage<UpdatePullRequestResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 11);
+
+/**
+ * ListPullReviewsRequest lists the reviews of a pull request. The contract
+ * models the page size and page number of the query parameters.
+ *
+ * @generated from message kei.connectors.github.v1.ListPullReviewsRequest
+ */
+export type ListPullReviewsRequest = Message<"kei.connectors.github.v1.ListPullReviewsRequest"> & {
+  /**
+   * @generated from field: string owner = 1;
+   */
+  owner: string;
+
+  /**
+   * @generated from field: string repository = 2;
+   */
+  repository: string;
+
+  /**
+   * @generated from field: int64 pull_number = 3;
+   */
+  pullNumber: bigint;
+
+  /**
+   * @generated from field: optional int32 per_page = 4;
+   */
+  perPage?: number | undefined;
+
+  /**
+   * @generated from field: optional int32 page = 5;
+   */
+  page?: number | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ListPullReviewsRequest.
+ * Use `create(ListPullReviewsRequestSchema)` to create a new message.
+ */
+export const ListPullReviewsRequestSchema: GenMessage<ListPullReviewsRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 12);
+
+/**
+ * ReviewSummary models the subset of each review entry a list response
+ * carries. It is filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.ReviewSummary
+ */
+export type ReviewSummary = Message<"kei.connectors.github.v1.ReviewSummary"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: string state = 2;
+   */
+  state: string;
+
+  /**
+   * @generated from field: optional string body = 3;
+   */
+  body?: string | undefined;
+
+  /**
+   * @generated from field: string html_url = 4;
+   */
+  htmlUrl: string;
+
+  /**
+   * @generated from field: optional string submitted_at = 5;
+   */
+  submittedAt?: string | undefined;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.User author = 6 [json_name = "user"];
+   */
+  author?: User | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ReviewSummary.
+ * Use `create(ReviewSummarySchema)` to create a new message.
+ */
+export const ReviewSummarySchema: GenMessage<ReviewSummary> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 13);
+
+/**
+ * ListPullReviewsResponse wraps the review entries of a list response. GitHub
+ * returns a bare JSON array here; the contract envelopes it under reviews so
+ * the response stays a protojson object and envelope keys stay
+ * drift-checkable. next_page carries the next page number from the Link
+ * header. It is filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.ListPullReviewsResponse
+ */
+export type ListPullReviewsResponse = Message<"kei.connectors.github.v1.ListPullReviewsResponse"> & {
+  /**
+   * @generated from field: repeated kei.connectors.github.v1.ReviewSummary reviews = 1;
+   */
+  reviews: ReviewSummary[];
+
+  /**
+   * @generated from field: optional int64 next_page = 2;
+   */
+  nextPage?: bigint | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ListPullReviewsResponse.
+ * Use `create(ListPullReviewsResponseSchema)` to create a new message.
+ */
+export const ListPullReviewsResponseSchema: GenMessage<ListPullReviewsResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 14);
+
+/**
+ * CreatePullReviewRequest submits a review on a pull request. The provider
+ * requires either an event verdict or a pending body.
+ *
+ * @generated from message kei.connectors.github.v1.CreatePullReviewRequest
+ */
+export type CreatePullReviewRequest = Message<"kei.connectors.github.v1.CreatePullReviewRequest"> & {
+  /**
+   * @generated from field: string owner = 1;
+   */
+  owner: string;
+
+  /**
+   * @generated from field: string repository = 2;
+   */
+  repository: string;
+
+  /**
+   * @generated from field: int64 pull_number = 3;
+   */
+  pullNumber: bigint;
+
+  /**
+   * @generated from field: optional string body = 4;
+   */
+  body?: string | undefined;
+
+  /**
+   * @generated from field: optional string event = 5;
+   */
+  event?: string | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.CreatePullReviewRequest.
+ * Use `create(CreatePullReviewRequestSchema)` to create a new message.
+ */
+export const CreatePullReviewRequestSchema: GenMessage<CreatePullReviewRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 15);
+
+/**
+ * CreatePullReviewResponse models the submitted review. It is filled by JSON
+ * unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.CreatePullReviewResponse
+ */
+export type CreatePullReviewResponse = Message<"kei.connectors.github.v1.CreatePullReviewResponse"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: string state = 2;
+   */
+  state: string;
+
+  /**
+   * @generated from field: optional string body = 3;
+   */
+  body?: string | undefined;
+
+  /**
+   * @generated from field: string html_url = 4;
+   */
+  htmlUrl: string;
+
+  /**
+   * @generated from field: optional string submitted_at = 5;
+   */
+  submittedAt?: string | undefined;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.User author = 6 [json_name = "user"];
+   */
+  author?: User | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.CreatePullReviewResponse.
+ * Use `create(CreatePullReviewResponseSchema)` to create a new message.
+ */
+export const CreatePullReviewResponseSchema: GenMessage<CreatePullReviewResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_pulls, 16);
 

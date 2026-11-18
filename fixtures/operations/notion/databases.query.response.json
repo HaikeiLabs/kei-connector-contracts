@@ -1,0 +1,24 @@
+{
+  "object": "list",
+  "results": [
+    {
+      "object": "page",
+      "id": "b2c3d4e5-0000-4000-8000-000000000003",
+      "created_time": "2026-01-20T08:00:00.000Z",
+      "last_edited_time": "2026-02-05T10:15:00.000Z",
+      "archived": false,
+      "url": "https://www.notion.so/synthetic-page-2"
+    },
+    {
+      "object": "page",
+      "id": "c3d4e5f6-0000-4000-8000-000000000004",
+      "created_time": "2026-01-22T08:30:00.000Z",
+      "last_edited_time": "2026-02-06T11:45:00.000Z",
+      "archived": false,
+      "url": "https://www.notion.so/synthetic-page-3",
+      "public_url": null
+    }
+  ],
+  "next_cursor": "synthetic-next-cursor",
+  "has_more": true
+}

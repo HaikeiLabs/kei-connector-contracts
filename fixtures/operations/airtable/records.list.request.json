@@ -1,0 +1,6 @@
+{
+  "base_id": "appSyntheticBase01",
+  "table_id_or_name": "Tasks",
+  "offset": "synthetic-offset-cursor",
+  "page_size": 2
+}

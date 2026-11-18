@@ -110,8 +110,24 @@ jobs:
         with:
           setup_only: true
 
+      # Before buf generate: protoc-gen-kei-ops and protoc-gen-kei-manifest
+      # are local plugins buf runs with go run (tools/protoc-gen-kei).
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.27"
+          cache-dependency-path: |
+            gen/go/go.sum
+            tools/protoc-gen-kei/go.sum
+
       - name: Lint
         run: buf lint
+
+      - name: Plugin tests
+        # Validation rules, per-language golden files, the manifest schema,
+        # legacy mapping and manifest-diff rules (proposal 0002).
+        run: |
+          go -C tools/protoc-gen-kei vet ./...
+          go -C tools/protoc-gen-kei test -count=1 ./...
 
       - name: Breaking change check
         # The proto module is new on this branch; until main carries proto/
@@ -130,18 +146,27 @@ jobs:
         # Both a modified tracked file and a brand-new untracked file mean the
         # committed generation is stale.
         run: |
-          untracked=$(git ls-files --others --exclude-standard gen/)
+          untracked=$(git ls-files --others --exclude-standard gen/ manifest/)
           if [ -n "$untracked" ]; then
-            echo "buf generate produced untracked files under gen/:"
+            echo "buf generate produced untracked files under gen/ or manifest/:"
             echo "$untracked"
             exit 1
           fi
           git diff --exit-code
 
-      - uses: actions/setup-go@v5
-        with:
-          go-version: "1.27"
-          cache-dependency-path: gen/go/go.sum
+      - name: Manifest breaking check against the last release
+        # Proposal 0002, section 6: option values are invisible to buf
+        # breaking, so the manifest is compared with the last v* tag's. A
+        # rename passes only with the old id deprecated and replaced_by set.
+        run: |
+          bash scripts/manifest-diff_test.sh
+          tag=$(git describe --tags --abbrev=0 --match 'v*' 2>/dev/null || true)
+          if [ -z "$tag" ] || ! git cat-file -e "$tag:manifest/connector-manifest.v1.json" 2>/dev/null; then
+            echo "The last release tag (${tag:-none}) has no manifest; nothing to compare yet"
+            exit 0
+          fi
+          git show "$tag:manifest/connector-manifest.v1.json" > "$RUNNER_TEMP/released-manifest.json"
+          bash scripts/manifest-diff.sh "$RUNNER_TEMP/released-manifest.json" manifest/connector-manifest.v1.json
 
       - name: Go registry tests
         run: go test -count=1 ./...
@@ -152,6 +177,47 @@ jobs:
       - name: Rust serde tests
         run: cargo test
         working-directory: gen/rust
+
+  parity:
+    name: Cross-language parity
+    # Proposal 0002, section 11: every operation runs through each language's
+    # generated code against one recording server; requests and decoded
+    # results must match Go's. All four languages are required
+    # (requiredParityLanguages in gen/go/conformance/parity_test.go): a
+    # missing toolchain fails the job instead of skipping a language.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.27"
+          cache-dependency-path: gen/go/go.sum
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          package-manager-cache: false
+
+      - name: Build the TypeScript package
+        working-directory: gen/ts
+        run: |
+          npm ci
+          npm run build
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Python runner dependencies
+        run: pip install 'protobuf>=7.36.2' 'httpx>=0.27,<1'
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Parity test
+        env:
+          KEI_PARITY: "1"
+        run: go -C gen/go test -count=1 ./conformance -run TestParity_AllLanguages -v
 
   testenv:
     name: Database testenv

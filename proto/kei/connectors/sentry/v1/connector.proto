@@ -1,0 +1,44 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Sentry connector declaration: the connector id and the connection kinds
+// its operations run over (proposal 0002, section 4.1).
+syntax = "proto3";
+
+package kei.connectors.sentry.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/sentry/v1;sentry";
+
+// Sentry connector and its connection kind. An auth token configured by an
+// admin goes on the wire as a bearer token. The organization slug is a setup
+// field, not a credential: it scopes which organization's API paths the
+// connection may address.
+option (kei.contracts.v1.connector) = {
+  id: "sentry"
+  base_url: "https://sentry.io"
+  connections: [
+    {
+      name: "auth_token"
+      kind: CONNECTION_KIND_HTTP_BEARER
+      auth_method: "secret_ref"
+      account_model: ACCOUNT_MODEL_SHARED
+      setup_fields: [
+        {name: "token" type: "string" pattern: "^\\S+$" secret: true},
+        {name: "organization_slug" type: "string"}
+      ]
+    }
+  ]
+};

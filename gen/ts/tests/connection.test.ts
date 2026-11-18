@@ -8,6 +8,9 @@ describe('renderPath', () => {
     expect(renderPath('/repos/{owner}/{repo}', { owner: 'a/b', repo: 'x y' })).toBe('/repos/a%2Fb/x%20y');
     expect(renderPath('/{a}/{b}', { a: '..', b: 'é?#%' })).toBe('/%2E%2E/%C3%A9%3F%23%25');
     expect(() => renderPath('/{missing}', {})).toThrow();
+    // Go's url.PathEscape set: keep $ & + : = @, escape ! ' ( ) * , ;
+    expect(renderPath('/x/{v}', { v: "a!b'c(d)e*f,g;h$i&j+k:l=m@n" })).toBe("/x/a%21b%27c%28d%29e%2Af%2Cg%3Bh$i&j+k:l=m@n");
+    expect(renderPath('/x/{v}', { v: "d/a!b" }, ['v'])).toBe('/x/d/a%21b');
   });
   it('handles multi segment paths', () => {
     expect(renderPath('/{owner}/{path}', { owner: 'a/b', path: 'docs/a b' }, ['path'])).toBe('/a%2Fb/docs/a%20b');
