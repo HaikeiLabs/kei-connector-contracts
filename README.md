@@ -439,9 +439,10 @@ issue them.
 ## Operation authoring
 
 Follow the [add an operation guide](docs/operations-authoring.md). Operation
-tables from the local `main` proto contracts are available for
+tables are available for
 [database](docs/connectors/database.md), [GitHub](docs/connectors/github.md),
-[HTTP API](docs/connectors/http_api.md), and [Linear](docs/connectors/linear.md).
+[HTTP API](docs/connectors/http_api.md), [Linear](docs/connectors/linear.md),
+[Notion](docs/connectors/notion.md), and [Sentry](docs/connectors/sentry.md).
 
 ## Operation contracts (HAI-988)
 

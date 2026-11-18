@@ -1,11 +1,11 @@
 # linear connector
 
-## Operations on main
-
-The table follows the proto options on `main`; `—` means no connection is declared there.
+## Operations
 
 | Operation id | Method | Path | Class | Connections |
 | --- | --- | --- | --- | --- |
-| `linear.issues.create` | `POST` | `/graphql` | `write` | — |
-| `linear.issues.get` | `POST` | `/graphql` | `read` | — |
-| `linear.issues.search` | `POST` | `/graphql` | `read` | — |
+| `linear.comments.create` | `POST` | `/graphql` | `write` | `user_oauth`, `api_key` |
+| `linear.issues.create` | `POST` | `/graphql` | `write` | `user_oauth`, `api_key` |
+| `linear.issues.get` | `POST` | `/graphql` | `read` | `user_oauth`, `api_key` |
+| `linear.issues.search` | `POST` | `/graphql` | `read` | `user_oauth`, `api_key` |
+| `linear.teams.get` | `POST` | `/graphql` | `read` | `user_oauth`, `api_key` |

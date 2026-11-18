@@ -10,14 +10,12 @@ call. The general rules are in [operation-contracts.md](../operation-contracts.m
 Source: `proto/kei/connectors/http_api/v1/records.proto`.
 
 
-## Operations on main
-
-The table follows the proto options on `main`; `—` means no connection is declared there.
+## Operations
 
 | Operation id | Method | Path | Class | Connections |
 | --- | --- | --- | --- | --- |
-| `http_api.records.get` | `GET` | `/{collection}/{record_id}` | `read` | — |
-| `http_api.records.list` | `GET` | `/{collection}` | `read` | — |
+| `http_api.records.get` | `GET` | `/{collection}/{record_id}` | `read` | `api_key` |
+| `http_api.records.list` | `GET` | `/{collection}` | `read` | `api_key` |
 
 ## Operations
 

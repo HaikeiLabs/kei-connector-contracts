@@ -19,14 +19,13 @@ implemented.
    Setup fields have `name`, `type`, optional `pattern` and `secret`.
    `engine` limits SQL DSNs; `header_name` names a custom credential header.
    Describe secrets, never put their values in proto.
-3. Attach the `operation` option to the request. This example is copied from
-   `main`'s `proto/kei/connectors/github/v1/issues.proto`:
+3. Attach the `operation` option to the request. This example is copied from `proto/kei/connectors/github/v1/issues.proto`:
 
 ```proto
 message GetIssueRequest {
-  string owner = 1;
-  string repository = 2;
-  int64 issue_number = 3;
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  int64 issue_number = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
 
   option (kei.contracts.v1.operation) = {
     id: "github.issues.get"
@@ -36,11 +35,21 @@ message GetIssueRequest {
     path_template: "/repos/{owner}/{repository}/issues/{issue_number}"
     scopes: ["issues:read"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetIssue"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "issue" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
   };
 }
 ```
 
-The newer options add `method_name` (default: request name without `Request`),
+The options include `method_name` (default: request name without `Request`),
 accepted `connections`, `resource_template` (policy resource with request
 field variables), `errors` (status, kind, retryable), and `semantics` (action,
 resource type, version). Bump the semantics version when its mapping changes;

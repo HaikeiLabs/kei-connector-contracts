@@ -9,13 +9,11 @@ correctly for that engine. The general rules are in
 Source: `proto/kei/connectors/database/v1/query.proto`.
 
 
-## Operations on main
-
-The table follows the proto options on `main`; `—` means no connection is declared there.
+## Operations
 
 | Operation id | Method | Path | Class | Connections |
 | --- | --- | --- | --- | --- |
-| `database.query.run` | `POST` | `/query` | `read` | — |
+| `database.query.run` | — | — | `read` | `dsn` |
 
 ## Operations
 
