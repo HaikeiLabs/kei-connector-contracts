@@ -86,6 +86,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/omni/v1/kei.connectors.omni.v1.rs");
+                /// Generated Omni connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/omni/v1/ops.rs");
+                }
             }
         }
         /// Power BI connector contract.
@@ -94,6 +99,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/power_bi/v1/kei.connectors.power_bi.v1.rs");
+                /// Generated Power BI connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/power_bi/v1/ops.rs");
+                }
             }
         }
         /// Database connector contract.
@@ -115,6 +125,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/gmail/v1/kei.connectors.gmail.v1.rs");
+                /// Generated Gmail connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/gmail/v1/ops.rs");
+                }
             }
         }
         /// Google Sheets connector contract.
@@ -123,6 +138,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/google_sheets/v1/kei.connectors.google_sheets.v1.rs");
+                /// Generated Google Sheets connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/google_sheets/v1/ops.rs");
+                }
             }
         }
         /// Atlassian connector contract: Jira and Confluence reads.
@@ -131,6 +151,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/atlassian/v1/kei.connectors.atlassian.v1.rs");
+                /// Generated Atlassian connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/atlassian/v1/ops.rs");
+                }
             }
         }
         /// Airtable connector contract.
@@ -139,6 +164,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/airtable/v1/kei.connectors.airtable.v1.rs");
+                /// Generated Airtable connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/airtable/v1/ops.rs");
+                }
             }
         }
         /// HubSpot connector contract.
@@ -147,6 +177,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/hubspot/v1/kei.connectors.hubspot.v1.rs");
+                /// Generated HubSpot connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/hubspot/v1/ops.rs");
+                }
             }
         }
         /// Notion connector contract.
