@@ -34,12 +34,17 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
 
+	airtablev1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/airtable/v1"
+	atlassianv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1"
 	databasev1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1"
+	githubv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1"
 	gmailv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/gmail/v1"
 	googlesheetsv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/google_sheets/v1"
-	githubv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1"
 	httpapiv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/http_api/v1"
+	hubspotv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/hubspot/v1"
 	linearv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/linear/v1"
+	notionv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/notion/v1"
+	sentryv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/sentry/v1"
 	contracts "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1"
 )
 
@@ -168,68 +173,227 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
-		op:        "gmail.messages.list",
-		connector: "gmail",
-		request:   func() proto.Message { return &gmailv1.ListMessagesRequest{} },
-		response:  func() proto.Message { return &gmailv1.ListMessagesResponse{} },
+		op:        "atlassian.jira.issues.get",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.GetJiraIssueRequest{} },
+		response:  func() proto.Message { return &atlassianv1.GetJiraIssueResponse{} },
 		spotCheck: func(t *testing.T, resp proto.Message) {
-			got := resp.(*gmailv1.ListMessagesResponse)
-			if len(got.GetMessages()) != 2 {
-				t.Errorf("len(messages) = %d, want 2", len(got.GetMessages()))
+			got := resp.(*atlassianv1.GetJiraIssueResponse)
+			if got.GetKey() != "SYN-101" {
+				t.Errorf("key = %q, want SYN-101", got.GetKey())
+			}
+			if got.GetFields().GetSummary() != "Synthetic Jira issue" {
+				t.Errorf("fields.summary = %q, want Synthetic Jira issue", got.GetFields().GetSummary())
+			}
+			if got.GetFields().Description != nil {
+				t.Errorf("fields.description = %v, want nil (provider null)", got.GetFields().Description)
+			}
+		},
+	},
+	{
+		op:        "atlassian.jira.issues.search",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.SearchJiraIssuesRequest{} },
+		response:  func() proto.Message { return &atlassianv1.SearchJiraIssuesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.SearchJiraIssuesResponse)
+			if len(got.GetIssues()) != 2 {
+				t.Errorf("len(issues) = %d, want 2", len(got.GetIssues()))
 			}
 			if got.GetNextPageToken() != "synthetic-next-token" {
 				t.Errorf("next_page_token = %q, want synthetic-next-token", got.GetNextPageToken())
 			}
-		},
-	},
-	{
-		op:        "gmail.messages.get",
-		connector: "gmail",
-		request:   func() proto.Message { return &gmailv1.GetMessageRequest{} },
-		response:  func() proto.Message { return &gmailv1.GetMessageResponse{} },
-		spotCheck: func(t *testing.T, resp proto.Message) {
-			got := resp.(*gmailv1.GetMessageResponse)
-			if got.GetId() != "msg-1001" {
-				t.Errorf("id = %q, want msg-1001", got.GetId())
-			}
-			if got.GetSnippet() != "Synthetic message preview text" {
-				t.Errorf("snippet = %q, want Synthetic message preview text", got.GetSnippet())
-			}
-			if got.InternalDate != nil {
-				t.Errorf("internal_date = %v, want nil (provider null)", got.InternalDate)
+			if got.GetIssues()[1].GetFields().Description != nil {
+				t.Errorf("issues[1].fields.description = %v, want nil (provider null)", got.GetIssues()[1].GetFields().Description)
 			}
 		},
 	},
 	{
-		op:        "google_sheets.values.get",
-		connector: "google_sheets",
-		request:   func() proto.Message { return &googlesheetsv1.GetValuesRequest{} },
-		response:  func() proto.Message { return &googlesheetsv1.GetValuesResponse{} },
+		op:        "atlassian.confluence.pages.get",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.GetConfluencePageRequest{} },
+		response:  func() proto.Message { return &atlassianv1.GetConfluencePageResponse{} },
 		spotCheck: func(t *testing.T, resp proto.Message) {
-			got := resp.(*googlesheetsv1.GetValuesResponse)
-			if got.GetRange() != "Sheet1!A1:B2" {
-				t.Errorf("range = %q, want Sheet1!A1:B2", got.GetRange())
+			got := resp.(*atlassianv1.GetConfluencePageResponse)
+			if got.GetId() != 78643201 {
+				t.Errorf("id = %d, want 78643201", got.GetId())
 			}
-			if len(got.GetValues()) != 2 {
-				t.Errorf("len(values) = %d, want 2", len(got.GetValues()))
+			if got.GetTitle() != "Synthetic Confluence page" {
+				t.Errorf("title = %q, want Synthetic Confluence page", got.GetTitle())
 			}
-			if got.GetValues()[0].GetValues()[1].GetNullValue() != structpb.NullValue_NULL_VALUE {
-				t.Errorf("values[0][1] = %v, want null (provider null)", got.GetValues()[0].GetValues()[1])
+			if got.ParentId != nil {
+				t.Errorf("parent_id = %v, want nil (provider null)", got.ParentId)
 			}
 		},
 	},
 	{
-		op:        "google_sheets.spreadsheets.get",
-		connector: "google_sheets",
-		request:   func() proto.Message { return &googlesheetsv1.GetSpreadsheetRequest{} },
-		response:  func() proto.Message { return &googlesheetsv1.GetSpreadsheetResponse{} },
+		op:        "atlassian.confluence.pages.list",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.ListConfluencePagesRequest{} },
+		response:  func() proto.Message { return &atlassianv1.ListConfluencePagesResponse{} },
 		spotCheck: func(t *testing.T, resp proto.Message) {
-			got := resp.(*googlesheetsv1.GetSpreadsheetResponse)
-			if got.GetSpreadsheetId() != "synthetic-sheet-1" {
-				t.Errorf("spreadsheet_id = %q, want synthetic-sheet-1", got.GetSpreadsheetId())
+			got := resp.(*atlassianv1.ListConfluencePagesResponse)
+			if len(got.GetResults()) != 2 {
+				t.Errorf("len(results) = %d, want 2", len(got.GetResults()))
 			}
-			if got.GetProperties().GetTitle() != "Synthetic sheet" {
-				t.Errorf("properties.title = %q, want Synthetic sheet", got.GetProperties().GetTitle())
+			if got.GetResults()[0].GetTitle() != "Synthetic first page" {
+				t.Errorf("results[0].title = %q, want Synthetic first page", got.GetResults()[0].GetTitle())
+			}
+		},
+	},
+	{
+		op:        "airtable.records.get",
+		connector: "airtable",
+		request:   func() proto.Message { return &airtablev1.GetRecordRequest{} },
+		response:  func() proto.Message { return &airtablev1.GetRecordResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			rec := resp.(*airtablev1.GetRecordResponse)
+			if rec.GetId() != "recSynthetic00003" {
+				t.Errorf("id = %q, want recSynthetic00003", rec.GetId())
+			}
+			if got := rec.GetFields().GetFields()["Name"].GetStringValue(); got != "Synthetic third task" {
+				t.Errorf("fields.Name = %q, want Synthetic third task", got)
+			}
+			if got := rec.GetFields().GetFields()["Priority"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("fields.Priority = %v, want null", got)
+			}
+		},
+	},
+	{
+		op:        "airtable.records.list",
+		connector: "airtable",
+		request:   func() proto.Message { return &airtablev1.ListRecordsRequest{} },
+		response:  func() proto.Message { return &airtablev1.ListRecordsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			list := resp.(*airtablev1.ListRecordsResponse)
+			if got := len(list.GetRecords()); got != 2 {
+				t.Errorf("len(records) = %d, want 2", got)
+			}
+			if list.GetOffset() != "synthetic-next-offset" {
+				t.Errorf("offset = %q, want synthetic-next-offset", list.GetOffset())
+			}
+			if got := list.GetRecords()[1].GetFields().GetFields()["Priority"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("records[1].fields.Priority = %v, want null", got)
+			}
+		},
+	},
+	{
+		op:        "hubspot.contacts.get",
+		connector: "hubspot",
+		request:   func() proto.Message { return &hubspotv1.GetContactRequest{} },
+		response:  func() proto.Message { return &hubspotv1.GetContactResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			contact := resp.(*hubspotv1.GetContactResponse)
+			if contact.GetId() != "701" {
+				t.Errorf("id = %q, want 701", contact.GetId())
+			}
+			if got := contact.GetProperties().GetFields()["email"].GetStringValue(); got != "synthetic.contact@example.invalid" {
+				t.Errorf("properties.email = %q, want the synthetic email", got)
+			}
+			if got := contact.GetProperties().GetFields()["lastname"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("properties.lastname = %v, want null", got)
+			}
+		},
+	},
+	{
+		op:        "hubspot.contacts.list",
+		connector: "hubspot",
+		request:   func() proto.Message { return &hubspotv1.ListContactsRequest{} },
+		response:  func() proto.Message { return &hubspotv1.ListContactsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			list := resp.(*hubspotv1.ListContactsResponse)
+			if got := len(list.GetResults()); got != 2 {
+				t.Errorf("len(results) = %d, want 2", got)
+			}
+			if list.GetNextAfter() != "synthetic-next-cursor" {
+				t.Errorf("next_after = %q, want synthetic-next-cursor", list.GetNextAfter())
+			}
+			if got := list.GetResults()[1].GetProperties().GetFields()["lastname"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("results[1].properties.lastname = %v, want null", got)
+			}
+		},
+	},
+	{
+		op:        "hubspot.deals.list",
+		connector: "hubspot",
+		request:   func() proto.Message { return &hubspotv1.ListDealsRequest{} },
+		response:  func() proto.Message { return &hubspotv1.ListDealsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			list := resp.(*hubspotv1.ListDealsResponse)
+			if got := len(list.GetResults()); got != 2 {
+				t.Errorf("len(results) = %d, want 2", got)
+			}
+			if got := list.GetResults()[0].GetProperties().GetFields()["dealname"].GetStringValue(); got != "Synthetic first deal" {
+				t.Errorf("results[0].properties.dealname = %q, want Synthetic first deal", got)
+			}
+			if got := list.GetResults()[0].GetProperties().GetFields()["description"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("results[0].properties.description = %v, want null", got)
+			}
+		},
+	},
+	{
+		op:        "notion.pages.get",
+		connector: "notion",
+		request:   func() proto.Message { return &notionv1.GetPageRequest{} },
+		response:  func() proto.Message { return &notionv1.GetPageResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			page := resp.(*notionv1.GetPageResponse)
+			if page.GetId() != "5f8b7e4a-0000-4000-8000-000000000001" {
+				t.Errorf("id = %q, want the synthetic page id", page.GetId())
+			}
+			if page.PublicUrl != nil {
+				t.Error("public_url is set, want nil (null in the fixture)")
+			}
+		},
+	},
+	{
+		op:        "notion.databases.query",
+		connector: "notion",
+		request:   func() proto.Message { return &notionv1.QueryDatabaseRequest{} },
+		response:  func() proto.Message { return &notionv1.QueryDatabaseResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			q := resp.(*notionv1.QueryDatabaseResponse)
+			if got := len(q.GetResults()); got != 2 {
+				t.Errorf("len(results) = %d, want 2", got)
+			}
+			if q.GetNextCursor() != "synthetic-next-cursor" {
+				t.Errorf("next_cursor = %q, want synthetic-next-cursor", q.GetNextCursor())
+			}
+			if !q.GetHasMore() {
+				t.Error("has_more = false, want true")
+			}
+			if q.GetResults()[1].PublicUrl != nil {
+				t.Error("results[1].public_url is set, want nil (null in the fixture)")
+			}
+		},
+	},
+	{
+		op:        "sentry.issues.get",
+		connector: "sentry",
+		request:   func() proto.Message { return &sentryv1.GetIssueRequest{} },
+		response:  func() proto.Message { return &sentryv1.GetIssueResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			issue := resp.(*sentryv1.GetIssueResponse)
+			if issue.GetShortId() != "PROJ-103" {
+				t.Errorf("short_id = %q, want PROJ-103", issue.GetShortId())
+			}
+			if issue.ShareId != nil {
+				t.Error("share_id is set, want nil (null in the fixture)")
+			}
+		},
+	},
+	{
+		op:        "sentry.issues.list",
+		connector: "sentry",
+		request:   func() proto.Message { return &sentryv1.ListIssuesRequest{} },
+		response:  func() proto.Message { return &sentryv1.ListIssuesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			issues := resp.(*sentryv1.ListIssuesResponse).GetIssues()
+			if got := len(issues); got != 2 {
+				t.Errorf("len(issues) = %d, want 2", got)
+			}
+			if issues[1].ShareId == nil || issues[1].GetShareId() != "synthetic-share-id-2" {
+				t.Errorf("issues[1].share_id = %v, want synthetic-share-id-2", issues[1].ShareId)
 			}
 		},
 	},
@@ -298,6 +462,72 @@ var fixtureCases = []fixtureCase{
 			}
 			if result.GetTruncated() {
 				t.Error("truncated = true, want false")
+			}
+		},
+	},
+	{
+		op:        "gmail.messages.list",
+		connector: "gmail",
+		request:   func() proto.Message { return &gmailv1.ListMessagesRequest{} },
+		response:  func() proto.Message { return &gmailv1.ListMessagesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*gmailv1.ListMessagesResponse)
+			if len(got.GetMessages()) != 2 {
+				t.Errorf("len(messages) = %d, want 2", len(got.GetMessages()))
+			}
+			if got.GetNextPageToken() != "synthetic-next-token" {
+				t.Errorf("next_page_token = %q, want synthetic-next-token", got.GetNextPageToken())
+			}
+		},
+	},
+	{
+		op:        "gmail.messages.get",
+		connector: "gmail",
+		request:   func() proto.Message { return &gmailv1.GetMessageRequest{} },
+		response:  func() proto.Message { return &gmailv1.GetMessageResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*gmailv1.GetMessageResponse)
+			if got.GetId() != "msg-1001" {
+				t.Errorf("id = %q, want msg-1001", got.GetId())
+			}
+			if got.GetSnippet() != "Synthetic message preview text" {
+				t.Errorf("snippet = %q, want Synthetic message preview text", got.GetSnippet())
+			}
+			if got.InternalDate != nil {
+				t.Errorf("internal_date = %v, want nil (provider null)", got.InternalDate)
+			}
+		},
+	},
+	{
+		op:        "google_sheets.values.get",
+		connector: "google_sheets",
+		request:   func() proto.Message { return &googlesheetsv1.GetValuesRequest{} },
+		response:  func() proto.Message { return &googlesheetsv1.GetValuesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*googlesheetsv1.GetValuesResponse)
+			if got.GetRange() != "Sheet1!A1:B2" {
+				t.Errorf("range = %q, want Sheet1!A1:B2", got.GetRange())
+			}
+			if len(got.GetValues()) != 2 {
+				t.Errorf("len(values) = %d, want 2", len(got.GetValues()))
+			}
+			if got.GetValues()[0].GetValues()[1].GetNullValue() != structpb.NullValue_NULL_VALUE {
+				t.Errorf("values[0][1] = %v, want null (provider null)", got.GetValues()[0].GetValues()[1])
+			}
+		},
+	},
+	{
+		op:        "google_sheets.spreadsheets.get",
+		connector: "google_sheets",
+		request:   func() proto.Message { return &googlesheetsv1.GetSpreadsheetRequest{} },
+		response:  func() proto.Message { return &googlesheetsv1.GetSpreadsheetResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*googlesheetsv1.GetSpreadsheetResponse)
+			if got.GetSpreadsheetId() != "synthetic-sheet-1" {
+				t.Errorf("spreadsheet_id = %q, want synthetic-sheet-1", got.GetSpreadsheetId())
+			}
+			if got.GetProperties().GetTitle() != "Synthetic sheet" {
+				t.Errorf("properties.title = %q, want Synthetic sheet", got.GetProperties().GetTitle())
 			}
 		},
 	},
