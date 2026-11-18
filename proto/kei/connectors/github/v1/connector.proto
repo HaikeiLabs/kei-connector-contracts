@@ -1,0 +1,46 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// GitHub connector declaration: the connector id and the connection kinds
+// its operations run over (proposal 0002, section 4.1).
+syntax = "proto3";
+
+package kei.connectors.github.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;github";
+
+// GitHub connector and its connection kinds. A user's own OAuth token
+// (reused from SSO) or a fine-grained personal access token configured by an
+// admin; both go on the wire as a bearer token.
+option (kei.contracts.v1.connector) = {
+  id: "github"
+  base_url: "https://api.github.com"
+  connections: [
+    {
+      name: "user_oauth"
+      kind: CONNECTION_KIND_HTTP_BEARER
+      auth_method: "sso_reuse"
+      account_model: ACCOUNT_MODEL_PER_USER
+    },
+    {
+      name: "pat"
+      kind: CONNECTION_KIND_HTTP_BEARER
+      auth_method: "secret_ref"
+      account_model: ACCOUNT_MODEL_SHARED
+      setup_fields: [{name: "token" type: "string" pattern: "^\\S+$" secret: true}]
+    }
+  ]
+};

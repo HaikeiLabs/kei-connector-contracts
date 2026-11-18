@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from kei.contracts.v1 import options_pb2 as kei_dot_contracts_dot_v1_dot_options__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$kei/connectors/github/v1/pulls.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xd4\x01\n\x15GetPullRequestRequest\x12\x14\n\x05owner\x18\x01 \x01(\tR\x05owner\x12\x1e\n\nrepository\x18\x02 \x01(\tR\nrepository\x12\x1f\n\x0bpull_number\x18\x03 \x01(\x03R\npullNumber:d\x92\x82\x19`\n\x10github.pulls.get\x12\x06github\x18\x01*\x03GET2//repos/{owner}/{repository}/pulls/{pull_number}:\npulls:read@\x01\"\xef\x01\n\x16GetPullRequestResponse\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n\x04\x62ody\x18\x05 \x01(\tH\x00R\x04\x62ody\x88\x01\x01\x12\x19\n\x08html_url\x18\x06 \x01(\tR\x07htmlUrl\x12\x14\n\x05\x64raft\x18\x07 \x01(\x08R\x05\x64raft\x12 \n\tmerged_at\x18\x08 \x01(\tH\x01R\x08mergedAt\x88\x01\x01\x42\x07\n\x05_bodyB\x0c\n\n_merged_atBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n$kei/connectors/github/v1/pulls.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xde\x02\n\x15GetPullRequestRequest\x12\x1c\n\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\x05owner\x12&\n\nrepository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\nrepository\x12\'\n\x0bpull_number\x18\x03 \x01(\x03\x42\x06\xa2\x82\x19\x02\x08\x01R\npullNumber:\xd5\x01\x92\x82\x19\xd0\x01\n\x10github.pulls.get\x12\x06github\x18\x01*\x03GET2//repos/{owner}/{repository}/pulls/{pull_number}:\npulls:read@\x01J\x0eGetPullRequestR\nuser_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\x12\x08\x01\x12\x0cpull_request\x18\x01\"\xef\x01\n\x16GetPullRequestResponse\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n\x04\x62ody\x18\x05 \x01(\tH\x00R\x04\x62ody\x88\x01\x01\x12\x19\n\x08html_url\x18\x06 \x01(\tR\x07htmlUrl\x12\x14\n\x05\x64raft\x18\x07 \x01(\x08R\x05\x64raft\x12 \n\tmerged_at\x18\x08 \x01(\tH\x01R\x08mergedAt\x88\x01\x01\x42\x07\n\x05_bodyB\x0c\n\n_merged_atBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,10 +33,16 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'kei.connectors.github.v1.pu
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'ZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;github'
+  _globals['_GETPULLREQUESTREQUEST'].fields_by_name['owner']._loaded_options = None
+  _globals['_GETPULLREQUESTREQUEST'].fields_by_name['owner']._serialized_options = b'\242\202\031\002\010\001'
+  _globals['_GETPULLREQUESTREQUEST'].fields_by_name['repository']._loaded_options = None
+  _globals['_GETPULLREQUESTREQUEST'].fields_by_name['repository']._serialized_options = b'\242\202\031\002\010\001'
+  _globals['_GETPULLREQUESTREQUEST'].fields_by_name['pull_number']._loaded_options = None
+  _globals['_GETPULLREQUESTREQUEST'].fields_by_name['pull_number']._serialized_options = b'\242\202\031\002\010\001'
   _globals['_GETPULLREQUESTREQUEST']._loaded_options = None
-  _globals['_GETPULLREQUESTREQUEST']._serialized_options = b'\222\202\031`\n\020github.pulls.get\022\006github\030\001*\003GET2//repos/{owner}/{repository}/pulls/{pull_number}:\npulls:read@\001'
+  _globals['_GETPULLREQUESTREQUEST']._serialized_options = b'\222\202\031\320\001\n\020github.pulls.get\022\006github\030\001*\003GET2//repos/{owner}/{repository}/pulls/{pull_number}:\npulls:read@\001J\016GetPullRequestR\nuser_oauthR\003patZ\032repos/{owner}/{repository}b\005\010\221\003\020\002b\005\010\223\003\020\003b\005\010\224\003\020\001b\007\010\255\003\020\004\030\001\212\001\022\010\001\022\014pull_request\030\001'
   _globals['_GETPULLREQUESTREQUEST']._serialized_start=99
-  _globals['_GETPULLREQUESTREQUEST']._serialized_end=311
-  _globals['_GETPULLREQUESTRESPONSE']._serialized_start=314
-  _globals['_GETPULLREQUESTRESPONSE']._serialized_end=553
+  _globals['_GETPULLREQUESTREQUEST']._serialized_end=449
+  _globals['_GETPULLREQUESTRESPONSE']._serialized_start=452
+  _globals['_GETPULLREQUESTRESPONSE']._serialized_end=691
 # @@protoc_insertion_point(module_scope)

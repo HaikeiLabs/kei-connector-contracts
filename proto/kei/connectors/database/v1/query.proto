@@ -50,10 +50,12 @@ message RunQueryRequest {
     id: "database.query.run"
     connector: "database"
     class: OPERATION_CLASS_READ
-    http_method: "POST"
-    path_template: "/query"
     scopes: ["query:read"]
     credential_placement: CREDENTIAL_PLACEMENT_NONE
+    method_name: "RunQuery"
+    connections: ["dsn"]
+    resource_template: "query"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "query" version: 1}
   };
 }
 

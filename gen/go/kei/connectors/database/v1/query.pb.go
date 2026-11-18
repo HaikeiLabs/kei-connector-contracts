@@ -293,14 +293,14 @@ var File_kei_connectors_database_v1_query_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_database_v1_query_proto_rawDesc = "" +
 	"\n" +
-	"&kei/connectors/database/v1/query.proto\x12\x1akei.connectors.database.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1ekei/contracts/v1/options.proto\"\x81\x02\n" +
+	"&kei/connectors/database/v1/query.proto\x12\x1akei.connectors.database.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1ekei/contracts/v1/options.proto\"\x97\x02\n" +
 	"\x0fRunQueryRequest\x12=\n" +
 	"\adialect\x18\x01 \x01(\x0e2#.kei.connectors.database.v1.DialectR\adialect\x12\x10\n" +
 	"\x03sql\x18\x02 \x01(\tR\x03sql\x12.\n" +
 	"\x06params\x18\x03 \x03(\v2\x16.google.protobuf.ValueR\x06params\x12\x1e\n" +
-	"\bmax_rows\x18\x04 \x01(\x03H\x00R\amaxRows\x88\x01\x01:@\x92\x82\x19<\n" +
-	"\x12database.query.run\x12\bdatabase\x18\x01*\x04POST2\x06/query:\n" +
-	"query:read@\x05B\v\n" +
+	"\bmax_rows\x18\x04 \x01(\x03H\x00R\amaxRows\x88\x01\x01:V\x92\x82\x19R\n" +
+	"\x12database.query.run\x12\bdatabase\x18\x01:\n" +
+	"query:read@\x05J\bRunQueryR\x03dsnZ\x05query\x8a\x01\v\b\x01\x12\x05query\x18\x01B\v\n" +
 	"\t_max_rows\"0\n" +
 	"\x06Column\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +

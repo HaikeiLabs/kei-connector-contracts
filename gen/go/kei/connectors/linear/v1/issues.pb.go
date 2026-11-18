@@ -535,28 +535,46 @@ const file_kei_connectors_linear_v1_issues_proto_rawDesc = "" +
 	"created_at\x18\x06 \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
 	"updated_at\x18\a \x01(\tR\tupdatedAtB\x0e\n" +
-	"\f_description\"c\n" +
+	"\f_description\"\xad\x02\n" +
 	"\x0fGetIssueRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id:@\x92\x82\x19<\n" +
-	"\x11linear.issues.get\x12\x06linear\x18\x01*\x04POST2\b/graphql:\vissues:read@\x01\"I\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id:\x89\x02\x92\x82\x19\x84\x02\n" +
+	"\x11linear.issues.get\x12\x06linear\x18\x01*\x04POST2\b/graphql:\vissues:read@\x01J\bGetIssueR\n" +
+	"user_oauthR\aapi_keyZ\vissues/{id}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01znquery GetIssue($id: String!) {\n" +
+	"  issue(id: $id) { id identifier title description url createdAt updatedAt }\n" +
+	"}\n" +
+	"\x8a\x01\v\b\x01\x12\x05issue\x18\x01\"I\n" +
 	"\x10GetIssueResponse\x125\n" +
-	"\x05issue\x18\x01 \x01(\v2\x1f.kei.connectors.linear.v1.IssueR\x05issue\"\xee\x01\n" +
+	"\x05issue\x18\x01 \x01(\v2\x1f.kei.connectors.linear.v1.IssueR\x05issue\"\xf3\x04\n" +
 	"\x12CreateIssueRequest\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12\x17\n" +
 	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12%\n" +
 	"\vdescription\x18\x03 \x01(\tH\x00R\vdescription\x88\x01\x01\x12\x1f\n" +
-	"\bpriority\x18\x04 \x01(\x05H\x01R\bpriority\x88\x01\x01:D\x92\x82\x19@\n" +
-	"\x14linear.issues.create\x12\x06linear\x18\x02*\x04POST2\b/graphql:\fissues:write@\x01B\x0e\n" +
+	"\bpriority\x18\x04 \x01(\x05H\x01R\bpriority\x88\x01\x01:\xc8\x03\x92\x82\x19\xc3\x03\n" +
+	"\x14linear.issues.create\x12\x06linear\x18\x02*\x04POST2\b/graphql:\fissues:write@\x01J\vCreateIssueR\n" +
+	"user_oauthR\aapi_keyZ\x0fteams/{team_id}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01z\xa1\x02mutation CreateIssue($title: String!, $teamId: String!, $description: String, $priority: Int) {\n" +
+	"  issueCreate(input: {title: $title, teamId: $teamId, description: $description, priority: $priority}) {\n" +
+	"    success\n" +
+	"    issue { id identifier title description url createdAt updatedAt }\n" +
+	"  }\n" +
+	"}\n" +
+	"\x8a\x01\v\b\x02\x12\x05issue\x18\x01B\x0e\n" +
 	"\f_descriptionB\v\n" +
 	"\t_priority\"f\n" +
 	"\x13CreateIssueResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x125\n" +
-	"\x05issue\x18\x02 \x01(\v2\x1f.kei.connectors.linear.v1.IssueR\x05issue\"\xb8\x01\n" +
+	"\x05issue\x18\x02 \x01(\v2\x1f.kei.connectors.linear.v1.IssueR\x05issue\"\x85\x04\n" +
 	"\x13SearchIssuesRequest\x12\x12\n" +
 	"\x04term\x18\x01 \x01(\tR\x04term\x12\x19\n" +
 	"\x05first\x18\x02 \x01(\x05H\x00R\x05first\x88\x01\x01\x12\x19\n" +
-	"\x05after\x18\x03 \x01(\tH\x01R\x05after\x88\x01\x01:C\x92\x82\x19?\n" +
-	"\x14linear.issues.search\x12\x06linear\x18\x01*\x04POST2\b/graphql:\vissues:read@\x01B\b\n" +
+	"\x05after\x18\x03 \x01(\tH\x01R\x05after\x88\x01\x01:\x8f\x03\x92\x82\x19\x8a\x03\n" +
+	"\x14linear.issues.search\x12\x06linear\x18\x01*\x04POST2\b/graphql:\vissues:read@\x01J\fSearchIssuesR\n" +
+	"user_oauthR\aapi_keyZ\x06issuesb\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01z\xf1\x01query SearchIssues($term: String!, $first: Int, $after: String) {\n" +
+	"  searchIssues(term: $term, first: $first, after: $after) {\n" +
+	"    nodes { id identifier title description url createdAt updatedAt }\n" +
+	"    pageInfo { hasNextPage endCursor }\n" +
+	"  }\n" +
+	"}\n" +
+	"\x8a\x01\v\b\x01\x12\x05issue\x18\x01B\b\n" +
 	"\x06_firstB\b\n" +
 	"\x06_after\"a\n" +
 	"\bPageInfo\x12\"\n" +

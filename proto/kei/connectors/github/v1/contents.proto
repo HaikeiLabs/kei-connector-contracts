@@ -25,9 +25,10 @@ option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/co
 // the Contents API. content carries the base64-encoded file bytes; sha is set
 // only when replacing an existing file.
 message PutContentsRequest {
-  string owner = 1;
-  string repository = 2;
-  string path = 3;
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  // A file path such as docs/notes.md: its slashes are kept.
+  string path = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH multi_segment: true}];
   string message = 4;
   string content = 5;
   optional string branch = 6;
@@ -41,6 +42,18 @@ message PutContentsRequest {
     path_template: "/repos/{owner}/{repository}/contents/{path}"
     scopes: ["contents:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "PutContents"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "file" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true},
+      {status: 409 kind: ERROR_KIND_CONFLICT},
+      {status: 422 kind: ERROR_KIND_INVALID}
+    ]
   };
 }
 

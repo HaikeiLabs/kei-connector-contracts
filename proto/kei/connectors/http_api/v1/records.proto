@@ -28,7 +28,7 @@ option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/co
 
 // ListRecordsRequest lists the records of one collection.
 message ListRecordsRequest {
-  string collection = 1;
+  string collection = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
   optional int32 limit = 2;
   optional string cursor = 3;
 
@@ -40,6 +40,16 @@ message ListRecordsRequest {
     path_template: "/{collection}"
     scopes: ["records:read"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListRecords"
+    connections: ["api_key"]
+    resource_template: "collections/{collection}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "record" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
   };
 }
 
@@ -51,8 +61,8 @@ message ListRecordsResponse {
 
 // GetRecordRequest reads one record of a collection.
 message GetRecordRequest {
-  string collection = 1;
-  string record_id = 2;
+  string collection = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string record_id = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
 
   option (kei.contracts.v1.operation) = {
     id: "http_api.records.get"
@@ -62,6 +72,16 @@ message GetRecordRequest {
     path_template: "/{collection}/{record_id}"
     scopes: ["records:read"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetRecord"
+    connections: ["api_key"]
+    resource_template: "collections/{collection}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "record" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
   };
 }
 
