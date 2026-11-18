@@ -1,0 +1,15 @@
+{
+  "results": [
+    {
+      "tables": [
+        {
+          "rows": [
+            {"Date": "2026-01-01T00:00:00Z", "Region": "EMEA", "Sales Amount": 1234567.89},
+            {"Date": "2026-02-01T00:00:00Z", "Region": "AMER", "Sales Amount": 7654321.01}
+          ]
+        }
+      ]
+    }
+  ],
+  "staticResources": []
+}

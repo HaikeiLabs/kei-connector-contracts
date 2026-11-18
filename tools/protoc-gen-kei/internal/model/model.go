@@ -49,14 +49,23 @@ type Connector struct {
 	Ops []*Operation
 }
 
-// IsSQL reports whether every connection of the connector is a SQL DSN.
+// IsSQL reports whether every connection of the connector reaches a SQL
+// engine: a SQL DSN pool, or a key-pair JWT connection that names the SQL
+// engine it reaches (Snowflake, whose SQL API v2 runs statements over HTTP
+// but keeps the contract's SQL request and response shape).
 func (c *Connector) IsSQL() bool {
 	conns := c.Opt.GetConnections()
 	if len(conns) == 0 {
 		return false
 	}
 	for _, conn := range conns {
-		if conn.GetKind() != contracts.ConnectionKind_CONNECTION_KIND_SQL_DSN {
+		switch conn.GetKind() {
+		case contracts.ConnectionKind_CONNECTION_KIND_SQL_DSN:
+		case contracts.ConnectionKind_CONNECTION_KIND_KEY_PAIR_JWT:
+			if conn.GetEngine() == "" {
+				return false
+			}
+		default:
 			return false
 		}
 	}

@@ -41,6 +41,12 @@ plugins:
       - paths=source_relative
       - lang=ts
   - local: ["go", "-C", "tools/protoc-gen-kei", "run", "./cmd/protoc-gen-kei-ops"]
+    out: gen/rust/src
+    strategy: all
+    opt:
+      - paths=source_relative
+      - lang=rust
+  - local: ["go", "-C", "tools/protoc-gen-kei", "run", "./cmd/protoc-gen-kei-ops"]
     out: gen/python/src
     strategy: all
     opt:

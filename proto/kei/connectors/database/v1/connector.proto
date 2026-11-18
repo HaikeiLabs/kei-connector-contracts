@@ -24,14 +24,34 @@ option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/co
 
 // Generic database connector (one connector for every engine; the dialect
 // is a field of the query request). A DSN for a read-only role, configured
-// by an admin. The connection is a SQL pool, not HTTP.
+// by an admin. The connection is a SQL pool, not HTTP. Snowflake connects
+// with key-pair auth instead: a service principal whose private key signs a
+// JWT; the SQL API v2 returns every value as a string, so NUMBER(38) values
+// survive unmarshal without going through a float64.
 option (kei.contracts.v1.connector) = {
   id: "database"
-  connections: [{
-    name: "dsn"
-    kind: CONNECTION_KIND_SQL_DSN
-    auth_method: "secret_ref"
-    account_model: ACCOUNT_MODEL_SHARED
-    setup_fields: [{name: "dsn" type: "string" secret: true}]
-  }]
+  connections: [
+    {
+      name: "dsn"
+      kind: CONNECTION_KIND_SQL_DSN
+      auth_method: "secret_ref"
+      account_model: ACCOUNT_MODEL_SHARED
+      setup_fields: [{name: "dsn" type: "string" secret: true}]
+    },
+    {
+      name: "snowflake_key_pair"
+      kind: CONNECTION_KIND_KEY_PAIR_JWT
+      auth_method: "service_principal_key"
+      account_model: ACCOUNT_MODEL_SHARED
+      engine: "snowflake"
+      setup_fields: [
+        {name: "account" type: "string"},
+        {name: "user" type: "string"},
+        {name: "role" type: "string"},
+        {name: "warehouse" type: "string"},
+        {name: "database" type: "string"},
+        {name: "private_key_pem" type: "string" secret: true}
+      ]
+    }
+  ]
 };

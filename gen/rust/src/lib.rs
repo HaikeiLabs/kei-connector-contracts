@@ -15,8 +15,19 @@
 //! Kei connector operation contracts, generated from the protobuf sources in
 //! `proto/` via buf's prost and prost-serde plugins.
 //!
-//! The types are plain data: fill them by JSON unmarshal; nothing here
-//! executes connector calls.
+//! The types are plain data: fill them by JSON unmarshal. Generated
+//! connector operations run on the hand-written `connection` runtime, which
+//! takes its credentials as arguments and never fetches, stores or logs
+//! them; SQL connectors currently run through the caller's own transport.
+
+/// The hand-written runtime that generated connector operations run on:
+/// the authenticated connection type, the path renderer, canonical
+/// request/response JSON helpers and the error mapping. It takes
+/// credentials as arguments and never fetches, stores or logs them, and it
+/// reaches the network only through the `reqwest::Client` the caller passes
+/// in. SQL connectors have no driver dependency: they run through the
+/// caller's own transport until a Rust consumer needs one.
+pub mod connection;
 
 /// `kei.contracts.v1` — the operation contract options shared by connectors.
 pub mod kei {
@@ -36,6 +47,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/github/v1/kei.connectors.github.v1.rs");
+                /// Generated GitHub connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/github/v1/ops.rs");
+                }
             }
         }
         /// Linear connector contract.
@@ -44,6 +60,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/linear/v1/kei.connectors.linear.v1.rs");
+                /// Generated Linear connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/linear/v1/ops.rs");
+                }
             }
         }
         /// Generic HTTP API connector contract.
@@ -52,6 +73,27 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/http_api/v1/kei.connectors.http_api.v1.rs");
+                /// Generated HTTP API connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/http_api/v1/ops.rs");
+                }
+            }
+        }
+        /// Omni connector contract.
+        pub mod omni {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/omni/v1/kei.connectors.omni.v1.rs");
+            }
+        }
+        /// Power BI connector contract.
+        pub mod power_bi {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/power_bi/v1/kei.connectors.power_bi.v1.rs");
             }
         }
         /// Database connector contract.
@@ -60,6 +102,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/database/v1/kei.connectors.database.v1.rs");
+                /// Generated database connector operations, driven by the
+                /// caller's own SQL transport.
+                pub mod ops {
+                    include!("kei/connectors/database/v1/ops.rs");
+                }
             }
         }
         /// Gmail connector contract.
@@ -108,6 +155,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/notion/v1/kei.connectors.notion.v1.rs");
+                /// Generated Notion connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/notion/v1/ops.rs");
+                }
             }
         }
         /// Sentry connector contract.
@@ -116,6 +168,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/sentry/v1/kei.connectors.sentry.v1.rs");
+                /// Generated Sentry connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/sentry/v1/ops.rs");
+                }
             }
         }
         /// MCP connector contract: tool calls against remote MCP servers.
