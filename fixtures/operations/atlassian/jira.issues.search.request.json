@@ -1,0 +1,4 @@
+{
+  "jql": "project = SYN ORDER BY created DESC",
+  "max_results": 2
+}

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""HAI-990 gate: the 12 pilot operation fixtures unmarshal in Python.
+"""HAI-990 gate: the 16 pilot operation fixtures unmarshal in Python.
 
 Every registered pilot operation needs synthetic request and response
 fixtures under fixtures/operations/<connector>/, and both must parse into
@@ -26,6 +26,7 @@ from pathlib import Path
 import pytest
 from google.protobuf import json_format
 
+from kei.connectors.atlassian.v1 import confluence_pb2, jira_pb2
 from kei.connectors.database.v1 import query_pb2
 from kei.connectors.github.v1 import contents_pb2, issues_pb2, pulls_pb2
 from kei.connectors.http_api.v1 import records_pb2
@@ -87,6 +88,29 @@ def _spot_linear_comments_create(response):
     assert response.comment.body == "Synthetic comment"
 
 
+def _spot_atlassian_jira_issues_get(response):
+    assert response.key == "SYN-101"
+    assert response.fields.summary == "Synthetic Jira issue"
+    assert not response.fields.HasField("description")
+
+
+def _spot_atlassian_jira_issues_search(response):
+    assert len(response.issues) == 2
+    assert response.next_page_token == "synthetic-next-token"
+    assert not response.issues[1].fields.HasField("description")
+
+
+def _spot_atlassian_confluence_pages_get(response):
+    assert response.id == 78643201
+    assert response.title == "Synthetic Confluence page"
+    assert not response.HasField("parent_id")
+
+
+def _spot_atlassian_confluence_pages_list(response):
+    assert len(response.results) == 2
+    assert response.results[0].title == "Synthetic first page"
+
+
 def _spot_http_api_records_list(response):
     assert len(response.records) == 2
 
@@ -133,6 +157,10 @@ OPS = [
     ("linear.issues.search", "linear", linear_issues_pb2.SearchIssuesRequest, linear_issues_pb2.SearchIssuesResponse, _spot_linear_issues_search),
     ("linear.teams.get", "linear", teams_pb2.GetTeamRequest, teams_pb2.GetTeamResponse, _spot_linear_teams_get),
     ("linear.comments.create", "linear", comments_pb2.CreateCommentRequest, comments_pb2.CreateCommentResponse, _spot_linear_comments_create),
+    ("atlassian.jira.issues.get", "atlassian", jira_pb2.GetJiraIssueRequest, jira_pb2.GetJiraIssueResponse, _spot_atlassian_jira_issues_get),
+    ("atlassian.jira.issues.search", "atlassian", jira_pb2.SearchJiraIssuesRequest, jira_pb2.SearchJiraIssuesResponse, _spot_atlassian_jira_issues_search),
+    ("atlassian.confluence.pages.get", "atlassian", confluence_pb2.GetConfluencePageRequest, confluence_pb2.GetConfluencePageResponse, _spot_atlassian_confluence_pages_get),
+    ("atlassian.confluence.pages.list", "atlassian", confluence_pb2.ListConfluencePagesRequest, confluence_pb2.ListConfluencePagesResponse, _spot_atlassian_confluence_pages_list),
     ("http_api.records.list", "http_api", records_pb2.ListRecordsRequest, records_pb2.ListRecordsResponse, _spot_http_api_records_list),
     ("http_api.records.get", "http_api", records_pb2.GetRecordRequest, records_pb2.GetRecordResponse, _spot_http_api_records_get),
     ("database.query.run", "database", query_pb2.RunQueryRequest, query_pb2.RunQueryResponse, _spot_database_query_run),

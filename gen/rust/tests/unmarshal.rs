@@ -18,6 +18,10 @@
 //! are skipped). One spot assert per op proves a field survived with its
 //! synthetic value intact, and the >2^53 int64 id round-trips exactly.
 
+use haikeilabs_connector_contracts::kei::connectors::atlassian::v1::{
+    GetConfluencePageResponse, GetJiraIssueResponse, ListConfluencePagesResponse,
+    SearchJiraIssuesResponse,
+};
 use haikeilabs_connector_contracts::kei::connectors::database::v1::{
     RunQueryRequest, RunQueryResponse,
 };
@@ -115,6 +119,42 @@ fn fixtures_unmarshal() {
         resp.comment.as_ref().expect("comment present").body,
         "Synthetic comment"
     );
+
+    // atlassian.jira.issues.get — spot: issue key, the summary, and the null
+    // description.
+    let resp: GetJiraIssueResponse =
+        serde_json::from_str(&fixture("atlassian", "jira.issues.get.response.json"))
+            .expect("atlassian.jira.issues.get response unmarshals");
+    assert_eq!(resp.key, "SYN-101");
+    let fields = resp.fields.as_ref().expect("fields present");
+    assert_eq!(fields.summary, "Synthetic Jira issue");
+    assert!(fields.description.is_none(), "description must be null");
+
+    // atlassian.jira.issues.search — spot: two issues, the next cursor, and
+    // the null description on the second issue.
+    let resp: SearchJiraIssuesResponse =
+        serde_json::from_str(&fixture("atlassian", "jira.issues.search.response.json"))
+            .expect("atlassian.jira.issues.search response unmarshals");
+    assert_eq!(resp.issues.len(), 2);
+    assert_eq!(resp.next_page_token.as_deref(), Some("synthetic-next-token"));
+    let second = resp.issues[1].fields.as_ref().expect("fields present");
+    assert!(second.description.is_none(), "description must be null");
+
+    // atlassian.confluence.pages.get — spot: page id, the title, and the null
+    // parent_id of a root page.
+    let resp: GetConfluencePageResponse =
+        serde_json::from_str(&fixture("atlassian", "confluence.pages.get.response.json"))
+            .expect("atlassian.confluence.pages.get response unmarshals");
+    assert_eq!(resp.id, 78643201);
+    assert_eq!(resp.title, "Synthetic Confluence page");
+    assert!(resp.parent_id.is_none(), "parent_id must be null");
+
+    // atlassian.confluence.pages.list — spot: two page entries.
+    let resp: ListConfluencePagesResponse =
+        serde_json::from_str(&fixture("atlassian", "confluence.pages.list.response.json"))
+            .expect("atlassian.confluence.pages.list response unmarshals");
+    assert_eq!(resp.results.len(), 2);
+    assert_eq!(resp.results[0].title, "Synthetic first page");
 
     // http_api.records.list — spot: two Struct records.
     let resp: ListRecordsResponse =

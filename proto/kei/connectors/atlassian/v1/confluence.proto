@@ -1,0 +1,100 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Atlassian connector contract: Confluence page reads.
+syntax = "proto3";
+
+package kei.connectors.atlassian.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1;atlassian";
+
+// GetConfluencePageRequest reads a single page from a Confluence site.
+message GetConfluencePageRequest {
+  int64 page_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "atlassian.confluence.pages.get"
+    connector: "atlassian"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/wiki/api/v2/pages/{page_id}"
+    scopes: ["read:page:confluence"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetConfluencePage"
+    connections: ["user_oauth", "api_token"]
+    resource_template: "confluence/pages/{page_id}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "page" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// GetConfluencePageResponse models the subset of the Confluence page payload
+// the contract needs. parent_id is null on the wire for root pages. It is
+// filled by JSON unmarshal of the provider response.
+message GetConfluencePageResponse {
+  int64 id = 1;
+  string title = 2;
+  string space_id = 3;
+  optional string parent_id = 4;
+}
+
+// ListConfluencePagesRequest lists the pages of a Confluence space. The
+// contract models only the page size of the query parameters.
+message ListConfluencePagesRequest {
+  int64 space_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional int32 limit = 2;
+
+  option (kei.contracts.v1.operation) = {
+    id: "atlassian.confluence.pages.list"
+    connector: "atlassian"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/wiki/api/v2/spaces/{space_id}/pages"
+    scopes: ["read:page:confluence"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListConfluencePages"
+    connections: ["user_oauth", "api_token"]
+    resource_template: "confluence/pages"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "page" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// ConfluencePageSummary models the subset of each page entry a list response
+// carries.
+message ConfluencePageSummary {
+  int64 id = 1;
+  string title = 2;
+  string space_id = 3;
+}
+
+// ListConfluencePagesResponse wraps the page entries of a list response. The
+// results key matches the provider shape; pagination follows the Link header
+// like GitHub and is not modeled here. It is filled by JSON unmarshal of the
+// provider response.
+message ListConfluencePagesResponse {
+  repeated ConfluencePageSummary results = 1;
+}

@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 import { fromJson, type DescMessage, type JsonValue } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
 import { isInteger, parse } from "lossless-json";
+import * as atlassianJira from "../src/kei/connectors/atlassian/v1/jira_pb.js";
+import * as atlassianConfluence from "../src/kei/connectors/atlassian/v1/confluence_pb.js";
 import * as ghIssues from "../src/kei/connectors/github/v1/issues_pb.js";
 import * as ghContents from "../src/kei/connectors/github/v1/contents_pb.js";
 import * as ghPulls from "../src/kei/connectors/github/v1/pulls_pb.js";
@@ -32,6 +34,10 @@ function fixture(op: string, kind: string): JsonValue {
 // Each response includes an unknown field: lenient parsing accepts provider drift,
 // while strict parsing detects it. Requests are also checked for compatibility.
 const ops = [
+  ["atlassian.jira.issues.get", atlassianJira.GetJiraIssueRequestSchema, atlassianJira.GetJiraIssueResponseSchema, (r: any) => { expect(r.key).toBe("SYN-101"); expect(r.fields.summary).toBe("Synthetic Jira issue"); expect(r.fields.description).toBeUndefined(); }],
+  ["atlassian.jira.issues.search", atlassianJira.SearchJiraIssuesRequestSchema, atlassianJira.SearchJiraIssuesResponseSchema, (r: any) => { expect(r.issues).toHaveLength(2); expect(r.nextPageToken).toBe("synthetic-next-token"); expect(r.issues[1].fields.description).toBeUndefined(); }],
+  ["atlassian.confluence.pages.get", atlassianConfluence.GetConfluencePageRequestSchema, atlassianConfluence.GetConfluencePageResponseSchema, (r: any) => { expect(r.id).toBe(78643201n); expect(r.title).toBe("Synthetic Confluence page"); expect(r.parentId).toBeUndefined(); }],
+  ["atlassian.confluence.pages.list", atlassianConfluence.ListConfluencePagesRequestSchema, atlassianConfluence.ListConfluencePagesResponseSchema, (r: any) => { expect(r.results).toHaveLength(2); expect(r.results[0].title).toBe("Synthetic first page"); }],
   ["github.issues.get", ghIssues.GetIssueRequestSchema, ghIssues.GetIssueResponseSchema, (r: any) => { expect(r.id).toBe(9007199254740993n); expect(r.number).toBe(1347n); }],
   ["github.issues.list", ghIssues.ListIssuesRequestSchema, ghIssues.ListIssuesResponseSchema, (r: any) => expect(r.issues).toHaveLength(2)],
   ["github.contents.put", ghContents.PutContentsRequestSchema, ghContents.PutContentsResponseSchema, (r: any) => expect(r.content.name).toBe("notes.txt")],
