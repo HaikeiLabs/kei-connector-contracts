@@ -1,0 +1,5 @@
+{
+  "organization_slug": "acme-corp",
+  "query": "is:unresolved",
+  "per_page": 25
+}
