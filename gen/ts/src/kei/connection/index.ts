@@ -1,5 +1,10 @@
 import { fromJson, toJson, type DescField, type DescMessage, type JsonValue, type MessageShape } from '@bufbuild/protobuf';
 import { isInteger, LosslessNumber, parse, stringify } from 'lossless-json';
+// Node's request API accepts an escaped request target without URL normalization.
+// @ts-ignore Node types are not required by the public connector interfaces.
+import { request as httpRequest } from 'node:http';
+// @ts-ignore Node types are not required by the public connector interfaces.
+import { request as httpsRequest } from 'node:https';
 
 /** Render path variables without allowing a value to change path structure. */
 export function renderPath(template: string, values: Record<string, string>, multiSegment: string[] = []): string {
@@ -54,7 +59,7 @@ export interface HTTPResponse { status: number; headers: Headers; body: string }
 export interface HTTP { do(method: string, path: string, query: URLSearchParams, body?: string): Promise<HTTPResponse> }
 export interface SQL { query(sql: string, args: JsonValue[], maxRows: bigint): Promise<{ columns: { name: string; type: string }[]; rows: unknown[][]; truncated: boolean }> }
 
-export function newHTTP(baseURL: string, kind: 'bearer' | 'header' | 'basic', credential: string, client: typeof fetch = fetch, headerName = 'X-Api-Key'): HTTP {
+export function newHTTP(baseURL: string, kind: 'bearer' | 'header' | 'basic', credential: string, headerName = 'X-Api-Key'): HTTP {
   const base = new URL(baseURL);
   if (!['http:', 'https:'].includes(base.protocol) || base.username || base.password || base.search || base.hash) throw new Error('connection: invalid base URL');
   if (!credential || /[\r\n\0]/.test(credential)) throw new Error('connection: invalid credential');
@@ -66,13 +71,27 @@ export function newHTTP(baseURL: string, kind: 'bearer' | 'header' | 'basic', cr
     const headers = new Headers({ Accept: 'application/json' });
     headers.set(kind === 'header' ? headerName : 'Authorization', authorization);
     if (body !== undefined) headers.set('Content-Type', 'application/json');
-    const target = base.toString().replace(/\/$/, '') + path + (query.size ? `?${query}` : '');
-    try {
-      const response = await client(target, { method, headers, body, redirect: 'error' });
-      const text = await response.text();
-      if (new TextEncoder().encode(text).length > 32 * 1024 * 1024) throw new Error('too large');
-      return { status: response.status, headers: response.headers, body: text };
-    } catch { throw new Error('connection: transport failed'); }
+    const target = base.pathname.replace(/\/$/, '') + path + (query.size ? `?${query}` : '');
+    return new Promise<HTTPResponse>((resolve, reject) => {
+      const fail = () => reject(new Error('connection: transport failed'));
+      const request = (base.protocol === 'https:' ? httpsRequest : httpRequest)(
+        { protocol: base.protocol, hostname: base.hostname.replace(/^\[|\]$/g, ''), port: base.port || undefined, method, path: target, headers: Object.fromEntries(headers) },
+        (response: { statusCode?: number; headers: Record<string, string | string[] | undefined>; on(event: string, fn: (...args: any[]) => void): void; destroy(): void }) => {
+          const chunks: Uint8Array[] = []; let size = 0;
+          response.on('data', (chunk: Uint8Array) => { size += chunk.length; if (size > 32 * 1024 * 1024) { response.destroy(); fail(); } else chunks.push(chunk); });
+          response.on('error', fail);
+          response.on('end', () => {
+            const bytes = new Uint8Array(size); let offset = 0;
+            for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+            const responseHeaders = new Headers();
+            for (const [name, value] of Object.entries(response.headers)) for (const item of Array.isArray(value) ? value : value === undefined ? [] : [value]) responseHeaders.append(name, item);
+            resolve({ status: response.statusCode ?? 0, headers: responseHeaders, body: new TextDecoder().decode(bytes) });
+          });
+        },
+      );
+      request.on('error', fail);
+      request.end(body);
+    });
   } };
 }
 

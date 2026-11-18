@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { renderPath, mapError } from '../src/kei/connection/index.js';
+import { createServer } from 'node:http';
+import { once } from 'node:events';
+import { renderPath, mapError, newHTTP } from '../src/kei/connection/index.js';
 
 describe('renderPath', () => {
   it('escapes segments', () => {
@@ -13,6 +15,21 @@ describe('renderPath', () => {
       expect(() => renderPath('/{path}', { path }, ['path'])).toThrow();
     }
   });
+});
+
+it('sends an escaped dot-only segment unchanged on the wire', async () => {
+  const path = renderPath('/x/{a}', { a: '..' });
+  expect(path).toBe('/x/%2E%2E');
+  let received = '';
+  const server = createServer((req, res) => { received = req.url ?? ''; res.end('{}'); });
+  server.listen(0, '127.0.0.1');
+  await once(server, 'listening');
+  try {
+    const address = server.address();
+    if (!address || typeof address === 'string') throw new Error('missing address');
+    await newHTTP(`http://127.0.0.1:${address.port}`, 'bearer', 'synthetic-token').do('GET', path, new URLSearchParams());
+    expect(received).toBe('/x/%2E%2E');
+  } finally { server.close(); }
 });
 
 it('does not include credentials or response bodies in errors', () => {
