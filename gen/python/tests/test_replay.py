@@ -136,6 +136,33 @@ def test_get_issue_replay():
         server.close()
 
 
+def test_graphql_replay():
+    # GraphQL decoding unwraps data: its single key is either a response
+    # field (issue) or a root field wrapping the response (searchIssues).
+    import json
+
+    from kei.connectors.linear.v1 import issues_pb2 as linear_issues_pb2
+    from kei.connectors.linear.v1 import ops as linear_ops
+
+    cases = [
+        ("issues.get", None, lambda q: q.get_issue(linear_issues_pb2.GetIssueRequest(id="i-1")),
+         lambda r: r.issue.identifier == "ENG-101"),
+        ("issues.search", "searchIssues", lambda q: q.search_issues(linear_issues_pb2.SearchIssuesRequest(term="x")),
+         lambda r: len(r.nodes) > 0),
+    ]
+    for name, root, call, check in cases:
+        fixture = json.loads(read_fixture("linear", f"{name}.response.json"))
+        data = fixture if root is None else {root: fixture}
+        server = _Server(200, json.dumps({"data": data}).encode())
+        try:
+            conn = http_connection(server.base, "bearer", REPLAY_TOKEN, _Client())
+            resp = asyncio.run(call(linear_ops.LinearQueries(conn)))
+            assert server.rec["method"] == "POST" and server.rec["path"] == "/graphql"
+            assert check(resp), f"linear.{name}: {resp}"
+        finally:
+            server.close()
+
+
 def test_path_escaping():
     server = _Server(200, read_fixture("github", "issues.get.response.json"))
     try:

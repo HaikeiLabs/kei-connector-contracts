@@ -214,11 +214,17 @@ func TestManifest_LegacyRowsReferenceKnownOps(t *testing.T) {
 // so a dropped, widened or narrowed row shows up as a test diff.
 func TestLegacyRows_Expected(t *testing.T) {
 	want := map[string]string{
-		"github issue.read":     "github.issues.get github.issues.list",
-		"linear comment.create": "linear.comments.create",
-		"linear issue.create":   "linear.issues.create",
-		"linear issue.read":     "linear.issues.get linear.issues.search",
-		"linear team.read":      "linear.teams.get",
+		"github issue.read":          "github.issues.get github.issues.list",
+		"github issue.create":        "github.issues.create",
+		"github issue.comment":       "github.issues.comments.create",
+		"github pull_request.read":   "github.pulls.get github.pulls.list github.pulls.reviews.list",
+		"github pull_request.create": "github.pulls.create",
+		"github pull_request.update": "github.pulls.update",
+		"github workflow.read":       "github.actions.runs.list",
+		"linear comment.create":      "linear.comments.create",
+		"linear issue.create":        "linear.issues.create",
+		"linear issue.read":          "linear.issues.get linear.issues.search",
+		"linear team.read":           "linear.teams.get",
 	}
 	m, err := manifest.Build(loadSet(t), testVersion, loadLegacy(t))
 	if err != nil {

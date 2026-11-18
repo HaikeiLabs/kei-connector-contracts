@@ -319,6 +319,28 @@
       ],
       "capabilities": [
         {
+          "id": "github.actions.runs.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "actions:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "workflow_run",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.ListWorkflowRunsRequest",
+          "response": "kei.connectors.github.v1.ListWorkflowRunsResponse"
+        },
+        {
           "id": "github.contents.put",
           "class": "write",
           "destructive": false,
@@ -339,6 +361,182 @@
           },
           "request": "kei.connectors.github.v1.PutContentsRequest",
           "response": "kei.connectors.github.v1.PutContentsResponse"
+        },
+        {
+          "id": "github.git.blobs.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "contents:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "git_blob",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.CreateBlobRequest",
+          "response": "kei.connectors.github.v1.CreateBlobResponse"
+        },
+        {
+          "id": "github.git.commits.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "contents:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "git_commit",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.CreateCommitRequest",
+          "response": "kei.connectors.github.v1.CreateCommitResponse"
+        },
+        {
+          "id": "github.git.refs.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "contents:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "git_ref",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.CreateRefRequest",
+          "response": "kei.connectors.github.v1.CreateRefResponse"
+        },
+        {
+          "id": "github.git.refs.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "contents:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "git_ref",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.GetRefRequest",
+          "response": "kei.connectors.github.v1.GetRefResponse"
+        },
+        {
+          "id": "github.git.refs.update",
+          "class": "write",
+          "destructive": true,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "contents:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "git_ref",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.UpdateRefRequest",
+          "response": "kei.connectors.github.v1.UpdateRefResponse"
+        },
+        {
+          "id": "github.git.trees.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "contents:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "git_tree",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.CreateTreeRequest",
+          "response": "kei.connectors.github.v1.CreateTreeResponse"
+        },
+        {
+          "id": "github.issues.comments.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issues:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "issue_comment",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.CreateIssueCommentRequest",
+          "response": "kei.connectors.github.v1.CreateIssueCommentResponse"
+        },
+        {
+          "id": "github.issues.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issues:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.CreateIssueRequest",
+          "response": "kei.connectors.github.v1.CreateIssueResponse"
         },
         {
           "id": "github.issues.get",
@@ -385,6 +583,28 @@
           "response": "kei.connectors.github.v1.ListIssuesResponse"
         },
         {
+          "id": "github.pulls.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pulls:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "pull_request",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.CreatePullRequestRequest",
+          "response": "kei.connectors.github.v1.CreatePullRequestResponse"
+        },
+        {
           "id": "github.pulls.get",
           "class": "read",
           "destructive": false,
@@ -405,6 +625,94 @@
           },
           "request": "kei.connectors.github.v1.GetPullRequestRequest",
           "response": "kei.connectors.github.v1.GetPullRequestResponse"
+        },
+        {
+          "id": "github.pulls.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pulls:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "pull_request",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.ListPullsRequest",
+          "response": "kei.connectors.github.v1.ListPullsResponse"
+        },
+        {
+          "id": "github.pulls.reviews.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pulls:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "pull_request_review",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.CreatePullReviewRequest",
+          "response": "kei.connectors.github.v1.CreatePullReviewResponse"
+        },
+        {
+          "id": "github.pulls.reviews.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pulls:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "pull_request_review",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.ListPullReviewsRequest",
+          "response": "kei.connectors.github.v1.ListPullReviewsResponse"
+        },
+        {
+          "id": "github.pulls.update",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pulls:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "pull_request",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.UpdatePullRequestRequest",
+          "response": "kei.connectors.github.v1.UpdatePullRequestResponse"
         }
       ]
     },
@@ -1233,10 +1541,54 @@
   "legacy_capabilities": [
     {
       "connector": "github",
+      "capability": "issue.comment",
+      "operations": [
+        "github.issues.comments.create"
+      ]
+    },
+    {
+      "connector": "github",
+      "capability": "issue.create",
+      "operations": [
+        "github.issues.create"
+      ]
+    },
+    {
+      "connector": "github",
       "capability": "issue.read",
       "operations": [
         "github.issues.get",
         "github.issues.list"
+      ]
+    },
+    {
+      "connector": "github",
+      "capability": "pull_request.create",
+      "operations": [
+        "github.pulls.create"
+      ]
+    },
+    {
+      "connector": "github",
+      "capability": "pull_request.read",
+      "operations": [
+        "github.pulls.get",
+        "github.pulls.list",
+        "github.pulls.reviews.list"
+      ]
+    },
+    {
+      "connector": "github",
+      "capability": "pull_request.update",
+      "operations": [
+        "github.pulls.update"
+      ]
+    },
+    {
+      "connector": "github",
+      "capability": "workflow.read",
+      "operations": [
+        "github.actions.runs.list"
       ]
     },
     {

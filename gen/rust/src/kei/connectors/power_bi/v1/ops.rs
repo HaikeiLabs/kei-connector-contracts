@@ -102,9 +102,7 @@ impl PowerBiOperations for PowerBiQueries {
         )
         .map_err(|e| OperationError::wrap(OP_EXECUTE_QUERIES.id, format!("render path: {e}")))?;
         let mut body = serde_json::Map::new();
-        let mut queries_json = Vec::with_capacity(req.queries.len());
-        for v in &req.queries { queries_json.push(serde_json::to_value(v).map_err(|e| OperationError::wrap(OP_EXECUTE_QUERIES.id, e.to_string()))?); }
-        body.insert("queries".to_string(), serde_json::Value::Array(queries_json));
+        if !req.queries.is_empty() { body.insert("queries".to_string(), serde_json::Value::Array(req.queries.iter().map(|v0| { let mut o1 = serde_json::Map::new(); if !v0.query.is_empty() { o1.insert("query".to_string(), serde_json::Value::String((&v0.query).clone())); } serde_json::Value::Object(o1) }).collect())); }
         let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_EXECUTE_QUERIES.id, e.to_string()))?;
         let out = self
             .conn

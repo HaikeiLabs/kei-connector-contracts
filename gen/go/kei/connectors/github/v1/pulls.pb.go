@@ -111,6 +111,10 @@ type GetPullRequestResponse struct {
 	HtmlUrl       string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
 	Draft         bool                   `protobuf:"varint,7,opt,name=draft,proto3" json:"draft,omitempty"`
 	MergedAt      *string                `protobuf:"bytes,8,opt,name=merged_at,json=mergedAt,proto3,oneof" json:"merged_at,omitempty"`
+	Head          *PullRef               `protobuf:"bytes,9,opt,name=head,proto3" json:"head,omitempty"`
+	Base          *PullRef               `protobuf:"bytes,10,opt,name=base,proto3" json:"base,omitempty"`
+	Author        *User                  `protobuf:"bytes,11,opt,name=author,json=user,proto3" json:"author,omitempty"`
+	Labels        []*Label               `protobuf:"bytes,12,rep,name=labels,proto3" json:"labels,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -201,6 +205,1267 @@ func (x *GetPullRequestResponse) GetMergedAt() string {
 	return ""
 }
 
+func (x *GetPullRequestResponse) GetHead() *PullRef {
+	if x != nil {
+		return x.Head
+	}
+	return nil
+}
+
+func (x *GetPullRequestResponse) GetBase() *PullRef {
+	if x != nil {
+		return x.Base
+	}
+	return nil
+}
+
+func (x *GetPullRequestResponse) GetAuthor() *User {
+	if x != nil {
+		return x.Author
+	}
+	return nil
+}
+
+func (x *GetPullRequestResponse) GetLabels() []*Label {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+// PullRef models the branch side of a pull request.
+type PullRef struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Ref           string                 `protobuf:"bytes,1,opt,name=ref,proto3" json:"ref,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PullRef) Reset() {
+	*x = PullRef{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PullRef) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PullRef) ProtoMessage() {}
+
+func (x *PullRef) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PullRef.ProtoReflect.Descriptor instead.
+func (*PullRef) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *PullRef) GetRef() string {
+	if x != nil {
+		return x.Ref
+	}
+	return ""
+}
+
+// User models the GitHub account that authored an issue or pull request.
+type User struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Login         string                 `protobuf:"bytes,2,opt,name=login,proto3" json:"login,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *User) Reset() {
+	*x = User{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *User) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*User) ProtoMessage() {}
+
+func (x *User) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use User.ProtoReflect.Descriptor instead.
+func (*User) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *User) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *User) GetLogin() string {
+	if x != nil {
+		return x.Login
+	}
+	return ""
+}
+
+// Label models a repository label attached to an issue or pull request.
+type Label struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Label) Reset() {
+	*x = Label{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Label) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Label) ProtoMessage() {}
+
+func (x *Label) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Label.ProtoReflect.Descriptor instead.
+func (*Label) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Label) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Label) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+// ListPullsRequest lists the pull requests of a GitHub repository. The
+// contract models the page size and page number of the query parameters.
+type ListPullsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Owner         string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	PerPage       *int32                 `protobuf:"varint,3,opt,name=per_page,json=perPage,proto3,oneof" json:"per_page,omitempty"`
+	Page          *int32                 `protobuf:"varint,4,opt,name=page,proto3,oneof" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPullsRequest) Reset() {
+	*x = ListPullsRequest{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPullsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPullsRequest) ProtoMessage() {}
+
+func (x *ListPullsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPullsRequest.ProtoReflect.Descriptor instead.
+func (*ListPullsRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *ListPullsRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *ListPullsRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *ListPullsRequest) GetPerPage() int32 {
+	if x != nil && x.PerPage != nil {
+		return *x.PerPage
+	}
+	return 0
+}
+
+func (x *ListPullsRequest) GetPage() int32 {
+	if x != nil && x.Page != nil {
+		return *x.Page
+	}
+	return 0
+}
+
+// PullRequestSummary models the subset of each pull request entry a list
+// response carries. It is filled by JSON unmarshal of the provider response.
+type PullRequestSummary struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Number        int64                  `protobuf:"varint,2,opt,name=number,proto3" json:"number,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	State         string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	Body          *string                `protobuf:"bytes,5,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	HtmlUrl       string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	Draft         bool                   `protobuf:"varint,7,opt,name=draft,proto3" json:"draft,omitempty"`
+	Head          *PullRef               `protobuf:"bytes,8,opt,name=head,proto3" json:"head,omitempty"`
+	Base          *PullRef               `protobuf:"bytes,9,opt,name=base,proto3" json:"base,omitempty"`
+	Author        *User                  `protobuf:"bytes,10,opt,name=author,json=user,proto3" json:"author,omitempty"`
+	Labels        []*Label               `protobuf:"bytes,11,rep,name=labels,proto3" json:"labels,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PullRequestSummary) Reset() {
+	*x = PullRequestSummary{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PullRequestSummary) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PullRequestSummary) ProtoMessage() {}
+
+func (x *PullRequestSummary) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PullRequestSummary.ProtoReflect.Descriptor instead.
+func (*PullRequestSummary) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *PullRequestSummary) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *PullRequestSummary) GetNumber() int64 {
+	if x != nil {
+		return x.Number
+	}
+	return 0
+}
+
+func (x *PullRequestSummary) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *PullRequestSummary) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *PullRequestSummary) GetBody() string {
+	if x != nil && x.Body != nil {
+		return *x.Body
+	}
+	return ""
+}
+
+func (x *PullRequestSummary) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+func (x *PullRequestSummary) GetDraft() bool {
+	if x != nil {
+		return x.Draft
+	}
+	return false
+}
+
+func (x *PullRequestSummary) GetHead() *PullRef {
+	if x != nil {
+		return x.Head
+	}
+	return nil
+}
+
+func (x *PullRequestSummary) GetBase() *PullRef {
+	if x != nil {
+		return x.Base
+	}
+	return nil
+}
+
+func (x *PullRequestSummary) GetAuthor() *User {
+	if x != nil {
+		return x.Author
+	}
+	return nil
+}
+
+func (x *PullRequestSummary) GetLabels() []*Label {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+// ListPullsResponse wraps the pull request entries of a list response. GitHub
+// returns a bare JSON array here; the contract envelopes it under pulls so
+// the response stays a protojson object and envelope keys stay
+// drift-checkable. next_page carries the next page number from the Link
+// header. It is filled by JSON unmarshal of the provider response.
+type ListPullsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Pulls         []*PullRequestSummary  `protobuf:"bytes,1,rep,name=pulls,proto3" json:"pulls,omitempty"`
+	NextPage      *int64                 `protobuf:"varint,2,opt,name=next_page,json=nextPage,proto3,oneof" json:"next_page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPullsResponse) Reset() {
+	*x = ListPullsResponse{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPullsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPullsResponse) ProtoMessage() {}
+
+func (x *ListPullsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPullsResponse.ProtoReflect.Descriptor instead.
+func (*ListPullsResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ListPullsResponse) GetPulls() []*PullRequestSummary {
+	if x != nil {
+		return x.Pulls
+	}
+	return nil
+}
+
+func (x *ListPullsResponse) GetNextPage() int64 {
+	if x != nil && x.NextPage != nil {
+		return *x.NextPage
+	}
+	return 0
+}
+
+// CreatePullRequestRequest opens a pull request in a GitHub repository. head
+// and base name the branches; the title is the provider's only required
+// field.
+type CreatePullRequestRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Owner         string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	Head          string                 `protobuf:"bytes,4,opt,name=head,proto3" json:"head,omitempty"`
+	Base          string                 `protobuf:"bytes,5,opt,name=base,proto3" json:"base,omitempty"`
+	Body          *string                `protobuf:"bytes,6,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	Draft         *bool                  `protobuf:"varint,7,opt,name=draft,proto3,oneof" json:"draft,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreatePullRequestRequest) Reset() {
+	*x = CreatePullRequestRequest{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreatePullRequestRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreatePullRequestRequest) ProtoMessage() {}
+
+func (x *CreatePullRequestRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreatePullRequestRequest.ProtoReflect.Descriptor instead.
+func (*CreatePullRequestRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *CreatePullRequestRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *CreatePullRequestRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *CreatePullRequestRequest) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *CreatePullRequestRequest) GetHead() string {
+	if x != nil {
+		return x.Head
+	}
+	return ""
+}
+
+func (x *CreatePullRequestRequest) GetBase() string {
+	if x != nil {
+		return x.Base
+	}
+	return ""
+}
+
+func (x *CreatePullRequestRequest) GetBody() string {
+	if x != nil && x.Body != nil {
+		return *x.Body
+	}
+	return ""
+}
+
+func (x *CreatePullRequestRequest) GetDraft() bool {
+	if x != nil && x.Draft != nil {
+		return *x.Draft
+	}
+	return false
+}
+
+// CreatePullRequestResponse models the opened pull request. It is filled by
+// JSON unmarshal of the provider response.
+type CreatePullRequestResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Number        int64                  `protobuf:"varint,2,opt,name=number,proto3" json:"number,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	State         string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	HtmlUrl       string                 `protobuf:"bytes,5,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	Draft         bool                   `protobuf:"varint,6,opt,name=draft,proto3" json:"draft,omitempty"`
+	Head          *PullRef               `protobuf:"bytes,7,opt,name=head,proto3" json:"head,omitempty"`
+	Base          *PullRef               `protobuf:"bytes,8,opt,name=base,proto3" json:"base,omitempty"`
+	Author        *User                  `protobuf:"bytes,9,opt,name=author,json=user,proto3" json:"author,omitempty"`
+	Labels        []*Label               `protobuf:"bytes,10,rep,name=labels,proto3" json:"labels,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreatePullRequestResponse) Reset() {
+	*x = CreatePullRequestResponse{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreatePullRequestResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreatePullRequestResponse) ProtoMessage() {}
+
+func (x *CreatePullRequestResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreatePullRequestResponse.ProtoReflect.Descriptor instead.
+func (*CreatePullRequestResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CreatePullRequestResponse) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *CreatePullRequestResponse) GetNumber() int64 {
+	if x != nil {
+		return x.Number
+	}
+	return 0
+}
+
+func (x *CreatePullRequestResponse) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *CreatePullRequestResponse) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *CreatePullRequestResponse) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+func (x *CreatePullRequestResponse) GetDraft() bool {
+	if x != nil {
+		return x.Draft
+	}
+	return false
+}
+
+func (x *CreatePullRequestResponse) GetHead() *PullRef {
+	if x != nil {
+		return x.Head
+	}
+	return nil
+}
+
+func (x *CreatePullRequestResponse) GetBase() *PullRef {
+	if x != nil {
+		return x.Base
+	}
+	return nil
+}
+
+func (x *CreatePullRequestResponse) GetAuthor() *User {
+	if x != nil {
+		return x.Author
+	}
+	return nil
+}
+
+func (x *CreatePullRequestResponse) GetLabels() []*Label {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+// UpdatePullRequestRequest edits an open pull request. Every field is
+// optional: the provider applies a partial update. The provider answers a
+// PATCH with the full pull payload, so the operation reuses the read
+// response message.
+type UpdatePullRequestRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Owner         string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	PullNumber    int64                  `protobuf:"varint,3,opt,name=pull_number,json=pullNumber,proto3" json:"pull_number,omitempty"`
+	Title         *string                `protobuf:"bytes,4,opt,name=title,proto3,oneof" json:"title,omitempty"`
+	Body          *string                `protobuf:"bytes,5,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	State         *string                `protobuf:"bytes,6,opt,name=state,proto3,oneof" json:"state,omitempty"`
+	Base          *string                `protobuf:"bytes,7,opt,name=base,proto3,oneof" json:"base,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdatePullRequestRequest) Reset() {
+	*x = UpdatePullRequestRequest{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdatePullRequestRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePullRequestRequest) ProtoMessage() {}
+
+func (x *UpdatePullRequestRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePullRequestRequest.ProtoReflect.Descriptor instead.
+func (*UpdatePullRequestRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *UpdatePullRequestRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *UpdatePullRequestRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *UpdatePullRequestRequest) GetPullNumber() int64 {
+	if x != nil {
+		return x.PullNumber
+	}
+	return 0
+}
+
+func (x *UpdatePullRequestRequest) GetTitle() string {
+	if x != nil && x.Title != nil {
+		return *x.Title
+	}
+	return ""
+}
+
+func (x *UpdatePullRequestRequest) GetBody() string {
+	if x != nil && x.Body != nil {
+		return *x.Body
+	}
+	return ""
+}
+
+func (x *UpdatePullRequestRequest) GetState() string {
+	if x != nil && x.State != nil {
+		return *x.State
+	}
+	return ""
+}
+
+func (x *UpdatePullRequestRequest) GetBase() string {
+	if x != nil && x.Base != nil {
+		return *x.Base
+	}
+	return ""
+}
+
+// UpdatePullRequestResponse models the updated pull request: the provider
+// answers a PATCH with the full payload. It is filled by JSON unmarshal of
+// the provider response.
+type UpdatePullRequestResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Number        int64                  `protobuf:"varint,2,opt,name=number,proto3" json:"number,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	State         string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	Body          *string                `protobuf:"bytes,5,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	HtmlUrl       string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	Draft         bool                   `protobuf:"varint,7,opt,name=draft,proto3" json:"draft,omitempty"`
+	MergedAt      *string                `protobuf:"bytes,8,opt,name=merged_at,json=mergedAt,proto3,oneof" json:"merged_at,omitempty"`
+	Head          *PullRef               `protobuf:"bytes,9,opt,name=head,proto3" json:"head,omitempty"`
+	Base          *PullRef               `protobuf:"bytes,10,opt,name=base,proto3" json:"base,omitempty"`
+	Author        *User                  `protobuf:"bytes,11,opt,name=author,json=user,proto3" json:"author,omitempty"`
+	Labels        []*Label               `protobuf:"bytes,12,rep,name=labels,proto3" json:"labels,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdatePullRequestResponse) Reset() {
+	*x = UpdatePullRequestResponse{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdatePullRequestResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePullRequestResponse) ProtoMessage() {}
+
+func (x *UpdatePullRequestResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePullRequestResponse.ProtoReflect.Descriptor instead.
+func (*UpdatePullRequestResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *UpdatePullRequestResponse) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *UpdatePullRequestResponse) GetNumber() int64 {
+	if x != nil {
+		return x.Number
+	}
+	return 0
+}
+
+func (x *UpdatePullRequestResponse) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *UpdatePullRequestResponse) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *UpdatePullRequestResponse) GetBody() string {
+	if x != nil && x.Body != nil {
+		return *x.Body
+	}
+	return ""
+}
+
+func (x *UpdatePullRequestResponse) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+func (x *UpdatePullRequestResponse) GetDraft() bool {
+	if x != nil {
+		return x.Draft
+	}
+	return false
+}
+
+func (x *UpdatePullRequestResponse) GetMergedAt() string {
+	if x != nil && x.MergedAt != nil {
+		return *x.MergedAt
+	}
+	return ""
+}
+
+func (x *UpdatePullRequestResponse) GetHead() *PullRef {
+	if x != nil {
+		return x.Head
+	}
+	return nil
+}
+
+func (x *UpdatePullRequestResponse) GetBase() *PullRef {
+	if x != nil {
+		return x.Base
+	}
+	return nil
+}
+
+func (x *UpdatePullRequestResponse) GetAuthor() *User {
+	if x != nil {
+		return x.Author
+	}
+	return nil
+}
+
+func (x *UpdatePullRequestResponse) GetLabels() []*Label {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+// ListPullReviewsRequest lists the reviews of a pull request. The contract
+// models the page size and page number of the query parameters.
+type ListPullReviewsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Owner         string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	PullNumber    int64                  `protobuf:"varint,3,opt,name=pull_number,json=pullNumber,proto3" json:"pull_number,omitempty"`
+	PerPage       *int32                 `protobuf:"varint,4,opt,name=per_page,json=perPage,proto3,oneof" json:"per_page,omitempty"`
+	Page          *int32                 `protobuf:"varint,5,opt,name=page,proto3,oneof" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPullReviewsRequest) Reset() {
+	*x = ListPullReviewsRequest{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPullReviewsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPullReviewsRequest) ProtoMessage() {}
+
+func (x *ListPullReviewsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPullReviewsRequest.ProtoReflect.Descriptor instead.
+func (*ListPullReviewsRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ListPullReviewsRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *ListPullReviewsRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *ListPullReviewsRequest) GetPullNumber() int64 {
+	if x != nil {
+		return x.PullNumber
+	}
+	return 0
+}
+
+func (x *ListPullReviewsRequest) GetPerPage() int32 {
+	if x != nil && x.PerPage != nil {
+		return *x.PerPage
+	}
+	return 0
+}
+
+func (x *ListPullReviewsRequest) GetPage() int32 {
+	if x != nil && x.Page != nil {
+		return *x.Page
+	}
+	return 0
+}
+
+// ReviewSummary models the subset of each review entry a list response
+// carries. It is filled by JSON unmarshal of the provider response.
+type ReviewSummary struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	State         string                 `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	Body          *string                `protobuf:"bytes,3,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	HtmlUrl       string                 `protobuf:"bytes,4,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	SubmittedAt   *string                `protobuf:"bytes,5,opt,name=submitted_at,json=submittedAt,proto3,oneof" json:"submitted_at,omitempty"`
+	Author        *User                  `protobuf:"bytes,6,opt,name=author,json=user,proto3" json:"author,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReviewSummary) Reset() {
+	*x = ReviewSummary{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReviewSummary) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReviewSummary) ProtoMessage() {}
+
+func (x *ReviewSummary) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReviewSummary.ProtoReflect.Descriptor instead.
+func (*ReviewSummary) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ReviewSummary) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *ReviewSummary) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *ReviewSummary) GetBody() string {
+	if x != nil && x.Body != nil {
+		return *x.Body
+	}
+	return ""
+}
+
+func (x *ReviewSummary) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+func (x *ReviewSummary) GetSubmittedAt() string {
+	if x != nil && x.SubmittedAt != nil {
+		return *x.SubmittedAt
+	}
+	return ""
+}
+
+func (x *ReviewSummary) GetAuthor() *User {
+	if x != nil {
+		return x.Author
+	}
+	return nil
+}
+
+// ListPullReviewsResponse wraps the review entries of a list response. GitHub
+// returns a bare JSON array here; the contract envelopes it under reviews so
+// the response stays a protojson object and envelope keys stay
+// drift-checkable. next_page carries the next page number from the Link
+// header. It is filled by JSON unmarshal of the provider response.
+type ListPullReviewsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Reviews       []*ReviewSummary       `protobuf:"bytes,1,rep,name=reviews,proto3" json:"reviews,omitempty"`
+	NextPage      *int64                 `protobuf:"varint,2,opt,name=next_page,json=nextPage,proto3,oneof" json:"next_page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListPullReviewsResponse) Reset() {
+	*x = ListPullReviewsResponse{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListPullReviewsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListPullReviewsResponse) ProtoMessage() {}
+
+func (x *ListPullReviewsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListPullReviewsResponse.ProtoReflect.Descriptor instead.
+func (*ListPullReviewsResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ListPullReviewsResponse) GetReviews() []*ReviewSummary {
+	if x != nil {
+		return x.Reviews
+	}
+	return nil
+}
+
+func (x *ListPullReviewsResponse) GetNextPage() int64 {
+	if x != nil && x.NextPage != nil {
+		return *x.NextPage
+	}
+	return 0
+}
+
+// CreatePullReviewRequest submits a review on a pull request. The provider
+// requires either an event verdict or a pending body.
+type CreatePullReviewRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Owner         string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	PullNumber    int64                  `protobuf:"varint,3,opt,name=pull_number,json=pullNumber,proto3" json:"pull_number,omitempty"`
+	Body          *string                `protobuf:"bytes,4,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	Event         *string                `protobuf:"bytes,5,opt,name=event,proto3,oneof" json:"event,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreatePullReviewRequest) Reset() {
+	*x = CreatePullReviewRequest{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreatePullReviewRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreatePullReviewRequest) ProtoMessage() {}
+
+func (x *CreatePullReviewRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreatePullReviewRequest.ProtoReflect.Descriptor instead.
+func (*CreatePullReviewRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *CreatePullReviewRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *CreatePullReviewRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *CreatePullReviewRequest) GetPullNumber() int64 {
+	if x != nil {
+		return x.PullNumber
+	}
+	return 0
+}
+
+func (x *CreatePullReviewRequest) GetBody() string {
+	if x != nil && x.Body != nil {
+		return *x.Body
+	}
+	return ""
+}
+
+func (x *CreatePullReviewRequest) GetEvent() string {
+	if x != nil && x.Event != nil {
+		return *x.Event
+	}
+	return ""
+}
+
+// CreatePullReviewResponse models the submitted review. It is filled by JSON
+// unmarshal of the provider response.
+type CreatePullReviewResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	State         string                 `protobuf:"bytes,2,opt,name=state,proto3" json:"state,omitempty"`
+	Body          *string                `protobuf:"bytes,3,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	HtmlUrl       string                 `protobuf:"bytes,4,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	SubmittedAt   *string                `protobuf:"bytes,5,opt,name=submitted_at,json=submittedAt,proto3,oneof" json:"submitted_at,omitempty"`
+	Author        *User                  `protobuf:"bytes,6,opt,name=author,json=user,proto3" json:"author,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreatePullReviewResponse) Reset() {
+	*x = CreatePullReviewResponse{}
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreatePullReviewResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreatePullReviewResponse) ProtoMessage() {}
+
+func (x *CreatePullReviewResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_pulls_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreatePullReviewResponse.ProtoReflect.Descriptor instead.
+func (*CreatePullReviewResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_pulls_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *CreatePullReviewResponse) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *CreatePullReviewResponse) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *CreatePullReviewResponse) GetBody() string {
+	if x != nil && x.Body != nil {
+		return *x.Body
+	}
+	return ""
+}
+
+func (x *CreatePullReviewResponse) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+func (x *CreatePullReviewResponse) GetSubmittedAt() string {
+	if x != nil && x.SubmittedAt != nil {
+		return *x.SubmittedAt
+	}
+	return ""
+}
+
+func (x *CreatePullReviewResponse) GetAuthor() *User {
+	if x != nil {
+		return x.Author
+	}
+	return nil
+}
+
 var File_kei_connectors_github_v1_pulls_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_github_v1_pulls_proto_rawDesc = "" +
@@ -215,7 +1480,7 @@ const file_kei_connectors_github_v1_pulls_proto_rawDesc = "" +
 	"pullNumber:\xd5\x01\x92\x82\x19\xd0\x01\n" +
 	"\x10github.pulls.get\x12\x06github\x18\x01*\x03GET2//repos/{owner}/{repository}/pulls/{pull_number}:\n" +
 	"pulls:read@\x01J\x0eGetPullRequestR\n" +
-	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x12\b\x01\x12\fpull_request\x18\x01\"\xef\x01\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x12\b\x01\x12\fpull_request\x18\x01\"\xcc\x03\n" +
 	"\x16GetPullRequestResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
@@ -224,10 +1489,164 @@ const file_kei_connectors_github_v1_pulls_proto_rawDesc = "" +
 	"\x04body\x18\x05 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x19\n" +
 	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrl\x12\x14\n" +
 	"\x05draft\x18\a \x01(\bR\x05draft\x12 \n" +
-	"\tmerged_at\x18\b \x01(\tH\x01R\bmergedAt\x88\x01\x01B\a\n" +
+	"\tmerged_at\x18\b \x01(\tH\x01R\bmergedAt\x88\x01\x01\x125\n" +
+	"\x04head\x18\t \x01(\v2!.kei.connectors.github.v1.PullRefR\x04head\x125\n" +
+	"\x04base\x18\n" +
+	" \x01(\v2!.kei.connectors.github.v1.PullRefR\x04base\x124\n" +
+	"\x06author\x18\v \x01(\v2\x1e.kei.connectors.github.v1.UserR\x04user\x127\n" +
+	"\x06labels\x18\f \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labelsB\a\n" +
 	"\x05_bodyB\f\n" +
 	"\n" +
-	"_merged_atBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3"
+	"_merged_at\"\x1b\n" +
+	"\aPullRef\x12\x10\n" +
+	"\x03ref\x18\x01 \x01(\tR\x03ref\",\n" +
+	"\x04User\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
+	"\x05login\x18\x02 \x01(\tR\x05login\"+\n" +
+	"\x05Label\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\x80\x03\n" +
+	"\x10ListPullsRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12\x1e\n" +
+	"\bper_page\x18\x03 \x01(\x05H\x00R\aperPage\x88\x01\x01\x12\x17\n" +
+	"\x04page\x18\x04 \x01(\x05H\x01R\x04page\x88\x01\x01:\xd6\x01\x92\x82\x19\xd1\x01\n" +
+	"\x11github.pulls.list\x12\x06github\x18\x01*\x03GET2!/repos/{owner}/{repository}/pulls:\n" +
+	"pulls:read@\x01J\tListPullsR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x12\b\x01\x12\fpull_request\x18\x01\x92\x01\x04page\x9a\x01\tnext_pageB\v\n" +
+	"\t_per_pageB\a\n" +
+	"\x05_page\"\x98\x03\n" +
+	"\x12PullRequestSummary\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
+	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n" +
+	"\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n" +
+	"\x04body\x18\x05 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x19\n" +
+	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrl\x12\x14\n" +
+	"\x05draft\x18\a \x01(\bR\x05draft\x125\n" +
+	"\x04head\x18\b \x01(\v2!.kei.connectors.github.v1.PullRefR\x04head\x125\n" +
+	"\x04base\x18\t \x01(\v2!.kei.connectors.github.v1.PullRefR\x04base\x124\n" +
+	"\x06author\x18\n" +
+	" \x01(\v2\x1e.kei.connectors.github.v1.UserR\x04user\x127\n" +
+	"\x06labels\x18\v \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labelsB\a\n" +
+	"\x05_body\"\x87\x01\n" +
+	"\x11ListPullsResponse\x12B\n" +
+	"\x05pulls\x18\x01 \x03(\v2,.kei.connectors.github.v1.PullRequestSummaryR\x05pulls\x12 \n" +
+	"\tnext_page\x18\x02 \x01(\x03H\x00R\bnextPage\x88\x01\x01B\f\n" +
+	"\n" +
+	"_next_page\"\xc5\x03\n" +
+	"\x18CreatePullRequestRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x12\n" +
+	"\x04head\x18\x04 \x01(\tR\x04head\x12\x12\n" +
+	"\x04base\x18\x05 \x01(\tR\x04base\x12\x17\n" +
+	"\x04body\x18\x06 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x19\n" +
+	"\x05draft\x18\a \x01(\bH\x01R\x05draft\x88\x01\x01:\xdd\x01\x92\x82\x19\xd8\x01\n" +
+	"\x13github.pulls.create\x12\x06github\x18\x02*\x04POST2!/repos/{owner}/{repository}/pulls:\vpulls:write@\x01J\x11CreatePullRequestR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01b\x05\b\x99\x03\x10\x05b\x05\b\xa6\x03\x10\x06\x8a\x01\x12\b\x02\x12\fpull_request\x18\x01B\a\n" +
+	"\x05_bodyB\b\n" +
+	"\x06_draft\"\xfd\x02\n" +
+	"\x19CreatePullRequestResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
+	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n" +
+	"\x05state\x18\x04 \x01(\tR\x05state\x12\x19\n" +
+	"\bhtml_url\x18\x05 \x01(\tR\ahtmlUrl\x12\x14\n" +
+	"\x05draft\x18\x06 \x01(\bR\x05draft\x125\n" +
+	"\x04head\x18\a \x01(\v2!.kei.connectors.github.v1.PullRefR\x04head\x125\n" +
+	"\x04base\x18\b \x01(\v2!.kei.connectors.github.v1.PullRefR\x04base\x124\n" +
+	"\x06author\x18\t \x01(\v2\x1e.kei.connectors.github.v1.UserR\x04user\x127\n" +
+	"\x06labels\x18\n" +
+	" \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labels\"\x86\x04\n" +
+	"\x18UpdatePullRequestRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12'\n" +
+	"\vpull_number\x18\x03 \x01(\x03B\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"pullNumber\x12\x19\n" +
+	"\x05title\x18\x04 \x01(\tH\x00R\x05title\x88\x01\x01\x12\x17\n" +
+	"\x04body\x18\x05 \x01(\tH\x01R\x04body\x88\x01\x01\x12\x19\n" +
+	"\x05state\x18\x06 \x01(\tH\x02R\x05state\x88\x01\x01\x12\x17\n" +
+	"\x04base\x18\a \x01(\tH\x03R\x04base\x88\x01\x01:\xec\x01\x92\x82\x19\xe7\x01\n" +
+	"\x13github.pulls.update\x12\x06github\x18\x02*\x05PATCH2//repos/{owner}/{repository}/pulls/{pull_number}:\vpulls:write@\x01J\x11UpdatePullRequestR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01b\x05\b\x99\x03\x10\x05b\x05\b\xa6\x03\x10\x06\x8a\x01\x12\b\x03\x12\fpull_request\x18\x01B\b\n" +
+	"\x06_titleB\a\n" +
+	"\x05_bodyB\b\n" +
+	"\x06_stateB\a\n" +
+	"\x05_base\"\xcf\x03\n" +
+	"\x19UpdatePullRequestResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
+	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n" +
+	"\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n" +
+	"\x04body\x18\x05 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x19\n" +
+	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrl\x12\x14\n" +
+	"\x05draft\x18\a \x01(\bR\x05draft\x12 \n" +
+	"\tmerged_at\x18\b \x01(\tH\x01R\bmergedAt\x88\x01\x01\x125\n" +
+	"\x04head\x18\t \x01(\v2!.kei.connectors.github.v1.PullRefR\x04head\x125\n" +
+	"\x04base\x18\n" +
+	" \x01(\v2!.kei.connectors.github.v1.PullRefR\x04base\x124\n" +
+	"\x06author\x18\v \x01(\v2\x1e.kei.connectors.github.v1.UserR\x04user\x127\n" +
+	"\x06labels\x18\f \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labelsB\a\n" +
+	"\x05_bodyB\f\n" +
+	"\n" +
+	"_merged_at\"\xd6\x03\n" +
+	"\x16ListPullReviewsRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12'\n" +
+	"\vpull_number\x18\x03 \x01(\x03B\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"pullNumber\x12\x1e\n" +
+	"\bper_page\x18\x04 \x01(\x05H\x00R\aperPage\x88\x01\x01\x12\x17\n" +
+	"\x04page\x18\x05 \x01(\x05H\x01R\x04page\x88\x01\x01:\xfd\x01\x92\x82\x19\xf8\x01\n" +
+	"\x19github.pulls.reviews.list\x12\x06github\x18\x01*\x03GET27/repos/{owner}/{repository}/pulls/{pull_number}/reviews:\n" +
+	"pulls:read@\x01J\vListReviewsR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x19\b\x01\x12\x13pull_request_review\x18\x01\x92\x01\x04page\x9a\x01\tnext_pageB\v\n" +
+	"\t_per_pageB\a\n" +
+	"\x05_page\"\xe1\x01\n" +
+	"\rReviewSummary\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
+	"\x05state\x18\x02 \x01(\tR\x05state\x12\x17\n" +
+	"\x04body\x18\x03 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x19\n" +
+	"\bhtml_url\x18\x04 \x01(\tR\ahtmlUrl\x12&\n" +
+	"\fsubmitted_at\x18\x05 \x01(\tH\x01R\vsubmittedAt\x88\x01\x01\x124\n" +
+	"\x06author\x18\x06 \x01(\v2\x1e.kei.connectors.github.v1.UserR\x04userB\a\n" +
+	"\x05_bodyB\x0f\n" +
+	"\r_submitted_at\"\x8c\x01\n" +
+	"\x17ListPullReviewsResponse\x12A\n" +
+	"\areviews\x18\x01 \x03(\v2'.kei.connectors.github.v1.ReviewSummaryR\areviews\x12 \n" +
+	"\tnext_page\x18\x02 \x01(\x03H\x00R\bnextPage\x88\x01\x01B\f\n" +
+	"\n" +
+	"_next_page\"\xcf\x03\n" +
+	"\x17CreatePullReviewRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12'\n" +
+	"\vpull_number\x18\x03 \x01(\x03B\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"pullNumber\x12\x17\n" +
+	"\x04body\x18\x04 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x19\n" +
+	"\x05event\x18\x05 \x01(\tH\x01R\x05event\x88\x01\x01:\xfd\x01\x92\x82\x19\xf8\x01\n" +
+	"\x1bgithub.pulls.reviews.create\x12\x06github\x18\x02*\x04POST27/repos/{owner}/{repository}/pulls/{pull_number}/reviews:\vpulls:write@\x01J\fCreateReviewR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01b\x05\b\x99\x03\x10\x05b\x05\b\xa6\x03\x10\x06\x8a\x01\x19\b\x02\x12\x13pull_request_review\x18\x01B\a\n" +
+	"\x05_bodyB\b\n" +
+	"\x06_event\"\xec\x01\n" +
+	"\x18CreatePullReviewResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
+	"\x05state\x18\x02 \x01(\tR\x05state\x12\x17\n" +
+	"\x04body\x18\x03 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x19\n" +
+	"\bhtml_url\x18\x04 \x01(\tR\ahtmlUrl\x12&\n" +
+	"\fsubmitted_at\x18\x05 \x01(\tH\x01R\vsubmittedAt\x88\x01\x01\x124\n" +
+	"\x06author\x18\x06 \x01(\v2\x1e.kei.connectors.github.v1.UserR\x04userB\a\n" +
+	"\x05_bodyB\x0f\n" +
+	"\r_submitted_atBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3"
 
 var (
 	file_kei_connectors_github_v1_pulls_proto_rawDescOnce sync.Once
@@ -241,17 +1660,52 @@ func file_kei_connectors_github_v1_pulls_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_github_v1_pulls_proto_rawDescData
 }
 
-var file_kei_connectors_github_v1_pulls_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_kei_connectors_github_v1_pulls_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_kei_connectors_github_v1_pulls_proto_goTypes = []any{
-	(*GetPullRequestRequest)(nil),  // 0: kei.connectors.github.v1.GetPullRequestRequest
-	(*GetPullRequestResponse)(nil), // 1: kei.connectors.github.v1.GetPullRequestResponse
+	(*GetPullRequestRequest)(nil),     // 0: kei.connectors.github.v1.GetPullRequestRequest
+	(*GetPullRequestResponse)(nil),    // 1: kei.connectors.github.v1.GetPullRequestResponse
+	(*PullRef)(nil),                   // 2: kei.connectors.github.v1.PullRef
+	(*User)(nil),                      // 3: kei.connectors.github.v1.User
+	(*Label)(nil),                     // 4: kei.connectors.github.v1.Label
+	(*ListPullsRequest)(nil),          // 5: kei.connectors.github.v1.ListPullsRequest
+	(*PullRequestSummary)(nil),        // 6: kei.connectors.github.v1.PullRequestSummary
+	(*ListPullsResponse)(nil),         // 7: kei.connectors.github.v1.ListPullsResponse
+	(*CreatePullRequestRequest)(nil),  // 8: kei.connectors.github.v1.CreatePullRequestRequest
+	(*CreatePullRequestResponse)(nil), // 9: kei.connectors.github.v1.CreatePullRequestResponse
+	(*UpdatePullRequestRequest)(nil),  // 10: kei.connectors.github.v1.UpdatePullRequestRequest
+	(*UpdatePullRequestResponse)(nil), // 11: kei.connectors.github.v1.UpdatePullRequestResponse
+	(*ListPullReviewsRequest)(nil),    // 12: kei.connectors.github.v1.ListPullReviewsRequest
+	(*ReviewSummary)(nil),             // 13: kei.connectors.github.v1.ReviewSummary
+	(*ListPullReviewsResponse)(nil),   // 14: kei.connectors.github.v1.ListPullReviewsResponse
+	(*CreatePullReviewRequest)(nil),   // 15: kei.connectors.github.v1.CreatePullReviewRequest
+	(*CreatePullReviewResponse)(nil),  // 16: kei.connectors.github.v1.CreatePullReviewResponse
 }
 var file_kei_connectors_github_v1_pulls_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	2,  // 0: kei.connectors.github.v1.GetPullRequestResponse.head:type_name -> kei.connectors.github.v1.PullRef
+	2,  // 1: kei.connectors.github.v1.GetPullRequestResponse.base:type_name -> kei.connectors.github.v1.PullRef
+	3,  // 2: kei.connectors.github.v1.GetPullRequestResponse.author:type_name -> kei.connectors.github.v1.User
+	4,  // 3: kei.connectors.github.v1.GetPullRequestResponse.labels:type_name -> kei.connectors.github.v1.Label
+	2,  // 4: kei.connectors.github.v1.PullRequestSummary.head:type_name -> kei.connectors.github.v1.PullRef
+	2,  // 5: kei.connectors.github.v1.PullRequestSummary.base:type_name -> kei.connectors.github.v1.PullRef
+	3,  // 6: kei.connectors.github.v1.PullRequestSummary.author:type_name -> kei.connectors.github.v1.User
+	4,  // 7: kei.connectors.github.v1.PullRequestSummary.labels:type_name -> kei.connectors.github.v1.Label
+	6,  // 8: kei.connectors.github.v1.ListPullsResponse.pulls:type_name -> kei.connectors.github.v1.PullRequestSummary
+	2,  // 9: kei.connectors.github.v1.CreatePullRequestResponse.head:type_name -> kei.connectors.github.v1.PullRef
+	2,  // 10: kei.connectors.github.v1.CreatePullRequestResponse.base:type_name -> kei.connectors.github.v1.PullRef
+	3,  // 11: kei.connectors.github.v1.CreatePullRequestResponse.author:type_name -> kei.connectors.github.v1.User
+	4,  // 12: kei.connectors.github.v1.CreatePullRequestResponse.labels:type_name -> kei.connectors.github.v1.Label
+	2,  // 13: kei.connectors.github.v1.UpdatePullRequestResponse.head:type_name -> kei.connectors.github.v1.PullRef
+	2,  // 14: kei.connectors.github.v1.UpdatePullRequestResponse.base:type_name -> kei.connectors.github.v1.PullRef
+	3,  // 15: kei.connectors.github.v1.UpdatePullRequestResponse.author:type_name -> kei.connectors.github.v1.User
+	4,  // 16: kei.connectors.github.v1.UpdatePullRequestResponse.labels:type_name -> kei.connectors.github.v1.Label
+	3,  // 17: kei.connectors.github.v1.ReviewSummary.author:type_name -> kei.connectors.github.v1.User
+	13, // 18: kei.connectors.github.v1.ListPullReviewsResponse.reviews:type_name -> kei.connectors.github.v1.ReviewSummary
+	3,  // 19: kei.connectors.github.v1.CreatePullReviewResponse.author:type_name -> kei.connectors.github.v1.User
+	20, // [20:20] is the sub-list for method output_type
+	20, // [20:20] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_github_v1_pulls_proto_init() }
@@ -260,13 +1714,24 @@ func file_kei_connectors_github_v1_pulls_proto_init() {
 		return
 	}
 	file_kei_connectors_github_v1_pulls_proto_msgTypes[1].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_pulls_proto_msgTypes[5].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_pulls_proto_msgTypes[6].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_pulls_proto_msgTypes[7].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_pulls_proto_msgTypes[8].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_pulls_proto_msgTypes[10].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_pulls_proto_msgTypes[11].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_pulls_proto_msgTypes[12].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_pulls_proto_msgTypes[13].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_pulls_proto_msgTypes[14].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_pulls_proto_msgTypes[15].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_pulls_proto_msgTypes[16].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_github_v1_pulls_proto_rawDesc), len(file_kei_connectors_github_v1_pulls_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

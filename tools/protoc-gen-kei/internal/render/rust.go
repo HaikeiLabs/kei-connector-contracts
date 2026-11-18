@@ -24,6 +24,7 @@ import (
 	"text/template"
 	"unicode"
 
+	"github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connection"
 	contracts "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1"
 	"github.com/HaikeiLabs/kei-connector-contracts/tools/protoc-gen-kei/internal/model"
 	"google.golang.org/protobuf/compiler/protogen"
@@ -307,6 +308,100 @@ pub const %s: Op = Op {
 	return o, nil
 }
 
+// rustKeywords are the Rust keywords (strict and reserved) prost escapes in
+// field names.
+var rustKeywords = map[string]bool{
+	"abstract": true, "as": true, "async": true, "await": true, "become": true, "box": true,
+	"break": true, "const": true, "continue": true, "do": true, "dyn": true, "else": true,
+	"enum": true, "extern": true, "false": true, "final": true, "fn": true, "for": true,
+	"if": true, "impl": true, "in": true, "let": true, "loop": true, "macro": true,
+	"match": true, "mod": true, "move": true, "mut": true, "override": true, "priv": true,
+	"pub": true, "ref": true, "return": true, "static": true, "struct": true, "trait": true,
+	"true": true, "try": true, "type": true, "typeof": true, "unsafe": true, "unsized": true,
+	"use": true, "virtual": true, "where": true, "while": true, "yield": true,
+}
+
+// rustField is a proto field's struct field name in prost's generated Rust:
+// a keyword becomes a raw identifier (r#type), and self, super, crate and
+// Self, which cannot be raw, get a trailing underscore.
+func rustField(name string) string {
+	switch {
+	case name == "self" || name == "super" || name == "crate" || name == "Self":
+		return name + "_"
+	case rustKeywords[name]:
+		return "r#" + name
+	default:
+		return name
+	}
+}
+
+// rustJSONValue renders a Rust expression of type serde_json::Value for one
+// value of field fd, held by ref (an expression of type &T). A message is
+// encoded field by field with the canonical body rules of the Go runtime:
+// only populated fields, integers as exact numbers, and nested keys named
+// by connection.WireName (REST) or the JSON name (GraphQL variables).
+// depth numbers the block's variables so nested closures never shadow.
+func rustJSONValue(op *model.Operation, fd protoreflect.FieldDescriptor, ref string, depth int, graphql bool) (string, error) {
+	switch k := fd.Kind(); {
+	case k == protoreflect.StringKind:
+		return fmt.Sprintf("serde_json::Value::String(%s.clone())", ref), nil
+	case isIntKind(k):
+		return fmt.Sprintf("serde_json::Value::Number((*%s).into())", ref), nil
+	case k == protoreflect.BoolKind:
+		return fmt.Sprintf("serde_json::Value::Bool(*%s)", ref), nil
+	case k == protoreflect.BytesKind:
+		return fmt.Sprintf("serde_json::Value::String(encode_bytes(%s))", ref), nil
+	case k == protoreflect.MessageKind && fd.Message().ParentFile().Package() != "google.protobuf":
+	default:
+		return "", fmt.Errorf("protoc-gen-kei-ops: %s: field %s: %s body values are not supported by the Rust template yet", op.ID, fd.Name(), k)
+	}
+	obj := fmt.Sprintf("o%d", depth)
+	v := fmt.Sprintf("v%d", depth)
+	var stmts []string
+	fields := fd.Message().Fields()
+	for i := 0; i < fields.Len(); i++ {
+		sub := fields.Get(i)
+		wire := connection.WireName(sub)
+		if graphql {
+			wire = sub.JSONName()
+		}
+		acc := ref + "." + rustField(string(sub.Name()))
+		insert := func(cond, value string) {
+			stmts = append(stmts, fmt.Sprintf("%s { %s.insert(%s.to_string(), %s); }", cond, obj, rustQuote(wire), value))
+		}
+		switch {
+		case sub.IsMap():
+			return "", fmt.Errorf("protoc-gen-kei-ops: %s: field %s.%s: map body values are not supported by the Rust template yet", op.ID, fd.Name(), sub.Name())
+		case sub.IsList():
+			elem, err := rustJSONValue(op, sub, v, depth+1, graphql)
+			if err != nil {
+				return "", err
+			}
+			insert(fmt.Sprintf("if !%s.is_empty()", acc), fmt.Sprintf("serde_json::Value::Array(%s.iter().map(|%s| %s).collect())", acc, v, elem))
+		case sub.HasPresence():
+			val, err := rustJSONValue(op, sub, v, depth+1, graphql)
+			if err != nil {
+				return "", err
+			}
+			insert(fmt.Sprintf("if let Some(%s) = &%s", v, acc), val)
+		default:
+			val, err := rustJSONValue(op, sub, "(&"+acc+")", depth+1, graphql)
+			if err != nil {
+				return "", err
+			}
+			switch sk := sub.Kind(); {
+			case sk == protoreflect.StringKind || sk == protoreflect.BytesKind:
+				insert(fmt.Sprintf("if !%s.is_empty()", acc), val)
+			case isIntKind(sk):
+				insert(fmt.Sprintf("if %s != 0", acc), val)
+			case sk == protoreflect.BoolKind:
+				insert(fmt.Sprintf("if %s", acc), val)
+			}
+		}
+	}
+	return fmt.Sprintf("{ let mut %s = serde_json::Map::new(); %s serde_json::Value::Object(%s) }", obj, strings.Join(stmts, " "), obj), nil
+}
+
 // rustFnBody renders one generated operation's async-fn body: it places
 // every request field (path, query or JSON body), calls the connection and
 // maps the errors, exactly like the Go runtime's callHTTP.
@@ -315,7 +410,10 @@ func rustFnBody(op *model.Operation) (string, error) {
 	var pathParams, multi, queryParams, bodyParams []string
 	for _, p := range op.Params {
 		f := p.Field
-		name := string(f.Desc.Name())
+		// name is the struct field as prost names it (r#type for a keyword);
+		// local is a plain identifier for the temporaries derived from it.
+		name := rustField(string(f.Desc.Name()))
+		local := string(f.Desc.Name()) + "_s"
 		optional := f.Desc.HasPresence() && !f.Desc.IsList()
 		switch p.In {
 		case contracts.ParamIn_PARAM_IN_PATH:
@@ -328,13 +426,13 @@ func rustFnBody(op *model.Operation) (string, error) {
 			case optional && f.Desc.Kind() == protoreflect.StringKind:
 				pathParams = append(pathParams, fmt.Sprintf("if let Some(v) = &req.%s { path_values.push((%s, v.as_str())); }", name, rustQuote(p.Wire)))
 			case optional:
-				pathParams = append(pathParams, fmt.Sprintf("let %s_s = req.%s.map(|v| v.to_string());", name, name))
-				pathParams = append(pathParams, fmt.Sprintf("if let Some(v) = &%s_s { path_values.push((%s, v.as_str())); }", name, rustQuote(p.Wire)))
+				pathParams = append(pathParams, fmt.Sprintf("let %s = req.%s.map(|v| v.to_string());", local, name))
+				pathParams = append(pathParams, fmt.Sprintf("if let Some(v) = &%s { path_values.push((%s, v.as_str())); }", local, rustQuote(p.Wire)))
 			case f.Desc.Kind() == protoreflect.StringKind:
 				pathParams = append(pathParams, fmt.Sprintf("path_values.push((%s, req.%s.as_str()));", rustQuote(p.Wire), name))
 			case isIntKind(f.Desc.Kind()):
-				pathParams = append(pathParams, fmt.Sprintf("let %s_s = req.%s.to_string();", name, name))
-				pathParams = append(pathParams, fmt.Sprintf("path_values.push((%s, %s_s.as_str()));", rustQuote(p.Wire), name))
+				pathParams = append(pathParams, fmt.Sprintf("let %s = req.%s.to_string();", local, name))
+				pathParams = append(pathParams, fmt.Sprintf("path_values.push((%s, %s.as_str()));", rustQuote(p.Wire), local))
 			default:
 				return "", fmt.Errorf("protoc-gen-kei-ops: %s: field %s: only string and integer path params are supported by the Rust template yet", op.ID, name)
 			}
@@ -362,22 +460,22 @@ func rustFnBody(op *model.Operation) (string, error) {
 				return "", fmt.Errorf("protoc-gen-kei-ops: %s: field %s: only string, integer and bool query params are supported by the Rust template yet", op.ID, name)
 			}
 		default: // body
+			graphql := op.Transport == model.GraphQL
 			switch {
-			case !f.Desc.IsMap() && f.Desc.IsList() && (f.Desc.Kind() == protoreflect.MessageKind || f.Desc.Kind() == protoreflect.GroupKind):
-				// Repeated message: a JSON array of the elements' protojson
-				// shape; pbjson-types serializes Struct/ListValue directly.
-				bodyParams = append(bodyParams, fmt.Sprintf("let mut %s_json = Vec::with_capacity(req.%s.len());", name, name))
-				bodyParams = append(bodyParams, fmt.Sprintf("for v in &req.%s { %s_json.push(serde_json::to_value(v).map_err(|e| OperationError::wrap(%s.id, e.to_string()))?); }", name, name, opConst))
-				bodyParams = append(bodyParams, fmt.Sprintf("body.insert(%s.to_string(), serde_json::Value::Array(%s_json));", rustQuote(p.Wire), name))
-			case !f.Desc.IsMap() && !f.Desc.IsList() && (f.Desc.Kind() == protoreflect.MessageKind || f.Desc.Kind() == protoreflect.GroupKind):
-				// Singular message (prost models it as Option<T>): the whole
-				// object in its protojson shape.
-				bodyParams = append(bodyParams, fmt.Sprintf("if let Some(v) = &req.%s { body.insert(%s.to_string(), serde_json::to_value(v).map_err(|e| OperationError::wrap(%s.id, e.to_string()))?); }", name, rustQuote(p.Wire), opConst))
-			case f.Desc.IsList():
-				if f.Desc.Kind() != protoreflect.StringKind {
-					return "", fmt.Errorf("protoc-gen-kei-ops: %s: field %s: only string list body params are supported by the Rust template yet", op.ID, name)
-				}
+			case f.Desc.IsList() && f.Desc.Kind() == protoreflect.StringKind:
 				bodyParams = append(bodyParams, fmt.Sprintf("body.insert(%s.to_string(), serde_json::Value::Array(req.%s.iter().map(|v| serde_json::Value::String(v.clone())).collect()));", rustQuote(p.Wire), name))
+			case f.Desc.IsList() && !f.Desc.IsMap():
+				elem, err := rustJSONValue(op, f.Desc, "v0", 1, graphql)
+				if err != nil {
+					return "", err
+				}
+				bodyParams = append(bodyParams, fmt.Sprintf("if !req.%s.is_empty() { body.insert(%s.to_string(), serde_json::Value::Array(req.%s.iter().map(|v0| %s).collect())); }", name, rustQuote(p.Wire), name, elem))
+			case f.Desc.Kind() == protoreflect.MessageKind && !f.Desc.IsMap():
+				val, err := rustJSONValue(op, f.Desc, "v0", 1, graphql)
+				if err != nil {
+					return "", err
+				}
+				bodyParams = append(bodyParams, fmt.Sprintf("if let Some(v0) = &req.%s { body.insert(%s.to_string(), %s); }", name, rustQuote(p.Wire), val))
 			case optional && f.Desc.Kind() == protoreflect.StringKind:
 				bodyParams = append(bodyParams, fmt.Sprintf("if let Some(v) = &req.%s { body.insert(%s.to_string(), serde_json::Value::String(v.clone())); }", name, rustQuote(p.Wire)))
 			case optional && isIntKind(f.Desc.Kind()):
@@ -489,7 +587,7 @@ func rustFnBody(op *model.Operation) (string, error) {
 		if nf == nil {
 			return "", fmt.Errorf("protoc-gen-kei-ops: %s: next_cursor_field %q is not a field of %s", op.ID, op.Opt.GetNextCursorField(), op.Response.GoIdent.GoName)
 		}
-		name := string(nf.Desc.Name())
+		name := rustField(string(nf.Desc.Name()))
 		optional := nf.Desc.HasPresence()
 		switch {
 		case nf.Desc.Kind() == protoreflect.StringKind && optional:

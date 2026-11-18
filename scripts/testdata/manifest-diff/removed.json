@@ -1,0 +1,12 @@
+{
+  "schema": "kei.connector-manifest/v1",
+  "contracts_version": "v1.1.0",
+  "connectors": [
+    {
+      "id": "acme",
+      "connections": [{"name": "pat", "kind": "http_bearer", "auth_method": "secret_ref", "account_model": "shared", "scopes": [], "setup_fields": []}],
+      "capabilities": []
+    }
+  ],
+  "legacy_capabilities": []
+}
