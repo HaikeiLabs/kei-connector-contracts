@@ -1,0 +1,14 @@
+{
+  "columns": [
+    {"name": "id", "type": "bigint"},
+    {"name": "account", "type": "nvarchar(255)"},
+    {"name": "updated_at", "type": "datetimeoffset"},
+    {"name": "balance", "type": "decimal(38,10)"}
+  ],
+  "rows": [
+    ["9007199254740993", "München — ünïcodé ✓", "2026-01-15T10:30:00.1234567+02:00", "12345678901234567890.1234567890"],
+    ["1", "Synthetic One", null, "0.0000000001"]
+  ],
+  "truncated": false,
+  "row_count": 2
+}

@@ -896,6 +896,131 @@ func TestDatabaseQueryRunRequestFixture(t *testing.T) {
 	}
 }
 
+// TestDatabaseDialectFixtureRows covers the per-dialect query.run fixtures:
+// each engine's dialect enum on the request, one engine-specific typed value
+// per dialect (jsonb/timestamptz, bigint unsigned/datetime(6), nvarchar
+// unicode/datetimeoffset, NUMBER(38) and VARIANT as strings, uuid), the NULL
+// cell, and the drift gate: strict unmarshal must fail because every fixture
+// carries one unknown extra field.
+func TestDatabaseDialectFixtureRows(t *testing.T) {
+	type dialectCellCheck struct {
+		row, col int
+		want     string
+		null     bool
+	}
+	for _, tc := range []struct {
+		name     string
+		dialect  databasev1.Dialect
+		col2Type string
+		checks   []dialectCellCheck
+	}{
+		{
+			name:     "postgres",
+			dialect:  databasev1.Dialect_DIALECT_POSTGRES,
+			col2Type: "timestamptz",
+			checks: []dialectCellCheck{
+				{row: 0, col: 0, want: "9007199254740993"},
+				{row: 0, col: 1, want: `{"owner": "synthetic", "tags": ["ops"]}`},
+				{row: 0, col: 2, want: "2026-01-15T10:30:00.123456+00:00"},
+				{row: 0, col: 3, want: "12345678901234567890.123456789012345678"},
+				{row: 1, col: 1, null: true},
+			},
+		},
+		{
+			name:     "mysql",
+			dialect:  databasev1.Dialect_DIALECT_MYSQL,
+			col2Type: "datetime(6)",
+			checks: []dialectCellCheck{
+				{row: 0, col: 0, want: "18446744073709551615"},
+				{row: 0, col: 1, want: `{"owner": "synthetic", "tags": ["ops"]}`},
+				{row: 0, col: 2, want: "2026-01-15 10:30:00.123456"},
+				{row: 0, col: 3, want: "12345678901234567890.123456"},
+				{row: 1, col: 1, null: true},
+			},
+		},
+		{
+			name:     "mssql",
+			dialect:  databasev1.Dialect_DIALECT_MSSQL,
+			col2Type: "datetimeoffset",
+			checks: []dialectCellCheck{
+				{row: 0, col: 0, want: "9007199254740993"},
+				{row: 0, col: 1, want: "München — ünïcodé ✓"},
+				{row: 0, col: 2, want: "2026-01-15T10:30:00.1234567+02:00"},
+				{row: 0, col: 3, want: "12345678901234567890.1234567890"},
+				{row: 1, col: 2, null: true},
+			},
+		},
+		{
+			name:     "snowflake",
+			dialect:  databasev1.Dialect_DIALECT_SNOWFLAKE,
+			col2Type: "NUMBER(38,18)",
+			checks: []dialectCellCheck{
+				{row: 0, col: 0, want: "99999999999999999999999999999999999999"},
+				{row: 0, col: 1, want: "Big-ID Account — ünïcodé ✓"},
+				{row: 0, col: 2, want: "12345678901234567890.123456789012345678"},
+				{row: 0, col: 3, want: `{"owner": "synthetic", "tags": ["ops"]}`},
+				{row: 1, col: 3, null: true},
+			},
+		},
+		{
+			name:     "supabase",
+			dialect:  databasev1.Dialect_DIALECT_SUPABASE,
+			col2Type: "timestamptz",
+			checks: []dialectCellCheck{
+				{row: 0, col: 0, want: "6f9619ff-8b86-d011-b42d-00c04fc964ff"},
+				{row: 0, col: 1, want: `{"owner": "synthetic", "tags": ["ops"]}`},
+				{row: 0, col: 2, want: "2026-01-15T10:30:00.123456+00:00"},
+				{row: 0, col: 3, want: "12345678901234567890.123456789012345678"},
+				{row: 1, col: 1, null: true},
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			reqData := readFixture(t, "database", "query.run."+tc.name+".request.json")
+			var req databasev1.RunQueryRequest
+			if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(reqData, &req); err != nil {
+				t.Fatalf("request fixture did not unmarshal: %v", err)
+			}
+			if got := req.GetDialect(); got != tc.dialect {
+				t.Errorf("dialect = %v, want %v", got, tc.dialect)
+			}
+
+			respData := readFixture(t, "database", "query.run."+tc.name+".response.json")
+			resp := &databasev1.RunQueryResponse{}
+			if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(respData, resp); err != nil {
+				t.Fatalf("response fixture did not unmarshal: %v", err)
+			}
+			if got := len(resp.GetColumns()); got != 4 {
+				t.Fatalf("len(columns) = %d, want 4", got)
+			}
+			if got := resp.GetColumns()[2].GetType(); got != tc.col2Type {
+				t.Errorf("columns[2].type = %q, want %q", got, tc.col2Type)
+			}
+			if got := len(resp.GetRows()); got != 2 {
+				t.Fatalf("len(rows) = %d, want 2", got)
+			}
+			for _, c := range tc.checks {
+				value := resp.GetRows()[c.row].GetValues()[c.col]
+				if c.null {
+					if got := value.GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+						t.Errorf("rows[%d][%d] = %v, want null", c.row, c.col, value)
+					}
+					continue
+				}
+				if got := value.GetStringValue(); got != c.want {
+					t.Errorf("rows[%d][%d] = %q, want %q", c.row, c.col, got, c.want)
+				}
+			}
+			if resp.GetTruncated() {
+				t.Error("truncated = true, want false")
+			}
+			if err := (protojson.UnmarshalOptions{}).Unmarshal(respData, &databasev1.RunQueryResponse{}); err == nil {
+				t.Errorf("strict unmarshal of query.run.%s.response.json succeeded; every per-dialect response fixture must carry one unknown extra field so the drift gate detects provider additions", tc.name)
+			}
+		})
+	}
+}
+
 func TestFixturesStrictDetectsUnknown(t *testing.T) {
 	for _, tt := range fixtureCases {
 		t.Run(tt.op, func(t *testing.T) {

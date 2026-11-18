@@ -27,7 +27,7 @@ use haikeilabs_connector_contracts::kei::connectors::atlassian::v1::{
     SearchJiraIssuesResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::database::v1::{
-    RunQueryRequest, RunQueryResponse,
+    Dialect, RunQueryRequest, RunQueryResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::github::v1::{
     CreateBlobResponse, CreateCommitResponse, CreateIssueCommentResponse,
@@ -587,5 +587,128 @@ fn fixtures_unmarshal() {
             kind: Some(Kind::NumberValue(amount)),
         }) => assert_eq!(*amount, 1234567.89),
         other => panic!("rows[0].Sales Amount is not a number: {:?}", other),
+    }
+}
+
+// database.query.run per-dialect fixtures: each engine's dialect enum, one
+// engine-specific typed value (jsonb/timestamptz, bigint unsigned/datetime(6),
+// nvarchar unicode/datetimeoffset, NUMBER(38) and VARIANT as strings, uuid),
+// and the NULL cell. The >2^53 integers and precision-critical decimals travel
+// as strings; prost-serde's pbjson_types::Value represents JSON null as kind
+// None. pbjson deserializers ignore unknown fields, so the unknown extra field
+// each fixture carries is not asserted here (the strict-mode drift gate lives
+// in the Go, Python and TypeScript suites).
+#[test]
+fn database_dialect_fixture_rows() {
+    struct DialectCell {
+        row: usize,
+        col: usize,
+        want: &'static str,
+        is_null: bool,
+    }
+    struct DialectCase {
+        name: &'static str,
+        dialect: i32,
+        col2_type: &'static str,
+        checks: &'static [DialectCell],
+    }
+    const CASES: &[DialectCase] = &[
+        DialectCase {
+            name: "postgres",
+            dialect: Dialect::Postgres as i32,
+            col2_type: "timestamptz",
+            checks: &[
+                DialectCell { row: 0, col: 0, want: "9007199254740993", is_null: false },
+                DialectCell { row: 0, col: 1, want: "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}", is_null: false },
+                DialectCell { row: 0, col: 2, want: "2026-01-15T10:30:00.123456+00:00", is_null: false },
+                DialectCell { row: 0, col: 3, want: "12345678901234567890.123456789012345678", is_null: false },
+                DialectCell { row: 1, col: 1, want: "", is_null: true },
+            ],
+        },
+        DialectCase {
+            name: "mysql",
+            dialect: Dialect::Mysql as i32,
+            col2_type: "datetime(6)",
+            checks: &[
+                DialectCell { row: 0, col: 0, want: "18446744073709551615", is_null: false },
+                DialectCell { row: 0, col: 1, want: "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}", is_null: false },
+                DialectCell { row: 0, col: 2, want: "2026-01-15 10:30:00.123456", is_null: false },
+                DialectCell { row: 0, col: 3, want: "12345678901234567890.123456", is_null: false },
+                DialectCell { row: 1, col: 1, want: "", is_null: true },
+            ],
+        },
+        DialectCase {
+            name: "mssql",
+            dialect: Dialect::Mssql as i32,
+            col2_type: "datetimeoffset",
+            checks: &[
+                DialectCell { row: 0, col: 0, want: "9007199254740993", is_null: false },
+                DialectCell { row: 0, col: 1, want: "München — ünïcodé ✓", is_null: false },
+                DialectCell { row: 0, col: 2, want: "2026-01-15T10:30:00.1234567+02:00", is_null: false },
+                DialectCell { row: 0, col: 3, want: "12345678901234567890.1234567890", is_null: false },
+                DialectCell { row: 1, col: 2, want: "", is_null: true },
+            ],
+        },
+        DialectCase {
+            name: "snowflake",
+            dialect: Dialect::Snowflake as i32,
+            col2_type: "NUMBER(38,18)",
+            checks: &[
+                DialectCell { row: 0, col: 0, want: "99999999999999999999999999999999999999", is_null: false },
+                DialectCell { row: 0, col: 1, want: "Big-ID Account — ünïcodé ✓", is_null: false },
+                DialectCell { row: 0, col: 2, want: "12345678901234567890.123456789012345678", is_null: false },
+                DialectCell { row: 0, col: 3, want: "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}", is_null: false },
+                DialectCell { row: 1, col: 3, want: "", is_null: true },
+            ],
+        },
+        DialectCase {
+            name: "supabase",
+            dialect: Dialect::Supabase as i32,
+            col2_type: "timestamptz",
+            checks: &[
+                DialectCell { row: 0, col: 0, want: "6f9619ff-8b86-d011-b42d-00c04fc964ff", is_null: false },
+                DialectCell { row: 0, col: 1, want: "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}", is_null: false },
+                DialectCell { row: 0, col: 2, want: "2026-01-15T10:30:00.123456+00:00", is_null: false },
+                DialectCell { row: 0, col: 3, want: "12345678901234567890.123456789012345678", is_null: false },
+                DialectCell { row: 1, col: 1, want: "", is_null: true },
+            ],
+        },
+    ];
+
+    for tc in CASES {
+        let req: RunQueryRequest = serde_json::from_str(&fixture(
+            "database",
+            &format!("query.run.{}.request.json", tc.name),
+        ))
+        .unwrap_or_else(|err| panic!("query.run.{} request unmarshals: {err}", tc.name));
+        assert_eq!(req.dialect, tc.dialect, "query.run.{} dialect", tc.name);
+
+        let resp: RunQueryResponse = serde_json::from_str(&fixture(
+            "database",
+            &format!("query.run.{}.response.json", tc.name),
+        ))
+        .unwrap_or_else(|err| panic!("query.run.{} response unmarshals: {err}", tc.name));
+        assert_eq!(resp.columns.len(), 4, "query.run.{} columns", tc.name);
+        assert_eq!(resp.columns[2].r#type, tc.col2_type, "query.run.{} columns[2].type", tc.name);
+        assert_eq!(resp.rows.len(), 2, "query.run.{} rows", tc.name);
+        for cell in tc.checks {
+            let value = &resp.rows[cell.row].values[cell.col];
+            if cell.is_null {
+                match value.kind.as_ref() {
+                    None | Some(Kind::NullValue(_)) => {}
+                    other => panic!("query.run.{} rows[{}][{}] must be null, got {:?}", tc.name, cell.row, cell.col, other),
+                }
+            } else {
+                match value.kind.as_ref() {
+                    Some(Kind::StringValue(got)) => assert_eq!(
+                        got, cell.want,
+                        "query.run.{} rows[{}][{}] keeps its synthetic value",
+                        tc.name, cell.row, cell.col
+                    ),
+                    other => panic!("query.run.{} rows[{}][{}] must be a string, got {:?}", tc.name, cell.row, cell.col, other),
+                }
+            }
+        }
+        assert!(!resp.truncated, "query.run.{} truncated", tc.name);
     }
 }

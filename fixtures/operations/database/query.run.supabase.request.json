@@ -1,0 +1,6 @@
+{
+  "dialect": "DIALECT_SUPABASE",
+  "sql": "SELECT id, payload, updated_at, balance FROM synthetic_documents WHERE id >= $1 ORDER BY id",
+  "params": ["9007199254740993"],
+  "max_rows": 100
+}

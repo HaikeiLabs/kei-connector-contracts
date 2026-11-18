@@ -1,0 +1,14 @@
+{
+  "columns": [
+    {"name": "id", "type": "uuid"},
+    {"name": "payload", "type": "jsonb"},
+    {"name": "updated_at", "type": "timestamptz"},
+    {"name": "balance", "type": "numeric"}
+  ],
+  "rows": [
+    ["6f9619ff-8b86-d011-b42d-00c04fc964ff", "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}", "2026-01-15T10:30:00.123456+00:00", "12345678901234567890.123456789012345678"],
+    ["00000000-0000-0000-0000-000000000001", null, "2026-01-16T08:00:00+00:00", "0.000000000000000001"]
+  ],
+  "truncated": false,
+  "execution_time_ms": 12
+}

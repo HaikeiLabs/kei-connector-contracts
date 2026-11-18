@@ -112,3 +112,97 @@ it("shows JSON.parse loses precision for the provider issue id", () => {
   expect(BigInt(raw.id)).toBe(9007199254740992n);
   expect(BigInt(raw.id)).not.toBe(9007199254740993n);
 });
+
+// Per-dialect query.run fixtures: each engine's dialect enum, one
+// engine-specific typed value (jsonb/timestamptz, bigint unsigned/datetime(6),
+// nvarchar unicode/datetimeoffset, NUMBER(38) and VARIANT as strings, uuid),
+// and the NULL cell. The >2^53 integers and precision-critical decimals travel
+// as strings; NULL travels as the protobuf null kind.
+const databaseDialects = [
+  {
+    name: "postgres",
+    dialect: db.Dialect.POSTGRES,
+    col2Type: "timestamptz",
+    checks: [
+      { row: 0, col: 0, want: "9007199254740993" },
+      { row: 0, col: 1, want: '{"owner": "synthetic", "tags": ["ops"]}' },
+      { row: 0, col: 2, want: "2026-01-15T10:30:00.123456+00:00" },
+      { row: 0, col: 3, want: "12345678901234567890.123456789012345678" },
+      { row: 1, col: 1, want: null },
+    ],
+  },
+  {
+    name: "mysql",
+    dialect: db.Dialect.MYSQL,
+    col2Type: "datetime(6)",
+    checks: [
+      { row: 0, col: 0, want: "18446744073709551615" },
+      { row: 0, col: 1, want: '{"owner": "synthetic", "tags": ["ops"]}' },
+      { row: 0, col: 2, want: "2026-01-15 10:30:00.123456" },
+      { row: 0, col: 3, want: "12345678901234567890.123456" },
+      { row: 1, col: 1, want: null },
+    ],
+  },
+  {
+    name: "mssql",
+    dialect: db.Dialect.MSSQL,
+    col2Type: "datetimeoffset",
+    checks: [
+      { row: 0, col: 0, want: "9007199254740993" },
+      { row: 0, col: 1, want: "München — ünïcodé ✓" },
+      { row: 0, col: 2, want: "2026-01-15T10:30:00.1234567+02:00" },
+      { row: 0, col: 3, want: "12345678901234567890.1234567890" },
+      { row: 1, col: 2, want: null },
+    ],
+  },
+  {
+    name: "snowflake",
+    dialect: db.Dialect.SNOWFLAKE,
+    col2Type: "NUMBER(38,18)",
+    checks: [
+      { row: 0, col: 0, want: "99999999999999999999999999999999999999" },
+      { row: 0, col: 1, want: "Big-ID Account — ünïcodé ✓" },
+      { row: 0, col: 2, want: "12345678901234567890.123456789012345678" },
+      { row: 0, col: 3, want: '{"owner": "synthetic", "tags": ["ops"]}' },
+      { row: 1, col: 3, want: null },
+    ],
+  },
+  {
+    name: "supabase",
+    dialect: db.Dialect.SUPABASE,
+    col2Type: "timestamptz",
+    checks: [
+      { row: 0, col: 0, want: "6f9619ff-8b86-d011-b42d-00c04fc964ff" },
+      { row: 0, col: 1, want: '{"owner": "synthetic", "tags": ["ops"]}' },
+      { row: 0, col: 2, want: "2026-01-15T10:30:00.123456+00:00" },
+      { row: 0, col: 3, want: "12345678901234567890.123456789012345678" },
+      { row: 1, col: 1, want: null },
+    ],
+  },
+] as const;
+
+describe.each(databaseDialects)("database.query.run.$name", (tc) => {
+  it("parses the request with the right dialect enum", () => {
+    const req = fromJson(db.RunQueryRequestSchema, fixture(`database.query.run.${tc.name}`, "request"), { ignoreUnknownFields: true });
+    expect(req.dialect).toBe(tc.dialect);
+  });
+  it("unmarshals one typed value per engine", () => {
+    const resp = fromJson(db.RunQueryResponseSchema, fixture(`database.query.run.${tc.name}`, "response"), { ignoreUnknownFields: true });
+    expect(resp.columns).toHaveLength(4);
+    expect(resp.columns[2].type).toBe(tc.col2Type);
+    expect(resp.rows).toHaveLength(2);
+    for (const c of tc.checks) {
+      const value = resp.rows[c.row].values[c.col];
+      if (c.want === null) {
+        expect(value.kind.case).toBe("nullValue");
+      } else {
+        expect(value.kind.case).toBe("stringValue");
+        if (value.kind.case === "stringValue") expect(value.kind.value).toBe(c.want);
+      }
+    }
+    expect(resp.truncated).toBe(false);
+  });
+  it("rejects the unknown extra field in strict mode", () => {
+    expect(() => fromJson(db.RunQueryResponseSchema, fixture(`database.query.run.${tc.name}`, "response"))).toThrow();
+  });
+});

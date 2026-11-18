@@ -342,6 +342,115 @@ def _check_database_query_run_request(request):
     assert request.max_rows == 100
 
 
+# Per-dialect query.run fixtures: each engine's dialect enum, one
+# engine-specific typed value (jsonb/timestamptz, bigint unsigned/datetime(6),
+# nvarchar unicode/datetimeoffset, NUMBER(38) and VARIANT as strings, uuid),
+# and the NULL cell. The >2^53 integers and precision-critical decimals travel
+# as strings; NULL travels as the protobuf null value.
+DATABASE_DIALECT_CASES = [
+    (
+        "postgres",
+        query_pb2.DIALECT_POSTGRES,
+        "timestamptz",
+        [
+            (0, 0, "9007199254740993", False),
+            (0, 1, '{"owner": "synthetic", "tags": ["ops"]}', False),
+            (0, 2, "2026-01-15T10:30:00.123456+00:00", False),
+            (0, 3, "12345678901234567890.123456789012345678", False),
+            (1, 1, None, True),
+        ],
+    ),
+    (
+        "mysql",
+        query_pb2.DIALECT_MYSQL,
+        "datetime(6)",
+        [
+            (0, 0, "18446744073709551615", False),
+            (0, 1, '{"owner": "synthetic", "tags": ["ops"]}', False),
+            (0, 2, "2026-01-15 10:30:00.123456", False),
+            (0, 3, "12345678901234567890.123456", False),
+            (1, 1, None, True),
+        ],
+    ),
+    (
+        "mssql",
+        query_pb2.DIALECT_MSSQL,
+        "datetimeoffset",
+        [
+            (0, 0, "9007199254740993", False),
+            (0, 1, "München — ünïcodé ✓", False),
+            (0, 2, "2026-01-15T10:30:00.1234567+02:00", False),
+            (0, 3, "12345678901234567890.1234567890", False),
+            (1, 2, None, True),
+        ],
+    ),
+    (
+        "snowflake",
+        query_pb2.DIALECT_SNOWFLAKE,
+        "NUMBER(38,18)",
+        [
+            (0, 0, "99999999999999999999999999999999999999", False),
+            (0, 1, "Big-ID Account — ünïcodé ✓", False),
+            (0, 2, "12345678901234567890.123456789012345678", False),
+            (0, 3, '{"owner": "synthetic", "tags": ["ops"]}', False),
+            (1, 3, None, True),
+        ],
+    ),
+    (
+        "supabase",
+        query_pb2.DIALECT_SUPABASE,
+        "timestamptz",
+        [
+            (0, 0, "6f9619ff-8b86-d011-b42d-00c04fc964ff", False),
+            (0, 1, '{"owner": "synthetic", "tags": ["ops"]}', False),
+            (0, 2, "2026-01-15T10:30:00.123456+00:00", False),
+            (0, 3, "12345678901234567890.123456789012345678", False),
+            (1, 1, None, True),
+        ],
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "name,dialect,col2_type,checks",
+    DATABASE_DIALECT_CASES,
+    ids=[case[0] for case in DATABASE_DIALECT_CASES],
+)
+def test_database_dialect_fixture_rows(name, dialect, col2_type, checks):
+    request = json_format.Parse(
+        _fixture("database", "query.run.%s.request.json" % name),
+        query_pb2.RunQueryRequest(),
+        ignore_unknown_fields=True,
+    )
+    assert request.dialect == dialect
+
+    response_file = "query.run.%s.response.json" % name
+    response = json_format.Parse(
+        _fixture("database", response_file),
+        query_pb2.RunQueryResponse(),
+        ignore_unknown_fields=True,
+    )
+    assert len(response.columns) == 4
+    assert response.columns[2].type == col2_type
+    assert len(response.rows) == 2
+    for row, col, want, is_null in checks:
+        value = response.rows[row].values[col]
+        if is_null:
+            assert value.WhichOneof("kind") == "null_value"
+        else:
+            assert value.string_value == want
+    assert response.truncated is False
+
+    # Drift gate: strict parsing must reject the unknown extra field each
+    # per-dialect response fixture carries.
+    with pytest.raises(json_format.ParseError):
+        json_format.Parse(
+            _fixture("database", response_file),
+            query_pb2.RunQueryResponse(),
+            ignore_unknown_fields=False,
+        )
+
+
 OPS = [
     ("github.issues.get", "github", issues_pb2.GetIssueRequest, issues_pb2.GetIssueResponse, _spot_github_issues_get),
     ("github.issues.list", "github", issues_pb2.ListIssuesRequest, issues_pb2.ListIssuesResponse, _spot_github_issues_list),

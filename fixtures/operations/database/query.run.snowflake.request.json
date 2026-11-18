@@ -1,0 +1,6 @@
+{
+  "dialect": "DIALECT_SNOWFLAKE",
+  "sql": "SELECT ID, NAME, BALANCE, PAYLOAD FROM SYNTHETIC_DOCUMENTS WHERE ID >= :1 ORDER BY ID",
+  "params": ["9007199254740993"],
+  "max_rows": 100
+}
