@@ -1,0 +1,102 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Google Sheets connector contract: spreadsheet and cell-value reads.
+syntax = "proto3";
+
+package kei.connectors.google_sheets.v1;
+
+import "google/protobuf/struct.proto";
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/google_sheets/v1;google_sheets";
+
+// GetValuesRequest reads one A1-notation range of cell values. The range is
+// a single path segment (multi_segment false): RenderPath escapes it with
+// url.PathEscape, which keeps sub-delims like '!' and ':' literal — the
+// range "Sheet1!A1:B2" renders unchanged — while '/' becomes %2F, so a
+// value cannot change the path shape.
+message GetValuesRequest {
+  string spreadsheet_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string range = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH multi_segment: false}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "google_sheets.values.get"
+    connector: "google_sheets"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/v4/spreadsheets/{spreadsheet_id}/values/{range}"
+    scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetValues"
+    connections: ["user_oauth", "domain_delegation"]
+    resource_template: "spreadsheets/{spreadsheet_id}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "spreadsheet" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// GetValuesResponse models the subset of the Sheets values payload the
+// contract needs. rows are positional ListValues in column order; an empty
+// cell is a null entry. It is filled by JSON unmarshal of the provider
+// response.
+message GetValuesResponse {
+  string range = 1;
+  repeated google.protobuf.ListValue values = 2;
+}
+
+// GetSpreadsheetRequest reads a single spreadsheet.
+message GetSpreadsheetRequest {
+  string spreadsheet_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "google_sheets.spreadsheets.get"
+    connector: "google_sheets"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/v4/spreadsheets/{spreadsheet_id}"
+    scopes: ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetSpreadsheet"
+    connections: ["user_oauth", "domain_delegation"]
+    resource_template: "spreadsheets/{spreadsheet_id}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "spreadsheet" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// SpreadsheetProperties models the subset of the spreadsheet properties the
+// contract needs.
+message SpreadsheetProperties {
+  string title = 1;
+}
+
+// GetSpreadsheetResponse models the subset of the Sheets spreadsheet payload
+// the contract needs. It is filled by JSON unmarshal of the provider
+// response.
+message GetSpreadsheetResponse {
+  string spreadsheet_id = 1;
+  SpreadsheetProperties properties = 2;
+}

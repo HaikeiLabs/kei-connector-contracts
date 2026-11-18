@@ -35,6 +35,8 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 
 	databasev1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1"
+	gmailv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/gmail/v1"
+	googlesheetsv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/google_sheets/v1"
 	githubv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1"
 	httpapiv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/http_api/v1"
 	linearv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/linear/v1"
@@ -162,6 +164,72 @@ var fixtureCases = []fixtureCase{
 			}
 			if got := created.GetComment().GetId(); got == "" {
 				t.Errorf("comment.id is empty, want a synthetic id")
+			}
+		},
+	},
+	{
+		op:        "gmail.messages.list",
+		connector: "gmail",
+		request:   func() proto.Message { return &gmailv1.ListMessagesRequest{} },
+		response:  func() proto.Message { return &gmailv1.ListMessagesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*gmailv1.ListMessagesResponse)
+			if len(got.GetMessages()) != 2 {
+				t.Errorf("len(messages) = %d, want 2", len(got.GetMessages()))
+			}
+			if got.GetNextPageToken() != "synthetic-next-token" {
+				t.Errorf("next_page_token = %q, want synthetic-next-token", got.GetNextPageToken())
+			}
+		},
+	},
+	{
+		op:        "gmail.messages.get",
+		connector: "gmail",
+		request:   func() proto.Message { return &gmailv1.GetMessageRequest{} },
+		response:  func() proto.Message { return &gmailv1.GetMessageResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*gmailv1.GetMessageResponse)
+			if got.GetId() != "msg-1001" {
+				t.Errorf("id = %q, want msg-1001", got.GetId())
+			}
+			if got.GetSnippet() != "Synthetic message preview text" {
+				t.Errorf("snippet = %q, want Synthetic message preview text", got.GetSnippet())
+			}
+			if got.InternalDate != nil {
+				t.Errorf("internal_date = %v, want nil (provider null)", got.InternalDate)
+			}
+		},
+	},
+	{
+		op:        "google_sheets.values.get",
+		connector: "google_sheets",
+		request:   func() proto.Message { return &googlesheetsv1.GetValuesRequest{} },
+		response:  func() proto.Message { return &googlesheetsv1.GetValuesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*googlesheetsv1.GetValuesResponse)
+			if got.GetRange() != "Sheet1!A1:B2" {
+				t.Errorf("range = %q, want Sheet1!A1:B2", got.GetRange())
+			}
+			if len(got.GetValues()) != 2 {
+				t.Errorf("len(values) = %d, want 2", len(got.GetValues()))
+			}
+			if got.GetValues()[0].GetValues()[1].GetNullValue() != structpb.NullValue_NULL_VALUE {
+				t.Errorf("values[0][1] = %v, want null (provider null)", got.GetValues()[0].GetValues()[1])
+			}
+		},
+	},
+	{
+		op:        "google_sheets.spreadsheets.get",
+		connector: "google_sheets",
+		request:   func() proto.Message { return &googlesheetsv1.GetSpreadsheetRequest{} },
+		response:  func() proto.Message { return &googlesheetsv1.GetSpreadsheetResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*googlesheetsv1.GetSpreadsheetResponse)
+			if got.GetSpreadsheetId() != "synthetic-sheet-1" {
+				t.Errorf("spreadsheet_id = %q, want synthetic-sheet-1", got.GetSpreadsheetId())
+			}
+			if got.GetProperties().GetTitle() != "Synthetic sheet" {
+				t.Errorf("properties.title = %q, want Synthetic sheet", got.GetProperties().GetTitle())
 			}
 		},
 	},

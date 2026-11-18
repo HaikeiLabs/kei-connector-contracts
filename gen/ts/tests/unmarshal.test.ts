@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 import { fromJson, type DescMessage, type JsonValue } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
 import { isInteger, parse } from "lossless-json";
+import * as gmailMessages from "../src/kei/connectors/gmail/v1/messages_pb.js";
+import * as googleSheets from "../src/kei/connectors/google_sheets/v1/spreadsheets_pb.js";
 import * as ghIssues from "../src/kei/connectors/github/v1/issues_pb.js";
 import * as ghContents from "../src/kei/connectors/github/v1/contents_pb.js";
 import * as ghPulls from "../src/kei/connectors/github/v1/pulls_pb.js";
@@ -32,6 +34,10 @@ function fixture(op: string, kind: string): JsonValue {
 // Each response includes an unknown field: lenient parsing accepts provider drift,
 // while strict parsing detects it. Requests are also checked for compatibility.
 const ops = [
+  ["gmail.messages.list", gmailMessages.ListMessagesRequestSchema, gmailMessages.ListMessagesResponseSchema, (r: any) => { expect(r.messages).toHaveLength(2); expect(r.nextPageToken).toBe("synthetic-next-token"); }],
+  ["gmail.messages.get", gmailMessages.GetMessageRequestSchema, gmailMessages.GetMessageResponseSchema, (r: any) => { expect(r.id).toBe("msg-1001"); expect(r.snippet).toBe("Synthetic message preview text"); expect(r.internalDate).toBeUndefined(); }],
+  ["google_sheets.values.get", googleSheets.GetValuesRequestSchema, googleSheets.GetValuesResponseSchema, (r: any) => { expect(r.range).toBe("Sheet1!A1:B2"); expect(r.values).toHaveLength(2); expect(r.values[0].values[1].kind.case).toBe("nullValue"); }],
+  ["google_sheets.spreadsheets.get", googleSheets.GetSpreadsheetRequestSchema, googleSheets.GetSpreadsheetResponseSchema, (r: any) => { expect(r.spreadsheetId).toBe("synthetic-sheet-1"); expect(r.properties.title).toBe("Synthetic sheet"); }],
   ["github.issues.get", ghIssues.GetIssueRequestSchema, ghIssues.GetIssueResponseSchema, (r: any) => { expect(r.id).toBe(9007199254740993n); expect(r.number).toBe(1347n); }],
   ["github.issues.list", ghIssues.ListIssuesRequestSchema, ghIssues.ListIssuesResponseSchema, (r: any) => expect(r.issues).toHaveLength(2)],
   ["github.contents.put", ghContents.PutContentsRequestSchema, ghContents.PutContentsResponseSchema, (r: any) => expect(r.content.name).toBe("notes.txt")],
