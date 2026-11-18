@@ -68,6 +68,145 @@
       ]
     },
     {
+      "id": "atlassian",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "base_url_field": "site_url",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "site_url",
+              "type": "url",
+              "pattern": "^https://\\S+$",
+              "secret": false
+            }
+          ]
+        },
+        {
+          "name": "api_token",
+          "kind": "http_basic",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "base_url_field": "site_url",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "site_url",
+              "type": "url",
+              "pattern": "^https://\\S+$",
+              "secret": false
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": false
+            },
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "atlassian.confluence.pages.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "read:page:confluence"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "confluence/pages/{page_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.GetConfluencePageRequest",
+          "response": "kei.connectors.atlassian.v1.GetConfluencePageResponse"
+        },
+        {
+          "id": "atlassian.confluence.pages.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "read:page:confluence"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "confluence/pages",
+          "semantics": {
+            "action": "read",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.ListConfluencePagesRequest",
+          "response": "kei.connectors.atlassian.v1.ListConfluencePagesResponse"
+        },
+        {
+          "id": "atlassian.jira.issues.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "read:jira-work"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "jira/issues/{issue_key}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.GetJiraIssueRequest",
+          "response": "kei.connectors.atlassian.v1.GetJiraIssueResponse"
+        },
+        {
+          "id": "atlassian.jira.issues.search",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "read:jira-work"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "jira/issues",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.SearchJiraIssuesRequest",
+          "response": "kei.connectors.atlassian.v1.SearchJiraIssuesResponse"
+        }
+      ]
+    },
+    {
       "id": "database",
       "connections": [
         {

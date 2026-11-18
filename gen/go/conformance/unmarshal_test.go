@@ -35,6 +35,7 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 
 	airtablev1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/airtable/v1"
+	atlassianv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1"
 	databasev1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1"
 	githubv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1"
 	httpapiv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/http_api/v1"
@@ -166,6 +167,75 @@ var fixtureCases = []fixtureCase{
 			}
 			if got := created.GetComment().GetId(); got == "" {
 				t.Errorf("comment.id is empty, want a synthetic id")
+			}
+		},
+	},
+	{
+		op:        "atlassian.jira.issues.get",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.GetJiraIssueRequest{} },
+		response:  func() proto.Message { return &atlassianv1.GetJiraIssueResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.GetJiraIssueResponse)
+			if got.GetKey() != "SYN-101" {
+				t.Errorf("key = %q, want SYN-101", got.GetKey())
+			}
+			if got.GetFields().GetSummary() != "Synthetic Jira issue" {
+				t.Errorf("fields.summary = %q, want Synthetic Jira issue", got.GetFields().GetSummary())
+			}
+			if got.GetFields().Description != nil {
+				t.Errorf("fields.description = %v, want nil (provider null)", got.GetFields().Description)
+			}
+		},
+	},
+	{
+		op:        "atlassian.jira.issues.search",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.SearchJiraIssuesRequest{} },
+		response:  func() proto.Message { return &atlassianv1.SearchJiraIssuesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.SearchJiraIssuesResponse)
+			if len(got.GetIssues()) != 2 {
+				t.Errorf("len(issues) = %d, want 2", len(got.GetIssues()))
+			}
+			if got.GetNextPageToken() != "synthetic-next-token" {
+				t.Errorf("next_page_token = %q, want synthetic-next-token", got.GetNextPageToken())
+			}
+			if got.GetIssues()[1].GetFields().Description != nil {
+				t.Errorf("issues[1].fields.description = %v, want nil (provider null)", got.GetIssues()[1].GetFields().Description)
+			}
+		},
+	},
+	{
+		op:        "atlassian.confluence.pages.get",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.GetConfluencePageRequest{} },
+		response:  func() proto.Message { return &atlassianv1.GetConfluencePageResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.GetConfluencePageResponse)
+			if got.GetId() != 78643201 {
+				t.Errorf("id = %d, want 78643201", got.GetId())
+			}
+			if got.GetTitle() != "Synthetic Confluence page" {
+				t.Errorf("title = %q, want Synthetic Confluence page", got.GetTitle())
+			}
+			if got.ParentId != nil {
+				t.Errorf("parent_id = %v, want nil (provider null)", got.ParentId)
+			}
+		},
+	},
+	{
+		op:        "atlassian.confluence.pages.list",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.ListConfluencePagesRequest{} },
+		response:  func() proto.Message { return &atlassianv1.ListConfluencePagesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.ListConfluencePagesResponse)
+			if len(got.GetResults()) != 2 {
+				t.Errorf("len(results) = %d, want 2", len(got.GetResults()))
+			}
+			if got.GetResults()[0].GetTitle() != "Synthetic first page" {
+				t.Errorf("results[0].title = %q, want Synthetic first page", got.GetResults()[0].GetTitle())
 			}
 		},
 	},
