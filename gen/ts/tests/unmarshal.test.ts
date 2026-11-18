@@ -2,15 +2,28 @@ import { readFileSync } from "node:fs";
 import { fromJson, type DescMessage, type JsonValue } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
 import { isInteger, parse } from "lossless-json";
+import * as gmailMessages from "../src/kei/connectors/gmail/v1/messages_pb.js";
+import * as googleSheets from "../src/kei/connectors/google_sheets/v1/spreadsheets_pb.js";
+import * as atlassianJira from "../src/kei/connectors/atlassian/v1/jira_pb.js";
+import * as atlassianConfluence from "../src/kei/connectors/atlassian/v1/confluence_pb.js";
 import * as ghIssues from "../src/kei/connectors/github/v1/issues_pb.js";
 import * as ghContents from "../src/kei/connectors/github/v1/contents_pb.js";
 import * as ghPulls from "../src/kei/connectors/github/v1/pulls_pb.js";
 import * as linear from "../src/kei/connectors/linear/v1/issues_pb.js";
 import * as linearComments from "../src/kei/connectors/linear/v1/comments_pb.js";
 import * as linearTeams from "../src/kei/connectors/linear/v1/teams_pb.js";
+import * as airtableRecords from "../src/kei/connectors/airtable/v1/records_pb.js";
+import * as hubspotContacts from "../src/kei/connectors/hubspot/v1/contacts_pb.js";
+import * as hubspotDeals from "../src/kei/connectors/hubspot/v1/deals_pb.js";
+import * as notionPages from "../src/kei/connectors/notion/v1/pages_pb.js";
+import * as notionDatabases from "../src/kei/connectors/notion/v1/databases_pb.js";
+import * as sentry from "../src/kei/connectors/sentry/v1/issues_pb.js";
 import * as http from "../src/kei/connectors/http_api/v1/records_pb.js";
 import * as db from "../src/kei/connectors/database/v1/query_pb.js";
 import * as mcp from "../src/kei/connectors/mcp/v1/tool_pb.js";
+import * as omniDocs from "../src/kei/connectors/omni/v1/documents_pb.js";
+import * as omniQueries from "../src/kei/connectors/omni/v1/queries_pb.js";
+import * as pbi from "../src/kei/connectors/power_bi/v1/datasets_pb.js";
 
 function fixtureText(op: string, kind: string): string {
   const [connector, ...name] = op.split(".");
@@ -32,6 +45,14 @@ function fixture(op: string, kind: string): JsonValue {
 // Each response includes an unknown field: lenient parsing accepts provider drift,
 // while strict parsing detects it. Requests are also checked for compatibility.
 const ops = [
+  ["gmail.messages.list", gmailMessages.ListMessagesRequestSchema, gmailMessages.ListMessagesResponseSchema, (r: any) => { expect(r.messages).toHaveLength(2); expect(r.nextPageToken).toBe("synthetic-next-token"); }],
+  ["gmail.messages.get", gmailMessages.GetMessageRequestSchema, gmailMessages.GetMessageResponseSchema, (r: any) => { expect(r.id).toBe("msg-1001"); expect(r.snippet).toBe("Synthetic message preview text"); expect(r.internalDate).toBeUndefined(); }],
+  ["google_sheets.values.get", googleSheets.GetValuesRequestSchema, googleSheets.GetValuesResponseSchema, (r: any) => { expect(r.range).toBe("Sheet1!A1:B2"); expect(r.values).toHaveLength(2); expect(r.values[0].values[1].kind.case).toBe("nullValue"); }],
+  ["google_sheets.spreadsheets.get", googleSheets.GetSpreadsheetRequestSchema, googleSheets.GetSpreadsheetResponseSchema, (r: any) => { expect(r.spreadsheetId).toBe("synthetic-sheet-1"); expect(r.properties.title).toBe("Synthetic sheet"); }],
+  ["atlassian.jira.issues.get", atlassianJira.GetJiraIssueRequestSchema, atlassianJira.GetJiraIssueResponseSchema, (r: any) => { expect(r.key).toBe("SYN-101"); expect(r.fields.summary).toBe("Synthetic Jira issue"); expect(r.fields.description).toBeUndefined(); }],
+  ["atlassian.jira.issues.search", atlassianJira.SearchJiraIssuesRequestSchema, atlassianJira.SearchJiraIssuesResponseSchema, (r: any) => { expect(r.issues).toHaveLength(2); expect(r.nextPageToken).toBe("synthetic-next-token"); expect(r.issues[1].fields.description).toBeUndefined(); }],
+  ["atlassian.confluence.pages.get", atlassianConfluence.GetConfluencePageRequestSchema, atlassianConfluence.GetConfluencePageResponseSchema, (r: any) => { expect(r.id).toBe(78643201n); expect(r.title).toBe("Synthetic Confluence page"); expect(r.parentId).toBeUndefined(); }],
+  ["atlassian.confluence.pages.list", atlassianConfluence.ListConfluencePagesRequestSchema, atlassianConfluence.ListConfluencePagesResponseSchema, (r: any) => { expect(r.results).toHaveLength(2); expect(r.results[0].title).toBe("Synthetic first page"); }],
   ["github.issues.get", ghIssues.GetIssueRequestSchema, ghIssues.GetIssueResponseSchema, (r: any) => { expect(r.id).toBe(9007199254740993n); expect(r.number).toBe(1347n); }],
   ["github.issues.list", ghIssues.ListIssuesRequestSchema, ghIssues.ListIssuesResponseSchema, (r: any) => expect(r.issues).toHaveLength(2)],
   ["github.contents.put", ghContents.PutContentsRequestSchema, ghContents.PutContentsResponseSchema, (r: any) => expect(r.content.name).toBe("notes.txt")],
@@ -41,10 +62,23 @@ const ops = [
   ["linear.issues.search", linear.SearchIssuesRequestSchema, linear.SearchIssuesResponseSchema, (r: any) => expect(r.nodes).toHaveLength(2)],
   ["linear.teams.get", linearTeams.GetTeamRequestSchema, linearTeams.GetTeamResponseSchema, (r: any) => expect(r.team.key).toBe("ENG")],
   ["linear.comments.create", linearComments.CreateCommentRequestSchema, linearComments.CreateCommentResponseSchema, (r: any) => { expect(r.success).toBe(true); expect(r.comment.body).toBe("Synthetic comment"); }],
+  ["airtable.records.get", airtableRecords.GetRecordRequestSchema, airtableRecords.GetRecordResponseSchema, (r: any) => { expect(r.id).toBe("recSynthetic00003"); expect(r.fields["Name"]).toBe("Synthetic third task"); expect(r.fields["Priority"]).toBeNull(); }],
+  ["airtable.records.list", airtableRecords.ListRecordsRequestSchema, airtableRecords.ListRecordsResponseSchema, (r: any) => { expect(r.records).toHaveLength(2); expect(r.offset).toBe("synthetic-next-offset"); expect(r.records[1].fields["Priority"]).toBeNull(); }],
+  ["hubspot.contacts.get", hubspotContacts.GetContactRequestSchema, hubspotContacts.GetContactResponseSchema, (r: any) => { expect(r.id).toBe("701"); expect(r.properties.email).toBe("synthetic.contact@example.invalid"); expect(r.properties.lastname).toBeNull(); }],
+  ["hubspot.contacts.list", hubspotContacts.ListContactsRequestSchema, hubspotContacts.ListContactsResponseSchema, (r: any) => { expect(r.results).toHaveLength(2); expect(r.nextAfter).toBe("synthetic-next-cursor"); }],
+  ["hubspot.deals.list", hubspotDeals.ListDealsRequestSchema, hubspotDeals.ListDealsResponseSchema, (r: any) => { expect(r.results).toHaveLength(2); expect(r.results[0].properties.dealname).toBe("Synthetic first deal"); }],
+  ["notion.pages.get", notionPages.GetPageRequestSchema, notionPages.GetPageResponseSchema, (r: any) => { expect(r.id).toBe("5f8b7e4a-0000-4000-8000-000000000001"); expect(r.publicUrl).toBeUndefined(); }],
+  ["notion.databases.query", notionDatabases.QueryDatabaseRequestSchema, notionDatabases.QueryDatabaseResponseSchema, (r: any) => { expect(r.results).toHaveLength(2); expect(r.nextCursor).toBe("synthetic-next-cursor"); expect(r.results[1].publicUrl).toBeUndefined(); }],
+  ["sentry.issues.get", sentry.GetIssueRequestSchema, sentry.GetIssueResponseSchema, (r: any) => { expect(r.shortId).toBe("PROJ-103"); expect(r.shareId).toBeUndefined(); }],
+  ["sentry.issues.list", sentry.ListIssuesRequestSchema, sentry.ListIssuesResponseSchema, (r: any) => { expect(r.issues).toHaveLength(2); expect(r.issues[1].shareId).toBe("synthetic-share-id-2"); }],
   ["http_api.records.list", http.ListRecordsRequestSchema, http.ListRecordsResponseSchema, (r: any) => expect(r.records).toHaveLength(2)],
   ["http_api.records.get", http.GetRecordRequestSchema, http.GetRecordResponseSchema, (r: any) => expect(r.record.id).toBe("rec-1")],
   ["database.query.run", db.RunQueryRequestSchema, db.RunQueryResponseSchema, (r: any) => expect(r.columns[0].name).toBe("id")],
   ["mcp.tool.call", mcp.ToolCallSchema, mcp.ToolResultSchema, (r: any) => expect(r.content).toHaveLength(2)],
+  ["omni.documents.list", omniDocs.ListDocumentsRequestSchema, omniDocs.ListDocumentsResponseSchema, (r: any) => { expect(r.documents).toHaveLength(2); expect(r.documents[0].name).toBe("Q3 Revenue — ünïcodé ✓"); expect(r.nextCursor).toBe("synthetic-cursor-2"); }],
+  ["omni.queries.run", omniQueries.RunQueryRequestSchema, omniQueries.RunQueryResponseSchema, (r: any) => { expect(r.rows).toHaveLength(2); expect(r.rows[0].region).toBe("EMEA"); expect(r.rows[0].revenue).toBe(1234567.89); }],
+  ["power_bi.datasets.list", pbi.ListDatasetsRequestSchema, pbi.ListDatasetsResponseSchema, (r: any) => { expect(r.value).toHaveLength(2); expect(r.value[0].name).toBe("Sales Marketing"); expect(r.value[0].configuredBy).toBe("synthetic-admin@example.invalid"); expect(r.value[0].targetStorageMode).toBe("Abf"); }],
+  ["power_bi.datasets.execute_queries", pbi.ExecuteQueriesRequestSchema, pbi.ExecuteQueriesResponseSchema, (r: any) => { expect(r.results).toHaveLength(1); expect(r.results[0].tables[0].rows).toHaveLength(2); expect(r.results[0].tables[0].rows[0].Region).toBe("EMEA"); expect(r.results[0].tables[0].rows[0]["Sales Amount"]).toBe(1234567.89); }],
 ] as const;
 
 describe.each(ops)("%s", (op, request, response, spot) => {

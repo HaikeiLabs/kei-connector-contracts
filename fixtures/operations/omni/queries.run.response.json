@@ -1,0 +1,7 @@
+{
+  "rows": [
+    {"region": "EMEA", "revenue": 1234567.89, "account": "Big-ID Account — ünïcodé ✓"},
+    {"region": "AMER", "revenue": 7654321.01, "account": "Synthetic One"}
+  ],
+  "request_id": "synthetic-omni-request-id"
+}

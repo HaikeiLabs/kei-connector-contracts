@@ -18,18 +18,47 @@
 //! are skipped). One spot assert per op proves a field survived with its
 //! synthetic value intact, and the >2^53 int64 id round-trips exactly.
 
+use haikeilabs_connector_contracts::kei::connectors::airtable::v1::{
+    GetRecordResponse as AirtableGetRecordResponse,
+    ListRecordsResponse as AirtableListRecordsResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::atlassian::v1::{
+    GetConfluencePageResponse, GetJiraIssueResponse, ListConfluencePagesResponse,
+    SearchJiraIssuesResponse,
+};
 use haikeilabs_connector_contracts::kei::connectors::database::v1::{
     RunQueryRequest, RunQueryResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::github::v1::{
     GetIssueResponse, GetPullRequestResponse, ListIssuesResponse, PutContentsResponse,
 };
+use haikeilabs_connector_contracts::kei::connectors::gmail::v1::{
+    GetMessageResponse, ListMessagesResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::google_sheets::v1::{
+    GetSpreadsheetResponse, GetValuesResponse,
+};
 use haikeilabs_connector_contracts::kei::connectors::http_api::v1::{
     GetRecordResponse, ListRecordsResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::hubspot::v1::{
+    GetContactResponse, ListContactsResponse, ListDealsResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::linear::v1::{
     CreateCommentResponse, CreateIssueResponse, GetIssueResponse as LinearGetIssueResponse,
     GetTeamResponse, SearchIssuesResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::omni::v1::{
+    ListDocumentsResponse, RunQueryResponse as OmniRunQueryResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::power_bi::v1::{
+    ExecuteQueriesResponse, ListDatasetsResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::notion::v1::{
+    GetPageResponse, QueryDatabaseResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::sentry::v1::{
+    GetIssueResponse as SentryGetIssueResponse, ListIssuesResponse as SentryListIssuesResponse,
 };
 use pbjson_types::value::Kind;
 
@@ -116,6 +145,201 @@ fn fixtures_unmarshal() {
         "Synthetic comment"
     );
 
+    // gmail.messages.list — spot: two messages and the next cursor.
+    let resp: ListMessagesResponse =
+        serde_json::from_str(&fixture("gmail", "messages.list.response.json"))
+            .expect("gmail.messages.list response unmarshals");
+    assert_eq!(resp.messages.len(), 2);
+    assert_eq!(resp.next_page_token.as_deref(), Some("synthetic-next-token"));
+
+    // gmail.messages.get — spot: message id, the snippet, and the null
+    // internal date.
+    let resp: GetMessageResponse =
+        serde_json::from_str(&fixture("gmail", "messages.get.response.json"))
+            .expect("gmail.messages.get response unmarshals");
+    assert_eq!(resp.id, "msg-1001");
+    assert_eq!(resp.snippet, "Synthetic message preview text");
+    assert!(resp.internal_date.is_none(), "internal_date must be null");
+
+    // google_sheets.values.get — spot: the echoed range, two rows, and the
+    // null cell in the first row.
+    let resp: GetValuesResponse =
+        serde_json::from_str(&fixture("google_sheets", "values.get.response.json"))
+            .expect("google_sheets.values.get response unmarshals");
+    assert_eq!(resp.range, "Sheet1!A1:B2");
+    assert_eq!(resp.values.len(), 2);
+    match resp.values[0].values.get(1) {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("values[0][1] must be null, got {:?}", other),
+    }
+
+    // google_sheets.spreadsheets.get — spot: spreadsheet id and the title.
+    let resp: GetSpreadsheetResponse =
+        serde_json::from_str(&fixture("google_sheets", "spreadsheets.get.response.json"))
+            .expect("google_sheets.spreadsheets.get response unmarshals");
+    assert_eq!(resp.spreadsheet_id, "synthetic-sheet-1");
+    let properties = resp.properties.as_ref().expect("properties present");
+    assert_eq!(properties.title, "Synthetic sheet");
+
+    // atlassian.jira.issues.get — spot: issue key, the summary, and the null
+    // description.
+    let resp: GetJiraIssueResponse =
+        serde_json::from_str(&fixture("atlassian", "jira.issues.get.response.json"))
+            .expect("atlassian.jira.issues.get response unmarshals");
+    assert_eq!(resp.key, "SYN-101");
+    let fields = resp.fields.as_ref().expect("fields present");
+    assert_eq!(fields.summary, "Synthetic Jira issue");
+    assert!(fields.description.is_none(), "description must be null");
+
+    // atlassian.jira.issues.search — spot: two issues, the next cursor, and
+    // the null description on the second issue.
+    let resp: SearchJiraIssuesResponse =
+        serde_json::from_str(&fixture("atlassian", "jira.issues.search.response.json"))
+            .expect("atlassian.jira.issues.search response unmarshals");
+    assert_eq!(resp.issues.len(), 2);
+    assert_eq!(resp.next_page_token.as_deref(), Some("synthetic-next-token"));
+    let second = resp.issues[1].fields.as_ref().expect("fields present");
+    assert!(second.description.is_none(), "description must be null");
+
+    // atlassian.confluence.pages.get — spot: page id, the title, and the null
+    // parent_id of a root page.
+    let resp: GetConfluencePageResponse =
+        serde_json::from_str(&fixture("atlassian", "confluence.pages.get.response.json"))
+            .expect("atlassian.confluence.pages.get response unmarshals");
+    assert_eq!(resp.id, 78643201);
+    assert_eq!(resp.title, "Synthetic Confluence page");
+    assert!(resp.parent_id.is_none(), "parent_id must be null");
+
+    // atlassian.confluence.pages.list — spot: two page entries.
+    let resp: ListConfluencePagesResponse =
+        serde_json::from_str(&fixture("atlassian", "confluence.pages.list.response.json"))
+            .expect("atlassian.confluence.pages.list response unmarshals");
+    assert_eq!(resp.results.len(), 2);
+    assert_eq!(resp.results[0].title, "Synthetic first page");
+
+    // airtable.records.get — spot: record id, the Name string, and the null
+    // Priority field.
+    let resp: AirtableGetRecordResponse =
+        serde_json::from_str(&fixture("airtable", "records.get.response.json"))
+            .expect("airtable.records.get response unmarshals");
+    assert_eq!(resp.id, "recSynthetic00003");
+    let fields = resp.fields.as_ref().expect("fields present");
+    match fields.fields.get("Name") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(name)),
+        }) => assert_eq!(name, "Synthetic third task"),
+        other => panic!("fields.Name must be a string, got {:?}", other),
+    }
+    match fields.fields.get("Priority") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("fields.Priority must be null, got {:?}", other),
+    }
+
+    // airtable.records.list — spot: two records, the offset cursor, and the
+    // null Priority field on the second record.
+    let resp: AirtableListRecordsResponse =
+        serde_json::from_str(&fixture("airtable", "records.list.response.json"))
+            .expect("airtable.records.list response unmarshals");
+    assert_eq!(resp.records.len(), 2);
+    assert_eq!(resp.offset.as_deref(), Some("synthetic-next-offset"));
+    let second = resp.records[1].fields.as_ref().expect("fields present");
+    match second.fields.get("Priority") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("records[1].fields.Priority must be null, got {:?}", other),
+    }
+
+    // hubspot.contacts.get — spot: contact id, the email string, and the null
+    // lastname property.
+    let resp: GetContactResponse =
+        serde_json::from_str(&fixture("hubspot", "contacts.get.response.json"))
+            .expect("hubspot.contacts.get response unmarshals");
+    assert_eq!(resp.id, "701");
+    let props = resp.properties.as_ref().expect("properties present");
+    match props.fields.get("email") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(email)),
+        }) => assert_eq!(email, "synthetic.contact@example.invalid"),
+        other => panic!("properties.email must be a string, got {:?}", other),
+    }
+    match props.fields.get("lastname") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("properties.lastname must be null, got {:?}", other),
+    }
+
+    // hubspot.contacts.list — spot: two results and the next cursor.
+    let resp: ListContactsResponse =
+        serde_json::from_str(&fixture("hubspot", "contacts.list.response.json"))
+            .expect("hubspot.contacts.list response unmarshals");
+    assert_eq!(resp.results.len(), 2);
+    assert_eq!(resp.next_after.as_deref(), Some("synthetic-next-cursor"));
+    let second = resp.results[1].properties.as_ref().expect("properties present");
+    match second.fields.get("lastname") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("results[1].properties.lastname must be null, got {:?}", other),
+    }
+
+    // hubspot.deals.list — spot: two results and the null description.
+    let resp: ListDealsResponse =
+        serde_json::from_str(&fixture("hubspot", "deals.list.response.json"))
+            .expect("hubspot.deals.list response unmarshals");
+    assert_eq!(resp.results.len(), 2);
+    let first = resp.results[0].properties.as_ref().expect("properties present");
+    match first.fields.get("dealname") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(name)),
+        }) => assert_eq!(name, "Synthetic first deal"),
+        other => panic!("properties.dealname must be a string, got {:?}", other),
+    }
+    match first.fields.get("description") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("properties.description must be null, got {:?}", other),
+    }
+    // notion.pages.get — spot: the synthetic page id and the null public_url.
+    let resp: GetPageResponse =
+        serde_json::from_str(&fixture("notion", "pages.get.response.json"))
+            .expect("notion.pages.get response unmarshals");
+    assert_eq!(resp.id, "5f8b7e4a-0000-4000-8000-000000000001");
+    assert!(resp.public_url.is_none(), "public_url must stay null");
+
+    // notion.databases.query — spot: two results, the next cursor, and the
+    // null public_url on the second page.
+    let resp: QueryDatabaseResponse =
+        serde_json::from_str(&fixture("notion", "databases.query.response.json"))
+            .expect("notion.databases.query response unmarshals");
+    assert_eq!(resp.results.len(), 2);
+    assert_eq!(resp.next_cursor.as_deref(), Some("synthetic-next-cursor"));
+    assert!(resp.has_more);
+    assert!(resp.results[1].public_url.is_none(), "public_url must stay null");
+
+    // sentry.issues.get — spot: short_id and the null share_id.
+    let resp: SentryGetIssueResponse =
+        serde_json::from_str(&fixture("sentry", "issues.get.response.json"))
+            .expect("sentry.issues.get response unmarshals");
+    assert_eq!(resp.short_id, "PROJ-103");
+    assert!(resp.share_id.is_none(), "share_id must stay null");
+
+    // sentry.issues.list — spot: two issues and the share id on the second.
+    let resp: SentryListIssuesResponse =
+        serde_json::from_str(&fixture("sentry", "issues.list.response.json"))
+            .expect("sentry.issues.list response unmarshals");
+    assert_eq!(resp.issues.len(), 2);
+    assert_eq!(
+        resp.issues[1].share_id.as_deref(),
+        Some("synthetic-share-id-2")
+    );
+
     // http_api.records.list — spot: two Struct records.
     let resp: ListRecordsResponse =
         serde_json::from_str(&fixture("http_api", "records.list.response.json"))
@@ -184,4 +408,68 @@ fn fixtures_unmarshal() {
         other => panic!("rows[1][3] must be a string, got {:?}", other),
     }
     assert!(!resp.truncated);
+
+    // omni.documents.list — spot: two entries, the unicode name and the next
+    // page cursor.
+    let resp: ListDocumentsResponse =
+        serde_json::from_str(&fixture("omni", "documents.list.response.json"))
+            .expect("omni.documents.list response unmarshals");
+    assert_eq!(resp.documents.len(), 2);
+    assert_eq!(resp.documents[0].name, "Q3 Revenue — ünïcodé ✓");
+    assert_eq!(resp.next_cursor.as_deref(), Some("synthetic-cursor-2"));
+
+    // omni.queries.run — spot: two Struct rows with region and revenue.
+    let resp: OmniRunQueryResponse =
+        serde_json::from_str(&fixture("omni", "queries.run.response.json"))
+            .expect("omni.queries.run response unmarshals");
+    assert_eq!(resp.rows.len(), 2);
+    match resp.rows[0].fields.get("region") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(region)),
+        }) => assert_eq!(region, "EMEA"),
+        other => panic!("rows[0].region is not a string: {:?}", other),
+    }
+    match resp.rows[0].fields.get("revenue") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::NumberValue(revenue)),
+        }) => assert_eq!(*revenue, 1234567.89),
+        other => panic!("rows[0].revenue is not a number: {:?}", other),
+    }
+
+    // power_bi.datasets.list — spot: two datasets under value; the PascalCase
+    // wire keys ConfiguredBy and TargetStorageMode decode via json_name.
+    let resp: ListDatasetsResponse =
+        serde_json::from_str(&fixture("power_bi", "datasets.list.response.json"))
+            .expect("power_bi.datasets.list response unmarshals");
+    assert_eq!(resp.value.len(), 2);
+    assert_eq!(resp.value[0].name, "Sales Marketing");
+    assert_eq!(
+        resp.value[0].configured_by.as_deref(),
+        Some("synthetic-admin@example.invalid")
+    );
+    assert_eq!(resp.value[0].target_storage_mode.as_deref(), Some("Abf"));
+
+    // power_bi.datasets.execute_queries — spot: one result, one table, two
+    // Struct rows with Region and Sales Amount.
+    let resp: ExecuteQueriesResponse = serde_json::from_str(&fixture(
+        "power_bi",
+        "datasets.execute_queries.response.json",
+    ))
+    .expect("power_bi.datasets.execute_queries response unmarshals");
+    assert_eq!(resp.results.len(), 1);
+    assert_eq!(resp.results[0].tables.len(), 1);
+    let rows = &resp.results[0].tables[0].rows;
+    assert_eq!(rows.len(), 2);
+    match rows[0].fields.get("Region") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(region)),
+        }) => assert_eq!(region, "EMEA"),
+        other => panic!("rows[0].Region is not a string: {:?}", other),
+    }
+    match rows[0].fields.get("Sales Amount") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::NumberValue(amount)),
+        }) => assert_eq!(*amount, 1234567.89),
+        other => panic!("rows[0].Sales Amount is not a number: {:?}", other),
+    }
 }
