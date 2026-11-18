@@ -27,7 +27,8 @@ option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/co
 message PutContentsRequest {
   string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
   string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
-  string path = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  // A file path such as docs/notes.md: its slashes are kept.
+  string path = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH multi_segment: true}];
   string message = 4;
   string content = 5;
   optional string branch = 6;

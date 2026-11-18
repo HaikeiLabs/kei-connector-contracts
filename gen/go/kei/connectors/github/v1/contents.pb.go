@@ -42,14 +42,15 @@ const (
 // the Contents API. content carries the base64-encoded file bytes; sha is set
 // only when replacing an existing file.
 type PutContentsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Owner         string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
-	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
-	Path          string                 `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty"`
-	Message       string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
-	Content       string                 `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`
-	Branch        *string                `protobuf:"bytes,6,opt,name=branch,proto3,oneof" json:"branch,omitempty"`
-	Sha           *string                `protobuf:"bytes,7,opt,name=sha,proto3,oneof" json:"sha,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Owner      string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	// A file path such as docs/notes.md: its slashes are kept.
+	Path          string  `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty"`
+	Message       string  `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
+	Content       string  `protobuf:"bytes,5,opt,name=content,proto3" json:"content,omitempty"`
+	Branch        *string `protobuf:"bytes,6,opt,name=branch,proto3,oneof" json:"branch,omitempty"`
+	Sha           *string `protobuf:"bytes,7,opt,name=sha,proto3,oneof" json:"sha,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -321,13 +322,13 @@ var File_kei_connectors_github_v1_contents_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_github_v1_contents_proto_rawDesc = "" +
 	"\n" +
-	"'kei/connectors/github/v1/contents.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xcf\x03\n" +
+	"'kei/connectors/github/v1/contents.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xd1\x03\n" +
 	"\x12PutContentsRequest\x12\x1c\n" +
 	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
 	"\n" +
 	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
-	"repository\x12\x1a\n" +
-	"\x04path\x18\x03 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x04path\x12\x18\n" +
+	"repository\x12\x1c\n" +
+	"\x04path\x18\x03 \x01(\tB\b\xa2\x82\x19\x04\b\x01\x18\x01R\x04path\x12\x18\n" +
 	"\amessage\x18\x04 \x01(\tR\amessage\x12\x18\n" +
 	"\acontent\x18\x05 \x01(\tR\acontent\x12\x1b\n" +
 	"\x06branch\x18\x06 \x01(\tH\x00R\x06branch\x88\x01\x01\x12\x15\n" +
