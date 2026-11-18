@@ -1,0 +1,5 @@
+{
+  "sha": "synthetic-blob-sha-1",
+  "url": "https://example.invalid/api/v3/repos/example-org/example-repo/git/blobs/synthetic-blob-sha-1",
+  "node_id": "synthetic-node-id-14"
+}

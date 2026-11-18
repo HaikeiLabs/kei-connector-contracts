@@ -59,4 +59,282 @@ message GetPullRequestResponse {
   string html_url = 6;
   bool draft = 7;
   optional string merged_at = 8;
+  PullRef head = 9;
+  PullRef base = 10;
+  User author = 11 [json_name = "user"];
+  repeated Label labels = 12;
+}
+
+// PullRef models the branch side of a pull request.
+message PullRef {
+  string ref = 1;
+}
+
+// User models the GitHub account that authored an issue or pull request.
+message User {
+  int64 id = 1;
+  string login = 2;
+}
+
+// Label models a repository label attached to an issue or pull request.
+message Label {
+  int64 id = 1;
+  string name = 2;
+}
+
+// ListPullsRequest lists the pull requests of a GitHub repository. The
+// contract models the page size and page number of the query parameters.
+message ListPullsRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional int32 per_page = 3;
+  optional int32 page = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.pulls.list"
+    connector: "github"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/repos/{owner}/{repository}/pulls"
+    scopes: ["pulls:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListPulls"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    cursor_field: "page"
+    next_cursor_field: "next_page"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "pull_request" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// PullRequestSummary models the subset of each pull request entry a list
+// response carries. It is filled by JSON unmarshal of the provider response.
+message PullRequestSummary {
+  int64 id = 1;
+  int64 number = 2;
+  string title = 3;
+  string state = 4;
+  optional string body = 5;
+  string html_url = 6;
+  bool draft = 7;
+  PullRef head = 8;
+  PullRef base = 9;
+  User author = 10 [json_name = "user"];
+  repeated Label labels = 11;
+}
+
+// ListPullsResponse wraps the pull request entries of a list response. GitHub
+// returns a bare JSON array here; the contract envelopes it under pulls so
+// the response stays a protojson object and envelope keys stay
+// drift-checkable. next_page carries the next page number from the Link
+// header. It is filled by JSON unmarshal of the provider response.
+message ListPullsResponse {
+  repeated PullRequestSummary pulls = 1;
+  optional int64 next_page = 2;
+}
+
+// CreatePullRequestRequest opens a pull request in a GitHub repository. head
+// and base name the branches; the title is the provider's only required
+// field.
+message CreatePullRequestRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string title = 3;
+  string head = 4;
+  string base = 5;
+  optional string body = 6;
+  optional bool draft = 7;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.pulls.create"
+    connector: "github"
+    class: OPERATION_CLASS_WRITE
+    http_method: "POST"
+    path_template: "/repos/{owner}/{repository}/pulls"
+    scopes: ["pulls:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreatePullRequest"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "pull_request" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true},
+      {status: 409 kind: ERROR_KIND_CONFLICT},
+      {status: 422 kind: ERROR_KIND_INVALID}
+    ]
+  };
+}
+
+// CreatePullRequestResponse models the opened pull request. It is filled by
+// JSON unmarshal of the provider response.
+message CreatePullRequestResponse {
+  int64 id = 1;
+  int64 number = 2;
+  string title = 3;
+  string state = 4;
+  string html_url = 5;
+  bool draft = 6;
+  PullRef head = 7;
+  PullRef base = 8;
+  User author = 9 [json_name = "user"];
+  repeated Label labels = 10;
+}
+
+// UpdatePullRequestRequest edits an open pull request. Every field is
+// optional: the provider applies a partial update. The provider answers a
+// PATCH with the full pull payload, so the operation reuses the read
+// response message.
+message UpdatePullRequestRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  int64 pull_number = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional string title = 4;
+  optional string body = 5;
+  optional string state = 6;
+  optional string base = 7;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.pulls.update"
+    connector: "github"
+    class: OPERATION_CLASS_WRITE
+    http_method: "PATCH"
+    path_template: "/repos/{owner}/{repository}/pulls/{pull_number}"
+    scopes: ["pulls:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "UpdatePullRequest"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "pull_request" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true},
+      {status: 409 kind: ERROR_KIND_CONFLICT},
+      {status: 422 kind: ERROR_KIND_INVALID}
+    ]
+  };
+}
+
+// UpdatePullRequestResponse models the updated pull request: the provider
+// answers a PATCH with the full payload. It is filled by JSON unmarshal of
+// the provider response.
+message UpdatePullRequestResponse {
+  int64 id = 1;
+  int64 number = 2;
+  string title = 3;
+  string state = 4;
+  optional string body = 5;
+  string html_url = 6;
+  bool draft = 7;
+  optional string merged_at = 8;
+  PullRef head = 9;
+  PullRef base = 10;
+  User author = 11 [json_name = "user"];
+  repeated Label labels = 12;
+}
+
+// ListPullReviewsRequest lists the reviews of a pull request. The contract
+// models the page size and page number of the query parameters.
+message ListPullReviewsRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  int64 pull_number = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional int32 per_page = 4;
+  optional int32 page = 5;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.pulls.reviews.list"
+    connector: "github"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/repos/{owner}/{repository}/pulls/{pull_number}/reviews"
+    scopes: ["pulls:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListReviews"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    cursor_field: "page"
+    next_cursor_field: "next_page"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "pull_request_review" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// ReviewSummary models the subset of each review entry a list response
+// carries. It is filled by JSON unmarshal of the provider response.
+message ReviewSummary {
+  int64 id = 1;
+  string state = 2;
+  optional string body = 3;
+  string html_url = 4;
+  optional string submitted_at = 5;
+  User author = 6 [json_name = "user"];
+}
+
+// ListPullReviewsResponse wraps the review entries of a list response. GitHub
+// returns a bare JSON array here; the contract envelopes it under reviews so
+// the response stays a protojson object and envelope keys stay
+// drift-checkable. next_page carries the next page number from the Link
+// header. It is filled by JSON unmarshal of the provider response.
+message ListPullReviewsResponse {
+  repeated ReviewSummary reviews = 1;
+  optional int64 next_page = 2;
+}
+
+// CreatePullReviewRequest submits a review on a pull request. The provider
+// requires either an event verdict or a pending body.
+message CreatePullReviewRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  int64 pull_number = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional string body = 4;
+  optional string event = 5;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.pulls.reviews.create"
+    connector: "github"
+    class: OPERATION_CLASS_WRITE
+    http_method: "POST"
+    path_template: "/repos/{owner}/{repository}/pulls/{pull_number}/reviews"
+    scopes: ["pulls:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateReview"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "pull_request_review" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true},
+      {status: 409 kind: ERROR_KIND_CONFLICT},
+      {status: 422 kind: ERROR_KIND_INVALID}
+    ]
+  };
+}
+
+// CreatePullReviewResponse models the submitted review. It is filled by JSON
+// unmarshal of the provider response.
+message CreatePullReviewResponse {
+  int64 id = 1;
+  string state = 2;
+  optional string body = 3;
+  string html_url = 4;
+  optional string submitted_at = 5;
+  User author = 6 [json_name = "user"];
 }

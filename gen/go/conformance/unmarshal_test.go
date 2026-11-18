@@ -104,6 +104,210 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "github.pulls.list",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.ListPullsRequest{} },
+		response:  func() proto.Message { return &githubv1.ListPullsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			pulls := resp.(*githubv1.ListPullsResponse)
+			if got := pulls.GetPulls()[0].GetHead().GetRef(); got != "feature/x" {
+				t.Errorf("pulls[0].head.ref = %q, want feature/x", got)
+			}
+			if got := pulls.GetPulls()[0].GetId(); got != 9007199254740999 {
+				t.Errorf("pulls[0].id = %d, want 9007199254740999 (int64 must not go through float64)", got)
+			}
+		},
+	},
+	{
+		op:        "github.actions.runs.list",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.ListWorkflowRunsRequest{} },
+		response:  func() proto.Message { return &githubv1.ListWorkflowRunsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			runs := resp.(*githubv1.ListWorkflowRunsResponse)
+			if got := runs.GetWorkflowRuns()[0].GetHeadBranch(); got != "feature/x" {
+				t.Errorf("workflow_runs[0].head_branch = %q, want feature/x", got)
+			}
+			if got := runs.GetWorkflowRuns()[0].GetId(); got != 9007199254741001 {
+				t.Errorf("workflow_runs[0].id = %d, want 9007199254741001 (int64 must not go through float64)", got)
+			}
+		},
+	},
+	{
+		op:        "github.issues.create",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.CreateIssueRequest{} },
+		response:  func() proto.Message { return &githubv1.CreateIssueResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			issue := resp.(*githubv1.CreateIssueResponse)
+			if got := issue.GetNumber(); got != 42 {
+				t.Errorf("number = %d, want 42", got)
+			}
+			if got := issue.GetAuthor().GetLogin(); got != "example-user" {
+				t.Errorf("author.login = %q, want example-user (json_name user)", got)
+			}
+		},
+	},
+	{
+		op:        "github.issues.comments.create",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.CreateIssueCommentRequest{} },
+		response:  func() proto.Message { return &githubv1.CreateIssueCommentResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			comment := resp.(*githubv1.CreateIssueCommentResponse)
+			if got := comment.GetBody(); got != "Synthetic comment" {
+				t.Errorf("body = %q, want Synthetic comment", got)
+			}
+			if got := comment.GetAuthor().GetLogin(); got != "example-user" {
+				t.Errorf("author.login = %q, want example-user (json_name user)", got)
+			}
+		},
+	},
+	{
+		op:        "github.pulls.create",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.CreatePullRequestRequest{} },
+		response:  func() proto.Message { return &githubv1.CreatePullRequestResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			pull := resp.(*githubv1.CreatePullRequestResponse)
+			if got := pull.GetNumber(); got != 43 {
+				t.Errorf("number = %d, want 43", got)
+			}
+			if !pull.GetDraft() {
+				t.Error("draft = false, want true")
+			}
+		},
+	},
+	{
+		op:        "github.pulls.update",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.UpdatePullRequestRequest{} },
+		response:  func() proto.Message { return &githubv1.UpdatePullRequestResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			pull := resp.(*githubv1.UpdatePullRequestResponse)
+			if got := pull.GetTitle(); got != "Synthetic updated title" {
+				t.Errorf("title = %q, want Synthetic updated title", got)
+			}
+			if got := pull.GetState(); got != "open" {
+				t.Errorf("state = %q, want open", got)
+			}
+		},
+	},
+	{
+		op:        "github.pulls.reviews.list",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.ListPullReviewsRequest{} },
+		response:  func() proto.Message { return &githubv1.ListPullReviewsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			reviews := resp.(*githubv1.ListPullReviewsResponse)
+			if got := reviews.GetReviews()[0].GetState(); got != "APPROVED" {
+				t.Errorf("reviews[0].state = %q, want APPROVED", got)
+			}
+			if got := reviews.GetReviews()[0].GetAuthor().GetLogin(); got != "example-reviewer" {
+				t.Errorf("reviews[0].author.login = %q, want example-reviewer (json_name user)", got)
+			}
+		},
+	},
+	{
+		op:        "github.pulls.reviews.create",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.CreatePullReviewRequest{} },
+		response:  func() proto.Message { return &githubv1.CreatePullReviewResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			review := resp.(*githubv1.CreatePullReviewResponse)
+			if got := review.GetState(); got != "APPROVED" {
+				t.Errorf("state = %q, want APPROVED", got)
+			}
+			if got := review.GetId(); got != 9007199254741006 {
+				t.Errorf("id = %d, want 9007199254741006 (int64 must not go through float64)", got)
+			}
+		},
+	},
+	{
+		op:        "github.git.refs.get",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.GetRefRequest{} },
+		response:  func() proto.Message { return &githubv1.GetRefResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			ref := resp.(*githubv1.GetRefResponse)
+			if got := ref.GetRef(); got != "refs/heads/feature/x" {
+				t.Errorf("ref = %q, want refs/heads/feature/x", got)
+			}
+			if got := ref.GetObject().GetSha(); got != "synthetic-ref-sha-1" {
+				t.Errorf("object.sha = %q, want the synthetic ref sha", got)
+			}
+		},
+	},
+	{
+		op:        "github.git.refs.create",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.CreateRefRequest{} },
+		response:  func() proto.Message { return &githubv1.CreateRefResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			ref := resp.(*githubv1.CreateRefResponse)
+			if got := ref.GetRef(); got != "refs/heads/feature/y" {
+				t.Errorf("ref = %q, want refs/heads/feature/y", got)
+			}
+			if got := ref.GetObject().GetType(); got != "commit" {
+				t.Errorf("object.type = %q, want commit", got)
+			}
+		},
+	},
+	{
+		op:        "github.git.refs.update",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.UpdateRefRequest{} },
+		response:  func() proto.Message { return &githubv1.UpdateRefResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			ref := resp.(*githubv1.UpdateRefResponse)
+			if got := ref.GetObject().GetSha(); got != "synthetic-ref-sha-2" {
+				t.Errorf("object.sha = %q, want the moved synthetic sha", got)
+			}
+		},
+	},
+	{
+		op:        "github.git.blobs.create",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.CreateBlobRequest{} },
+		response:  func() proto.Message { return &githubv1.CreateBlobResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			blob := resp.(*githubv1.CreateBlobResponse)
+			if got := blob.GetSha(); got != "synthetic-blob-sha-1" {
+				t.Errorf("sha = %q, want the synthetic blob sha", got)
+			}
+		},
+	},
+	{
+		op:        "github.git.trees.create",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.CreateTreeRequest{} },
+		response:  func() proto.Message { return &githubv1.CreateTreeResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			tree := resp.(*githubv1.CreateTreeResponse)
+			if got := tree.GetSha(); got != "synthetic-tree-sha-1" {
+				t.Errorf("sha = %q, want the synthetic tree sha", got)
+			}
+			if got := tree.GetTree()[0].GetPath(); got != "notes.txt" {
+				t.Errorf("tree[0].path = %q, want notes.txt", got)
+			}
+		},
+	},
+	{
+		op:        "github.git.commits.create",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.CreateCommitRequest{} },
+		response:  func() proto.Message { return &githubv1.CreateCommitResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			commit := resp.(*githubv1.CreateCommitResponse)
+			if got := commit.GetSha(); got != "synthetic-commit-sha-2" {
+				t.Errorf("sha = %q, want the synthetic commit sha", got)
+			}
+			if got := len(commit.GetParents()); got != 1 {
+				t.Errorf("len(parents) = %d, want 1", got)
+			}
+		},
+	},
+	{
 		op:        "linear.issues.get",
 		connector: "linear",
 		request:   func() proto.Message { return &linearv1.GetIssueRequest{} },

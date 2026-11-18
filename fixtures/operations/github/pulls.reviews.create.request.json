@@ -1,0 +1,7 @@
+{
+  "owner": "example-org",
+  "repository": "example-repo",
+  "pull_number": 43,
+  "event": "APPROVE",
+  "body": "Synthetic review body"
+}

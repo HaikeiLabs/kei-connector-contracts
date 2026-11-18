@@ -12,13 +12,35 @@ import (
 // Mock implements Operations with one function field per operation, for
 // tests. Calling an operation whose field is nil returns an error.
 type Mock struct {
-	PutContentsFunc    func(ctx context.Context, req *github.PutContentsRequest) (*github.PutContentsResponse, error)
-	GetIssueFunc       func(ctx context.Context, req *github.GetIssueRequest) (*github.GetIssueResponse, error)
-	ListIssuesFunc     func(ctx context.Context, req *github.ListIssuesRequest) (*github.ListIssuesResponse, error)
-	GetPullRequestFunc func(ctx context.Context, req *github.GetPullRequestRequest) (*github.GetPullRequestResponse, error)
+	ListWorkflowRunsFunc   func(ctx context.Context, req *github.ListWorkflowRunsRequest) (*github.ListWorkflowRunsResponse, error)
+	PutContentsFunc        func(ctx context.Context, req *github.PutContentsRequest) (*github.PutContentsResponse, error)
+	CreateBlobFunc         func(ctx context.Context, req *github.CreateBlobRequest) (*github.CreateBlobResponse, error)
+	CreateCommitFunc       func(ctx context.Context, req *github.CreateCommitRequest) (*github.CreateCommitResponse, error)
+	CreateRefFunc          func(ctx context.Context, req *github.CreateRefRequest) (*github.CreateRefResponse, error)
+	GetRefFunc             func(ctx context.Context, req *github.GetRefRequest) (*github.GetRefResponse, error)
+	UpdateRefFunc          func(ctx context.Context, req *github.UpdateRefRequest) (*github.UpdateRefResponse, error)
+	CreateTreeFunc         func(ctx context.Context, req *github.CreateTreeRequest) (*github.CreateTreeResponse, error)
+	CreateIssueCommentFunc func(ctx context.Context, req *github.CreateIssueCommentRequest) (*github.CreateIssueCommentResponse, error)
+	CreateIssueFunc        func(ctx context.Context, req *github.CreateIssueRequest) (*github.CreateIssueResponse, error)
+	GetIssueFunc           func(ctx context.Context, req *github.GetIssueRequest) (*github.GetIssueResponse, error)
+	ListIssuesFunc         func(ctx context.Context, req *github.ListIssuesRequest) (*github.ListIssuesResponse, error)
+	CreatePullRequestFunc  func(ctx context.Context, req *github.CreatePullRequestRequest) (*github.CreatePullRequestResponse, error)
+	GetPullRequestFunc     func(ctx context.Context, req *github.GetPullRequestRequest) (*github.GetPullRequestResponse, error)
+	ListPullsFunc          func(ctx context.Context, req *github.ListPullsRequest) (*github.ListPullsResponse, error)
+	CreateReviewFunc       func(ctx context.Context, req *github.CreatePullReviewRequest) (*github.CreatePullReviewResponse, error)
+	ListReviewsFunc        func(ctx context.Context, req *github.ListPullReviewsRequest) (*github.ListPullReviewsResponse, error)
+	UpdatePullRequestFunc  func(ctx context.Context, req *github.UpdatePullRequestRequest) (*github.UpdatePullRequestResponse, error)
 }
 
 var _ Operations = (*Mock)(nil)
+
+// ListWorkflowRuns calls m.ListWorkflowRunsFunc.
+func (m *Mock) ListWorkflowRuns(ctx context.Context, req *github.ListWorkflowRunsRequest) (*github.ListWorkflowRunsResponse, error) {
+	if m.ListWorkflowRunsFunc == nil {
+		return nil, errors.New("githubops.Mock: ListWorkflowRunsFunc is not set")
+	}
+	return m.ListWorkflowRunsFunc(ctx, req)
+}
 
 // PutContents calls m.PutContentsFunc.
 func (m *Mock) PutContents(ctx context.Context, req *github.PutContentsRequest) (*github.PutContentsResponse, error) {
@@ -26,6 +48,70 @@ func (m *Mock) PutContents(ctx context.Context, req *github.PutContentsRequest) 
 		return nil, errors.New("githubops.Mock: PutContentsFunc is not set")
 	}
 	return m.PutContentsFunc(ctx, req)
+}
+
+// CreateBlob calls m.CreateBlobFunc.
+func (m *Mock) CreateBlob(ctx context.Context, req *github.CreateBlobRequest) (*github.CreateBlobResponse, error) {
+	if m.CreateBlobFunc == nil {
+		return nil, errors.New("githubops.Mock: CreateBlobFunc is not set")
+	}
+	return m.CreateBlobFunc(ctx, req)
+}
+
+// CreateCommit calls m.CreateCommitFunc.
+func (m *Mock) CreateCommit(ctx context.Context, req *github.CreateCommitRequest) (*github.CreateCommitResponse, error) {
+	if m.CreateCommitFunc == nil {
+		return nil, errors.New("githubops.Mock: CreateCommitFunc is not set")
+	}
+	return m.CreateCommitFunc(ctx, req)
+}
+
+// CreateRef calls m.CreateRefFunc.
+func (m *Mock) CreateRef(ctx context.Context, req *github.CreateRefRequest) (*github.CreateRefResponse, error) {
+	if m.CreateRefFunc == nil {
+		return nil, errors.New("githubops.Mock: CreateRefFunc is not set")
+	}
+	return m.CreateRefFunc(ctx, req)
+}
+
+// GetRef calls m.GetRefFunc.
+func (m *Mock) GetRef(ctx context.Context, req *github.GetRefRequest) (*github.GetRefResponse, error) {
+	if m.GetRefFunc == nil {
+		return nil, errors.New("githubops.Mock: GetRefFunc is not set")
+	}
+	return m.GetRefFunc(ctx, req)
+}
+
+// UpdateRef calls m.UpdateRefFunc.
+func (m *Mock) UpdateRef(ctx context.Context, req *github.UpdateRefRequest) (*github.UpdateRefResponse, error) {
+	if m.UpdateRefFunc == nil {
+		return nil, errors.New("githubops.Mock: UpdateRefFunc is not set")
+	}
+	return m.UpdateRefFunc(ctx, req)
+}
+
+// CreateTree calls m.CreateTreeFunc.
+func (m *Mock) CreateTree(ctx context.Context, req *github.CreateTreeRequest) (*github.CreateTreeResponse, error) {
+	if m.CreateTreeFunc == nil {
+		return nil, errors.New("githubops.Mock: CreateTreeFunc is not set")
+	}
+	return m.CreateTreeFunc(ctx, req)
+}
+
+// CreateIssueComment calls m.CreateIssueCommentFunc.
+func (m *Mock) CreateIssueComment(ctx context.Context, req *github.CreateIssueCommentRequest) (*github.CreateIssueCommentResponse, error) {
+	if m.CreateIssueCommentFunc == nil {
+		return nil, errors.New("githubops.Mock: CreateIssueCommentFunc is not set")
+	}
+	return m.CreateIssueCommentFunc(ctx, req)
+}
+
+// CreateIssue calls m.CreateIssueFunc.
+func (m *Mock) CreateIssue(ctx context.Context, req *github.CreateIssueRequest) (*github.CreateIssueResponse, error) {
+	if m.CreateIssueFunc == nil {
+		return nil, errors.New("githubops.Mock: CreateIssueFunc is not set")
+	}
+	return m.CreateIssueFunc(ctx, req)
 }
 
 // GetIssue calls m.GetIssueFunc.
@@ -44,10 +130,50 @@ func (m *Mock) ListIssues(ctx context.Context, req *github.ListIssuesRequest) (*
 	return m.ListIssuesFunc(ctx, req)
 }
 
+// CreatePullRequest calls m.CreatePullRequestFunc.
+func (m *Mock) CreatePullRequest(ctx context.Context, req *github.CreatePullRequestRequest) (*github.CreatePullRequestResponse, error) {
+	if m.CreatePullRequestFunc == nil {
+		return nil, errors.New("githubops.Mock: CreatePullRequestFunc is not set")
+	}
+	return m.CreatePullRequestFunc(ctx, req)
+}
+
 // GetPullRequest calls m.GetPullRequestFunc.
 func (m *Mock) GetPullRequest(ctx context.Context, req *github.GetPullRequestRequest) (*github.GetPullRequestResponse, error) {
 	if m.GetPullRequestFunc == nil {
 		return nil, errors.New("githubops.Mock: GetPullRequestFunc is not set")
 	}
 	return m.GetPullRequestFunc(ctx, req)
+}
+
+// ListPulls calls m.ListPullsFunc.
+func (m *Mock) ListPulls(ctx context.Context, req *github.ListPullsRequest) (*github.ListPullsResponse, error) {
+	if m.ListPullsFunc == nil {
+		return nil, errors.New("githubops.Mock: ListPullsFunc is not set")
+	}
+	return m.ListPullsFunc(ctx, req)
+}
+
+// CreateReview calls m.CreateReviewFunc.
+func (m *Mock) CreateReview(ctx context.Context, req *github.CreatePullReviewRequest) (*github.CreatePullReviewResponse, error) {
+	if m.CreateReviewFunc == nil {
+		return nil, errors.New("githubops.Mock: CreateReviewFunc is not set")
+	}
+	return m.CreateReviewFunc(ctx, req)
+}
+
+// ListReviews calls m.ListReviewsFunc.
+func (m *Mock) ListReviews(ctx context.Context, req *github.ListPullReviewsRequest) (*github.ListPullReviewsResponse, error) {
+	if m.ListReviewsFunc == nil {
+		return nil, errors.New("githubops.Mock: ListReviewsFunc is not set")
+	}
+	return m.ListReviewsFunc(ctx, req)
+}
+
+// UpdatePullRequest calls m.UpdatePullRequestFunc.
+func (m *Mock) UpdatePullRequest(ctx context.Context, req *github.UpdatePullRequestRequest) (*github.UpdatePullRequestResponse, error) {
+	if m.UpdatePullRequestFunc == nil {
+		return nil, errors.New("githubops.Mock: UpdatePullRequestFunc is not set")
+	}
+	return m.UpdatePullRequestFunc(ctx, req)
 }
