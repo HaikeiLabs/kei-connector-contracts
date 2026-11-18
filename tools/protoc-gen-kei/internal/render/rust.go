@@ -363,6 +363,16 @@ func rustFnBody(op *model.Operation) (string, error) {
 			}
 		default: // body
 			switch {
+			case !f.Desc.IsMap() && f.Desc.IsList() && (f.Desc.Kind() == protoreflect.MessageKind || f.Desc.Kind() == protoreflect.GroupKind):
+				// Repeated message: a JSON array of the elements' protojson
+				// shape; pbjson-types serializes Struct/ListValue directly.
+				bodyParams = append(bodyParams, fmt.Sprintf("let mut %s_json = Vec::with_capacity(req.%s.len());", name, name))
+				bodyParams = append(bodyParams, fmt.Sprintf("for v in &req.%s { %s_json.push(serde_json::to_value(v).map_err(|e| OperationError::wrap(%s.id, e.to_string()))?); }", name, name, opConst))
+				bodyParams = append(bodyParams, fmt.Sprintf("body.insert(%s.to_string(), serde_json::Value::Array(%s_json));", rustQuote(p.Wire), name))
+			case !f.Desc.IsMap() && !f.Desc.IsList() && (f.Desc.Kind() == protoreflect.MessageKind || f.Desc.Kind() == protoreflect.GroupKind):
+				// Singular message (prost models it as Option<T>): the whole
+				// object in its protojson shape.
+				bodyParams = append(bodyParams, fmt.Sprintf("if let Some(v) = &req.%s { body.insert(%s.to_string(), serde_json::to_value(v).map_err(|e| OperationError::wrap(%s.id, e.to_string()))?); }", name, rustQuote(p.Wire), opConst))
 			case f.Desc.IsList():
 				if f.Desc.Kind() != protoreflect.StringKind {
 					return "", fmt.Errorf("protoc-gen-kei-ops: %s: field %s: only string list body params are supported by the Rust template yet", op.ID, name)
