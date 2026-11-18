@@ -1,0 +1,47 @@
+// Golden-test connector: a synthetic SQL provider with one query operation.
+syntax = "proto3";
+
+package kei.testsql.v1;
+
+import "google/protobuf/struct.proto";
+import "kei/contracts/v1/options.proto";
+
+option go_package = "example.test/gen/go/kei/testsql/v1;testsql";
+option (kei.contracts.v1.connector) = {
+  id: "testsql"
+  connections: [{
+    name: "dsn"
+    kind: CONNECTION_KIND_SQL_DSN
+    auth_method: "secret_ref"
+    account_model: ACCOUNT_MODEL_SHARED
+    setup_fields: [{name: "dsn" type: "string" secret: true}]
+  }]
+};
+
+message RunQueryRequest {
+  string sql = 1;
+  repeated google.protobuf.Value params = 2;
+  optional int64 max_rows = 3;
+
+  option (kei.contracts.v1.operation) = {
+    id: "testsql.query.run"
+    connector: "testsql"
+    class: OPERATION_CLASS_READ
+    scopes: ["query:read"]
+    method_name: "RunQuery"
+    connections: ["dsn"]
+    resource_template: "query"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "query" version: 1}
+  };
+}
+
+message Column {
+  string name = 1;
+  string type = 2;
+}
+
+message RunQueryResponse {
+  repeated Column columns = 1;
+  repeated google.protobuf.ListValue rows = 2;
+  bool truncated = 3;
+}

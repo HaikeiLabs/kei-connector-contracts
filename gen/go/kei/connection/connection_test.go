@@ -60,6 +60,41 @@ func TestRenderPath_EscapesSegments(t *testing.T) {
 	}
 }
 
+// TestRenderPath_MultiSegment: a multi-segment variable keeps "/" between
+// segments but escapes each segment, and rejects ".", ".." and empty
+// segments; other variables stay fully escaped.
+func TestRenderPath_MultiSegment(t *testing.T) {
+	const tmpl = "/repos/{owner}/{repository}/contents/{path}"
+	render := func(path string) (string, error) {
+		return connection.RenderPath(tmpl, map[string]string{"owner": "a/b", "repository": "w", "path": path}, "path")
+	}
+	good := map[string]string{
+		"docs/notes.txt":  "/repos/a%2Fb/w/contents/docs/notes.txt",
+		"notes.txt":       "/repos/a%2Fb/w/contents/notes.txt",
+		"a b/c%d/e?f#g":   "/repos/a%2Fb/w/contents/a%20b/c%25d/e%3Ff%23g",
+		"heads/feature/x": "/repos/a%2Fb/w/contents/heads/feature/x",
+	}
+	for in, want := range good {
+		got, err := render(in)
+		if err != nil {
+			t.Fatalf("RenderPath(%q): %v", in, err)
+		}
+		if got != want {
+			t.Fatalf("RenderPath(%q) = %q, want %q", in, got, want)
+		}
+	}
+	for _, in := range []string{"a/../b", "a//b", "../x", "a/..", "./a", "a/./b", "/a", "a/", ""} {
+		if got, err := render(in); err == nil {
+			t.Errorf("RenderPath(%q) = %q, want an error", in, got)
+		}
+	}
+	// A variable not named multi-segment still escapes "/".
+	got, err := connection.RenderPath(tmpl, map[string]string{"owner": "o", "repository": "r", "path": "docs/notes.txt"})
+	if err != nil || got != "/repos/o/r/contents/docs%2Fnotes.txt" {
+		t.Fatalf("RenderPath without multi-segment = %q, %v", got, err)
+	}
+}
+
 func TestRenderPath_Errors(t *testing.T) {
 	cases := []struct {
 		name     string

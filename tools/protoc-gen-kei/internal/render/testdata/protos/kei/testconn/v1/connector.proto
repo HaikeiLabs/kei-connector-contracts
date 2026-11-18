@@ -1,0 +1,28 @@
+// Golden-test connector: a synthetic HTTP provider.
+syntax = "proto3";
+
+package kei.testconn.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "example.test/gen/go/kei/testconn/v1;testconn";
+option (kei.contracts.v1.connector) = {
+  id: "testconn"
+  base_url: "https://api.example.test"
+  connections: [
+    {
+      name: "user_oauth"
+      kind: CONNECTION_KIND_HTTP_BEARER
+      auth_method: "oauth"
+      account_model: ACCOUNT_MODEL_PER_USER
+    },
+    {
+      name: "api_key"
+      kind: CONNECTION_KIND_HTTP_HEADER
+      auth_method: "secret_ref"
+      account_model: ACCOUNT_MODEL_SHARED
+      header_name: "X-Test-Key"
+      setup_fields: [{name: "api_key" type: "string" secret: true}]
+    }
+  ]
+};

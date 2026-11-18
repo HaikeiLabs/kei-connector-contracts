@@ -1,0 +1,167 @@
+// Golden-test operations: path, query and body placement, pagination, a
+// positional helper, a deprecated destructive write and a GraphQL document.
+syntax = "proto3";
+
+package kei.testconn.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "example.test/gen/go/kei/testconn/v1;testconn";
+
+message Thing {
+  int64 id = 1;
+  string name = 2;
+  optional string note = 3;
+}
+
+message GetThingRequest {
+  string space = 1;
+  int64 thing_id = 2;
+
+  option (kei.contracts.v1.operation) = {
+    id: "testconn.things.get"
+    connector: "testconn"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/spaces/{space}/things/{thing_id}"
+    scopes: ["things:read"]
+    method_name: "GetThing"
+    connections: ["user_oauth", "api_key"]
+    resource_template: "spaces/{space}"
+    positional_helper: true
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "thing" version: 1}
+    errors: [
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+message GetThingResponse {
+  int64 id = 1;
+  string name = 2;
+  optional string note = 3;
+}
+
+message ListThingsRequest {
+  string space = 1;
+  optional int32 limit = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_QUERY name: "per_page"}];
+  optional int32 page = 3;
+  repeated string tags = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "testconn.things.list"
+    connector: "testconn"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/spaces/{space}/things"
+    scopes: ["things:read"]
+    connections: ["user_oauth", "api_key"]
+    resource_template: "spaces/{space}"
+    cursor_field: "page"
+    next_cursor_field: "next_page"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "thing" version: 1}
+  };
+}
+
+message ListThingsResponse {
+  repeated Thing things = 1;
+  optional int32 next_page = 2;
+}
+
+message CreateThingRequest {
+  string space = 1;
+  string name = 2;
+  optional string note = 3 [json_name = "description"];
+
+  option (kei.contracts.v1.operation) = {
+    id: "testconn.things.create"
+    connector: "testconn"
+    class: OPERATION_CLASS_WRITE
+    http_method: "POST"
+    path_template: "/spaces/{space}/things"
+    scopes: ["things:write"]
+    method_name: "CreateThing"
+    connections: ["user_oauth"]
+    resource_template: "spaces/{space}"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "thing" version: 1}
+    errors: [{status: 409 kind: ERROR_KIND_CONFLICT}]
+  };
+}
+
+message CreateThingResponse {
+  int64 id = 1;
+  string name = 2;
+}
+
+message RemoveThingRequest {
+  string space = 1;
+  int64 thing_id = 2;
+
+  option (kei.contracts.v1.operation) = {
+    id: "testconn.things.remove"
+    connector: "testconn"
+    class: OPERATION_CLASS_WRITE
+    destructive: true
+    http_method: "DELETE"
+    path_template: "/spaces/{space}/things/{thing_id}"
+    scopes: ["things:write"]
+    method_name: "RemoveThing"
+    connections: ["user_oauth"]
+    resource_template: "spaces/{space}"
+    deprecated: true
+    replaced_by: "testconn.things.delete"
+    semantics: {action: SEMANTIC_ACTION_DELETE resource_type: "thing" version: 1}
+  };
+}
+
+message RemoveThingResponse {}
+
+message GetFileRequest {
+  string space = 1;
+  string path = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH multi_segment: true}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "testconn.files.get"
+    connector: "testconn"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/spaces/{space}/files/{path}"
+    scopes: ["files:read"]
+    connections: ["user_oauth"]
+    resource_template: "spaces/{space}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "file" version: 1}
+  };
+}
+
+message GetFileResponse {
+  string path = 1;
+  string content = 2;
+}
+
+message SearchThingsRequest {
+  string term = 1;
+  optional int32 first = 2;
+  optional string after = 3;
+
+  option (kei.contracts.v1.operation) = {
+    id: "testconn.things.search"
+    connector: "testconn"
+    class: OPERATION_CLASS_READ
+    http_method: "POST"
+    path_template: "/graphql"
+    scopes: ["things:read"]
+    method_name: "SearchThings"
+    connections: ["user_oauth", "api_key"]
+    resource_template: "things"
+    graphql_document: "query SearchThings($term: String!, $first: Int, $after: String) { searchThings(term: $term, first: $first, after: $after) { nodes { id name } endCursor } }"
+    cursor_field: "after"
+    next_cursor_field: "end_cursor"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "thing" version: 1}
+  };
+}
+
+message SearchThingsResponse {
+  repeated Thing nodes = 1;
+  optional string end_cursor = 2;
+}

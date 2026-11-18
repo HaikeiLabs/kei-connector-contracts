@@ -17,6 +17,7 @@ package connection
 import (
 	"fmt"
 	"net/url"
+	"slices"
 	"strings"
 )
 
@@ -29,7 +30,11 @@ import (
 // %2E so it is never read as a relative segment. A missing or empty value,
 // an unterminated or empty variable, or a template that does not start with
 // "/" is an error.
-func RenderPath(template string, values map[string]string) (string, error) {
+//
+// A variable named in multiSegment (a param with multi_segment, such as a
+// file path or a Git ref) keeps "/" between its segments and escapes each
+// segment; an empty, "." or ".." segment is an error.
+func RenderPath(template string, values map[string]string, multiSegment ...string) (string, error) {
 	if !strings.HasPrefix(template, "/") {
 		return "", fmt.Errorf("connection: path template %q must start with /", template)
 	}
@@ -64,7 +69,18 @@ func RenderPath(template string, values map[string]string) (string, error) {
 			return "", fmt.Errorf("connection: path variable %q is empty", name)
 		}
 		b.WriteString(rest[:open])
-		b.WriteString(escapeSegment(v))
+		if slices.Contains(multiSegment, name) {
+			segs := strings.Split(v, "/")
+			for i, s := range segs {
+				if s == "" || s == "." || s == ".." {
+					return "", fmt.Errorf("connection: path variable %q has an empty, . or .. segment", name)
+				}
+				segs[i] = url.PathEscape(s)
+			}
+			b.WriteString(strings.Join(segs, "/"))
+		} else {
+			b.WriteString(escapeSegment(v))
+		}
 		rest = rest[open+end+1:]
 	}
 }
