@@ -109,6 +109,10 @@ func TestGoGolden(t *testing.T) {
 	checkGolden(t, "testdata/golden/go", generate(t, "paths=source_relative,lang=go"))
 }
 
+func TestRustGolden(t *testing.T) {
+	checkGolden(t, "testdata/golden/rust", generate(t, "paths=source_relative,lang=rust"))
+}
+
 func TestTSGolden(t *testing.T) {
 	checkGolden(t, "testdata/golden/ts", generate(t, "paths=source_relative,lang=ts"))
 }

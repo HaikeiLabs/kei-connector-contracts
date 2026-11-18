@@ -65,7 +65,7 @@ impl Class {
 /// (connector:<ID>).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Op {
-    pub id: String,
+    pub id: &'static str,
     pub class: Class,
     pub destructive: bool,
 }
@@ -149,7 +149,7 @@ pub async fn call_sql<T: Sql, R: DeserializeOwned + Default>(
     let result = conn
         .query(sql, &args, max)
         .await
-        .map_err(|e| OperationError::wrap(&op.id, e.to_string()))?;
+        .map_err(|e| OperationError::wrap(op.id, e.to_string()))?;
     let columns: Vec<Value> = result
         .columns
         .iter()

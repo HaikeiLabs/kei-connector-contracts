@@ -47,6 +47,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/github/v1/kei.connectors.github.v1.rs");
+                /// Generated GitHub connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/github/v1/ops.rs");
+                }
             }
         }
         /// Linear connector contract.
@@ -55,6 +60,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/linear/v1/kei.connectors.linear.v1.rs");
+                /// Generated Linear connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/linear/v1/ops.rs");
+                }
             }
         }
         /// Generic HTTP API connector contract.
@@ -63,6 +73,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/http_api/v1/kei.connectors.http_api.v1.rs");
+                /// Generated HTTP API connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/http_api/v1/ops.rs");
+                }
             }
         }
         /// Database connector contract.
@@ -71,6 +86,11 @@ pub mod kei {
             pub mod v1 {
                 // The generated file includes the matching .serde.rs itself.
                 include!("gen/kei/connectors/database/v1/kei.connectors.database.v1.rs");
+                /// Generated database connector operations, driven by the
+                /// caller's own SQL transport.
+                pub mod ops {
+                    include!("kei/connectors/database/v1/ops.rs");
+                }
             }
         }
         /// MCP connector contract: tool calls against remote MCP servers.
