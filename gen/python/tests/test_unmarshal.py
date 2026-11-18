@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""HAI-990 gate: the 12 pilot operation fixtures unmarshal in Python.
+"""HAI-990 gate: every pilot operation fixture unmarshals in Python.
 
 Every registered pilot operation needs synthetic request and response
 fixtures under fixtures/operations/<connector>/, and both must parse into
@@ -34,6 +34,8 @@ from kei.connectors.linear.v1 import (
     issues_pb2 as linear_issues_pb2,
     teams_pb2,
 )
+from kei.connectors.omni.v1 import documents_pb2, queries_pb2
+from kei.connectors.power_bi.v1 import datasets_pb2
 
 FIXTURES = Path(__file__).resolve().parents[3] / "fixtures" / "operations"
 
@@ -115,6 +117,37 @@ def _spot_database_query_run(response):
     assert response.truncated is False
 
 
+def _spot_omni_documents_list(response):
+    assert len(response.documents) == 2
+    assert response.documents[0].name == "Q3 Revenue — ünïcodé ✓"
+    assert response.next_cursor == "synthetic-cursor-2"
+
+
+def _spot_omni_queries_run(response):
+    assert len(response.rows) == 2
+    assert response.rows[0].fields["region"].string_value == "EMEA"
+    assert response.rows[0].fields["revenue"].number_value == 1234567.89
+
+
+def _spot_power_bi_datasets_list(response):
+    assert len(response.value) == 2
+    dataset = response.value[0]
+    assert dataset.name == "Sales Marketing"
+    # ConfiguredBy and TargetStorageMode are PascalCase on the wire; the
+    # fields set json_name to match.
+    assert dataset.configured_by == "synthetic-admin@example.invalid"
+    assert dataset.target_storage_mode == "Abf"
+
+
+def _spot_power_bi_datasets_execute_queries(response):
+    assert len(response.results) == 1
+    assert len(response.results[0].tables) == 1
+    rows = response.results[0].tables[0].rows
+    assert len(rows) == 2
+    assert rows[0].fields["Region"].string_value == "EMEA"
+    assert rows[0].fields["Sales Amount"].number_value == 1234567.89
+
+
 def _check_database_query_run_request(request):
     assert request.dialect == query_pb2.DIALECT_POSTGRES
     assert "accounts" in request.sql
@@ -136,6 +169,10 @@ OPS = [
     ("http_api.records.list", "http_api", records_pb2.ListRecordsRequest, records_pb2.ListRecordsResponse, _spot_http_api_records_list),
     ("http_api.records.get", "http_api", records_pb2.GetRecordRequest, records_pb2.GetRecordResponse, _spot_http_api_records_get),
     ("database.query.run", "database", query_pb2.RunQueryRequest, query_pb2.RunQueryResponse, _spot_database_query_run),
+    ("omni.documents.list", "omni", documents_pb2.ListDocumentsRequest, documents_pb2.ListDocumentsResponse, _spot_omni_documents_list),
+    ("omni.queries.run", "omni", queries_pb2.RunQueryRequest, queries_pb2.RunQueryResponse, _spot_omni_queries_run),
+    ("power_bi.datasets.list", "power_bi", datasets_pb2.ListDatasetsRequest, datasets_pb2.ListDatasetsResponse, _spot_power_bi_datasets_list),
+    ("power_bi.datasets.execute_queries", "power_bi", datasets_pb2.ExecuteQueriesRequest, datasets_pb2.ExecuteQueriesResponse, _spot_power_bi_datasets_execute_queries),
 ]
 
 
