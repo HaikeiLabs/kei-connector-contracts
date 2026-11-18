@@ -5,6 +5,15 @@ The proto is the source for operation and connection metadata. See
 decisions, for the design. Some generation and release gates are still being
 implemented.
 
+Connector pages list their connections and operations:
+[Airtable](connectors/airtable.md), [Atlassian](connectors/atlassian.md),
+[database](connectors/database.md), [GitHub](connectors/github.md),
+[Gmail](connectors/gmail.md), [Google Sheets](connectors/google_sheets.md),
+[HTTP API](connectors/http_api.md), [HubSpot](connectors/hubspot.md),
+[Linear](connectors/linear.md), [Notion](connectors/notion.md),
+[Omni](connectors/omni.md), [Power BI](connectors/power_bi.md), and
+[Sentry](connectors/sentry.md).
+
 ## Declare the contract
 
 1. Add request and response messages under
