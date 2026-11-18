@@ -1,0 +1,14 @@
+# Rust runner of the cross-language parity test (see scripts/parity/run.sh).
+# Not published; it drives the generated operations in gen/rust.
+[package]
+name = "kei-parity-runner"
+version = "0.0.0"
+edition = "2021"
+publish = false
+license = "Apache-2.0"
+
+[dependencies]
+haikeilabs-connector-contracts = { path = "../../../gen/rust" }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt"] }
