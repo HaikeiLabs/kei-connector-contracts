@@ -80,6 +80,8 @@ func Generate(gen *protogen.Plugin, opts Options) error {
 		switch opts.Lang {
 		case "go":
 			err = renderGo(gen, c, opts)
+		case "ts":
+			err = renderTS(gen, c, opts)
 		default:
 			err = fmt.Errorf("protoc-gen-kei-ops: lang %q is not implemented yet", opts.Lang)
 		}

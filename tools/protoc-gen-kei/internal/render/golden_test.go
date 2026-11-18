@@ -108,6 +108,10 @@ func TestGoGolden(t *testing.T) {
 	checkGolden(t, "testdata/golden/go", generate(t, "paths=source_relative,lang=go"))
 }
 
+func TestTSGolden(t *testing.T) {
+	checkGolden(t, "testdata/golden/ts", generate(t, "paths=source_relative,lang=ts"))
+}
+
 func TestGoGolden_Positional(t *testing.T) {
 	checkGolden(t, "testdata/golden/go-positional", generate(t, "paths=source_relative,lang=go,signature=positional"))
 }
