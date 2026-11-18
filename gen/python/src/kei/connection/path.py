@@ -3,9 +3,9 @@
 from typing import Collection, Mapping
 from urllib.parse import quote
 
-# Characters url.PathEscape keeps: A-Za-z0-9 (always safe in urllib.parse.quote)
-# plus the sub-delims and :@ it does not escape.
-_SAFE_SEGMENT = "-._~!$&'()*+,;=:@"
+# Characters Go's url.PathEscape keeps: A-Za-z0-9 (always safe in
+# urllib.parse.quote) plus - . _ ~ $ & + : = @. It escapes ! ' ( ) * , ;.
+_SAFE_SEGMENT = "-._~$&+:=@"
 
 
 def _escape_segment(v: str) -> str:
