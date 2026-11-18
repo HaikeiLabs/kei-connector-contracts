@@ -21,6 +21,9 @@ import * as sentry from "../src/kei/connectors/sentry/v1/issues_pb.js";
 import * as http from "../src/kei/connectors/http_api/v1/records_pb.js";
 import * as db from "../src/kei/connectors/database/v1/query_pb.js";
 import * as mcp from "../src/kei/connectors/mcp/v1/tool_pb.js";
+import * as omniDocs from "../src/kei/connectors/omni/v1/documents_pb.js";
+import * as omniQueries from "../src/kei/connectors/omni/v1/queries_pb.js";
+import * as pbi from "../src/kei/connectors/power_bi/v1/datasets_pb.js";
 
 function fixtureText(op: string, kind: string): string {
   const [connector, ...name] = op.split(".");
@@ -72,6 +75,10 @@ const ops = [
   ["http_api.records.get", http.GetRecordRequestSchema, http.GetRecordResponseSchema, (r: any) => expect(r.record.id).toBe("rec-1")],
   ["database.query.run", db.RunQueryRequestSchema, db.RunQueryResponseSchema, (r: any) => expect(r.columns[0].name).toBe("id")],
   ["mcp.tool.call", mcp.ToolCallSchema, mcp.ToolResultSchema, (r: any) => expect(r.content).toHaveLength(2)],
+  ["omni.documents.list", omniDocs.ListDocumentsRequestSchema, omniDocs.ListDocumentsResponseSchema, (r: any) => { expect(r.documents).toHaveLength(2); expect(r.documents[0].name).toBe("Q3 Revenue — ünïcodé ✓"); expect(r.nextCursor).toBe("synthetic-cursor-2"); }],
+  ["omni.queries.run", omniQueries.RunQueryRequestSchema, omniQueries.RunQueryResponseSchema, (r: any) => { expect(r.rows).toHaveLength(2); expect(r.rows[0].region).toBe("EMEA"); expect(r.rows[0].revenue).toBe(1234567.89); }],
+  ["power_bi.datasets.list", pbi.ListDatasetsRequestSchema, pbi.ListDatasetsResponseSchema, (r: any) => { expect(r.value).toHaveLength(2); expect(r.value[0].name).toBe("Sales Marketing"); expect(r.value[0].configuredBy).toBe("synthetic-admin@example.invalid"); expect(r.value[0].targetStorageMode).toBe("Abf"); }],
+  ["power_bi.datasets.execute_queries", pbi.ExecuteQueriesRequestSchema, pbi.ExecuteQueriesResponseSchema, (r: any) => { expect(r.results).toHaveLength(1); expect(r.results[0].tables[0].rows).toHaveLength(2); expect(r.results[0].tables[0].rows[0].Region).toBe("EMEA"); expect(r.results[0].tables[0].rows[0]["Sales Amount"]).toBe(1234567.89); }],
 ] as const;
 
 describe.each(ops)("%s", (op, request, response, spot) => {

@@ -80,6 +80,22 @@ pub mod kei {
                 }
             }
         }
+        /// Omni connector contract.
+        pub mod omni {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/omni/v1/kei.connectors.omni.v1.rs");
+            }
+        }
+        /// Power BI connector contract.
+        pub mod power_bi {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/power_bi/v1/kei.connectors.power_bi.v1.rs");
+            }
+        }
         /// Database connector contract.
         pub mod database {
             /// Version 1.

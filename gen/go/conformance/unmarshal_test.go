@@ -44,6 +44,8 @@ import (
 	hubspotv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/hubspot/v1"
 	linearv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/linear/v1"
 	notionv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/notion/v1"
+	omniv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/omni/v1"
+	powerbiv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/power_bi/v1"
 	sentryv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/sentry/v1"
 	contracts "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1"
 )
@@ -528,6 +530,89 @@ var fixtureCases = []fixtureCase{
 			}
 			if got.GetProperties().GetTitle() != "Synthetic sheet" {
 				t.Errorf("properties.title = %q, want Synthetic sheet", got.GetProperties().GetTitle())
+			}
+		},
+	},
+	{
+		op:        "omni.documents.list",
+		connector: "omni",
+		request:   func() proto.Message { return &omniv1.ListDocumentsRequest{} },
+		response:  func() proto.Message { return &omniv1.ListDocumentsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			page := resp.(*omniv1.ListDocumentsResponse)
+			if got := len(page.GetDocuments()); got != 2 {
+				t.Errorf("len(documents) = %d, want 2", got)
+			}
+			if got := page.GetDocuments()[0].GetName(); got != "Q3 Revenue — ünïcodé ✓" {
+				t.Errorf("documents[0].name = %q, want the unicode document name", got)
+			}
+			if got := page.GetNextCursor(); got != "synthetic-cursor-2" {
+				t.Errorf("next_cursor = %q, want synthetic-cursor-2", got)
+			}
+		},
+	},
+	{
+		op:        "omni.queries.run",
+		connector: "omni",
+		request:   func() proto.Message { return &omniv1.RunQueryRequest{} },
+		response:  func() proto.Message { return &omniv1.RunQueryResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			result := resp.(*omniv1.RunQueryResponse)
+			if got := len(result.GetRows()); got != 2 {
+				t.Fatalf("len(rows) = %d, want 2", got)
+			}
+			if got := result.GetRows()[0].GetFields()["region"].GetStringValue(); got != "EMEA" {
+				t.Errorf("rows[0].region = %q, want EMEA", got)
+			}
+			if got := result.GetRows()[0].GetFields()["revenue"].GetNumberValue(); got != 1234567.89 {
+				t.Errorf("rows[0].revenue = %v, want 1234567.89", got)
+			}
+		},
+	},
+	{
+		op:        "power_bi.datasets.list",
+		connector: "power_bi",
+		request:   func() proto.Message { return &powerbiv1.ListDatasetsRequest{} },
+		response:  func() proto.Message { return &powerbiv1.ListDatasetsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			page := resp.(*powerbiv1.ListDatasetsResponse)
+			if got := len(page.GetValue()); got != 2 {
+				t.Errorf("len(value) = %d, want 2", got)
+			}
+			dataset := page.GetValue()[0]
+			if got := dataset.GetName(); got != "Sales Marketing" {
+				t.Errorf("value[0].name = %q, want Sales Marketing", got)
+			}
+			if got := dataset.GetConfiguredBy(); got != "synthetic-admin@example.invalid" {
+				t.Errorf("value[0].configured_by = %q, want the PascalCase wire key decoded", got)
+			}
+			if got := dataset.GetTargetStorageMode(); got != "Abf" {
+				t.Errorf("value[0].target_storage_mode = %q, want Abf", got)
+			}
+		},
+	},
+	{
+		op:        "power_bi.datasets.execute_queries",
+		connector: "power_bi",
+		request:   func() proto.Message { return &powerbiv1.ExecuteQueriesRequest{} },
+		response:  func() proto.Message { return &powerbiv1.ExecuteQueriesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			result := resp.(*powerbiv1.ExecuteQueriesResponse)
+			if got := len(result.GetResults()); got != 1 {
+				t.Fatalf("len(results) = %d, want 1", got)
+			}
+			tables := result.GetResults()[0].GetTables()
+			if got := len(tables); got != 1 {
+				t.Fatalf("len(results[0].tables) = %d, want 1", got)
+			}
+			if got := len(tables[0].GetRows()); got != 2 {
+				t.Fatalf("len(results[0].tables[0].rows) = %d, want 2", got)
+			}
+			if got := tables[0].GetRows()[0].GetFields()["Region"].GetStringValue(); got != "EMEA" {
+				t.Errorf("rows[0].Region = %q, want EMEA", got)
+			}
+			if got := tables[0].GetRows()[0].GetFields()["Sales Amount"].GetNumberValue(); got != 1234567.89 {
+				t.Errorf("rows[0].Sales Amount = %v, want 1234567.89", got)
 			}
 		},
 	},

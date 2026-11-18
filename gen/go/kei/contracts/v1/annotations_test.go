@@ -80,7 +80,7 @@ func templateVars(tmpl string) []string {
 // The pilot connectors and their connection names (plan Task 2).
 func TestPilotConnectorsDeclareConnections(t *testing.T) {
 	want := map[string][]string{
-		"database": {"dsn"},
+		"database": {"dsn", "snowflake_key_pair"},
 		"github":   {"user_oauth", "pat"},
 		"http_api": {"api_key"},
 		"linear":   {"user_oauth", "api_key"},
@@ -285,7 +285,9 @@ func TestHTTPOperationsMapStandardErrors(t *testing.T) {
 	}
 }
 
-// The database operation runs over a SQL connection, not HTTP.
+// The database operation runs over a SQL connection, not HTTP. Every
+// connection reaches a SQL engine: a SQL DSN pool, or a key-pair JWT
+// connection that names the SQL engine it reaches (Snowflake).
 func TestDatabaseQueryHasNoHTTPTransport(t *testing.T) {
 	op, ok := contracts.Lookup("database.query.run")
 	if !ok {
@@ -296,8 +298,14 @@ func TestDatabaseQueryHasNoHTTPTransport(t *testing.T) {
 	}
 	c, _ := contracts.LookupConnector("database")
 	for _, conn := range c.GetConnections() {
-		if conn.GetKind() != contracts.ConnectionKind_CONNECTION_KIND_SQL_DSN {
-			t.Errorf("database connection %q kind = %v, want SQL_DSN", conn.GetName(), conn.GetKind())
+		switch conn.GetKind() {
+		case contracts.ConnectionKind_CONNECTION_KIND_SQL_DSN:
+		case contracts.ConnectionKind_CONNECTION_KIND_KEY_PAIR_JWT:
+			if conn.GetEngine() == "" {
+				t.Errorf("database connection %q kind = KEY_PAIR_JWT with no engine", conn.GetName())
+			}
+		default:
+			t.Errorf("database connection %q kind = %v, want SQL_DSN or KEY_PAIR_JWT with an engine", conn.GetName(), conn.GetKind())
 		}
 	}
 }

@@ -48,6 +48,12 @@ use haikeilabs_connector_contracts::kei::connectors::linear::v1::{
     CreateCommentResponse, CreateIssueResponse, GetIssueResponse as LinearGetIssueResponse,
     GetTeamResponse, SearchIssuesResponse,
 };
+use haikeilabs_connector_contracts::kei::connectors::omni::v1::{
+    ListDocumentsResponse, RunQueryResponse as OmniRunQueryResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::power_bi::v1::{
+    ExecuteQueriesResponse, ListDatasetsResponse,
+};
 use haikeilabs_connector_contracts::kei::connectors::notion::v1::{
     GetPageResponse, QueryDatabaseResponse,
 };
@@ -402,4 +408,68 @@ fn fixtures_unmarshal() {
         other => panic!("rows[1][3] must be a string, got {:?}", other),
     }
     assert!(!resp.truncated);
+
+    // omni.documents.list — spot: two entries, the unicode name and the next
+    // page cursor.
+    let resp: ListDocumentsResponse =
+        serde_json::from_str(&fixture("omni", "documents.list.response.json"))
+            .expect("omni.documents.list response unmarshals");
+    assert_eq!(resp.documents.len(), 2);
+    assert_eq!(resp.documents[0].name, "Q3 Revenue — ünïcodé ✓");
+    assert_eq!(resp.next_cursor.as_deref(), Some("synthetic-cursor-2"));
+
+    // omni.queries.run — spot: two Struct rows with region and revenue.
+    let resp: OmniRunQueryResponse =
+        serde_json::from_str(&fixture("omni", "queries.run.response.json"))
+            .expect("omni.queries.run response unmarshals");
+    assert_eq!(resp.rows.len(), 2);
+    match resp.rows[0].fields.get("region") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(region)),
+        }) => assert_eq!(region, "EMEA"),
+        other => panic!("rows[0].region is not a string: {:?}", other),
+    }
+    match resp.rows[0].fields.get("revenue") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::NumberValue(revenue)),
+        }) => assert_eq!(*revenue, 1234567.89),
+        other => panic!("rows[0].revenue is not a number: {:?}", other),
+    }
+
+    // power_bi.datasets.list — spot: two datasets under value; the PascalCase
+    // wire keys ConfiguredBy and TargetStorageMode decode via json_name.
+    let resp: ListDatasetsResponse =
+        serde_json::from_str(&fixture("power_bi", "datasets.list.response.json"))
+            .expect("power_bi.datasets.list response unmarshals");
+    assert_eq!(resp.value.len(), 2);
+    assert_eq!(resp.value[0].name, "Sales Marketing");
+    assert_eq!(
+        resp.value[0].configured_by.as_deref(),
+        Some("synthetic-admin@example.invalid")
+    );
+    assert_eq!(resp.value[0].target_storage_mode.as_deref(), Some("Abf"));
+
+    // power_bi.datasets.execute_queries — spot: one result, one table, two
+    // Struct rows with Region and Sales Amount.
+    let resp: ExecuteQueriesResponse = serde_json::from_str(&fixture(
+        "power_bi",
+        "datasets.execute_queries.response.json",
+    ))
+    .expect("power_bi.datasets.execute_queries response unmarshals");
+    assert_eq!(resp.results.len(), 1);
+    assert_eq!(resp.results[0].tables.len(), 1);
+    let rows = &resp.results[0].tables[0].rows;
+    assert_eq!(rows.len(), 2);
+    match rows[0].fields.get("Region") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(region)),
+        }) => assert_eq!(region, "EMEA"),
+        other => panic!("rows[0].Region is not a string: {:?}", other),
+    }
+    match rows[0].fields.get("Sales Amount") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::NumberValue(amount)),
+        }) => assert_eq!(*amount, 1234567.89),
+        other => panic!("rows[0].Sales Amount is not a number: {:?}", other),
+    }
 }

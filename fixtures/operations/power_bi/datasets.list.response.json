@@ -1,0 +1,18 @@
+{
+  "value": [
+    {
+      "id": "synthetic-dataset-1",
+      "name": "Sales Marketing",
+      "ConfiguredBy": "synthetic-admin@example.invalid",
+      "TargetStorageMode": "Abf",
+      "IsOnPremGatewayRequired": false
+    },
+    {
+      "id": "synthetic-dataset-2",
+      "name": "Financials",
+      "ConfiguredBy": "synthetic-admin@example.invalid",
+      "TargetStorageMode": "PremiumFiles"
+    }
+  ],
+  "@odata.context": "http://synthetic.invalid/v1.0/myorg/$metadata#Datasets"
+}

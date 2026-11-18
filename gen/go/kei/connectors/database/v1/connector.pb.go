@@ -42,11 +42,18 @@ var File_kei_connectors_database_v1_connector_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_database_v1_connector_proto_rawDesc = "" +
 	"\n" +
-	"*kei/connectors/database/v1/connector.proto\x12\x1akei.connectors.database.v1\x1a\x1ekei/contracts/v1/options.protoB\x90\x01\x9a\x82\x192\n" +
+	"*kei/connectors/database/v1/connector.proto\x12\x1akei.connectors.database.v1\x1a\x1ekei/contracts/v1/options.protoB\xc7\x02\x9a\x82\x19\xe8\x01\n" +
 	"\bdatabase\x1a&\n" +
 	"\x03dsn\x10\x04\x1a\n" +
 	"secret_ref \x02:\x0f\n" +
-	"\x03dsn\x12\x06string \x01ZXgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1;databaseb\x06proto3"
+	"\x03dsn\x12\x06string \x01\x1a\xb3\x01\n" +
+	"\x12snowflake_key_pair\x10\x05\x1a\x15service_principal_key \x02:\x11\n" +
+	"\aaccount\x12\x06string:\x0e\n" +
+	"\x04user\x12\x06string:\x0e\n" +
+	"\x04role\x12\x06string:\x13\n" +
+	"\twarehouse\x12\x06string:\x12\n" +
+	"\bdatabase\x12\x06string:\x1b\n" +
+	"\x0fprivate_key_pem\x12\x06string \x01J\tsnowflakeZXgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1;databaseb\x06proto3"
 
 var file_kei_connectors_database_v1_connector_proto_goTypes = []any{}
 var file_kei_connectors_database_v1_connector_proto_depIdxs = []int32{
