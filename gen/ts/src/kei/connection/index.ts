@@ -23,7 +23,12 @@ export function renderPath(template: string, values: Record<string, string>, mul
     if (!name || /[{/]/.test(name)) throw new Error('connection: invalid path variable');
     const value = values[name];
     if (!value) throw new Error(`connection: missing or empty path variable ${name}`);
-    const escape = (v: string) => encodeURIComponent(v).replace(/%3A/gi, ':').replace(/%40/gi, '@').replace(/%24/gi, '$').replace(/%26/gi, '&').replace(/%2B/gi, '+').replace(/%2C/gi, ',').replace(/%3B/gi, ';').replace(/%3D/gi, '=');
+    // Exactly Go's url.PathEscape: keep A-Za-z0-9 - . _ ~ $ & + : = @ and
+    // escape everything else, including ! ' ( ) * , ; (which
+    // encodeURIComponent would leave or that it escapes already).
+    const escape = (v: string) => encodeURIComponent(v)
+      .replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase())
+      .replace(/%3A/gi, ':').replace(/%40/gi, '@').replace(/%24/gi, '$').replace(/%26/gi, '&').replace(/%2B/gi, '+').replace(/%3D/gi, '=');
     let encoded: string;
     if (multiSegment.includes(name)) {
       const parts = value.split('/');
