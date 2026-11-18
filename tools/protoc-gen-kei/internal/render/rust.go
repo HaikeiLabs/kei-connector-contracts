@@ -351,6 +351,11 @@ func rustJSONValue(op *model.Operation, fd protoreflect.FieldDescriptor, ref str
 		return fmt.Sprintf("serde_json::Value::Bool(*%s)", ref), nil
 	case k == protoreflect.BytesKind:
 		return fmt.Sprintf("serde_json::Value::String(encode_bytes(%s))", ref), nil
+	case k == protoreflect.MessageKind && fd.Message().ParentFile().Package() == "google.protobuf":
+		// WKT messages (Struct, ListValue, Value, Timestamp, ...) have a
+		// canonical protojson shape; pbjson-types serializes them directly.
+		opConst := "OP_" + rustSnake(op.MethodName)
+		return fmt.Sprintf("serde_json::to_value(%s).map_err(|e| OperationError::wrap(%s.id, e.to_string()))?", ref, opConst), nil
 	case k == protoreflect.MessageKind && fd.Message().ParentFile().Package() != "google.protobuf":
 	default:
 		return "", fmt.Errorf("protoc-gen-kei-ops: %s: field %s: %s body values are not supported by the Rust template yet", op.ID, fd.Name(), k)
@@ -373,6 +378,9 @@ func rustJSONValue(op *model.Operation, fd protoreflect.FieldDescriptor, ref str
 		case sub.IsMap():
 			return "", fmt.Errorf("protoc-gen-kei-ops: %s: field %s.%s: map body values are not supported by the Rust template yet", op.ID, fd.Name(), sub.Name())
 		case sub.IsList():
+			if sub.Kind() == protoreflect.MessageKind && sub.Message().ParentFile().Package() == "google.protobuf" {
+				return "", fmt.Errorf("protoc-gen-kei-ops: %s: field %s.%s: repeated %s body values are not supported by the Rust template yet", op.ID, fd.Name(), sub.Name(), sub.Message().FullName())
+			}
 			elem, err := rustJSONValue(op, sub, v, depth+1, graphql)
 			if err != nil {
 				return "", err
@@ -464,6 +472,15 @@ func rustFnBody(op *model.Operation) (string, error) {
 			switch {
 			case f.Desc.IsList() && f.Desc.Kind() == protoreflect.StringKind:
 				bodyParams = append(bodyParams, fmt.Sprintf("body.insert(%s.to_string(), serde_json::Value::Array(req.%s.iter().map(|v| serde_json::Value::String(v.clone())).collect()));", rustQuote(p.Wire), name))
+			case f.Desc.IsList() && f.Desc.Kind() == protoreflect.MessageKind && f.Desc.Message().ParentFile().Package() == "google.protobuf":
+				// Top-level repeated WKT (e.g. google_sheets values): build the
+				// array item by item so the serde error maps with `?` at
+				// statement level instead of inside a closure.
+				tmp := string(f.Desc.Name()) + "_json"
+				opConst := "OP_" + rustSnake(op.MethodName)
+				bodyParams = append(bodyParams, fmt.Sprintf("let mut %s = Vec::with_capacity(req.%s.len());", tmp, name))
+				bodyParams = append(bodyParams, fmt.Sprintf("for v0 in &req.%s { %s.push(serde_json::to_value(v0).map_err(|e| OperationError::wrap(%s.id, e.to_string()))?); }", name, tmp, opConst))
+				bodyParams = append(bodyParams, fmt.Sprintf("body.insert(%s.to_string(), serde_json::Value::Array(%s));", rustQuote(p.Wire), tmp))
 			case f.Desc.IsList() && !f.Desc.IsMap():
 				elem, err := rustJSONValue(op, f.Desc, "v0", 1, graphql)
 				if err != nil {

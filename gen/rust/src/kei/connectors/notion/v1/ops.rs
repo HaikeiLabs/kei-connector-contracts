@@ -200,10 +200,10 @@ impl NotionOperations for NotionQueries {
         )
         .map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, format!("render path: {e}")))?;
         let mut body = serde_json::Map::new();
-        if let Some(v) = &req.parent { body.insert("parent".to_string(), serde_json::to_value(v).map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, e.to_string()))?); }
-        if let Some(v) = &req.properties { body.insert("properties".to_string(), serde_json::to_value(v).map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, e.to_string()))?); }
+        if let Some(v0) = &req.parent { body.insert("parent".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, e.to_string()))?); }
+        if let Some(v0) = &req.properties { body.insert("properties".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, e.to_string()))?); }
         let mut children_json = Vec::with_capacity(req.children.len());
-        for v in &req.children { children_json.push(serde_json::to_value(v).map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, e.to_string()))?); }
+        for v0 in &req.children { children_json.push(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, e.to_string()))?); }
         body.insert("children".to_string(), serde_json::Value::Array(children_json));
         let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, e.to_string()))?;
         let out = self
@@ -249,7 +249,7 @@ impl NotionOperations for NotionQueries {
         )
         .map_err(|e| OperationError::wrap(OP_UPDATE_PAGE.id, format!("render path: {e}")))?;
         let mut body = serde_json::Map::new();
-        if let Some(v) = &req.properties { body.insert("properties".to_string(), serde_json::to_value(v).map_err(|e| OperationError::wrap(OP_UPDATE_PAGE.id, e.to_string()))?); }
+        if let Some(v0) = &req.properties { body.insert("properties".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_UPDATE_PAGE.id, e.to_string()))?); }
         if let Some(v) = req.archived { body.insert("archived".to_string(), serde_json::Value::Bool(v)); }
         if let Some(v) = req.in_trash { body.insert("in_trash".to_string(), serde_json::Value::Bool(v)); }
         let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_UPDATE_PAGE.id, e.to_string()))?;
