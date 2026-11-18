@@ -10,7 +10,8 @@
 #   operations are not all in the contracts yet is left out: it stays on its
 #   policies unchanged and is added in the release that adds its operations
 #   (pending: github pull_request.read, workflow.read, issue.create,
-#   issue.comment, pull_request.create, pull_request.update).
+#   issue.comment, pull_request.create, pull_request.update; linear team.read,
+#   comment.create).
 # - Capabilities with no operation at all stay out (github repository.read,
 #   check.read, issue.update; linear project.read, cycle.read, issue.update).
 
@@ -19,17 +20,9 @@
   operations: [github.issues.get, github.issues.list]
 
 - connector: linear
-  capability: comment.create
-  operations: [linear.comments.create]
-
-- connector: linear
   capability: issue.create
   operations: [linear.issues.create]
 
 - connector: linear
   capability: issue.read
   operations: [linear.issues.get, linear.issues.search]
-
-- connector: linear
-  capability: team.read
-  operations: [linear.teams.get]

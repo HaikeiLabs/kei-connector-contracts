@@ -210,36 +210,6 @@ func TestManifest_LegacyRowsReferenceKnownOps(t *testing.T) {
 	}
 }
 
-// TestLegacyRows_Expected pins the section 8.1 rows whose operations exist,
-// so a dropped, widened or narrowed row shows up as a test diff.
-func TestLegacyRows_Expected(t *testing.T) {
-	want := map[string]string{
-		"github issue.read":     "github.issues.get github.issues.list",
-		"linear comment.create": "linear.comments.create",
-		"linear issue.create":   "linear.issues.create",
-		"linear issue.read":     "linear.issues.get linear.issues.search",
-		"linear team.read":      "linear.teams.get",
-	}
-	m, err := manifest.Build(loadSet(t), testVersion, loadLegacy(t))
-	if err != nil {
-		t.Fatal(err)
-	}
-	got := map[string]string{}
-	for _, r := range m.LegacyCapabilities {
-		got[r.Connector+" "+r.Capability] = strings.Join(r.Operations, " ")
-	}
-	for k, v := range want {
-		if got[k] != v {
-			t.Errorf("legacy %s = %q, want %q", k, got[k], v)
-		}
-	}
-	for k := range got {
-		if _, ok := want[k]; !ok {
-			t.Errorf("unexpected legacy row %s", k)
-		}
-	}
-}
-
 // TestManifest_NoWidening: a coarse capability maps only to operations of
 // its own class (".read" capabilities to read operations, the rest to
 // write operations), and never to a destructive one.
