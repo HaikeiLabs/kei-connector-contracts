@@ -391,6 +391,189 @@ func (x *GetIssueResponse) GetPermalink() string {
 	return ""
 }
 
+// UpdateIssueRequest updates a Sentry issue's triage state: status
+// (resolved, unresolved, ignored, ...), assignee, seen and bookmark flags.
+// Sentry's JSON keys are camelCase (assignedTo, hasSeen, isBookmarked);
+// the fields' lowerCamel JSON names already match, so no json_name is set.
+type UpdateIssueRequest struct {
+	state            protoimpl.MessageState `protogen:"open.v1"`
+	OrganizationSlug string                 `protobuf:"bytes,1,opt,name=organization_slug,json=organizationSlug,proto3" json:"organization_slug,omitempty"`
+	IssueId          string                 `protobuf:"bytes,2,opt,name=issue_id,json=issueId,proto3" json:"issue_id,omitempty"`
+	Status           *string                `protobuf:"bytes,3,opt,name=status,proto3,oneof" json:"status,omitempty"`
+	AssignedTo       *string                `protobuf:"bytes,4,opt,name=assigned_to,json=assignedTo,proto3,oneof" json:"assigned_to,omitempty"`
+	HasSeen          *bool                  `protobuf:"varint,5,opt,name=has_seen,json=hasSeen,proto3,oneof" json:"has_seen,omitempty"`
+	IsBookmarked     *bool                  `protobuf:"varint,6,opt,name=is_bookmarked,json=isBookmarked,proto3,oneof" json:"is_bookmarked,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *UpdateIssueRequest) Reset() {
+	*x = UpdateIssueRequest{}
+	mi := &file_kei_connectors_sentry_v1_issues_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateIssueRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateIssueRequest) ProtoMessage() {}
+
+func (x *UpdateIssueRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_sentry_v1_issues_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateIssueRequest.ProtoReflect.Descriptor instead.
+func (*UpdateIssueRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_sentry_v1_issues_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpdateIssueRequest) GetOrganizationSlug() string {
+	if x != nil {
+		return x.OrganizationSlug
+	}
+	return ""
+}
+
+func (x *UpdateIssueRequest) GetIssueId() string {
+	if x != nil {
+		return x.IssueId
+	}
+	return ""
+}
+
+func (x *UpdateIssueRequest) GetStatus() string {
+	if x != nil && x.Status != nil {
+		return *x.Status
+	}
+	return ""
+}
+
+func (x *UpdateIssueRequest) GetAssignedTo() string {
+	if x != nil && x.AssignedTo != nil {
+		return *x.AssignedTo
+	}
+	return ""
+}
+
+func (x *UpdateIssueRequest) GetHasSeen() bool {
+	if x != nil && x.HasSeen != nil {
+		return *x.HasSeen
+	}
+	return false
+}
+
+func (x *UpdateIssueRequest) GetIsBookmarked() bool {
+	if x != nil && x.IsBookmarked != nil {
+		return *x.IsBookmarked
+	}
+	return false
+}
+
+// UpdateIssueResponse models the same issue subset the read returns; Sentry
+// echoes the updated issue. It is filled by JSON unmarshal of the provider
+// response.
+type UpdateIssueResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ShortId       string                 `protobuf:"bytes,2,opt,name=short_id,json=shortId,proto3" json:"short_id,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	Level         string                 `protobuf:"bytes,5,opt,name=level,proto3" json:"level,omitempty"`
+	ShareId       *string                `protobuf:"bytes,6,opt,name=share_id,json=shareId,proto3,oneof" json:"share_id,omitempty"`
+	Permalink     string                 `protobuf:"bytes,7,opt,name=permalink,proto3" json:"permalink,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateIssueResponse) Reset() {
+	*x = UpdateIssueResponse{}
+	mi := &file_kei_connectors_sentry_v1_issues_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateIssueResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateIssueResponse) ProtoMessage() {}
+
+func (x *UpdateIssueResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_sentry_v1_issues_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateIssueResponse.ProtoReflect.Descriptor instead.
+func (*UpdateIssueResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_sentry_v1_issues_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpdateIssueResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateIssueResponse) GetShortId() string {
+	if x != nil {
+		return x.ShortId
+	}
+	return ""
+}
+
+func (x *UpdateIssueResponse) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *UpdateIssueResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *UpdateIssueResponse) GetLevel() string {
+	if x != nil {
+		return x.Level
+	}
+	return ""
+}
+
+func (x *UpdateIssueResponse) GetShareId() string {
+	if x != nil && x.ShareId != nil {
+		return *x.ShareId
+	}
+	return ""
+}
+
+func (x *UpdateIssueResponse) GetPermalink() string {
+	if x != nil {
+		return x.Permalink
+	}
+	return ""
+}
+
 var File_kei_connectors_sentry_v1_issues_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_sentry_v1_issues_proto_rawDesc = "" +
@@ -431,6 +614,29 @@ const file_kei_connectors_sentry_v1_issues_proto_rawDesc = "" +
 	"\x05level\x18\x05 \x01(\tR\x05level\x12\x1e\n" +
 	"\bshare_id\x18\x06 \x01(\tH\x00R\ashareId\x88\x01\x01\x12\x1c\n" +
 	"\tpermalink\x18\a \x01(\tR\tpermalinkB\v\n" +
+	"\t_share_id\"\x9b\x04\n" +
+	"\x12UpdateIssueRequest\x123\n" +
+	"\x11organization_slug\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x10organizationSlug\x12!\n" +
+	"\bissue_id\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\aissueId\x12\x1b\n" +
+	"\x06status\x18\x03 \x01(\tH\x00R\x06status\x88\x01\x01\x12$\n" +
+	"\vassigned_to\x18\x04 \x01(\tH\x01R\n" +
+	"assignedTo\x88\x01\x01\x12\x1e\n" +
+	"\bhas_seen\x18\x05 \x01(\bH\x02R\ahasSeen\x88\x01\x01\x12(\n" +
+	"\ris_bookmarked\x18\x06 \x01(\bH\x03R\fisBookmarked\x88\x01\x01:\xe5\x01\x92\x82\x19\xe0\x01\n" +
+	"\x14sentry.issues.update\x12\x06sentry\x18\x02*\x03PUT2;/api/0/organizations/{organization_slug}/issues/{issue_id}/:\vissue:write@\x01J\vUpdateIssueR\n" +
+	"auth_tokenZ!organizations/{organization_slug}b\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\v\b\x03\x12\x05issue\x18\x01B\t\n" +
+	"\a_statusB\x0e\n" +
+	"\f_assigned_toB\v\n" +
+	"\t_has_seenB\x10\n" +
+	"\x0e_is_bookmarked\"\xcf\x01\n" +
+	"\x13UpdateIssueResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
+	"\bshort_id\x18\x02 \x01(\tR\ashortId\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\x12\x14\n" +
+	"\x05level\x18\x05 \x01(\tR\x05level\x12\x1e\n" +
+	"\bshare_id\x18\x06 \x01(\tH\x00R\ashareId\x88\x01\x01\x12\x1c\n" +
+	"\tpermalink\x18\a \x01(\tR\tpermalinkB\v\n" +
 	"\t_share_idBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/sentry/v1;sentryb\x06proto3"
 
 var (
@@ -445,13 +651,15 @@ func file_kei_connectors_sentry_v1_issues_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_sentry_v1_issues_proto_rawDescData
 }
 
-var file_kei_connectors_sentry_v1_issues_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_kei_connectors_sentry_v1_issues_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_kei_connectors_sentry_v1_issues_proto_goTypes = []any{
-	(*ListIssuesRequest)(nil),  // 0: kei.connectors.sentry.v1.ListIssuesRequest
-	(*IssueSummary)(nil),       // 1: kei.connectors.sentry.v1.IssueSummary
-	(*ListIssuesResponse)(nil), // 2: kei.connectors.sentry.v1.ListIssuesResponse
-	(*GetIssueRequest)(nil),    // 3: kei.connectors.sentry.v1.GetIssueRequest
-	(*GetIssueResponse)(nil),   // 4: kei.connectors.sentry.v1.GetIssueResponse
+	(*ListIssuesRequest)(nil),   // 0: kei.connectors.sentry.v1.ListIssuesRequest
+	(*IssueSummary)(nil),        // 1: kei.connectors.sentry.v1.IssueSummary
+	(*ListIssuesResponse)(nil),  // 2: kei.connectors.sentry.v1.ListIssuesResponse
+	(*GetIssueRequest)(nil),     // 3: kei.connectors.sentry.v1.GetIssueRequest
+	(*GetIssueResponse)(nil),    // 4: kei.connectors.sentry.v1.GetIssueResponse
+	(*UpdateIssueRequest)(nil),  // 5: kei.connectors.sentry.v1.UpdateIssueRequest
+	(*UpdateIssueResponse)(nil), // 6: kei.connectors.sentry.v1.UpdateIssueResponse
 }
 var file_kei_connectors_sentry_v1_issues_proto_depIdxs = []int32{
 	1, // 0: kei.connectors.sentry.v1.ListIssuesResponse.issues:type_name -> kei.connectors.sentry.v1.IssueSummary
@@ -470,13 +678,15 @@ func file_kei_connectors_sentry_v1_issues_proto_init() {
 	file_kei_connectors_sentry_v1_issues_proto_msgTypes[0].OneofWrappers = []any{}
 	file_kei_connectors_sentry_v1_issues_proto_msgTypes[1].OneofWrappers = []any{}
 	file_kei_connectors_sentry_v1_issues_proto_msgTypes[4].OneofWrappers = []any{}
+	file_kei_connectors_sentry_v1_issues_proto_msgTypes[5].OneofWrappers = []any{}
+	file_kei_connectors_sentry_v1_issues_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_sentry_v1_issues_proto_rawDesc), len(file_kei_connectors_sentry_v1_issues_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

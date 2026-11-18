@@ -4,6 +4,7 @@ syntax = "proto3";
 
 package kei.testconn.v1;
 
+import "google/protobuf/struct.proto";
 import "kei/contracts/v1/options.proto";
 
 option go_package = "example.test/gen/go/kei/testconn/v1;testconn";
@@ -73,6 +74,8 @@ message CreateThingRequest {
   string space = 1;
   string name = 2;
   optional string note = 3 [json_name = "description"];
+  optional google.protobuf.Struct metadata = 4;
+  repeated google.protobuf.ListValue rows = 5;
 
   option (kei.contracts.v1.operation) = {
     id: "testconn.things.create"

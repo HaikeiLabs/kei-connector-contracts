@@ -1,0 +1,6 @@
+{
+  "owner": "example-org",
+  "repository": "example-repo",
+  "issue_number": 42,
+  "body": "Synthetic comment"
+}

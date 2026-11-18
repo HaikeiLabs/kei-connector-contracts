@@ -12,11 +12,21 @@ import (
 // Mock implements Operations with one function field per operation, for
 // tests. Calling an operation whose field is nil returns an error.
 type Mock struct {
-	GetRecordFunc   func(ctx context.Context, req *airtable.GetRecordRequest) (*airtable.GetRecordResponse, error)
-	ListRecordsFunc func(ctx context.Context, req *airtable.ListRecordsRequest) (*airtable.ListRecordsResponse, error)
+	CreateRecordFunc func(ctx context.Context, req *airtable.CreateRecordRequest) (*airtable.CreateRecordResponse, error)
+	GetRecordFunc    func(ctx context.Context, req *airtable.GetRecordRequest) (*airtable.GetRecordResponse, error)
+	ListRecordsFunc  func(ctx context.Context, req *airtable.ListRecordsRequest) (*airtable.ListRecordsResponse, error)
+	UpdateRecordFunc func(ctx context.Context, req *airtable.UpdateRecordRequest) (*airtable.UpdateRecordResponse, error)
 }
 
 var _ Operations = (*Mock)(nil)
+
+// CreateRecord calls m.CreateRecordFunc.
+func (m *Mock) CreateRecord(ctx context.Context, req *airtable.CreateRecordRequest) (*airtable.CreateRecordResponse, error) {
+	if m.CreateRecordFunc == nil {
+		return nil, errors.New("airtableops.Mock: CreateRecordFunc is not set")
+	}
+	return m.CreateRecordFunc(ctx, req)
+}
 
 // GetRecord calls m.GetRecordFunc.
 func (m *Mock) GetRecord(ctx context.Context, req *airtable.GetRecordRequest) (*airtable.GetRecordResponse, error) {
@@ -32,4 +42,12 @@ func (m *Mock) ListRecords(ctx context.Context, req *airtable.ListRecordsRequest
 		return nil, errors.New("airtableops.Mock: ListRecordsFunc is not set")
 	}
 	return m.ListRecordsFunc(ctx, req)
+}
+
+// UpdateRecord calls m.UpdateRecordFunc.
+func (m *Mock) UpdateRecord(ctx context.Context, req *airtable.UpdateRecordRequest) (*airtable.UpdateRecordResponse, error) {
+	if m.UpdateRecordFunc == nil {
+		return nil, errors.New("airtableops.Mock: UpdateRecordFunc is not set")
+	}
+	return m.UpdateRecordFunc(ctx, req)
 }

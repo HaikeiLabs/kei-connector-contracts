@@ -19,6 +19,17 @@ _SPEC_QUERY_DATABASE = {
     "cursor_field": "start_cursor",
     "next_cursor_field": "next_cursor",
 }
+OP_CREATE_PAGE = Op(id="notion.pages.create", op_class=OpClass.WRITE, destructive=False)
+_SPEC_CREATE_PAGE = {
+    "op": OP_CREATE_PAGE,
+    "method": "POST",
+    "path_template": "/v1/pages",
+    "params": [{"field": "parent", "in": "body", "multi_segment": False, "wire": "parent"}, {"field": "properties", "in": "body", "multi_segment": False, "wire": "properties"}, {"field": "children", "in": "body", "multi_segment": False, "wire": "children"}],
+    "errors": [{"kind": "invalid", "retryable": False, "status": 400}, {"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 OP_GET_PAGE = Op(id="notion.pages.get", op_class=OpClass.READ, destructive=False)
 _SPEC_GET_PAGE = {
     "op": OP_GET_PAGE,
@@ -30,11 +41,26 @@ _SPEC_GET_PAGE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
+OP_UPDATE_PAGE = Op(id="notion.pages.update", op_class=OpClass.WRITE, destructive=False)
+_SPEC_UPDATE_PAGE = {
+    "op": OP_UPDATE_PAGE,
+    "method": "PATCH",
+    "path_template": "/v1/pages/{page_id}",
+    "params": [{"field": "page_id", "in": "path", "multi_segment": False, "wire": "page_id"}, {"field": "properties", "in": "body", "multi_segment": False, "wire": "properties"}, {"field": "archived", "in": "body", "multi_segment": False, "wire": "archived"}, {"field": "in_trash", "in": "body", "multi_segment": False, "wire": "in_trash"}],
+    "errors": [{"kind": "invalid", "retryable": False, "status": 400}, {"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 
 class NotionOperations(Protocol):
     async def query_database(self, req: databases_pb2.QueryDatabaseRequest) -> databases_pb2.QueryDatabaseResponse:
         ...
+    async def create_page(self, req: pages_pb2.CreatePageRequest) -> pages_pb2.CreatePageResponse:
+        ...
     async def get_page(self, req: pages_pb2.GetPageRequest) -> pages_pb2.GetPageResponse:
+        ...
+    async def update_page(self, req: pages_pb2.UpdatePageRequest) -> pages_pb2.UpdatePageResponse:
         ...
 
 class NotionQueries:
@@ -46,5 +72,11 @@ class NotionQueries:
     async def query_database(self, req: databases_pb2.QueryDatabaseRequest) -> databases_pb2.QueryDatabaseResponse:
         return await call_http(self._conn, _SPEC_QUERY_DATABASE, req, databases_pb2.QueryDatabaseResponse)
 
+    async def create_page(self, req: pages_pb2.CreatePageRequest) -> pages_pb2.CreatePageResponse:
+        return await call_http(self._conn, _SPEC_CREATE_PAGE, req, pages_pb2.CreatePageResponse)
+
     async def get_page(self, req: pages_pb2.GetPageRequest) -> pages_pb2.GetPageResponse:
         return await call_http(self._conn, _SPEC_GET_PAGE, req, pages_pb2.GetPageResponse)
+
+    async def update_page(self, req: pages_pb2.UpdatePageRequest) -> pages_pb2.UpdatePageResponse:
+        return await call_http(self._conn, _SPEC_UPDATE_PAGE, req, pages_pb2.UpdatePageResponse)

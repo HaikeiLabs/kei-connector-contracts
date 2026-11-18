@@ -57,3 +57,45 @@ class ListContactsResponse(_message.Message):
     results: _containers.RepeatedCompositeFieldContainer[ContactSummary]
     next_after: str
     def __init__(self, results: _Optional[_Iterable[_Union[ContactSummary, _Mapping]]] = ..., next_after: _Optional[str] = ...) -> None: ...
+
+class CreateContactRequest(_message.Message):
+    __slots__ = ("properties",)
+    PROPERTIES_FIELD_NUMBER: _ClassVar[int]
+    properties: _struct_pb2.Struct
+    def __init__(self, properties: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ...) -> None: ...
+
+class CreateContactResponse(_message.Message):
+    __slots__ = ("id", "properties", "created_at", "updated_at", "archived")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    PROPERTIES_FIELD_NUMBER: _ClassVar[int]
+    CREATED_AT_FIELD_NUMBER: _ClassVar[int]
+    UPDATED_AT_FIELD_NUMBER: _ClassVar[int]
+    ARCHIVED_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    properties: _struct_pb2.Struct
+    created_at: str
+    updated_at: str
+    archived: bool
+    def __init__(self, id: _Optional[str] = ..., properties: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ..., created_at: _Optional[str] = ..., updated_at: _Optional[str] = ..., archived: _Optional[bool] = ...) -> None: ...
+
+class UpdateContactRequest(_message.Message):
+    __slots__ = ("contact_id", "properties")
+    CONTACT_ID_FIELD_NUMBER: _ClassVar[int]
+    PROPERTIES_FIELD_NUMBER: _ClassVar[int]
+    contact_id: str
+    properties: _struct_pb2.Struct
+    def __init__(self, contact_id: _Optional[str] = ..., properties: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ...) -> None: ...
+
+class UpdateContactResponse(_message.Message):
+    __slots__ = ("id", "properties", "created_at", "updated_at", "archived")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    PROPERTIES_FIELD_NUMBER: _ClassVar[int]
+    CREATED_AT_FIELD_NUMBER: _ClassVar[int]
+    UPDATED_AT_FIELD_NUMBER: _ClassVar[int]
+    ARCHIVED_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    properties: _struct_pb2.Struct
+    created_at: str
+    updated_at: str
+    archived: bool
+    def __init__(self, id: _Optional[str] = ..., properties: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ..., created_at: _Optional[str] = ..., updated_at: _Optional[str] = ..., archived: _Optional[bool] = ...) -> None: ...

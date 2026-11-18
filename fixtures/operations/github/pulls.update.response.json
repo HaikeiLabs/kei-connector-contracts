@@ -1,0 +1,22 @@
+{
+  "id": 9007199254741004,
+  "number": 43,
+  "title": "Synthetic updated title",
+  "state": "open",
+  "body": null,
+  "html_url": "https://example.invalid/example-org/example-repo/pull/43",
+  "draft": false,
+  "merged_at": null,
+  "head": {
+    "ref": "feature/x"
+  },
+  "base": {
+    "ref": "main"
+  },
+  "user": {
+    "id": 7002,
+    "login": "example-user"
+  },
+  "labels": [],
+  "node_id": "synthetic-node-id-8"
+}

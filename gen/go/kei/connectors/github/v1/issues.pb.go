@@ -114,6 +114,8 @@ type GetIssueResponse struct {
 	State         string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
 	Body          *string                `protobuf:"bytes,5,opt,name=body,proto3,oneof" json:"body,omitempty"`
 	HtmlUrl       string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	Author        *User                  `protobuf:"bytes,7,opt,name=author,json=user,proto3" json:"author,omitempty"`
+	Labels        []*Label               `protobuf:"bytes,8,rep,name=labels,proto3" json:"labels,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -188,6 +190,20 @@ func (x *GetIssueResponse) GetHtmlUrl() string {
 		return x.HtmlUrl
 	}
 	return ""
+}
+
+func (x *GetIssueResponse) GetAuthor() *User {
+	if x != nil {
+		return x.Author
+	}
+	return nil
+}
+
+func (x *GetIssueResponse) GetLabels() []*Label {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
 }
 
 // ListIssuesRequest lists the issues of a GitHub repository. The contract
@@ -269,6 +285,8 @@ type IssueSummary struct {
 	State         string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
 	Body          *string                `protobuf:"bytes,5,opt,name=body,proto3,oneof" json:"body,omitempty"`
 	HtmlUrl       string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	Author        *User                  `protobuf:"bytes,7,opt,name=author,json=user,proto3" json:"author,omitempty"`
+	Labels        []*Label               `protobuf:"bytes,8,rep,name=labels,proto3" json:"labels,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -345,6 +363,20 @@ func (x *IssueSummary) GetHtmlUrl() string {
 	return ""
 }
 
+func (x *IssueSummary) GetAuthor() *User {
+	if x != nil {
+		return x.Author
+	}
+	return nil
+}
+
+func (x *IssueSummary) GetLabels() []*Label {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
 // ListIssuesResponse wraps the issue entries of a list response. GitHub
 // returns a bare JSON array here; the contract envelopes it under issues so
 // the response stays a protojson object and envelope keys stay
@@ -393,11 +425,323 @@ func (x *ListIssuesResponse) GetIssues() []*IssueSummary {
 	return nil
 }
 
+// CreateIssueRequest creates an issue in a GitHub repository. The title is
+// the provider's only required field; the contract models the body alongside
+// it.
+type CreateIssueRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Owner         string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	Body          *string                `protobuf:"bytes,4,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateIssueRequest) Reset() {
+	*x = CreateIssueRequest{}
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateIssueRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateIssueRequest) ProtoMessage() {}
+
+func (x *CreateIssueRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateIssueRequest.ProtoReflect.Descriptor instead.
+func (*CreateIssueRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_issues_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CreateIssueRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *CreateIssueRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *CreateIssueRequest) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *CreateIssueRequest) GetBody() string {
+	if x != nil && x.Body != nil {
+		return *x.Body
+	}
+	return ""
+}
+
+// CreateIssueResponse models the created issue. It is filled by JSON
+// unmarshal of the provider response.
+type CreateIssueResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Number        int64                  `protobuf:"varint,2,opt,name=number,proto3" json:"number,omitempty"`
+	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	State         string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	Body          *string                `protobuf:"bytes,5,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	HtmlUrl       string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	Author        *User                  `protobuf:"bytes,7,opt,name=author,json=user,proto3" json:"author,omitempty"`
+	Labels        []*Label               `protobuf:"bytes,8,rep,name=labels,proto3" json:"labels,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateIssueResponse) Reset() {
+	*x = CreateIssueResponse{}
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateIssueResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateIssueResponse) ProtoMessage() {}
+
+func (x *CreateIssueResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateIssueResponse.ProtoReflect.Descriptor instead.
+func (*CreateIssueResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_issues_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CreateIssueResponse) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *CreateIssueResponse) GetNumber() int64 {
+	if x != nil {
+		return x.Number
+	}
+	return 0
+}
+
+func (x *CreateIssueResponse) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *CreateIssueResponse) GetState() string {
+	if x != nil {
+		return x.State
+	}
+	return ""
+}
+
+func (x *CreateIssueResponse) GetBody() string {
+	if x != nil && x.Body != nil {
+		return *x.Body
+	}
+	return ""
+}
+
+func (x *CreateIssueResponse) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+func (x *CreateIssueResponse) GetAuthor() *User {
+	if x != nil {
+		return x.Author
+	}
+	return nil
+}
+
+func (x *CreateIssueResponse) GetLabels() []*Label {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
+// CreateIssueCommentRequest writes a comment on a GitHub issue.
+type CreateIssueCommentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Owner         string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	IssueNumber   int64                  `protobuf:"varint,3,opt,name=issue_number,json=issueNumber,proto3" json:"issue_number,omitempty"`
+	Body          string                 `protobuf:"bytes,4,opt,name=body,proto3" json:"body,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateIssueCommentRequest) Reset() {
+	*x = CreateIssueCommentRequest{}
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateIssueCommentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateIssueCommentRequest) ProtoMessage() {}
+
+func (x *CreateIssueCommentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateIssueCommentRequest.ProtoReflect.Descriptor instead.
+func (*CreateIssueCommentRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_issues_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CreateIssueCommentRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *CreateIssueCommentRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *CreateIssueCommentRequest) GetIssueNumber() int64 {
+	if x != nil {
+		return x.IssueNumber
+	}
+	return 0
+}
+
+func (x *CreateIssueCommentRequest) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
+}
+
+// CreateIssueCommentResponse models the created comment. It is filled by
+// JSON unmarshal of the provider response.
+type CreateIssueCommentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Body          string                 `protobuf:"bytes,2,opt,name=body,proto3" json:"body,omitempty"`
+	HtmlUrl       string                 `protobuf:"bytes,3,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	Author        *User                  `protobuf:"bytes,4,opt,name=author,json=user,proto3" json:"author,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateIssueCommentResponse) Reset() {
+	*x = CreateIssueCommentResponse{}
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateIssueCommentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateIssueCommentResponse) ProtoMessage() {}
+
+func (x *CreateIssueCommentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_issues_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateIssueCommentResponse.ProtoReflect.Descriptor instead.
+func (*CreateIssueCommentResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_issues_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *CreateIssueCommentResponse) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *CreateIssueCommentResponse) GetBody() string {
+	if x != nil {
+		return x.Body
+	}
+	return ""
+}
+
+func (x *CreateIssueCommentResponse) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+func (x *CreateIssueCommentResponse) GetAuthor() *User {
+	if x != nil {
+		return x.Author
+	}
+	return nil
+}
+
 var File_kei_connectors_github_v1_issues_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_github_v1_issues_proto_rawDesc = "" +
 	"\n" +
-	"%kei/connectors/github/v1/issues.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xd1\x02\n" +
+	"%kei/connectors/github/v1/issues.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\x1a$kei/connectors/github/v1/pulls.proto\"\xd1\x02\n" +
 	"\x0fGetIssueRequest\x12\x1c\n" +
 	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
 	"\n" +
@@ -405,14 +749,16 @@ const file_kei_connectors_github_v1_issues_proto_rawDesc = "" +
 	"repository\x12)\n" +
 	"\fissue_number\x18\x03 \x01(\x03B\x06\xa2\x82\x19\x02\b\x01R\vissueNumber:\xcc\x01\x92\x82\x19\xc7\x01\n" +
 	"\x11github.issues.get\x12\x06github\x18\x01*\x03GET21/repos/{owner}/{repository}/issues/{issue_number}:\vissues:read@\x01J\bGetIssueR\n" +
-	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\v\b\x01\x12\x05issue\x18\x01\"\xa3\x01\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\v\b\x01\x12\x05issue\x18\x01\"\x92\x02\n" +
 	"\x10GetIssueResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
 	"\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n" +
 	"\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n" +
 	"\x04body\x18\x05 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x19\n" +
-	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrlB\a\n" +
+	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrl\x124\n" +
+	"\x06author\x18\a \x01(\v2\x1e.kei.connectors.github.v1.UserR\x04user\x127\n" +
+	"\x06labels\x18\b \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labelsB\a\n" +
 	"\x05_body\"\xee\x02\n" +
 	"\x11ListIssuesRequest\x12\x1c\n" +
 	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
@@ -425,17 +771,53 @@ const file_kei_connectors_github_v1_issues_proto_rawDesc = "" +
 	"ListIssuesR\n" +
 	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\v\b\x01\x12\x05issue\x18\x01B\b\n" +
 	"\x06_stateB\v\n" +
-	"\t_per_page\"\x9f\x01\n" +
+	"\t_per_page\"\x8e\x02\n" +
 	"\fIssueSummary\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
 	"\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n" +
 	"\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n" +
 	"\x04body\x18\x05 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x19\n" +
-	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrlB\a\n" +
+	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrl\x124\n" +
+	"\x06author\x18\a \x01(\v2\x1e.kei.connectors.github.v1.UserR\x04user\x127\n" +
+	"\x06labels\x18\b \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labelsB\a\n" +
 	"\x05_body\"T\n" +
 	"\x12ListIssuesResponse\x12>\n" +
-	"\x06issues\x18\x01 \x03(\v2&.kei.connectors.github.v1.IssueSummaryR\x06issuesBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3"
+	"\x06issues\x18\x01 \x03(\v2&.kei.connectors.github.v1.IssueSummaryR\x06issues\"\xe8\x02\n" +
+	"\x12CreateIssueRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x17\n" +
+	"\x04body\x18\x04 \x01(\tH\x00R\x04body\x88\x01\x01:\xd3\x01\x92\x82\x19\xce\x01\n" +
+	"\x14github.issues.create\x12\x06github\x18\x02*\x04POST2\"/repos/{owner}/{repository}/issues:\fissues:write@\x01J\vCreateIssueR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01b\x05\b\x99\x03\x10\x05b\x05\b\xa6\x03\x10\x06\x8a\x01\v\b\x02\x12\x05issue\x18\x01B\a\n" +
+	"\x05_body\"\x95\x02\n" +
+	"\x13CreateIssueResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
+	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x14\n" +
+	"\x05state\x18\x04 \x01(\tR\x05state\x12\x17\n" +
+	"\x04body\x18\x05 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x19\n" +
+	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrl\x124\n" +
+	"\x06author\x18\a \x01(\v2\x1e.kei.connectors.github.v1.UserR\x04user\x127\n" +
+	"\x06labels\x18\b \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labelsB\a\n" +
+	"\x05_body\"\xa6\x03\n" +
+	"\x19CreateIssueCommentRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12)\n" +
+	"\fissue_number\x18\x03 \x01(\x03B\x06\xa2\x82\x19\x02\b\x01R\vissueNumber\x12\x12\n" +
+	"\x04body\x18\x04 \x01(\tR\x04body:\x83\x02\x92\x82\x19\xfe\x01\n" +
+	"\x1dgithub.issues.comments.create\x12\x06github\x18\x02*\x04POST2:/repos/{owner}/{repository}/issues/{issue_number}/comments:\fissues:write@\x01J\x12CreateIssueCommentR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01b\x05\b\x99\x03\x10\x05b\x05\b\xa6\x03\x10\x06\x8a\x01\x13\b\x02\x12\rissue_comment\x18\x01\"\x91\x01\n" +
+	"\x1aCreateIssueCommentResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
+	"\x04body\x18\x02 \x01(\tR\x04body\x12\x19\n" +
+	"\bhtml_url\x18\x03 \x01(\tR\ahtmlUrl\x124\n" +
+	"\x06author\x18\x04 \x01(\v2\x1e.kei.connectors.github.v1.UserR\x04userBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3"
 
 var (
 	file_kei_connectors_github_v1_issues_proto_rawDescOnce sync.Once
@@ -449,21 +831,34 @@ func file_kei_connectors_github_v1_issues_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_github_v1_issues_proto_rawDescData
 }
 
-var file_kei_connectors_github_v1_issues_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_kei_connectors_github_v1_issues_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_kei_connectors_github_v1_issues_proto_goTypes = []any{
-	(*GetIssueRequest)(nil),    // 0: kei.connectors.github.v1.GetIssueRequest
-	(*GetIssueResponse)(nil),   // 1: kei.connectors.github.v1.GetIssueResponse
-	(*ListIssuesRequest)(nil),  // 2: kei.connectors.github.v1.ListIssuesRequest
-	(*IssueSummary)(nil),       // 3: kei.connectors.github.v1.IssueSummary
-	(*ListIssuesResponse)(nil), // 4: kei.connectors.github.v1.ListIssuesResponse
+	(*GetIssueRequest)(nil),            // 0: kei.connectors.github.v1.GetIssueRequest
+	(*GetIssueResponse)(nil),           // 1: kei.connectors.github.v1.GetIssueResponse
+	(*ListIssuesRequest)(nil),          // 2: kei.connectors.github.v1.ListIssuesRequest
+	(*IssueSummary)(nil),               // 3: kei.connectors.github.v1.IssueSummary
+	(*ListIssuesResponse)(nil),         // 4: kei.connectors.github.v1.ListIssuesResponse
+	(*CreateIssueRequest)(nil),         // 5: kei.connectors.github.v1.CreateIssueRequest
+	(*CreateIssueResponse)(nil),        // 6: kei.connectors.github.v1.CreateIssueResponse
+	(*CreateIssueCommentRequest)(nil),  // 7: kei.connectors.github.v1.CreateIssueCommentRequest
+	(*CreateIssueCommentResponse)(nil), // 8: kei.connectors.github.v1.CreateIssueCommentResponse
+	(*User)(nil),                       // 9: kei.connectors.github.v1.User
+	(*Label)(nil),                      // 10: kei.connectors.github.v1.Label
 }
 var file_kei_connectors_github_v1_issues_proto_depIdxs = []int32{
-	3, // 0: kei.connectors.github.v1.ListIssuesResponse.issues:type_name -> kei.connectors.github.v1.IssueSummary
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	9,  // 0: kei.connectors.github.v1.GetIssueResponse.author:type_name -> kei.connectors.github.v1.User
+	10, // 1: kei.connectors.github.v1.GetIssueResponse.labels:type_name -> kei.connectors.github.v1.Label
+	9,  // 2: kei.connectors.github.v1.IssueSummary.author:type_name -> kei.connectors.github.v1.User
+	10, // 3: kei.connectors.github.v1.IssueSummary.labels:type_name -> kei.connectors.github.v1.Label
+	3,  // 4: kei.connectors.github.v1.ListIssuesResponse.issues:type_name -> kei.connectors.github.v1.IssueSummary
+	9,  // 5: kei.connectors.github.v1.CreateIssueResponse.author:type_name -> kei.connectors.github.v1.User
+	10, // 6: kei.connectors.github.v1.CreateIssueResponse.labels:type_name -> kei.connectors.github.v1.Label
+	9,  // 7: kei.connectors.github.v1.CreateIssueCommentResponse.author:type_name -> kei.connectors.github.v1.User
+	8,  // [8:8] is the sub-list for method output_type
+	8,  // [8:8] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_github_v1_issues_proto_init() }
@@ -471,16 +866,19 @@ func file_kei_connectors_github_v1_issues_proto_init() {
 	if File_kei_connectors_github_v1_issues_proto != nil {
 		return
 	}
+	file_kei_connectors_github_v1_pulls_proto_init()
 	file_kei_connectors_github_v1_issues_proto_msgTypes[1].OneofWrappers = []any{}
 	file_kei_connectors_github_v1_issues_proto_msgTypes[2].OneofWrappers = []any{}
 	file_kei_connectors_github_v1_issues_proto_msgTypes[3].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_issues_proto_msgTypes[5].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_issues_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_github_v1_issues_proto_rawDesc), len(file_kei_connectors_github_v1_issues_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

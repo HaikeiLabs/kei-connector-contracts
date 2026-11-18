@@ -8,6 +8,17 @@ from kei.connection import HttpConnection, Op, OpClass, call_http
 
 from kei.connectors.airtable.v1 import records_pb2
 
+OP_CREATE_RECORD = Op(id="airtable.records.create", op_class=OpClass.WRITE, destructive=False)
+_SPEC_CREATE_RECORD = {
+    "op": OP_CREATE_RECORD,
+    "method": "POST",
+    "path_template": "/v0/{base_id}/{table_id_or_name}",
+    "params": [{"field": "base_id", "in": "path", "multi_segment": False, "wire": "base_id"}, {"field": "table_id_or_name", "in": "path", "multi_segment": False, "wire": "table_id_or_name"}, {"field": "fields", "in": "body", "multi_segment": False, "wire": "fields"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "invalid", "retryable": False, "status": 422}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 OP_GET_RECORD = Op(id="airtable.records.get", op_class=OpClass.READ, destructive=False)
 _SPEC_GET_RECORD = {
     "op": OP_GET_RECORD,
@@ -30,11 +41,26 @@ _SPEC_LIST_RECORDS = {
     "cursor_field": "offset",
     "next_cursor_field": "offset",
 }
+OP_UPDATE_RECORD = Op(id="airtable.records.update", op_class=OpClass.WRITE, destructive=False)
+_SPEC_UPDATE_RECORD = {
+    "op": OP_UPDATE_RECORD,
+    "method": "PATCH",
+    "path_template": "/v0/{base_id}/{table_id_or_name}/{record_id}",
+    "params": [{"field": "base_id", "in": "path", "multi_segment": False, "wire": "base_id"}, {"field": "table_id_or_name", "in": "path", "multi_segment": False, "wire": "table_id_or_name"}, {"field": "record_id", "in": "path", "multi_segment": False, "wire": "record_id"}, {"field": "fields", "in": "body", "multi_segment": False, "wire": "fields"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "invalid", "retryable": False, "status": 422}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 
 class AirtableOperations(Protocol):
+    async def create_record(self, req: records_pb2.CreateRecordRequest) -> records_pb2.CreateRecordResponse:
+        ...
     async def get_record(self, req: records_pb2.GetRecordRequest) -> records_pb2.GetRecordResponse:
         ...
     async def list_records(self, req: records_pb2.ListRecordsRequest) -> records_pb2.ListRecordsResponse:
+        ...
+    async def update_record(self, req: records_pb2.UpdateRecordRequest) -> records_pb2.UpdateRecordResponse:
         ...
 
 class AirtableQueries:
@@ -43,8 +69,14 @@ class AirtableQueries:
     def __init__(self, conn: HttpConnection) -> None:
         self._conn = conn
 
+    async def create_record(self, req: records_pb2.CreateRecordRequest) -> records_pb2.CreateRecordResponse:
+        return await call_http(self._conn, _SPEC_CREATE_RECORD, req, records_pb2.CreateRecordResponse)
+
     async def get_record(self, req: records_pb2.GetRecordRequest) -> records_pb2.GetRecordResponse:
         return await call_http(self._conn, _SPEC_GET_RECORD, req, records_pb2.GetRecordResponse)
 
     async def list_records(self, req: records_pb2.ListRecordsRequest) -> records_pb2.ListRecordsResponse:
         return await call_http(self._conn, _SPEC_LIST_RECORDS, req, records_pb2.ListRecordsResponse)
+
+    async def update_record(self, req: records_pb2.UpdateRecordRequest) -> records_pb2.UpdateRecordResponse:
+        return await call_http(self._conn, _SPEC_UPDATE_RECORD, req, records_pb2.UpdateRecordResponse)

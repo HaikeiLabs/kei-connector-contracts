@@ -8,6 +8,17 @@ from kei.connection import HttpConnection, Op, OpClass, call_http
 
 from kei.connectors.hubspot.v1 import contacts_pb2, deals_pb2
 
+OP_CREATE_CONTACT = Op(id="hubspot.contacts.create", op_class=OpClass.WRITE, destructive=False)
+_SPEC_CREATE_CONTACT = {
+    "op": OP_CREATE_CONTACT,
+    "method": "POST",
+    "path_template": "/crm/v3/objects/contacts",
+    "params": [{"field": "properties", "in": "body", "multi_segment": False, "wire": "properties"}],
+    "errors": [{"kind": "invalid", "retryable": False, "status": 400}, {"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "conflict", "retryable": False, "status": 409}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 OP_GET_CONTACT = Op(id="hubspot.contacts.get", op_class=OpClass.READ, destructive=False)
 _SPEC_GET_CONTACT = {
     "op": OP_GET_CONTACT,
@@ -30,6 +41,17 @@ _SPEC_LIST_CONTACTS = {
     "cursor_field": "after",
     "next_cursor_field": "next_after",
 }
+OP_UPDATE_CONTACT = Op(id="hubspot.contacts.update", op_class=OpClass.WRITE, destructive=False)
+_SPEC_UPDATE_CONTACT = {
+    "op": OP_UPDATE_CONTACT,
+    "method": "PATCH",
+    "path_template": "/crm/v3/objects/contacts/{contact_id}",
+    "params": [{"field": "contact_id", "in": "path", "multi_segment": False, "wire": "contact_id"}, {"field": "properties", "in": "body", "multi_segment": False, "wire": "properties"}],
+    "errors": [{"kind": "invalid", "retryable": False, "status": 400}, {"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 OP_LIST_DEALS = Op(id="hubspot.deals.list", op_class=OpClass.READ, destructive=False)
 _SPEC_LIST_DEALS = {
     "op": OP_LIST_DEALS,
@@ -43,9 +65,13 @@ _SPEC_LIST_DEALS = {
 }
 
 class HubspotOperations(Protocol):
+    async def create_contact(self, req: contacts_pb2.CreateContactRequest) -> contacts_pb2.CreateContactResponse:
+        ...
     async def get_contact(self, req: contacts_pb2.GetContactRequest) -> contacts_pb2.GetContactResponse:
         ...
     async def list_contacts(self, req: contacts_pb2.ListContactsRequest) -> contacts_pb2.ListContactsResponse:
+        ...
+    async def update_contact(self, req: contacts_pb2.UpdateContactRequest) -> contacts_pb2.UpdateContactResponse:
         ...
     async def list_deals(self, req: deals_pb2.ListDealsRequest) -> deals_pb2.ListDealsResponse:
         ...
@@ -56,11 +82,17 @@ class HubspotQueries:
     def __init__(self, conn: HttpConnection) -> None:
         self._conn = conn
 
+    async def create_contact(self, req: contacts_pb2.CreateContactRequest) -> contacts_pb2.CreateContactResponse:
+        return await call_http(self._conn, _SPEC_CREATE_CONTACT, req, contacts_pb2.CreateContactResponse)
+
     async def get_contact(self, req: contacts_pb2.GetContactRequest) -> contacts_pb2.GetContactResponse:
         return await call_http(self._conn, _SPEC_GET_CONTACT, req, contacts_pb2.GetContactResponse)
 
     async def list_contacts(self, req: contacts_pb2.ListContactsRequest) -> contacts_pb2.ListContactsResponse:
         return await call_http(self._conn, _SPEC_LIST_CONTACTS, req, contacts_pb2.ListContactsResponse)
+
+    async def update_contact(self, req: contacts_pb2.UpdateContactRequest) -> contacts_pb2.UpdateContactResponse:
+        return await call_http(self._conn, _SPEC_UPDATE_CONTACT, req, contacts_pb2.UpdateContactResponse)
 
     async def list_deals(self, req: deals_pb2.ListDealsRequest) -> deals_pb2.ListDealsResponse:
         return await call_http(self._conn, _SPEC_LIST_DEALS, req, deals_pb2.ListDealsResponse)

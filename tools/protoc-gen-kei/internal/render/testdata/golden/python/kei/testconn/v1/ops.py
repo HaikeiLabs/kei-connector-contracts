@@ -6,6 +6,8 @@ from typing import Protocol
 
 from kei.connection import HttpConnection, Op, OpClass, call_http
 
+from google.protobuf import struct_pb2
+
 from kei.testconn.v1 import things_pb2
 
 OP_GET_FILE = Op(id="testconn.files.get", op_class=OpClass.READ, destructive=False)
@@ -24,7 +26,7 @@ _SPEC_CREATE_THING = {
     "op": OP_CREATE_THING,
     "method": "POST",
     "path_template": "/spaces/{space}/things",
-    "params": [{"field": "space", "in": "path", "multi_segment": False, "wire": "space"}, {"field": "name", "in": "body", "multi_segment": False, "wire": "name"}, {"field": "note", "in": "body", "multi_segment": False, "wire": "description"}],
+    "params": [{"field": "space", "in": "path", "multi_segment": False, "wire": "space"}, {"field": "name", "in": "body", "multi_segment": False, "wire": "name"}, {"field": "note", "in": "body", "multi_segment": False, "wire": "description"}, {"field": "metadata", "in": "body", "multi_segment": False, "wire": "metadata"}, {"field": "rows", "in": "body", "multi_segment": False, "wire": "rows"}],
     "errors": [{"kind": "conflict", "retryable": False, "status": 409}],
     "graphql_document": "",
     "cursor_field": "",

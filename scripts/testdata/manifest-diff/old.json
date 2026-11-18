@@ -1,0 +1,19 @@
+{
+  "schema": "kei.connector-manifest/v1",
+  "contracts_version": "v1.0.0",
+  "connectors": [
+    {
+      "id": "acme",
+      "connections": [{"name": "pat", "kind": "http_bearer", "auth_method": "secret_ref", "account_model": "shared", "scopes": [], "setup_fields": []}],
+      "capabilities": [
+        {
+          "id": "acme.things.get", "class": "read", "destructive": false, "deprecated": false, "replaced_by": "",
+          "scopes": ["things:read"], "connections": ["pat"], "resource_template": "spaces/{space}",
+          "semantics": {"action": "read", "resource_type": "thing", "version": 1},
+          "request": "kei.acme.v1.GetThingRequest", "response": "kei.acme.v1.GetThingResponse"
+        }
+      ]
+    }
+  ],
+  "legacy_capabilities": []
+}

@@ -1,0 +1,6 @@
+{
+  "base_id": "appSyntheticBase01",
+  "table_id_or_name": "Tasks",
+  "record_id": "recSynthetic00003",
+  "fields": {"Status": "Done"}
+}

@@ -1,4 +1,265 @@
 // @generated
+impl serde::Serialize for CreateRecordRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.base_id.is_empty() {
+            len += 1;
+        }
+        if !self.table_id_or_name.is_empty() {
+            len += 1;
+        }
+        if self.fields.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.airtable.v1.CreateRecordRequest", len)?;
+        if !self.base_id.is_empty() {
+            struct_ser.serialize_field("baseId", &self.base_id)?;
+        }
+        if !self.table_id_or_name.is_empty() {
+            struct_ser.serialize_field("tableIdOrName", &self.table_id_or_name)?;
+        }
+        if let Some(v) = self.fields.as_ref() {
+            struct_ser.serialize_field("fields", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for CreateRecordRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "base_id",
+            "baseId",
+            "table_id_or_name",
+            "tableIdOrName",
+            "fields",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            BaseId,
+            TableIdOrName,
+            Fields,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "baseId" | "base_id" => Ok(GeneratedField::BaseId),
+                            "tableIdOrName" | "table_id_or_name" => Ok(GeneratedField::TableIdOrName),
+                            "fields" => Ok(GeneratedField::Fields),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = CreateRecordRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.airtable.v1.CreateRecordRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateRecordRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut base_id__ = None;
+                let mut table_id_or_name__ = None;
+                let mut fields__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::BaseId => {
+                            if base_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("baseId"));
+                            }
+                            base_id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::TableIdOrName => {
+                            if table_id_or_name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("tableIdOrName"));
+                            }
+                            table_id_or_name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Fields => {
+                            if fields__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("fields"));
+                            }
+                            fields__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(CreateRecordRequest {
+                    base_id: base_id__.unwrap_or_default(),
+                    table_id_or_name: table_id_or_name__.unwrap_or_default(),
+                    fields: fields__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.airtable.v1.CreateRecordRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for CreateRecordResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.id.is_empty() {
+            len += 1;
+        }
+        if self.fields.is_some() {
+            len += 1;
+        }
+        if !self.created_time.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.airtable.v1.CreateRecordResponse", len)?;
+        if !self.id.is_empty() {
+            struct_ser.serialize_field("id", &self.id)?;
+        }
+        if let Some(v) = self.fields.as_ref() {
+            struct_ser.serialize_field("fields", v)?;
+        }
+        if !self.created_time.is_empty() {
+            struct_ser.serialize_field("createdTime", &self.created_time)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for CreateRecordResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "id",
+            "fields",
+            "created_time",
+            "createdTime",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            Fields,
+            CreatedTime,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "fields" => Ok(GeneratedField::Fields),
+                            "createdTime" | "created_time" => Ok(GeneratedField::CreatedTime),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = CreateRecordResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.airtable.v1.CreateRecordResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateRecordResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut fields__ = None;
+                let mut created_time__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Fields => {
+                            if fields__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("fields"));
+                            }
+                            fields__ = map_.next_value()?;
+                        }
+                        GeneratedField::CreatedTime => {
+                            if created_time__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("createdTime"));
+                            }
+                            created_time__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(CreateRecordResponse {
+                    id: id__.unwrap_or_default(),
+                    fields: fields__,
+                    created_time: created_time__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.airtable.v1.CreateRecordResponse", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for GetRecordRequest {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -652,5 +913,284 @@ impl<'de> serde::Deserialize<'de> for RecordSummary {
             }
         }
         deserializer.deserialize_struct("kei.connectors.airtable.v1.RecordSummary", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for UpdateRecordRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.base_id.is_empty() {
+            len += 1;
+        }
+        if !self.table_id_or_name.is_empty() {
+            len += 1;
+        }
+        if !self.record_id.is_empty() {
+            len += 1;
+        }
+        if self.fields.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.airtable.v1.UpdateRecordRequest", len)?;
+        if !self.base_id.is_empty() {
+            struct_ser.serialize_field("baseId", &self.base_id)?;
+        }
+        if !self.table_id_or_name.is_empty() {
+            struct_ser.serialize_field("tableIdOrName", &self.table_id_or_name)?;
+        }
+        if !self.record_id.is_empty() {
+            struct_ser.serialize_field("recordId", &self.record_id)?;
+        }
+        if let Some(v) = self.fields.as_ref() {
+            struct_ser.serialize_field("fields", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for UpdateRecordRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "base_id",
+            "baseId",
+            "table_id_or_name",
+            "tableIdOrName",
+            "record_id",
+            "recordId",
+            "fields",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            BaseId,
+            TableIdOrName,
+            RecordId,
+            Fields,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "baseId" | "base_id" => Ok(GeneratedField::BaseId),
+                            "tableIdOrName" | "table_id_or_name" => Ok(GeneratedField::TableIdOrName),
+                            "recordId" | "record_id" => Ok(GeneratedField::RecordId),
+                            "fields" => Ok(GeneratedField::Fields),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = UpdateRecordRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.airtable.v1.UpdateRecordRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<UpdateRecordRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut base_id__ = None;
+                let mut table_id_or_name__ = None;
+                let mut record_id__ = None;
+                let mut fields__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::BaseId => {
+                            if base_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("baseId"));
+                            }
+                            base_id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::TableIdOrName => {
+                            if table_id_or_name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("tableIdOrName"));
+                            }
+                            table_id_or_name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::RecordId => {
+                            if record_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("recordId"));
+                            }
+                            record_id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Fields => {
+                            if fields__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("fields"));
+                            }
+                            fields__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(UpdateRecordRequest {
+                    base_id: base_id__.unwrap_or_default(),
+                    table_id_or_name: table_id_or_name__.unwrap_or_default(),
+                    record_id: record_id__.unwrap_or_default(),
+                    fields: fields__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.airtable.v1.UpdateRecordRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for UpdateRecordResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.id.is_empty() {
+            len += 1;
+        }
+        if self.fields.is_some() {
+            len += 1;
+        }
+        if !self.created_time.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.airtable.v1.UpdateRecordResponse", len)?;
+        if !self.id.is_empty() {
+            struct_ser.serialize_field("id", &self.id)?;
+        }
+        if let Some(v) = self.fields.as_ref() {
+            struct_ser.serialize_field("fields", v)?;
+        }
+        if !self.created_time.is_empty() {
+            struct_ser.serialize_field("createdTime", &self.created_time)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for UpdateRecordResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "id",
+            "fields",
+            "created_time",
+            "createdTime",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            Fields,
+            CreatedTime,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "fields" => Ok(GeneratedField::Fields),
+                            "createdTime" | "created_time" => Ok(GeneratedField::CreatedTime),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = UpdateRecordResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.airtable.v1.UpdateRecordResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<UpdateRecordResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut fields__ = None;
+                let mut created_time__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Fields => {
+                            if fields__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("fields"));
+                            }
+                            fields__ = map_.next_value()?;
+                        }
+                        GeneratedField::CreatedTime => {
+                            if created_time__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("createdTime"));
+                            }
+                            created_time__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(UpdateRecordResponse {
+                    id: id__.unwrap_or_default(),
+                    fields: fields__,
+                    created_time: created_time__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.airtable.v1.UpdateRecordResponse", FIELDS, GeneratedVisitor)
     }
 }

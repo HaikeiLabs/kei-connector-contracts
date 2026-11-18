@@ -11,7 +11,7 @@
 
 use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
-use crate::kei::connectors::notion::v1::{GetPageRequest, GetPageResponse, QueryDatabaseRequest, QueryDatabaseResponse};
+use crate::kei::connectors::notion::v1::{CreatePageRequest, CreatePageResponse, GetPageRequest, GetPageResponse, QueryDatabaseRequest, QueryDatabaseResponse, UpdatePageRequest, UpdatePageResponse};
 
 /// Operation descriptor for notion.databases.query, for authorization and audit: the
 /// capability a policy grants is connector:notion.databases.query.
@@ -21,11 +21,27 @@ pub const OP_QUERY_DATABASE: Op = Op {
     destructive: false,
 };
 
+/// Operation descriptor for notion.pages.create, for authorization and audit: the
+/// capability a policy grants is connector:notion.pages.create.
+pub const OP_CREATE_PAGE: Op = Op {
+    id: "notion.pages.create",
+    class: Class::Write,
+    destructive: false,
+};
+
 /// Operation descriptor for notion.pages.get, for authorization and audit: the
 /// capability a policy grants is connector:notion.pages.get.
 pub const OP_GET_PAGE: Op = Op {
     id: "notion.pages.get",
     class: Class::Read,
+    destructive: false,
+};
+
+/// Operation descriptor for notion.pages.update, for authorization and audit: the
+/// capability a policy grants is connector:notion.pages.update.
+pub const OP_UPDATE_PAGE: Op = Op {
+    id: "notion.pages.update",
+    class: Class::Write,
     destructive: false,
 };
 
@@ -43,6 +59,29 @@ const ERRORS_QUERY_DATABASE: &[ErrorMapping] = &[
     ErrorMapping {
         status: 404,
         kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
+const ERRORS_CREATE_PAGE: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 400,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
         retryable: false,
     },
     ErrorMapping {
@@ -75,14 +114,46 @@ const ERRORS_GET_PAGE: &[ErrorMapping] = &[
     },
 ];
 
+const ERRORS_UPDATE_PAGE: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 400,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 404,
+        kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
 // The generated queries run inside one caller's task, so the
 // async-fn-in-trait auto-trait bounds do not matter here.
 #[allow(async_fn_in_trait)]
 pub trait NotionOperations {
     /// query_database runs notion.databases.query (POST /v1/databases/{database_id}/query).
     async fn query_database(&self, req: QueryDatabaseRequest) -> Result<QueryDatabaseResponse, OperationError>;
+    /// create_page runs notion.pages.create (POST /v1/pages).
+    async fn create_page(&self, req: CreatePageRequest) -> Result<CreatePageResponse, OperationError>;
     /// get_page runs notion.pages.get (GET /v1/pages/{page_id}).
     async fn get_page(&self, req: GetPageRequest) -> Result<GetPageResponse, OperationError>;
+    /// update_page runs notion.pages.update (PATCH /v1/pages/{page_id}).
+    async fn update_page(&self, req: UpdatePageRequest) -> Result<UpdatePageResponse, OperationError>;
 }
 
 pub struct NotionQueries {
@@ -120,6 +191,32 @@ impl NotionOperations for NotionQueries {
         }
         Ok(resp)
     }
+    /// create_page runs notion.pages.create (POST /v1/pages).
+    async fn create_page(&self, req: CreatePageRequest) -> Result<CreatePageResponse, OperationError> {
+        let path = render_path(
+            "/v1/pages",
+            &[],
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        if let Some(v0) = &req.parent { body.insert("parent".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, e.to_string()))?); }
+        if let Some(v0) = &req.properties { body.insert("properties".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, e.to_string()))?); }
+        let mut children_json = Vec::with_capacity(req.children.len());
+        for v0 in &req.children { children_json.push(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, e.to_string()))?); }
+        body.insert("children".to_string(), serde_json::Value::Array(children_json));
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("POST", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_CREATE_PAGE.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_CREATE_PAGE, out.status, &ERRORS_CREATE_PAGE) {
+            return Err(err);
+        }
+        let resp: CreatePageResponse = decode_response(OP_CREATE_PAGE.id, &out.body, None)?;
+        Ok(resp)
+    }
     /// get_page runs notion.pages.get (GET /v1/pages/{page_id}).
     async fn get_page(&self, req: GetPageRequest) -> Result<GetPageResponse, OperationError> {
         let mut path_values: Vec<(&str, &str)> = Vec::new();
@@ -139,6 +236,32 @@ impl NotionOperations for NotionQueries {
             return Err(err);
         }
         let resp: GetPageResponse = decode_response(OP_GET_PAGE.id, &out.body, None)?;
+        Ok(resp)
+    }
+    /// update_page runs notion.pages.update (PATCH /v1/pages/{page_id}).
+    async fn update_page(&self, req: UpdatePageRequest) -> Result<UpdatePageResponse, OperationError> {
+        let mut path_values: Vec<(&str, &str)> = Vec::new();
+        path_values.push(("page_id", req.page_id.as_str()));
+        let path = render_path(
+            "/v1/pages/{page_id}",
+            &path_values,
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_UPDATE_PAGE.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        if let Some(v0) = &req.properties { body.insert("properties".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_UPDATE_PAGE.id, e.to_string()))?); }
+        if let Some(v) = req.archived { body.insert("archived".to_string(), serde_json::Value::Bool(v)); }
+        if let Some(v) = req.in_trash { body.insert("in_trash".to_string(), serde_json::Value::Bool(v)); }
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_UPDATE_PAGE.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("PATCH", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_UPDATE_PAGE.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_UPDATE_PAGE, out.status, &ERRORS_UPDATE_PAGE) {
+            return Err(err);
+        }
+        let resp: UpdatePageResponse = decode_response(OP_UPDATE_PAGE.id, &out.body, None)?;
         Ok(resp)
     }
 }

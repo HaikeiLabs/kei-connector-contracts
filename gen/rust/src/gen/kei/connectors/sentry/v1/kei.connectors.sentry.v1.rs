@@ -68,5 +68,44 @@ pub struct GetIssueResponse {
     #[prost(string, tag="7")]
     pub permalink: ::prost::alloc::string::String,
 }
+/// UpdateIssueRequest updates a Sentry issue's triage state: status
+/// (resolved, unresolved, ignored, ...), assignee, seen and bookmark flags.
+/// Sentry's JSON keys are camelCase (assignedTo, hasSeen, isBookmarked);
+/// the fields' lowerCamel JSON names already match, so no json_name is set.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct UpdateIssueRequest {
+    #[prost(string, tag="1")]
+    pub organization_slug: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub issue_id: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="3")]
+    pub status: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, optional, tag="4")]
+    pub assigned_to: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(bool, optional, tag="5")]
+    pub has_seen: ::core::option::Option<bool>,
+    #[prost(bool, optional, tag="6")]
+    pub is_bookmarked: ::core::option::Option<bool>,
+}
+/// UpdateIssueResponse models the same issue subset the read returns; Sentry
+/// echoes the updated issue. It is filled by JSON unmarshal of the provider
+/// response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct UpdateIssueResponse {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub short_id: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub title: ::prost::alloc::string::String,
+    #[prost(string, tag="4")]
+    pub status: ::prost::alloc::string::String,
+    #[prost(string, tag="5")]
+    pub level: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="6")]
+    pub share_id: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, tag="7")]
+    pub permalink: ::prost::alloc::string::String,
+}
 include!("kei.connectors.sentry.v1.serde.rs");
 // @@protoc_insertion_point(module)

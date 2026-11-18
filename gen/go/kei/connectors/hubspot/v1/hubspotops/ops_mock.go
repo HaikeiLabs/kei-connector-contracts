@@ -12,12 +12,22 @@ import (
 // Mock implements Operations with one function field per operation, for
 // tests. Calling an operation whose field is nil returns an error.
 type Mock struct {
-	GetContactFunc   func(ctx context.Context, req *hubspot.GetContactRequest) (*hubspot.GetContactResponse, error)
-	ListContactsFunc func(ctx context.Context, req *hubspot.ListContactsRequest) (*hubspot.ListContactsResponse, error)
-	ListDealsFunc    func(ctx context.Context, req *hubspot.ListDealsRequest) (*hubspot.ListDealsResponse, error)
+	CreateContactFunc func(ctx context.Context, req *hubspot.CreateContactRequest) (*hubspot.CreateContactResponse, error)
+	GetContactFunc    func(ctx context.Context, req *hubspot.GetContactRequest) (*hubspot.GetContactResponse, error)
+	ListContactsFunc  func(ctx context.Context, req *hubspot.ListContactsRequest) (*hubspot.ListContactsResponse, error)
+	UpdateContactFunc func(ctx context.Context, req *hubspot.UpdateContactRequest) (*hubspot.UpdateContactResponse, error)
+	ListDealsFunc     func(ctx context.Context, req *hubspot.ListDealsRequest) (*hubspot.ListDealsResponse, error)
 }
 
 var _ Operations = (*Mock)(nil)
+
+// CreateContact calls m.CreateContactFunc.
+func (m *Mock) CreateContact(ctx context.Context, req *hubspot.CreateContactRequest) (*hubspot.CreateContactResponse, error) {
+	if m.CreateContactFunc == nil {
+		return nil, errors.New("hubspotops.Mock: CreateContactFunc is not set")
+	}
+	return m.CreateContactFunc(ctx, req)
+}
 
 // GetContact calls m.GetContactFunc.
 func (m *Mock) GetContact(ctx context.Context, req *hubspot.GetContactRequest) (*hubspot.GetContactResponse, error) {
@@ -33,6 +43,14 @@ func (m *Mock) ListContacts(ctx context.Context, req *hubspot.ListContactsReques
 		return nil, errors.New("hubspotops.Mock: ListContactsFunc is not set")
 	}
 	return m.ListContactsFunc(ctx, req)
+}
+
+// UpdateContact calls m.UpdateContactFunc.
+func (m *Mock) UpdateContact(ctx context.Context, req *hubspot.UpdateContactRequest) (*hubspot.UpdateContactResponse, error) {
+	if m.UpdateContactFunc == nil {
+		return nil, errors.New("hubspotops.Mock: UpdateContactFunc is not set")
+	}
+	return m.UpdateContactFunc(ctx, req)
 }
 
 // ListDeals calls m.ListDealsFunc.

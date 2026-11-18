@@ -1,0 +1,13 @@
+{
+  "id": "701550001",
+  "properties": {
+    "email": "synthetic.new@example.invalid",
+    "firstname": "Synthetic",
+    "lastname": "Contact",
+    "hs_object_id": "701550001"
+  },
+  "createdAt": "2026-02-10T14:00:00.000Z",
+  "updatedAt": "2026-02-10T14:00:00.000Z",
+  "archived": false,
+  "associations": {}
+}

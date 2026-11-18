@@ -1,0 +1,6 @@
+{
+  "owner": "example-org",
+  "repository": "example-repo",
+  "ref": "refs/heads/feature/y",
+  "sha": "synthetic-ref-sha-1"
+}

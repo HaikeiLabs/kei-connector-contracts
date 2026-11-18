@@ -1,0 +1,19 @@
+{
+  "id": 9007199254741002,
+  "number": 42,
+  "title": "Synthetic new issue",
+  "state": "open",
+  "body": "Synthetic body text",
+  "html_url": "https://example.invalid/example-org/example-repo/issues/42",
+  "user": {
+    "id": 7002,
+    "login": "example-user"
+  },
+  "labels": [
+    {
+      "id": 6001,
+      "name": "synthetic-label"
+    }
+  ],
+  "node_id": "synthetic-node-id-5"
+}

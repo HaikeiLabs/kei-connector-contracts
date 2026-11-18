@@ -105,3 +105,83 @@ message GetRecordResponse {
   google.protobuf.Struct fields = 2;
   string created_time = 3;
 }
+
+// CreateRecordRequest creates a record in one Airtable table. fields carries
+// the record's cell values keyed by field name, the exact body Airtable's
+// create endpoint takes besides its typecast flag; the contract does not
+// model typecast.
+message CreateRecordRequest {
+  string base_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string table_id_or_name = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  google.protobuf.Struct fields = 3;
+
+  option (kei.contracts.v1.operation) = {
+    id: "airtable.records.create"
+    connector: "airtable"
+    class: OPERATION_CLASS_WRITE
+    destructive: false
+    http_method: "POST"
+    path_template: "/v0/{base_id}/{table_id_or_name}"
+    scopes: ["data.records:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateRecord"
+    connections: ["pat"]
+    resource_template: "bases/{base_id}"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "record" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 422 kind: ERROR_KIND_INVALID},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// CreateRecordResponse models the same record subset the read returns. It is
+// filled by JSON unmarshal of the provider response.
+message CreateRecordResponse {
+  string id = 1;
+  google.protobuf.Struct fields = 2;
+  string created_time = 3;
+}
+
+// UpdateRecordRequest updates a record's fields. Airtable merges the field
+// patch (fields left out keep their values), so this is not a wholesale
+// overwrite and the operation is not destructive.
+message UpdateRecordRequest {
+  string base_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string table_id_or_name = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string record_id = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  google.protobuf.Struct fields = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "airtable.records.update"
+    connector: "airtable"
+    class: OPERATION_CLASS_WRITE
+    destructive: false
+    http_method: "PATCH"
+    path_template: "/v0/{base_id}/{table_id_or_name}/{record_id}"
+    scopes: ["data.records:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "UpdateRecord"
+    connections: ["pat"]
+    resource_template: "bases/{base_id}"
+    semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "record" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 422 kind: ERROR_KIND_INVALID},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// UpdateRecordResponse models the same record subset the read returns. It is
+// filled by JSON unmarshal of the provider response.
+message UpdateRecordResponse {
+  string id = 1;
+  google.protobuf.Struct fields = 2;
+  string created_time = 3;
+}

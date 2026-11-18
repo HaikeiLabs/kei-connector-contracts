@@ -26,6 +26,7 @@ import (
 	_ "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -381,11 +382,241 @@ func (x *SearchJiraIssuesResponse) GetNextPageToken() string {
 	return ""
 }
 
+// CreateJiraIssueRequest creates a Jira issue. fields carries the create
+// payload's fields object (project, issuetype, summary, an ADF description,
+// ...), which is heterogeneous in Jira's API and stays a
+// google.protobuf.Struct; the contract does not model the updateHistory or
+// notifyUsers query flags.
+type CreateJiraIssueRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Fields        *structpb.Struct       `protobuf:"bytes,1,opt,name=fields,proto3" json:"fields,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateJiraIssueRequest) Reset() {
+	*x = CreateJiraIssueRequest{}
+	mi := &file_kei_connectors_atlassian_v1_jira_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateJiraIssueRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateJiraIssueRequest) ProtoMessage() {}
+
+func (x *CreateJiraIssueRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_atlassian_v1_jira_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateJiraIssueRequest.ProtoReflect.Descriptor instead.
+func (*CreateJiraIssueRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_atlassian_v1_jira_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CreateJiraIssueRequest) GetFields() *structpb.Struct {
+	if x != nil {
+		return x.Fields
+	}
+	return nil
+}
+
+// CreateJiraIssueResponse models the subset of Jira's create response the
+// contract needs: the new issue's numeric id and key. It is filled by JSON
+// unmarshal of the provider response.
+type CreateJiraIssueResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Key           string                 `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateJiraIssueResponse) Reset() {
+	*x = CreateJiraIssueResponse{}
+	mi := &file_kei_connectors_atlassian_v1_jira_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateJiraIssueResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateJiraIssueResponse) ProtoMessage() {}
+
+func (x *CreateJiraIssueResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_atlassian_v1_jira_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateJiraIssueResponse.ProtoReflect.Descriptor instead.
+func (*CreateJiraIssueResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_atlassian_v1_jira_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CreateJiraIssueResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CreateJiraIssueResponse) GetKey() string {
+	if x != nil {
+		return x.Key
+	}
+	return ""
+}
+
+// CreateJiraCommentRequest adds a comment to a Jira issue. body carries the
+// comment text as an Atlassian Document Format document, which stays a
+// google.protobuf.Struct.
+type CreateJiraCommentRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IssueKey      string                 `protobuf:"bytes,1,opt,name=issue_key,json=issueKey,proto3" json:"issue_key,omitempty"`
+	Body          *structpb.Struct       `protobuf:"bytes,2,opt,name=body,proto3" json:"body,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateJiraCommentRequest) Reset() {
+	*x = CreateJiraCommentRequest{}
+	mi := &file_kei_connectors_atlassian_v1_jira_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateJiraCommentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateJiraCommentRequest) ProtoMessage() {}
+
+func (x *CreateJiraCommentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_atlassian_v1_jira_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateJiraCommentRequest.ProtoReflect.Descriptor instead.
+func (*CreateJiraCommentRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_atlassian_v1_jira_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *CreateJiraCommentRequest) GetIssueKey() string {
+	if x != nil {
+		return x.IssueKey
+	}
+	return ""
+}
+
+func (x *CreateJiraCommentRequest) GetBody() *structpb.Struct {
+	if x != nil {
+		return x.Body
+	}
+	return nil
+}
+
+// CreateJiraCommentResponse models the subset of Jira's comment response the
+// contract needs: the comment id, its ADF body and the created/updated
+// timestamps. It is filled by JSON unmarshal of the provider response.
+type CreateJiraCommentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Body          *structpb.Struct       `protobuf:"bytes,2,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	Created       string                 `protobuf:"bytes,3,opt,name=created,proto3" json:"created,omitempty"`
+	Updated       string                 `protobuf:"bytes,4,opt,name=updated,proto3" json:"updated,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateJiraCommentResponse) Reset() {
+	*x = CreateJiraCommentResponse{}
+	mi := &file_kei_connectors_atlassian_v1_jira_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateJiraCommentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateJiraCommentResponse) ProtoMessage() {}
+
+func (x *CreateJiraCommentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_atlassian_v1_jira_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateJiraCommentResponse.ProtoReflect.Descriptor instead.
+func (*CreateJiraCommentResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_atlassian_v1_jira_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *CreateJiraCommentResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CreateJiraCommentResponse) GetBody() *structpb.Struct {
+	if x != nil {
+		return x.Body
+	}
+	return nil
+}
+
+func (x *CreateJiraCommentResponse) GetCreated() string {
+	if x != nil {
+		return x.Created
+	}
+	return ""
+}
+
+func (x *CreateJiraCommentResponse) GetUpdated() string {
+	if x != nil {
+		return x.Updated
+	}
+	return ""
+}
+
 var File_kei_connectors_atlassian_v1_jira_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_atlassian_v1_jira_proto_rawDesc = "" +
 	"\n" +
-	"&kei/connectors/atlassian/v1/jira.proto\x12\x1bkei.connectors.atlassian.v1\x1a\x1ekei/contracts/v1/options.proto\"\x8a\x02\n" +
+	"&kei/connectors/atlassian/v1/jira.proto\x12\x1bkei.connectors.atlassian.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1ekei/contracts/v1/options.proto\"\x8a\x02\n" +
 	"\x13GetJiraIssueRequest\x12#\n" +
 	"\tissue_key\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\bissueKey:\xcd\x01\x92\x82\x19\xc8\x01\n" +
 	"\x19atlassian.jira.issues.get\x12\tatlassian\x18\x01*\x03GET2\x1d/rest/api/3/issue/{issue_key}:\x0eread:jira-work@\x01J\fGetJiraIssueR\n" +
@@ -415,7 +646,25 @@ const file_kei_connectors_atlassian_v1_jira_proto_rawDesc = "" +
 	"\x18SearchJiraIssuesResponse\x12E\n" +
 	"\x06issues\x18\x01 \x03(\v2-.kei.connectors.atlassian.v1.JiraIssueSummaryR\x06issues\x12+\n" +
 	"\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01B\x12\n" +
-	"\x10_next_page_tokenB\\ZZgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1;atlassianb\x06proto3"
+	"\x10_next_page_token\"\x89\x02\n" +
+	"\x16CreateJiraIssueRequest\x12/\n" +
+	"\x06fields\x18\x01 \x01(\v2\x17.google.protobuf.StructR\x06fields:\xbd\x01\x92\x82\x19\xb8\x01\n" +
+	"\x1catlassian.jira.issues.create\x12\tatlassian\x18\x02*\x04POST2\x11/rest/api/3/issue:\x0fwrite:jira-work@\x01J\x0fCreateJiraIssueR\n" +
+	"user_oauthR\tapi_tokenZ\vjira/issuesb\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\v\b\x02\x12\x05issue\x18\x01\";\n" +
+	"\x17CreateJiraIssueResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n" +
+	"\x03key\x18\x02 \x01(\tR\x03key\"\xe0\x02\n" +
+	"\x18CreateJiraCommentRequest\x12#\n" +
+	"\tissue_key\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\bissueKey\x12+\n" +
+	"\x04body\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x04body:\xf1\x01\x92\x82\x19\xec\x01\n" +
+	"%atlassian.jira.issues.comments.create\x12\tatlassian\x18\x02*\x04POST2%/rest/api/3/issue/{issue_key}/comment:\x0fwrite:jira-work@\x01J\x11CreateJiraCommentR\n" +
+	"user_oauthR\tapi_tokenZ\x17jira/issues/{issue_key}b\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\r\b\x02\x12\acomment\x18\x01\"\x9a\x01\n" +
+	"\x19CreateJiraCommentResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x120\n" +
+	"\x04body\x18\x02 \x01(\v2\x17.google.protobuf.StructH\x00R\x04body\x88\x01\x01\x12\x18\n" +
+	"\acreated\x18\x03 \x01(\tR\acreated\x12\x18\n" +
+	"\aupdated\x18\x04 \x01(\tR\aupdatedB\a\n" +
+	"\x05_bodyB\\ZZgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1;atlassianb\x06proto3"
 
 var (
 	file_kei_connectors_atlassian_v1_jira_proto_rawDescOnce sync.Once
@@ -429,24 +678,32 @@ func file_kei_connectors_atlassian_v1_jira_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_atlassian_v1_jira_proto_rawDescData
 }
 
-var file_kei_connectors_atlassian_v1_jira_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_kei_connectors_atlassian_v1_jira_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_kei_connectors_atlassian_v1_jira_proto_goTypes = []any{
-	(*GetJiraIssueRequest)(nil),      // 0: kei.connectors.atlassian.v1.GetJiraIssueRequest
-	(*JiraIssueFields)(nil),          // 1: kei.connectors.atlassian.v1.JiraIssueFields
-	(*GetJiraIssueResponse)(nil),     // 2: kei.connectors.atlassian.v1.GetJiraIssueResponse
-	(*SearchJiraIssuesRequest)(nil),  // 3: kei.connectors.atlassian.v1.SearchJiraIssuesRequest
-	(*JiraIssueSummary)(nil),         // 4: kei.connectors.atlassian.v1.JiraIssueSummary
-	(*SearchJiraIssuesResponse)(nil), // 5: kei.connectors.atlassian.v1.SearchJiraIssuesResponse
+	(*GetJiraIssueRequest)(nil),       // 0: kei.connectors.atlassian.v1.GetJiraIssueRequest
+	(*JiraIssueFields)(nil),           // 1: kei.connectors.atlassian.v1.JiraIssueFields
+	(*GetJiraIssueResponse)(nil),      // 2: kei.connectors.atlassian.v1.GetJiraIssueResponse
+	(*SearchJiraIssuesRequest)(nil),   // 3: kei.connectors.atlassian.v1.SearchJiraIssuesRequest
+	(*JiraIssueSummary)(nil),          // 4: kei.connectors.atlassian.v1.JiraIssueSummary
+	(*SearchJiraIssuesResponse)(nil),  // 5: kei.connectors.atlassian.v1.SearchJiraIssuesResponse
+	(*CreateJiraIssueRequest)(nil),    // 6: kei.connectors.atlassian.v1.CreateJiraIssueRequest
+	(*CreateJiraIssueResponse)(nil),   // 7: kei.connectors.atlassian.v1.CreateJiraIssueResponse
+	(*CreateJiraCommentRequest)(nil),  // 8: kei.connectors.atlassian.v1.CreateJiraCommentRequest
+	(*CreateJiraCommentResponse)(nil), // 9: kei.connectors.atlassian.v1.CreateJiraCommentResponse
+	(*structpb.Struct)(nil),           // 10: google.protobuf.Struct
 }
 var file_kei_connectors_atlassian_v1_jira_proto_depIdxs = []int32{
-	1, // 0: kei.connectors.atlassian.v1.GetJiraIssueResponse.fields:type_name -> kei.connectors.atlassian.v1.JiraIssueFields
-	1, // 1: kei.connectors.atlassian.v1.JiraIssueSummary.fields:type_name -> kei.connectors.atlassian.v1.JiraIssueFields
-	4, // 2: kei.connectors.atlassian.v1.SearchJiraIssuesResponse.issues:type_name -> kei.connectors.atlassian.v1.JiraIssueSummary
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	1,  // 0: kei.connectors.atlassian.v1.GetJiraIssueResponse.fields:type_name -> kei.connectors.atlassian.v1.JiraIssueFields
+	1,  // 1: kei.connectors.atlassian.v1.JiraIssueSummary.fields:type_name -> kei.connectors.atlassian.v1.JiraIssueFields
+	4,  // 2: kei.connectors.atlassian.v1.SearchJiraIssuesResponse.issues:type_name -> kei.connectors.atlassian.v1.JiraIssueSummary
+	10, // 3: kei.connectors.atlassian.v1.CreateJiraIssueRequest.fields:type_name -> google.protobuf.Struct
+	10, // 4: kei.connectors.atlassian.v1.CreateJiraCommentRequest.body:type_name -> google.protobuf.Struct
+	10, // 5: kei.connectors.atlassian.v1.CreateJiraCommentResponse.body:type_name -> google.protobuf.Struct
+	6,  // [6:6] is the sub-list for method output_type
+	6,  // [6:6] is the sub-list for method input_type
+	6,  // [6:6] is the sub-list for extension type_name
+	6,  // [6:6] is the sub-list for extension extendee
+	0,  // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_atlassian_v1_jira_proto_init() }
@@ -457,13 +714,14 @@ func file_kei_connectors_atlassian_v1_jira_proto_init() {
 	file_kei_connectors_atlassian_v1_jira_proto_msgTypes[1].OneofWrappers = []any{}
 	file_kei_connectors_atlassian_v1_jira_proto_msgTypes[3].OneofWrappers = []any{}
 	file_kei_connectors_atlassian_v1_jira_proto_msgTypes[5].OneofWrappers = []any{}
+	file_kei_connectors_atlassian_v1_jira_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_atlassian_v1_jira_proto_rawDesc), len(file_kei_connectors_atlassian_v1_jira_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
