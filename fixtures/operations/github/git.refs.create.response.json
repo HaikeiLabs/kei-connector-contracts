@@ -1,0 +1,8 @@
+{
+  "ref": "refs/heads/feature/y",
+  "object": {
+    "sha": "synthetic-ref-sha-1",
+    "type": "commit"
+  },
+  "node_id": "synthetic-node-id-12"
+}

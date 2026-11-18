@@ -1,0 +1,20 @@
+{
+  "id": 9007199254741004,
+  "number": 43,
+  "title": "Synthetic new pull request",
+  "state": "open",
+  "html_url": "https://example.invalid/example-org/example-repo/pull/43",
+  "draft": true,
+  "head": {
+    "ref": "feature/x"
+  },
+  "base": {
+    "ref": "main"
+  },
+  "user": {
+    "id": 7002,
+    "login": "example-user"
+  },
+  "labels": [],
+  "node_id": "synthetic-node-id-7"
+}

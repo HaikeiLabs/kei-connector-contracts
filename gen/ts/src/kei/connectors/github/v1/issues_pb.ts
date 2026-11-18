@@ -26,13 +26,15 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_kei_contracts_v1_options } from "../../../contracts/v1/options_pb.js";
+import type { Label, User } from "./pulls_pb.js";
+import { file_kei_connectors_github_v1_pulls } from "./pulls_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file kei/connectors/github/v1/issues.proto.
  */
 export const file_kei_connectors_github_v1_issues: GenFile = /*@__PURE__*/
-  fileDesc("CiVrZWkvY29ubmVjdG9ycy9naXRodWIvdjEvaXNzdWVzLnByb3RvEhhrZWkuY29ubmVjdG9ycy5naXRodWIudjEisQIKD0dldElzc3VlUmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIcCgxpc3N1ZV9udW1iZXIYAyABKANCBqKCGQIIATrMAZKCGccBChFnaXRodWIuaXNzdWVzLmdldBIGZ2l0aHViGAEqA0dFVDIxL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L2lzc3Vlcy97aXNzdWVfbnVtYmVyfToLaXNzdWVzOnJlYWRAAUoIR2V0SXNzdWVSCnVzZXJfb2F1dGhSA3BhdFoacmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQsIARIFaXNzdWUYASJ6ChBHZXRJc3N1ZVJlc3BvbnNlEgoKAmlkGAEgASgDEg4KBm51bWJlchgCIAEoAxINCgV0aXRsZRgDIAEoCRINCgVzdGF0ZRgEIAEoCRIRCgRib2R5GAUgASgJSACIAQESEAoIaHRtbF91cmwYBiABKAlCBwoFX2JvZHkiywIKEUxpc3RJc3N1ZXNSZXF1ZXN0EhUKBW93bmVyGAEgASgJQgaighkCCAESGgoKcmVwb3NpdG9yeRgCIAEoCUIGooIZAggBEhIKBXN0YXRlGAMgASgJSACIAQESFQoIcGVyX3BhZ2UYBCABKAVIAYgBATrAAZKCGbsBChJnaXRodWIuaXNzdWVzLmxpc3QSBmdpdGh1YhgBKgNHRVQyIi9yZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fS9pc3N1ZXM6C2lzc3VlczpyZWFkQAFKCkxpc3RJc3N1ZXNSCnVzZXJfb2F1dGhSA3BhdFoacmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQsIARIFaXNzdWUYAUIICgZfc3RhdGVCCwoJX3Blcl9wYWdlInYKDElzc3VlU3VtbWFyeRIKCgJpZBgBIAEoAxIOCgZudW1iZXIYAiABKAMSDQoFdGl0bGUYAyABKAkSDQoFc3RhdGUYBCABKAkSEQoEYm9keRgFIAEoCUgAiAEBEhAKCGh0bWxfdXJsGAYgASgJQgcKBV9ib2R5IkwKEkxpc3RJc3N1ZXNSZXNwb25zZRI2CgZpc3N1ZXMYASADKAsyJi5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuSXNzdWVTdW1tYXJ5QlZaVGdpdGh1Yi5jb20vSGFpa2VpTGFicy9rZWktY29ubmVjdG9yLWNvbnRyYWN0cy9nZW4vZ28va2VpL2Nvbm5lY3RvcnMvZ2l0aHViL3YxO2dpdGh1YmIGcHJvdG8z", [file_kei_contracts_v1_options]);
+  fileDesc("CiVrZWkvY29ubmVjdG9ycy9naXRodWIvdjEvaXNzdWVzLnByb3RvEhhrZWkuY29ubmVjdG9ycy5naXRodWIudjEisQIKD0dldElzc3VlUmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIcCgxpc3N1ZV9udW1iZXIYAyABKANCBqKCGQIIATrMAZKCGccBChFnaXRodWIuaXNzdWVzLmdldBIGZ2l0aHViGAEqA0dFVDIxL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L2lzc3Vlcy97aXNzdWVfbnVtYmVyfToLaXNzdWVzOnJlYWRAAUoIR2V0SXNzdWVSCnVzZXJfb2F1dGhSA3BhdFoacmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQsIARIFaXNzdWUYASLhAQoQR2V0SXNzdWVSZXNwb25zZRIKCgJpZBgBIAEoAxIOCgZudW1iZXIYAiABKAMSDQoFdGl0bGUYAyABKAkSDQoFc3RhdGUYBCABKAkSEQoEYm9keRgFIAEoCUgAiAEBEhAKCGh0bWxfdXJsGAYgASgJEjQKBmF1dGhvchgHIAEoCzIeLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5Vc2VyUgR1c2VyEi8KBmxhYmVscxgIIAMoCzIfLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5MYWJlbEIHCgVfYm9keSLLAgoRTGlzdElzc3Vlc1JlcXVlc3QSFQoFb3duZXIYASABKAlCBqKCGQIIARIaCgpyZXBvc2l0b3J5GAIgASgJQgaighkCCAESEgoFc3RhdGUYAyABKAlIAIgBARIVCghwZXJfcGFnZRgEIAEoBUgBiAEBOsABkoIZuwEKEmdpdGh1Yi5pc3N1ZXMubGlzdBIGZ2l0aHViGAEqA0dFVDIiL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L2lzc3VlczoLaXNzdWVzOnJlYWRAAUoKTGlzdElzc3Vlc1IKdXNlcl9vYXV0aFIDcGF0WhpyZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fWIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAYoBCwgBEgVpc3N1ZRgBQggKBl9zdGF0ZUILCglfcGVyX3BhZ2Ui3QEKDElzc3VlU3VtbWFyeRIKCgJpZBgBIAEoAxIOCgZudW1iZXIYAiABKAMSDQoFdGl0bGUYAyABKAkSDQoFc3RhdGUYBCABKAkSEQoEYm9keRgFIAEoCUgAiAEBEhAKCGh0bWxfdXJsGAYgASgJEjQKBmF1dGhvchgHIAEoCzIeLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5Vc2VyUgR1c2VyEi8KBmxhYmVscxgIIAMoCzIfLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5MYWJlbEIHCgVfYm9keSJMChJMaXN0SXNzdWVzUmVzcG9uc2USNgoGaXNzdWVzGAEgAygLMiYua2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxLklzc3VlU3VtbWFyeSLIAgoSQ3JlYXRlSXNzdWVSZXF1ZXN0EhUKBW93bmVyGAEgASgJQgaighkCCAESGgoKcmVwb3NpdG9yeRgCIAEoCUIGooIZAggBEg0KBXRpdGxlGAMgASgJEhEKBGJvZHkYBCABKAlIAIgBATrTAZKCGc4BChRnaXRodWIuaXNzdWVzLmNyZWF0ZRIGZ2l0aHViGAIqBFBPU1QyIi9yZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fS9pc3N1ZXM6DGlzc3Vlczp3cml0ZUABSgtDcmVhdGVJc3N1ZVIKdXNlcl9vYXV0aFIDcGF0WhpyZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fWIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAWIFCJkDEAViBQimAxAGigELCAISBWlzc3VlGAFCBwoFX2JvZHki5AEKE0NyZWF0ZUlzc3VlUmVzcG9uc2USCgoCaWQYASABKAMSDgoGbnVtYmVyGAIgASgDEg0KBXRpdGxlGAMgASgJEg0KBXN0YXRlGAQgASgJEhEKBGJvZHkYBSABKAlIAIgBARIQCghodG1sX3VybBgGIAEoCRI0CgZhdXRob3IYByABKAsyHi5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuVXNlclIEdXNlchIvCgZsYWJlbHMYCCADKAsyHy5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuTGFiZWxCBwoFX2JvZHkigAMKGUNyZWF0ZUlzc3VlQ29tbWVudFJlcXVlc3QSFQoFb3duZXIYASABKAlCBqKCGQIIARIaCgpyZXBvc2l0b3J5GAIgASgJQgaighkCCAESHAoMaXNzdWVfbnVtYmVyGAMgASgDQgaighkCCAESDAoEYm9keRgEIAEoCTqDApKCGf4BCh1naXRodWIuaXNzdWVzLmNvbW1lbnRzLmNyZWF0ZRIGZ2l0aHViGAIqBFBPU1QyOi9yZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fS9pc3N1ZXMve2lzc3VlX251bWJlcn0vY29tbWVudHM6DGlzc3Vlczp3cml0ZUABShJDcmVhdGVJc3N1ZUNvbW1lbnRSCnVzZXJfb2F1dGhSA3BhdFoacmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAFiBQiZAxAFYgUIpgMQBooBEwgCEg1pc3N1ZV9jb21tZW50GAEifgoaQ3JlYXRlSXNzdWVDb21tZW50UmVzcG9uc2USCgoCaWQYASABKAMSDAoEYm9keRgCIAEoCRIQCghodG1sX3VybBgDIAEoCRI0CgZhdXRob3IYBCABKAsyHi5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuVXNlclIEdXNlckJWWlRnaXRodWIuY29tL0hhaWtlaUxhYnMva2VpLWNvbm5lY3Rvci1jb250cmFjdHMvZ2VuL2dvL2tlaS9jb25uZWN0b3JzL2dpdGh1Yi92MTtnaXRodWJiBnByb3RvMw", [file_kei_contracts_v1_options, file_kei_connectors_github_v1_pulls]);
 
 /**
  * GetIssueRequest reads a single issue from a GitHub repository.
@@ -99,6 +101,16 @@ export type GetIssueResponse = Message<"kei.connectors.github.v1.GetIssueRespons
    * @generated from field: string html_url = 6;
    */
   htmlUrl: string;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.User author = 7 [json_name = "user"];
+   */
+  author?: User | undefined;
+
+  /**
+   * @generated from field: repeated kei.connectors.github.v1.Label labels = 8;
+   */
+  labels: Label[];
 };
 
 /**
@@ -178,6 +190,16 @@ export type IssueSummary = Message<"kei.connectors.github.v1.IssueSummary"> & {
    * @generated from field: string html_url = 6;
    */
   htmlUrl: string;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.User author = 7 [json_name = "user"];
+   */
+  author?: User | undefined;
+
+  /**
+   * @generated from field: repeated kei.connectors.github.v1.Label labels = 8;
+   */
+  labels: Label[];
 };
 
 /**
@@ -208,4 +230,164 @@ export type ListIssuesResponse = Message<"kei.connectors.github.v1.ListIssuesRes
  */
 export const ListIssuesResponseSchema: GenMessage<ListIssuesResponse> = /*@__PURE__*/
   messageDesc(file_kei_connectors_github_v1_issues, 4);
+
+/**
+ * CreateIssueRequest creates an issue in a GitHub repository. The title is
+ * the provider's only required field; the contract models the body alongside
+ * it.
+ *
+ * @generated from message kei.connectors.github.v1.CreateIssueRequest
+ */
+export type CreateIssueRequest = Message<"kei.connectors.github.v1.CreateIssueRequest"> & {
+  /**
+   * @generated from field: string owner = 1;
+   */
+  owner: string;
+
+  /**
+   * @generated from field: string repository = 2;
+   */
+  repository: string;
+
+  /**
+   * @generated from field: string title = 3;
+   */
+  title: string;
+
+  /**
+   * @generated from field: optional string body = 4;
+   */
+  body?: string | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.CreateIssueRequest.
+ * Use `create(CreateIssueRequestSchema)` to create a new message.
+ */
+export const CreateIssueRequestSchema: GenMessage<CreateIssueRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_issues, 5);
+
+/**
+ * CreateIssueResponse models the created issue. It is filled by JSON
+ * unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.CreateIssueResponse
+ */
+export type CreateIssueResponse = Message<"kei.connectors.github.v1.CreateIssueResponse"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: int64 number = 2;
+   */
+  number: bigint;
+
+  /**
+   * @generated from field: string title = 3;
+   */
+  title: string;
+
+  /**
+   * @generated from field: string state = 4;
+   */
+  state: string;
+
+  /**
+   * @generated from field: optional string body = 5;
+   */
+  body?: string | undefined;
+
+  /**
+   * @generated from field: string html_url = 6;
+   */
+  htmlUrl: string;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.User author = 7 [json_name = "user"];
+   */
+  author?: User | undefined;
+
+  /**
+   * @generated from field: repeated kei.connectors.github.v1.Label labels = 8;
+   */
+  labels: Label[];
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.CreateIssueResponse.
+ * Use `create(CreateIssueResponseSchema)` to create a new message.
+ */
+export const CreateIssueResponseSchema: GenMessage<CreateIssueResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_issues, 6);
+
+/**
+ * CreateIssueCommentRequest writes a comment on a GitHub issue.
+ *
+ * @generated from message kei.connectors.github.v1.CreateIssueCommentRequest
+ */
+export type CreateIssueCommentRequest = Message<"kei.connectors.github.v1.CreateIssueCommentRequest"> & {
+  /**
+   * @generated from field: string owner = 1;
+   */
+  owner: string;
+
+  /**
+   * @generated from field: string repository = 2;
+   */
+  repository: string;
+
+  /**
+   * @generated from field: int64 issue_number = 3;
+   */
+  issueNumber: bigint;
+
+  /**
+   * @generated from field: string body = 4;
+   */
+  body: string;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.CreateIssueCommentRequest.
+ * Use `create(CreateIssueCommentRequestSchema)` to create a new message.
+ */
+export const CreateIssueCommentRequestSchema: GenMessage<CreateIssueCommentRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_issues, 7);
+
+/**
+ * CreateIssueCommentResponse models the created comment. It is filled by
+ * JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.CreateIssueCommentResponse
+ */
+export type CreateIssueCommentResponse = Message<"kei.connectors.github.v1.CreateIssueCommentResponse"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: string body = 2;
+   */
+  body: string;
+
+  /**
+   * @generated from field: string html_url = 3;
+   */
+  htmlUrl: string;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.User author = 4 [json_name = "user"];
+   */
+  author?: User | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.CreateIssueCommentResponse.
+ * Use `create(CreateIssueCommentResponseSchema)` to create a new message.
+ */
+export const CreateIssueCommentResponseSchema: GenMessage<CreateIssueCommentResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_issues, 8);
 

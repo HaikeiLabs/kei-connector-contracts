@@ -23,6 +23,7 @@ syntax = "proto3";
 package kei.connectors.github.v1;
 
 import "kei/contracts/v1/options.proto";
+import "kei/connectors/github/v1/pulls.proto";
 
 option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;github";
 
@@ -62,6 +63,8 @@ message GetIssueResponse {
   string state = 4;
   optional string body = 5;
   string html_url = 6;
+  User author = 7 [json_name = "user"];
+  repeated Label labels = 8;
 }
 
 // ListIssuesRequest lists the issues of a GitHub repository. The contract
@@ -101,6 +104,8 @@ message IssueSummary {
   string state = 4;
   optional string body = 5;
   string html_url = 6;
+  User author = 7 [json_name = "user"];
+  repeated Label labels = 8;
 }
 
 // ListIssuesResponse wraps the issue entries of a list response. GitHub
@@ -109,4 +114,88 @@ message IssueSummary {
 // drift-checkable. It is filled by JSON unmarshal of the provider response.
 message ListIssuesResponse {
   repeated IssueSummary issues = 1;
+}
+
+// CreateIssueRequest creates an issue in a GitHub repository. The title is
+// the provider's only required field; the contract models the body alongside
+// it.
+message CreateIssueRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string title = 3;
+  optional string body = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.issues.create"
+    connector: "github"
+    class: OPERATION_CLASS_WRITE
+    http_method: "POST"
+    path_template: "/repos/{owner}/{repository}/issues"
+    scopes: ["issues:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateIssue"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "issue" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true},
+      {status: 409 kind: ERROR_KIND_CONFLICT},
+      {status: 422 kind: ERROR_KIND_INVALID}
+    ]
+  };
+}
+
+// CreateIssueResponse models the created issue. It is filled by JSON
+// unmarshal of the provider response.
+message CreateIssueResponse {
+  int64 id = 1;
+  int64 number = 2;
+  string title = 3;
+  string state = 4;
+  optional string body = 5;
+  string html_url = 6;
+  User author = 7 [json_name = "user"];
+  repeated Label labels = 8;
+}
+
+// CreateIssueCommentRequest writes a comment on a GitHub issue.
+message CreateIssueCommentRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  int64 issue_number = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string body = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.issues.comments.create"
+    connector: "github"
+    class: OPERATION_CLASS_WRITE
+    http_method: "POST"
+    path_template: "/repos/{owner}/{repository}/issues/{issue_number}/comments"
+    scopes: ["issues:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateIssueComment"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "issue_comment" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true},
+      {status: 409 kind: ERROR_KIND_CONFLICT},
+      {status: 422 kind: ERROR_KIND_INVALID}
+    ]
+  };
+}
+
+// CreateIssueCommentResponse models the created comment. It is filled by
+// JSON unmarshal of the provider response.
+message CreateIssueCommentResponse {
+  int64 id = 1;
+  string body = 2;
+  string html_url = 3;
+  User author = 4 [json_name = "user"];
 }
