@@ -17,15 +17,21 @@ import (
 type Operations interface {
 	// QueryDatabase runs notion.databases.query (POST /v1/databases/{database_id}/query).
 	QueryDatabase(ctx context.Context, req *notion.QueryDatabaseRequest) (*notion.QueryDatabaseResponse, error)
+	// CreatePage runs notion.pages.create (POST /v1/pages).
+	CreatePage(ctx context.Context, req *notion.CreatePageRequest) (*notion.CreatePageResponse, error)
 	// GetPage runs notion.pages.get (GET /v1/pages/{page_id}).
 	GetPage(ctx context.Context, req *notion.GetPageRequest) (*notion.GetPageResponse, error)
+	// UpdatePage runs notion.pages.update (PATCH /v1/pages/{page_id}).
+	UpdatePage(ctx context.Context, req *notion.UpdatePageRequest) (*notion.UpdatePageResponse, error)
 }
 
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
 	OpQueryDatabase = connection.Op{ID: "notion.databases.query", Class: connection.Read}
+	OpCreatePage    = connection.Op{ID: "notion.pages.create", Class: connection.Write}
 	OpGetPage       = connection.Op{ID: "notion.pages.get", Class: connection.Read}
+	OpUpdatePage    = connection.Op{ID: "notion.pages.update", Class: connection.Write}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.
@@ -55,6 +61,23 @@ var specQueryDatabase = &connection.HTTPSpec{
 	NextCursorField: "next_cursor",
 }
 
+var specCreatePage = &connection.HTTPSpec{
+	Op:           OpCreatePage,
+	Method:       "POST",
+	PathTemplate: "/v1/pages",
+	Params: []connection.Param{
+		{Field: "parent", In: connection.InBody, Wire: "parent"},
+		{Field: "properties", In: connection.InBody, Wire: "properties"},
+		{Field: "children", In: connection.InBody, Wire: "children"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 400, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
 var specGetPage = &connection.HTTPSpec{
 	Op:           OpGetPage,
 	Method:       "GET",
@@ -63,6 +86,25 @@ var specGetPage = &connection.HTTPSpec{
 		{Field: "page_id", In: connection.InPath, Wire: "page_id"},
 	},
 	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
+var specUpdatePage = &connection.HTTPSpec{
+	Op:           OpUpdatePage,
+	Method:       "PATCH",
+	PathTemplate: "/v1/pages/{page_id}",
+	Params: []connection.Param{
+		{Field: "page_id", In: connection.InPath, Wire: "page_id"},
+		{Field: "properties", In: connection.InBody, Wire: "properties"},
+		{Field: "archived", In: connection.InBody, Wire: "archived"},
+		{Field: "in_trash", In: connection.InBody, Wire: "in_trash"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 400, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
 		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
 		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
@@ -79,10 +121,28 @@ func (q *Queries) QueryDatabase(ctx context.Context, req *notion.QueryDatabaseRe
 	return resp, nil
 }
 
+// CreatePage runs notion.pages.create.
+func (q *Queries) CreatePage(ctx context.Context, req *notion.CreatePageRequest) (*notion.CreatePageResponse, error) {
+	resp := &notion.CreatePageResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specCreatePage, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
 // GetPage runs notion.pages.get.
 func (q *Queries) GetPage(ctx context.Context, req *notion.GetPageRequest) (*notion.GetPageResponse, error) {
 	resp := &notion.GetPageResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specGetPage, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// UpdatePage runs notion.pages.update.
+func (q *Queries) UpdatePage(ctx context.Context, req *notion.UpdatePageRequest) (*notion.UpdatePageResponse, error) {
+	resp := &notion.UpdatePageResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specUpdatePage, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

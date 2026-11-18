@@ -19,13 +19,16 @@ type Operations interface {
 	GetIssue(ctx context.Context, req *sentry.GetIssueRequest) (*sentry.GetIssueResponse, error)
 	// ListIssues runs sentry.issues.list (GET /api/0/organizations/{organization_slug}/issues/).
 	ListIssues(ctx context.Context, req *sentry.ListIssuesRequest) (*sentry.ListIssuesResponse, error)
+	// UpdateIssue runs sentry.issues.update (PUT /api/0/organizations/{organization_slug}/issues/{issue_id}/).
+	UpdateIssue(ctx context.Context, req *sentry.UpdateIssueRequest) (*sentry.UpdateIssueResponse, error)
 }
 
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpGetIssue   = connection.Op{ID: "sentry.issues.get", Class: connection.Read}
-	OpListIssues = connection.Op{ID: "sentry.issues.list", Class: connection.Read}
+	OpGetIssue    = connection.Op{ID: "sentry.issues.get", Class: connection.Read}
+	OpListIssues  = connection.Op{ID: "sentry.issues.list", Class: connection.Read}
+	OpUpdateIssue = connection.Op{ID: "sentry.issues.update", Class: connection.Write}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.
@@ -69,6 +72,27 @@ var specListIssues = &connection.HTTPSpec{
 	},
 }
 
+var specUpdateIssue = &connection.HTTPSpec{
+	Op:           OpUpdateIssue,
+	Method:       "PUT",
+	PathTemplate: "/api/0/organizations/{organization_slug}/issues/{issue_id}/",
+	Params: []connection.Param{
+		{Field: "organization_slug", In: connection.InPath, Wire: "organization_slug"},
+		{Field: "issue_id", In: connection.InPath, Wire: "issue_id"},
+		{Field: "status", In: connection.InBody, Wire: "status"},
+		{Field: "assigned_to", In: connection.InBody, Wire: "assigned_to"},
+		{Field: "has_seen", In: connection.InBody, Wire: "has_seen"},
+		{Field: "is_bookmarked", In: connection.InBody, Wire: "is_bookmarked"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 400, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
 // GetIssue runs sentry.issues.get.
 func (q *Queries) GetIssue(ctx context.Context, req *sentry.GetIssueRequest) (*sentry.GetIssueResponse, error) {
 	resp := &sentry.GetIssueResponse{}
@@ -82,6 +106,15 @@ func (q *Queries) GetIssue(ctx context.Context, req *sentry.GetIssueRequest) (*s
 func (q *Queries) ListIssues(ctx context.Context, req *sentry.ListIssuesRequest) (*sentry.ListIssuesResponse, error) {
 	resp := &sentry.ListIssuesResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specListIssues, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// UpdateIssue runs sentry.issues.update.
+func (q *Queries) UpdateIssue(ctx context.Context, req *sentry.UpdateIssueRequest) (*sentry.UpdateIssueResponse, error) {
+	resp := &sentry.UpdateIssueResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specUpdateIssue, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

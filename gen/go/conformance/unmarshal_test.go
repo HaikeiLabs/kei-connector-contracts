@@ -183,6 +183,36 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "notion.pages.create",
+		connector: "notion",
+		request:   func() proto.Message { return &notionv1.CreatePageRequest{} },
+		response:  func() proto.Message { return &notionv1.CreatePageResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			page := resp.(*notionv1.CreatePageResponse)
+			if page.GetId() != "d4e5f6a7-0000-4000-8000-000000000005" {
+				t.Errorf("id = %q, want the synthetic created page id", page.GetId())
+			}
+			if page.PublicUrl != nil {
+				t.Error("public_url is set, want nil (null in the fixture)")
+			}
+		},
+	},
+	{
+		op:        "notion.pages.update",
+		connector: "notion",
+		request:   func() proto.Message { return &notionv1.UpdatePageRequest{} },
+		response:  func() proto.Message { return &notionv1.UpdatePageResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			page := resp.(*notionv1.UpdatePageResponse)
+			if page.GetLastEditedTime() != "2026-02-11T09:45:00.000Z" {
+				t.Errorf("last_edited_time = %q, want the synthetic edit time", page.GetLastEditedTime())
+			}
+			if page.GetArchived() {
+				t.Error("archived = true, want false")
+			}
+		},
+	},
+	{
 		op:        "notion.databases.query",
 		connector: "notion",
 		request:   func() proto.Message { return &notionv1.QueryDatabaseRequest{} },
@@ -230,6 +260,21 @@ var fixtureCases = []fixtureCase{
 			}
 			if issues[1].ShareId == nil || issues[1].GetShareId() != "synthetic-share-id-2" {
 				t.Errorf("issues[1].share_id = %v, want synthetic-share-id-2", issues[1].ShareId)
+			}
+		},
+	},
+	{
+		op:        "sentry.issues.update",
+		connector: "sentry",
+		request:   func() proto.Message { return &sentryv1.UpdateIssueRequest{} },
+		response:  func() proto.Message { return &sentryv1.UpdateIssueResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			issue := resp.(*sentryv1.UpdateIssueResponse)
+			if issue.GetStatus() != "resolved" {
+				t.Errorf("status = %q, want resolved", issue.GetStatus())
+			}
+			if issue.ShareId != nil {
+				t.Error("share_id is set, want nil (null in the fixture)")
 			}
 		},
 	},
