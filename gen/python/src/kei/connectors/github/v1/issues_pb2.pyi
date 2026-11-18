@@ -1,4 +1,5 @@
 from kei.contracts.v1 import options_pb2 as _options_pb2
+from kei.connectors.github.v1 import pulls_pb2 as _pulls_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
@@ -18,20 +19,24 @@ class GetIssueRequest(_message.Message):
     def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., issue_number: _Optional[int] = ...) -> None: ...
 
 class GetIssueResponse(_message.Message):
-    __slots__ = ("id", "number", "title", "state", "body", "html_url")
+    __slots__ = ("id", "number", "title", "state", "body", "html_url", "author", "labels")
     ID_FIELD_NUMBER: _ClassVar[int]
     NUMBER_FIELD_NUMBER: _ClassVar[int]
     TITLE_FIELD_NUMBER: _ClassVar[int]
     STATE_FIELD_NUMBER: _ClassVar[int]
     BODY_FIELD_NUMBER: _ClassVar[int]
     HTML_URL_FIELD_NUMBER: _ClassVar[int]
+    AUTHOR_FIELD_NUMBER: _ClassVar[int]
+    LABELS_FIELD_NUMBER: _ClassVar[int]
     id: int
     number: int
     title: str
     state: str
     body: str
     html_url: str
-    def __init__(self, id: _Optional[int] = ..., number: _Optional[int] = ..., title: _Optional[str] = ..., state: _Optional[str] = ..., body: _Optional[str] = ..., html_url: _Optional[str] = ...) -> None: ...
+    author: _pulls_pb2.User
+    labels: _containers.RepeatedCompositeFieldContainer[_pulls_pb2.Label]
+    def __init__(self, id: _Optional[int] = ..., number: _Optional[int] = ..., title: _Optional[str] = ..., state: _Optional[str] = ..., body: _Optional[str] = ..., html_url: _Optional[str] = ..., author: _Optional[_Union[_pulls_pb2.User, _Mapping]] = ..., labels: _Optional[_Iterable[_Union[_pulls_pb2.Label, _Mapping]]] = ...) -> None: ...
 
 class ListIssuesRequest(_message.Message):
     __slots__ = ("owner", "repository", "state", "per_page")
@@ -46,23 +51,83 @@ class ListIssuesRequest(_message.Message):
     def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., state: _Optional[str] = ..., per_page: _Optional[int] = ...) -> None: ...
 
 class IssueSummary(_message.Message):
-    __slots__ = ("id", "number", "title", "state", "body", "html_url")
+    __slots__ = ("id", "number", "title", "state", "body", "html_url", "author", "labels")
     ID_FIELD_NUMBER: _ClassVar[int]
     NUMBER_FIELD_NUMBER: _ClassVar[int]
     TITLE_FIELD_NUMBER: _ClassVar[int]
     STATE_FIELD_NUMBER: _ClassVar[int]
     BODY_FIELD_NUMBER: _ClassVar[int]
     HTML_URL_FIELD_NUMBER: _ClassVar[int]
+    AUTHOR_FIELD_NUMBER: _ClassVar[int]
+    LABELS_FIELD_NUMBER: _ClassVar[int]
     id: int
     number: int
     title: str
     state: str
     body: str
     html_url: str
-    def __init__(self, id: _Optional[int] = ..., number: _Optional[int] = ..., title: _Optional[str] = ..., state: _Optional[str] = ..., body: _Optional[str] = ..., html_url: _Optional[str] = ...) -> None: ...
+    author: _pulls_pb2.User
+    labels: _containers.RepeatedCompositeFieldContainer[_pulls_pb2.Label]
+    def __init__(self, id: _Optional[int] = ..., number: _Optional[int] = ..., title: _Optional[str] = ..., state: _Optional[str] = ..., body: _Optional[str] = ..., html_url: _Optional[str] = ..., author: _Optional[_Union[_pulls_pb2.User, _Mapping]] = ..., labels: _Optional[_Iterable[_Union[_pulls_pb2.Label, _Mapping]]] = ...) -> None: ...
 
 class ListIssuesResponse(_message.Message):
     __slots__ = ("issues",)
     ISSUES_FIELD_NUMBER: _ClassVar[int]
     issues: _containers.RepeatedCompositeFieldContainer[IssueSummary]
     def __init__(self, issues: _Optional[_Iterable[_Union[IssueSummary, _Mapping]]] = ...) -> None: ...
+
+class CreateIssueRequest(_message.Message):
+    __slots__ = ("owner", "repository", "title", "body")
+    OWNER_FIELD_NUMBER: _ClassVar[int]
+    REPOSITORY_FIELD_NUMBER: _ClassVar[int]
+    TITLE_FIELD_NUMBER: _ClassVar[int]
+    BODY_FIELD_NUMBER: _ClassVar[int]
+    owner: str
+    repository: str
+    title: str
+    body: str
+    def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., title: _Optional[str] = ..., body: _Optional[str] = ...) -> None: ...
+
+class CreateIssueResponse(_message.Message):
+    __slots__ = ("id", "number", "title", "state", "body", "html_url", "author", "labels")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    NUMBER_FIELD_NUMBER: _ClassVar[int]
+    TITLE_FIELD_NUMBER: _ClassVar[int]
+    STATE_FIELD_NUMBER: _ClassVar[int]
+    BODY_FIELD_NUMBER: _ClassVar[int]
+    HTML_URL_FIELD_NUMBER: _ClassVar[int]
+    AUTHOR_FIELD_NUMBER: _ClassVar[int]
+    LABELS_FIELD_NUMBER: _ClassVar[int]
+    id: int
+    number: int
+    title: str
+    state: str
+    body: str
+    html_url: str
+    author: _pulls_pb2.User
+    labels: _containers.RepeatedCompositeFieldContainer[_pulls_pb2.Label]
+    def __init__(self, id: _Optional[int] = ..., number: _Optional[int] = ..., title: _Optional[str] = ..., state: _Optional[str] = ..., body: _Optional[str] = ..., html_url: _Optional[str] = ..., author: _Optional[_Union[_pulls_pb2.User, _Mapping]] = ..., labels: _Optional[_Iterable[_Union[_pulls_pb2.Label, _Mapping]]] = ...) -> None: ...
+
+class CreateIssueCommentRequest(_message.Message):
+    __slots__ = ("owner", "repository", "issue_number", "body")
+    OWNER_FIELD_NUMBER: _ClassVar[int]
+    REPOSITORY_FIELD_NUMBER: _ClassVar[int]
+    ISSUE_NUMBER_FIELD_NUMBER: _ClassVar[int]
+    BODY_FIELD_NUMBER: _ClassVar[int]
+    owner: str
+    repository: str
+    issue_number: int
+    body: str
+    def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., issue_number: _Optional[int] = ..., body: _Optional[str] = ...) -> None: ...
+
+class CreateIssueCommentResponse(_message.Message):
+    __slots__ = ("id", "body", "html_url", "author")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    BODY_FIELD_NUMBER: _ClassVar[int]
+    HTML_URL_FIELD_NUMBER: _ClassVar[int]
+    AUTHOR_FIELD_NUMBER: _ClassVar[int]
+    id: int
+    body: str
+    html_url: str
+    author: _pulls_pb2.User
+    def __init__(self, id: _Optional[int] = ..., body: _Optional[str] = ..., html_url: _Optional[str] = ..., author: _Optional[_Union[_pulls_pb2.User, _Mapping]] = ...) -> None: ...

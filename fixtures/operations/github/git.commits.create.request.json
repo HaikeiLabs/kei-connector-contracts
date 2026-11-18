@@ -1,0 +1,9 @@
+{
+  "owner": "example-org",
+  "repository": "example-repo",
+  "message": "Synthetic commit message",
+  "tree": "synthetic-tree-sha-1",
+  "parents": [
+    "synthetic-parent-sha-1"
+  ]
+}

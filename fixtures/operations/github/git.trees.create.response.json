@@ -1,0 +1,13 @@
+{
+  "sha": "synthetic-tree-sha-1",
+  "url": "https://example.invalid/api/v3/repos/example-org/example-repo/git/trees/synthetic-tree-sha-1",
+  "tree": [
+    {
+      "path": "notes.txt",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "synthetic-blob-sha-1"
+    }
+  ],
+  "node_id": "synthetic-node-id-15"
+}
