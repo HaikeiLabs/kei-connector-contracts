@@ -30,11 +30,24 @@ _SPEC_LIST_ISSUES = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
+OP_UPDATE_ISSUE = Op(id="sentry.issues.update", op_class=OpClass.WRITE, destructive=False)
+_SPEC_UPDATE_ISSUE = {
+    "op": OP_UPDATE_ISSUE,
+    "method": "PUT",
+    "path_template": "/api/0/organizations/{organization_slug}/issues/{issue_id}/",
+    "params": [{"field": "organization_slug", "in": "path", "multi_segment": False, "wire": "organization_slug"}, {"field": "issue_id", "in": "path", "multi_segment": False, "wire": "issue_id"}, {"field": "status", "in": "body", "multi_segment": False, "wire": "status"}, {"field": "assigned_to", "in": "body", "multi_segment": False, "wire": "assigned_to"}, {"field": "has_seen", "in": "body", "multi_segment": False, "wire": "has_seen"}, {"field": "is_bookmarked", "in": "body", "multi_segment": False, "wire": "is_bookmarked"}],
+    "errors": [{"kind": "invalid", "retryable": False, "status": 400}, {"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 
 class SentryOperations(Protocol):
     async def get_issue(self, req: issues_pb2.GetIssueRequest) -> issues_pb2.GetIssueResponse:
         ...
     async def list_issues(self, req: issues_pb2.ListIssuesRequest) -> issues_pb2.ListIssuesResponse:
+        ...
+    async def update_issue(self, req: issues_pb2.UpdateIssueRequest) -> issues_pb2.UpdateIssueResponse:
         ...
 
 class SentryQueries:
@@ -48,3 +61,6 @@ class SentryQueries:
 
     async def list_issues(self, req: issues_pb2.ListIssuesRequest) -> issues_pb2.ListIssuesResponse:
         return await call_http(self._conn, _SPEC_LIST_ISSUES, req, issues_pb2.ListIssuesResponse)
+
+    async def update_issue(self, req: issues_pb2.UpdateIssueRequest) -> issues_pb2.UpdateIssueResponse:
+        return await call_http(self._conn, _SPEC_UPDATE_ISSUE, req, issues_pb2.UpdateIssueResponse)

@@ -258,6 +258,16 @@ def _spot_notion_pages_get(response):
     assert not response.HasField("public_url")
 
 
+def _spot_notion_pages_create(response):
+    assert response.id == "d4e5f6a7-0000-4000-8000-000000000005"
+    assert not response.HasField("public_url")
+
+
+def _spot_notion_pages_update(response):
+    assert response.last_edited_time == "2026-02-11T09:45:00.000Z"
+    assert response.archived is False
+
+
 def _spot_notion_databases_query(response):
     assert len(response.results) == 2
     assert response.next_cursor == "synthetic-next-cursor"
@@ -266,6 +276,12 @@ def _spot_notion_databases_query(response):
 
 
 def _spot_sentry_issues_get(response):
+    assert response.short_id == "PROJ-103"
+    assert not response.HasField("share_id")
+
+
+def _spot_sentry_issues_update(response):
+    assert response.status == "resolved"
     assert response.short_id == "PROJ-103"
     assert not response.HasField("share_id")
 
@@ -380,8 +396,11 @@ OPS = [
     ("hubspot.contacts.list", "hubspot", contacts_pb2.ListContactsRequest, contacts_pb2.ListContactsResponse, _spot_hubspot_contacts_list),
     ("hubspot.deals.list", "hubspot", deals_pb2.ListDealsRequest, deals_pb2.ListDealsResponse, _spot_hubspot_deals_list),
     ("notion.pages.get", "notion", pages_pb2.GetPageRequest, pages_pb2.GetPageResponse, _spot_notion_pages_get),
+    ("notion.pages.create", "notion", pages_pb2.CreatePageRequest, pages_pb2.CreatePageResponse, _spot_notion_pages_create),
+    ("notion.pages.update", "notion", pages_pb2.UpdatePageRequest, pages_pb2.UpdatePageResponse, _spot_notion_pages_update),
     ("notion.databases.query", "notion", databases_pb2.QueryDatabaseRequest, databases_pb2.QueryDatabaseResponse, _spot_notion_databases_query),
     ("sentry.issues.get", "sentry", sentry_issues_pb2.GetIssueRequest, sentry_issues_pb2.GetIssueResponse, _spot_sentry_issues_get),
+    ("sentry.issues.update", "sentry", sentry_issues_pb2.UpdateIssueRequest, sentry_issues_pb2.UpdateIssueResponse, _spot_sentry_issues_update),
     ("sentry.issues.list", "sentry", sentry_issues_pb2.ListIssuesRequest, sentry_issues_pb2.ListIssuesResponse, _spot_sentry_issues_list),
     ("http_api.records.list", "http_api", records_pb2.ListRecordsRequest, records_pb2.ListRecordsResponse, _spot_http_api_records_list),
     ("http_api.records.get", "http_api", records_pb2.GetRecordRequest, records_pb2.GetRecordResponse, _spot_http_api_records_get),

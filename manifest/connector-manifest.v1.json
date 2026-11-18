@@ -1248,6 +1248,28 @@
           "response": "kei.connectors.notion.v1.QueryDatabaseResponse"
         },
         {
+          "id": "notion.pages.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pages:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "integration_token"
+          ],
+          "resource_template": "pages",
+          "semantics": {
+            "action": "create",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.notion.v1.CreatePageRequest",
+          "response": "kei.connectors.notion.v1.CreatePageResponse"
+        },
+        {
           "id": "notion.pages.get",
           "class": "read",
           "destructive": false,
@@ -1268,6 +1290,28 @@
           },
           "request": "kei.connectors.notion.v1.GetPageRequest",
           "response": "kei.connectors.notion.v1.GetPageResponse"
+        },
+        {
+          "id": "notion.pages.update",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pages:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "integration_token"
+          ],
+          "resource_template": "pages/{page_id}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.notion.v1.UpdatePageRequest",
+          "response": "kei.connectors.notion.v1.UpdatePageResponse"
         }
       ]
     },
@@ -1469,6 +1513,27 @@
           },
           "request": "kei.connectors.sentry.v1.ListIssuesRequest",
           "response": "kei.connectors.sentry.v1.ListIssuesResponse"
+        },
+        {
+          "id": "sentry.issues.update",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issue:write"
+          ],
+          "connections": [
+            "auth_token"
+          ],
+          "resource_template": "organizations/{organization_slug}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.sentry.v1.UpdateIssueRequest",
+          "response": "kei.connectors.sentry.v1.UpdateIssueResponse"
         }
       ]
     }

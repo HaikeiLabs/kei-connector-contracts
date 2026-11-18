@@ -60,10 +60,11 @@ use haikeilabs_connector_contracts::kei::connectors::power_bi::v1::{
     ExecuteQueriesResponse, ListDatasetsResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::notion::v1::{
-    GetPageResponse, QueryDatabaseResponse,
+    CreatePageResponse, GetPageResponse, QueryDatabaseResponse, UpdatePageResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::sentry::v1::{
     GetIssueResponse as SentryGetIssueResponse, ListIssuesResponse as SentryListIssuesResponse,
+    UpdateIssueResponse as SentryUpdateIssueResponse,
 };
 use pbjson_types::value::Kind;
 
@@ -429,6 +430,21 @@ fn fixtures_unmarshal() {
     assert_eq!(resp.id, "5f8b7e4a-0000-4000-8000-000000000001");
     assert!(resp.public_url.is_none(), "public_url must stay null");
 
+    // notion.pages.create — spot: the synthetic created page id and the null
+    // public_url.
+    let resp: CreatePageResponse =
+        serde_json::from_str(&fixture("notion", "pages.create.response.json"))
+            .expect("notion.pages.create response unmarshals");
+    assert_eq!(resp.id, "d4e5f6a7-0000-4000-8000-000000000005");
+    assert!(resp.public_url.is_none(), "public_url must stay null");
+
+    // notion.pages.update — spot: the synthetic edit time and archived false.
+    let resp: UpdatePageResponse =
+        serde_json::from_str(&fixture("notion", "pages.update.response.json"))
+            .expect("notion.pages.update response unmarshals");
+    assert_eq!(resp.last_edited_time, "2026-02-11T09:45:00.000Z");
+    assert!(!resp.archived);
+
     // notion.databases.query — spot: two results, the next cursor, and the
     // null public_url on the second page.
     let resp: QueryDatabaseResponse =
@@ -443,6 +459,14 @@ fn fixtures_unmarshal() {
     let resp: SentryGetIssueResponse =
         serde_json::from_str(&fixture("sentry", "issues.get.response.json"))
             .expect("sentry.issues.get response unmarshals");
+    assert_eq!(resp.short_id, "PROJ-103");
+    assert!(resp.share_id.is_none(), "share_id must stay null");
+
+    // sentry.issues.update — spot: the resolved status and the null share_id.
+    let resp: SentryUpdateIssueResponse =
+        serde_json::from_str(&fixture("sentry", "issues.update.response.json"))
+            .expect("sentry.issues.update response unmarshals");
+    assert_eq!(resp.status, "resolved");
     assert_eq!(resp.short_id, "PROJ-103");
     assert!(resp.share_id.is_none(), "share_id must stay null");
 

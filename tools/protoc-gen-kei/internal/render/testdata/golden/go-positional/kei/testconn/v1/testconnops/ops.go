@@ -11,6 +11,7 @@ import (
 	testconn "example.test/gen/go/kei/testconn/v1"
 	"github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connection"
 	contracts "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // Operations is the testconn connector. Callers depend on it; tests use Mock.
@@ -18,7 +19,7 @@ type Operations interface {
 	// GetFile runs testconn.files.get (GET /spaces/{space}/files/{path}).
 	GetFile(ctx context.Context, space string, path string) (*testconn.GetFileResponse, error)
 	// CreateThing runs testconn.things.create (POST /spaces/{space}/things).
-	CreateThing(ctx context.Context, space string, name string, note *string) (*testconn.CreateThingResponse, error)
+	CreateThing(ctx context.Context, space string, name string, note *string, metadata *structpb.Struct, rows []*structpb.ListValue) (*testconn.CreateThingResponse, error)
 	// GetThing runs testconn.things.get (GET /spaces/{space}/things/{thing_id}).
 	GetThing(ctx context.Context, space string, thingId int64) (*testconn.GetThingResponse, error)
 	// ListThings runs testconn.things.list (GET /spaces/{space}/things).
@@ -68,6 +69,8 @@ var specCreateThing = &connection.HTTPSpec{
 		{Field: "space", In: connection.InPath, Wire: "space"},
 		{Field: "name", In: connection.InBody, Wire: "name"},
 		{Field: "note", In: connection.InBody, Wire: "description"},
+		{Field: "metadata", In: connection.InBody, Wire: "metadata"},
+		{Field: "rows", In: connection.InBody, Wire: "rows"},
 	},
 	Errors: []*contracts.ErrorMapping{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
@@ -137,8 +140,8 @@ func (q *Queries) GetFile(ctx context.Context, space string, path string) (*test
 }
 
 // CreateThing runs testconn.things.create.
-func (q *Queries) CreateThing(ctx context.Context, space string, name string, note *string) (*testconn.CreateThingResponse, error) {
-	req := &testconn.CreateThingRequest{Space: space, Name: name, Note: note}
+func (q *Queries) CreateThing(ctx context.Context, space string, name string, note *string, metadata *structpb.Struct, rows []*structpb.ListValue) (*testconn.CreateThingResponse, error) {
+	req := &testconn.CreateThingRequest{Space: space, Name: name, Note: note, Metadata: metadata, Rows: rows}
 	resp := &testconn.CreateThingResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specCreateThing, req, resp); err != nil {
 		return nil, err

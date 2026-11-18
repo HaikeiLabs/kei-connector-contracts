@@ -12,8 +12,9 @@ import (
 // Mock implements Operations with one function field per operation, for
 // tests. Calling an operation whose field is nil returns an error.
 type Mock struct {
-	GetIssueFunc   func(ctx context.Context, req *sentry.GetIssueRequest) (*sentry.GetIssueResponse, error)
-	ListIssuesFunc func(ctx context.Context, req *sentry.ListIssuesRequest) (*sentry.ListIssuesResponse, error)
+	GetIssueFunc    func(ctx context.Context, req *sentry.GetIssueRequest) (*sentry.GetIssueResponse, error)
+	ListIssuesFunc  func(ctx context.Context, req *sentry.ListIssuesRequest) (*sentry.ListIssuesResponse, error)
+	UpdateIssueFunc func(ctx context.Context, req *sentry.UpdateIssueRequest) (*sentry.UpdateIssueResponse, error)
 }
 
 var _ Operations = (*Mock)(nil)
@@ -32,4 +33,12 @@ func (m *Mock) ListIssues(ctx context.Context, req *sentry.ListIssuesRequest) (*
 		return nil, errors.New("sentryops.Mock: ListIssuesFunc is not set")
 	}
 	return m.ListIssuesFunc(ctx, req)
+}
+
+// UpdateIssue calls m.UpdateIssueFunc.
+func (m *Mock) UpdateIssue(ctx context.Context, req *sentry.UpdateIssueRequest) (*sentry.UpdateIssueResponse, error) {
+	if m.UpdateIssueFunc == nil {
+		return nil, errors.New("sentryops.Mock: UpdateIssueFunc is not set")
+	}
+	return m.UpdateIssueFunc(ctx, req)
 }
