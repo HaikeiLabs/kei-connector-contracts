@@ -73,6 +73,22 @@ pub mod kei {
                 include!("gen/kei/connectors/database/v1/kei.connectors.database.v1.rs");
             }
         }
+        /// Gmail connector contract.
+        pub mod gmail {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/gmail/v1/kei.connectors.gmail.v1.rs");
+            }
+        }
+        /// Google Sheets connector contract.
+        pub mod google_sheets {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/google_sheets/v1/kei.connectors.google_sheets.v1.rs");
+            }
+        }
         /// Atlassian connector contract: Jira and Confluence reads.
         pub mod atlassian {
             /// Version 1.

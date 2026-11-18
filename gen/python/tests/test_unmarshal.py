@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""HAI-990 gate: the 25 pilot operation fixtures unmarshal in Python.
+"""HAI-990 gate: the 29 pilot operation fixtures unmarshal in Python.
 
 Every registered pilot operation needs synthetic request and response
 fixtures under fixtures/operations/<connector>/, and both must parse into
@@ -30,6 +30,8 @@ from kei.connectors.atlassian.v1 import confluence_pb2, jira_pb2
 from kei.connectors.airtable.v1 import records_pb2 as airtable_records_pb2
 from kei.connectors.database.v1 import query_pb2
 from kei.connectors.github.v1 import contents_pb2, issues_pb2, pulls_pb2
+from kei.connectors.gmail.v1 import messages_pb2
+from kei.connectors.google_sheets.v1 import spreadsheets_pb2
 from kei.connectors.http_api.v1 import records_pb2
 from kei.connectors.hubspot.v1 import contacts_pb2, deals_pb2
 from kei.connectors.linear.v1 import (
@@ -90,6 +92,28 @@ def _spot_linear_teams_get(response):
 def _spot_linear_comments_create(response):
     assert response.success is True
     assert response.comment.body == "Synthetic comment"
+
+
+def _spot_gmail_messages_list(response):
+    assert len(response.messages) == 2
+    assert response.next_page_token == "synthetic-next-token"
+
+
+def _spot_gmail_messages_get(response):
+    assert response.id == "msg-1001"
+    assert response.snippet == "Synthetic message preview text"
+    assert not response.HasField("internal_date")
+
+
+def _spot_google_sheets_values_get(response):
+    assert response.range == "Sheet1!A1:B2"
+    assert len(response.values) == 2
+    assert response.values[0].values[1].WhichOneof("kind") == "null_value"
+
+
+def _spot_google_sheets_spreadsheets_get(response):
+    assert response.spreadsheet_id == "synthetic-sheet-1"
+    assert response.properties.title == "Synthetic sheet"
 
 
 def _spot_atlassian_jira_issues_get(response):
@@ -213,6 +237,10 @@ OPS = [
     ("linear.issues.search", "linear", linear_issues_pb2.SearchIssuesRequest, linear_issues_pb2.SearchIssuesResponse, _spot_linear_issues_search),
     ("linear.teams.get", "linear", teams_pb2.GetTeamRequest, teams_pb2.GetTeamResponse, _spot_linear_teams_get),
     ("linear.comments.create", "linear", comments_pb2.CreateCommentRequest, comments_pb2.CreateCommentResponse, _spot_linear_comments_create),
+    ("gmail.messages.list", "gmail", messages_pb2.ListMessagesRequest, messages_pb2.ListMessagesResponse, _spot_gmail_messages_list),
+    ("gmail.messages.get", "gmail", messages_pb2.GetMessageRequest, messages_pb2.GetMessageResponse, _spot_gmail_messages_get),
+    ("google_sheets.values.get", "google_sheets", spreadsheets_pb2.GetValuesRequest, spreadsheets_pb2.GetValuesResponse, _spot_google_sheets_values_get),
+    ("google_sheets.spreadsheets.get", "google_sheets", spreadsheets_pb2.GetSpreadsheetRequest, spreadsheets_pb2.GetSpreadsheetResponse, _spot_google_sheets_spreadsheets_get),
     ("atlassian.jira.issues.get", "atlassian", jira_pb2.GetJiraIssueRequest, jira_pb2.GetJiraIssueResponse, _spot_atlassian_jira_issues_get),
     ("atlassian.jira.issues.search", "atlassian", jira_pb2.SearchJiraIssuesRequest, jira_pb2.SearchJiraIssuesResponse, _spot_atlassian_jira_issues_search),
     ("atlassian.confluence.pages.get", "atlassian", confluence_pb2.GetConfluencePageRequest, confluence_pb2.GetConfluencePageResponse, _spot_atlassian_confluence_pages_get),

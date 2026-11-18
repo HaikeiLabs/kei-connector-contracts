@@ -32,6 +32,12 @@ use haikeilabs_connector_contracts::kei::connectors::database::v1::{
 use haikeilabs_connector_contracts::kei::connectors::github::v1::{
     GetIssueResponse, GetPullRequestResponse, ListIssuesResponse, PutContentsResponse,
 };
+use haikeilabs_connector_contracts::kei::connectors::gmail::v1::{
+    GetMessageResponse, ListMessagesResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::google_sheets::v1::{
+    GetSpreadsheetResponse, GetValuesResponse,
+};
 use haikeilabs_connector_contracts::kei::connectors::http_api::v1::{
     GetRecordResponse, ListRecordsResponse,
 };
@@ -132,6 +138,44 @@ fn fixtures_unmarshal() {
         resp.comment.as_ref().expect("comment present").body,
         "Synthetic comment"
     );
+
+    // gmail.messages.list — spot: two messages and the next cursor.
+    let resp: ListMessagesResponse =
+        serde_json::from_str(&fixture("gmail", "messages.list.response.json"))
+            .expect("gmail.messages.list response unmarshals");
+    assert_eq!(resp.messages.len(), 2);
+    assert_eq!(resp.next_page_token.as_deref(), Some("synthetic-next-token"));
+
+    // gmail.messages.get — spot: message id, the snippet, and the null
+    // internal date.
+    let resp: GetMessageResponse =
+        serde_json::from_str(&fixture("gmail", "messages.get.response.json"))
+            .expect("gmail.messages.get response unmarshals");
+    assert_eq!(resp.id, "msg-1001");
+    assert_eq!(resp.snippet, "Synthetic message preview text");
+    assert!(resp.internal_date.is_none(), "internal_date must be null");
+
+    // google_sheets.values.get — spot: the echoed range, two rows, and the
+    // null cell in the first row.
+    let resp: GetValuesResponse =
+        serde_json::from_str(&fixture("google_sheets", "values.get.response.json"))
+            .expect("google_sheets.values.get response unmarshals");
+    assert_eq!(resp.range, "Sheet1!A1:B2");
+    assert_eq!(resp.values.len(), 2);
+    match resp.values[0].values.get(1) {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("values[0][1] must be null, got {:?}", other),
+    }
+
+    // google_sheets.spreadsheets.get — spot: spreadsheet id and the title.
+    let resp: GetSpreadsheetResponse =
+        serde_json::from_str(&fixture("google_sheets", "spreadsheets.get.response.json"))
+            .expect("google_sheets.spreadsheets.get response unmarshals");
+    assert_eq!(resp.spreadsheet_id, "synthetic-sheet-1");
+    let properties = resp.properties.as_ref().expect("properties present");
+    assert_eq!(properties.title, "Synthetic sheet");
 
     // atlassian.jira.issues.get — spot: issue key, the summary, and the null
     // description.

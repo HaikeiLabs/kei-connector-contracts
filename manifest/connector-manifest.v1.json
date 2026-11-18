@@ -368,6 +368,176 @@
       ]
     },
     {
+      "id": "gmail",
+      "base_url": "https://gmail.googleapis.com",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "scopes": [
+            "https://www.googleapis.com/auth/gmail.readonly"
+          ],
+          "setup_fields": []
+        },
+        {
+          "name": "domain_delegation",
+          "kind": "http_bearer",
+          "auth_method": "service_principal_key",
+          "account_model": "shared",
+          "scopes": [
+            "https://www.googleapis.com/auth/gmail.readonly"
+          ],
+          "setup_fields": [
+            {
+              "name": "service_account_json",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            },
+            {
+              "name": "subject_email",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": false
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "gmail.messages.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/gmail.readonly"
+          ],
+          "connections": [
+            "user_oauth",
+            "domain_delegation"
+          ],
+          "resource_template": "users/{user_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "message",
+            "version": 1
+          },
+          "request": "kei.connectors.gmail.v1.GetMessageRequest",
+          "response": "kei.connectors.gmail.v1.GetMessageResponse"
+        },
+        {
+          "id": "gmail.messages.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/gmail.readonly"
+          ],
+          "connections": [
+            "user_oauth",
+            "domain_delegation"
+          ],
+          "resource_template": "users/{user_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "message",
+            "version": 1
+          },
+          "request": "kei.connectors.gmail.v1.ListMessagesRequest",
+          "response": "kei.connectors.gmail.v1.ListMessagesResponse"
+        }
+      ]
+    },
+    {
+      "id": "google_sheets",
+      "base_url": "https://sheets.googleapis.com",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "scopes": [
+            "https://www.googleapis.com/auth/spreadsheets.readonly"
+          ],
+          "setup_fields": []
+        },
+        {
+          "name": "domain_delegation",
+          "kind": "http_bearer",
+          "auth_method": "service_principal_key",
+          "account_model": "shared",
+          "scopes": [
+            "https://www.googleapis.com/auth/spreadsheets.readonly"
+          ],
+          "setup_fields": [
+            {
+              "name": "service_account_json",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            },
+            {
+              "name": "subject_email",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": false
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "google_sheets.spreadsheets.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/spreadsheets.readonly"
+          ],
+          "connections": [
+            "user_oauth",
+            "domain_delegation"
+          ],
+          "resource_template": "spreadsheets/{spreadsheet_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "spreadsheet",
+            "version": 1
+          },
+          "request": "kei.connectors.google_sheets.v1.GetSpreadsheetRequest",
+          "response": "kei.connectors.google_sheets.v1.GetSpreadsheetResponse"
+        },
+        {
+          "id": "google_sheets.values.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/spreadsheets.readonly"
+          ],
+          "connections": [
+            "user_oauth",
+            "domain_delegation"
+          ],
+          "resource_template": "spreadsheets/{spreadsheet_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "spreadsheet",
+            "version": 1
+          },
+          "request": "kei.connectors.google_sheets.v1.GetValuesRequest",
+          "response": "kei.connectors.google_sheets.v1.GetValuesResponse"
+        }
+      ]
+    },
+    {
       "id": "http_api",
       "connections": [
         {
