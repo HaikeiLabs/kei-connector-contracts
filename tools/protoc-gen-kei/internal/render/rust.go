@@ -308,6 +308,33 @@ pub const %s: Op = Op {
 	return o, nil
 }
 
+// rustKeywords are the Rust keywords (strict and reserved) prost escapes in
+// field names.
+var rustKeywords = map[string]bool{
+	"abstract": true, "as": true, "async": true, "await": true, "become": true, "box": true,
+	"break": true, "const": true, "continue": true, "do": true, "dyn": true, "else": true,
+	"enum": true, "extern": true, "false": true, "final": true, "fn": true, "for": true,
+	"if": true, "impl": true, "in": true, "let": true, "loop": true, "macro": true,
+	"match": true, "mod": true, "move": true, "mut": true, "override": true, "priv": true,
+	"pub": true, "ref": true, "return": true, "static": true, "struct": true, "trait": true,
+	"true": true, "try": true, "type": true, "typeof": true, "unsafe": true, "unsized": true,
+	"use": true, "virtual": true, "where": true, "while": true, "yield": true,
+}
+
+// rustField is a proto field's struct field name in prost's generated Rust:
+// a keyword becomes a raw identifier (r#type), and self, super, crate and
+// Self, which cannot be raw, get a trailing underscore.
+func rustField(name string) string {
+	switch {
+	case name == "self" || name == "super" || name == "crate" || name == "Self":
+		return name + "_"
+	case rustKeywords[name]:
+		return "r#" + name
+	default:
+		return name
+	}
+}
+
 // rustJSONValue renders a Rust expression of type serde_json::Value for one
 // value of field fd, held by ref (an expression of type &T). A message is
 // encoded field by field with the canonical body rules of the Go runtime:
@@ -338,7 +365,7 @@ func rustJSONValue(op *model.Operation, fd protoreflect.FieldDescriptor, ref str
 		if graphql {
 			wire = sub.JSONName()
 		}
-		acc := ref + "." + string(sub.Name())
+		acc := ref + "." + rustField(string(sub.Name()))
 		insert := func(cond, value string) {
 			stmts = append(stmts, fmt.Sprintf("%s { %s.insert(%s.to_string(), %s); }", cond, obj, rustQuote(wire), value))
 		}
@@ -383,7 +410,10 @@ func rustFnBody(op *model.Operation) (string, error) {
 	var pathParams, multi, queryParams, bodyParams []string
 	for _, p := range op.Params {
 		f := p.Field
-		name := string(f.Desc.Name())
+		// name is the struct field as prost names it (r#type for a keyword);
+		// local is a plain identifier for the temporaries derived from it.
+		name := rustField(string(f.Desc.Name()))
+		local := string(f.Desc.Name()) + "_s"
 		optional := f.Desc.HasPresence() && !f.Desc.IsList()
 		switch p.In {
 		case contracts.ParamIn_PARAM_IN_PATH:
@@ -396,13 +426,13 @@ func rustFnBody(op *model.Operation) (string, error) {
 			case optional && f.Desc.Kind() == protoreflect.StringKind:
 				pathParams = append(pathParams, fmt.Sprintf("if let Some(v) = &req.%s { path_values.push((%s, v.as_str())); }", name, rustQuote(p.Wire)))
 			case optional:
-				pathParams = append(pathParams, fmt.Sprintf("let %s_s = req.%s.map(|v| v.to_string());", name, name))
-				pathParams = append(pathParams, fmt.Sprintf("if let Some(v) = &%s_s { path_values.push((%s, v.as_str())); }", name, rustQuote(p.Wire)))
+				pathParams = append(pathParams, fmt.Sprintf("let %s = req.%s.map(|v| v.to_string());", local, name))
+				pathParams = append(pathParams, fmt.Sprintf("if let Some(v) = &%s { path_values.push((%s, v.as_str())); }", local, rustQuote(p.Wire)))
 			case f.Desc.Kind() == protoreflect.StringKind:
 				pathParams = append(pathParams, fmt.Sprintf("path_values.push((%s, req.%s.as_str()));", rustQuote(p.Wire), name))
 			case isIntKind(f.Desc.Kind()):
-				pathParams = append(pathParams, fmt.Sprintf("let %s_s = req.%s.to_string();", name, name))
-				pathParams = append(pathParams, fmt.Sprintf("path_values.push((%s, %s_s.as_str()));", rustQuote(p.Wire), name))
+				pathParams = append(pathParams, fmt.Sprintf("let %s = req.%s.to_string();", local, name))
+				pathParams = append(pathParams, fmt.Sprintf("path_values.push((%s, %s.as_str()));", rustQuote(p.Wire), local))
 			default:
 				return "", fmt.Errorf("protoc-gen-kei-ops: %s: field %s: only string and integer path params are supported by the Rust template yet", op.ID, name)
 			}
@@ -557,7 +587,7 @@ func rustFnBody(op *model.Operation) (string, error) {
 		if nf == nil {
 			return "", fmt.Errorf("protoc-gen-kei-ops: %s: next_cursor_field %q is not a field of %s", op.ID, op.Opt.GetNextCursorField(), op.Response.GoIdent.GoName)
 		}
-		name := string(nf.Desc.Name())
+		name := rustField(string(nf.Desc.Name()))
 		optional := nf.Desc.HasPresence()
 		switch {
 		case nf.Desc.Kind() == protoreflect.StringKind && optional:

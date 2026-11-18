@@ -1,0 +1,14 @@
+{
+  "sha": "synthetic-commit-sha-2",
+  "html_url": "https://example.invalid/example-org/example-repo/commit/synthetic-commit-sha-2",
+  "message": "Synthetic commit message",
+  "tree": {
+    "sha": "synthetic-tree-sha-1"
+  },
+  "parents": [
+    {
+      "sha": "synthetic-parent-sha-1"
+    }
+  ],
+  "node_id": "synthetic-node-id-16"
+}

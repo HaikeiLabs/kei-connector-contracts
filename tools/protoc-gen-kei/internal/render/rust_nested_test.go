@@ -50,6 +50,10 @@ func TestRustNestedMessageBody(t *testing.T) {
 		`"tags".to_string()`,
 		`if let Some(v1) = &v0.label {`,
 		`if let Some(v0) = &req.settings {`,
+		// Rust keywords are raw identifiers, as prost names them.
+		`req.r#ref.as_str()`,
+		`req.r#where.clone()`,
+		`&v0.r#type`,
 	} {
 		if !strings.Contains(out, want) {
 			t.Errorf("generated Rust lacks %s", want)

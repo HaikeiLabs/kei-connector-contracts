@@ -29,7 +29,13 @@ from google.protobuf import json_format
 from kei.connectors.atlassian.v1 import confluence_pb2, jira_pb2
 from kei.connectors.airtable.v1 import records_pb2 as airtable_records_pb2
 from kei.connectors.database.v1 import query_pb2
-from kei.connectors.github.v1 import contents_pb2, issues_pb2, pulls_pb2
+from kei.connectors.github.v1 import (
+    actions_pb2,
+    contents_pb2,
+    git_pb2,
+    issues_pb2,
+    pulls_pb2,
+)
 from kei.connectors.gmail.v1 import messages_pb2
 from kei.connectors.google_sheets.v1 import spreadsheets_pb2
 from kei.connectors.http_api.v1 import records_pb2
@@ -72,6 +78,82 @@ def _spot_github_contents_put(response):
 
 def _spot_github_pulls_get(response):
     assert response.number == 42
+
+
+def _spot_github_pulls_list(response):
+    pull = response.pulls[0]
+    assert pull.head.ref == "feature/x"
+    assert pull.base.ref == "main"
+    assert pull.author.login == "example-user"
+    assert pull.labels[0].name == "synthetic-label"
+    assert pull.id == 9007199254740999
+    assert response.next_page == 2
+
+
+def _spot_github_actions_runs_list(response):
+    assert response.workflow_runs[0].head_branch == "feature/x"
+    assert response.workflow_runs[0].id == 9007199254741001
+
+
+def _spot_github_issues_create(response):
+    assert response.number == 42
+    assert response.author.login == "example-user"
+    assert response.labels[0].name == "synthetic-label"
+
+
+def _spot_github_issues_comments_create(response):
+    assert response.body == "Synthetic comment"
+    assert response.author.login == "example-user"
+
+
+def _spot_github_pulls_create(response):
+    assert response.number == 43
+    assert response.draft is True
+    assert response.head.ref == "feature/x"
+    assert response.base.ref == "main"
+
+
+def _spot_github_pulls_update(response):
+    assert response.title == "Synthetic updated title"
+    assert response.state == "open"
+
+
+def _spot_github_pulls_reviews_list(response):
+    assert response.reviews[0].state == "APPROVED"
+    assert response.reviews[0].author.login == "example-reviewer"
+
+
+def _spot_github_pulls_reviews_create(response):
+    assert response.state == "APPROVED"
+    assert response.id == 9007199254741006
+
+
+def _spot_github_git_refs_get(response):
+    assert response.ref == "refs/heads/feature/x"
+    assert response.object.sha == "synthetic-ref-sha-1"
+
+
+def _spot_github_git_refs_create(response):
+    assert response.ref == "refs/heads/feature/y"
+    assert response.object.type == "commit"
+
+
+def _spot_github_git_refs_update(response):
+    assert response.object.sha == "synthetic-ref-sha-2"
+
+
+def _spot_github_git_blobs_create(response):
+    assert response.sha == "synthetic-blob-sha-1"
+
+
+def _spot_github_git_trees_create(response):
+    assert response.sha == "synthetic-tree-sha-1"
+    assert response.tree[0].path == "notes.txt"
+
+
+def _spot_github_git_commits_create(response):
+    assert response.sha == "synthetic-commit-sha-2"
+    assert len(response.parents) == 1
 
 
 def _spot_linear_issues_get(response):
@@ -265,6 +347,20 @@ OPS = [
     ("github.issues.list", "github", issues_pb2.ListIssuesRequest, issues_pb2.ListIssuesResponse, _spot_github_issues_list),
     ("github.contents.put", "github", contents_pb2.PutContentsRequest, contents_pb2.PutContentsResponse, _spot_github_contents_put),
     ("github.pulls.get", "github", pulls_pb2.GetPullRequestRequest, pulls_pb2.GetPullRequestResponse, _spot_github_pulls_get),
+    ("github.pulls.list", "github", pulls_pb2.ListPullsRequest, pulls_pb2.ListPullsResponse, _spot_github_pulls_list),
+    ("github.actions.runs.list", "github", actions_pb2.ListWorkflowRunsRequest, actions_pb2.ListWorkflowRunsResponse, _spot_github_actions_runs_list),
+    ("github.issues.create", "github", issues_pb2.CreateIssueRequest, issues_pb2.CreateIssueResponse, _spot_github_issues_create),
+    ("github.issues.comments.create", "github", issues_pb2.CreateIssueCommentRequest, issues_pb2.CreateIssueCommentResponse, _spot_github_issues_comments_create),
+    ("github.pulls.create", "github", pulls_pb2.CreatePullRequestRequest, pulls_pb2.CreatePullRequestResponse, _spot_github_pulls_create),
+    ("github.pulls.update", "github", pulls_pb2.UpdatePullRequestRequest, pulls_pb2.UpdatePullRequestResponse, _spot_github_pulls_update),
+    ("github.pulls.reviews.list", "github", pulls_pb2.ListPullReviewsRequest, pulls_pb2.ListPullReviewsResponse, _spot_github_pulls_reviews_list),
+    ("github.pulls.reviews.create", "github", pulls_pb2.CreatePullReviewRequest, pulls_pb2.CreatePullReviewResponse, _spot_github_pulls_reviews_create),
+    ("github.git.refs.get", "github", git_pb2.GetRefRequest, git_pb2.GetRefResponse, _spot_github_git_refs_get),
+    ("github.git.refs.create", "github", git_pb2.CreateRefRequest, git_pb2.CreateRefResponse, _spot_github_git_refs_create),
+    ("github.git.refs.update", "github", git_pb2.UpdateRefRequest, git_pb2.UpdateRefResponse, _spot_github_git_refs_update),
+    ("github.git.blobs.create", "github", git_pb2.CreateBlobRequest, git_pb2.CreateBlobResponse, _spot_github_git_blobs_create),
+    ("github.git.trees.create", "github", git_pb2.CreateTreeRequest, git_pb2.CreateTreeResponse, _spot_github_git_trees_create),
+    ("github.git.commits.create", "github", git_pb2.CreateCommitRequest, git_pb2.CreateCommitResponse, _spot_github_git_commits_create),
     ("linear.issues.get", "linear", linear_issues_pb2.GetIssueRequest, linear_issues_pb2.GetIssueResponse, _spot_linear_issues_get),
     ("linear.issues.create", "linear", linear_issues_pb2.CreateIssueRequest, linear_issues_pb2.CreateIssueResponse, _spot_linear_issues_create),
     ("linear.issues.search", "linear", linear_issues_pb2.SearchIssuesRequest, linear_issues_pb2.SearchIssuesResponse, _spot_linear_issues_search),

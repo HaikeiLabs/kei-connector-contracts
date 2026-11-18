@@ -24,19 +24,24 @@ message QueryDefinition {
   repeated string tags = 4;
   Serializer serializer = 5;
   string display_name = 6 [json_name = "title"];
+  // A Rust keyword: prost names the struct field r#type.
+  string type = 7;
 }
 
 message RunQueriesRequest {
   string space = 1;
   repeated QueryDefinition queries = 2;
   Serializer settings = 3;
+  // Rust keywords in the path and the body: prost names them r#ref, r#where.
+  string ref = 4;
+  string where = 5;
 
   option (kei.contracts.v1.operation) = {
     id: "testnested.queries.run"
     connector: "testnested"
     class: OPERATION_CLASS_READ
     http_method: "POST"
-    path_template: "/spaces/{space}/queries"
+    path_template: "/spaces/{space}/queries/{ref}"
     scopes: ["queries:read"]
     connections: ["pat"]
     resource_template: "spaces/{space}"
