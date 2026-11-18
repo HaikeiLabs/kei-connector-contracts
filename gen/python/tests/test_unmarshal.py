@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""HAI-990 gate: the 10 pilot operation fixtures unmarshal in Python.
+"""HAI-990 gate: the 12 pilot operation fixtures unmarshal in Python.
 
 Every registered pilot operation needs synthetic request and response
 fixtures under fixtures/operations/<connector>/, and both must parse into
@@ -29,7 +29,11 @@ from google.protobuf import json_format
 from kei.connectors.database.v1 import query_pb2
 from kei.connectors.github.v1 import contents_pb2, issues_pb2, pulls_pb2
 from kei.connectors.http_api.v1 import records_pb2
-from kei.connectors.linear.v1 import issues_pb2 as linear_issues_pb2
+from kei.connectors.linear.v1 import (
+    comments_pb2,
+    issues_pb2 as linear_issues_pb2,
+    teams_pb2,
+)
 
 FIXTURES = Path(__file__).resolve().parents[3] / "fixtures" / "operations"
 
@@ -63,6 +67,7 @@ def _spot_github_pulls_get(response):
 
 def _spot_linear_issues_get(response):
     assert response.issue.identifier == "ENG-101"
+    assert response.issue.labels[0].name == "synthetic-label"
 
 
 def _spot_linear_issues_create(response):
@@ -71,6 +76,15 @@ def _spot_linear_issues_create(response):
 
 def _spot_linear_issues_search(response):
     assert len(response.nodes) == 2
+
+
+def _spot_linear_teams_get(response):
+    assert response.team.key == "ENG"
+
+
+def _spot_linear_comments_create(response):
+    assert response.success is True
+    assert response.comment.body == "Synthetic comment"
 
 
 def _spot_http_api_records_list(response):
@@ -117,6 +131,8 @@ OPS = [
     ("linear.issues.get", "linear", linear_issues_pb2.GetIssueRequest, linear_issues_pb2.GetIssueResponse, _spot_linear_issues_get),
     ("linear.issues.create", "linear", linear_issues_pb2.CreateIssueRequest, linear_issues_pb2.CreateIssueResponse, _spot_linear_issues_create),
     ("linear.issues.search", "linear", linear_issues_pb2.SearchIssuesRequest, linear_issues_pb2.SearchIssuesResponse, _spot_linear_issues_search),
+    ("linear.teams.get", "linear", teams_pb2.GetTeamRequest, teams_pb2.GetTeamResponse, _spot_linear_teams_get),
+    ("linear.comments.create", "linear", comments_pb2.CreateCommentRequest, comments_pb2.CreateCommentResponse, _spot_linear_comments_create),
     ("http_api.records.list", "http_api", records_pb2.ListRecordsRequest, records_pb2.ListRecordsResponse, _spot_http_api_records_list),
     ("http_api.records.get", "http_api", records_pb2.GetRecordRequest, records_pb2.GetRecordResponse, _spot_http_api_records_get),
     ("database.query.run", "database", query_pb2.RunQueryRequest, query_pb2.RunQueryResponse, _spot_database_query_run),

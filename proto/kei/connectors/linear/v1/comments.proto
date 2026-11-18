@@ -1,0 +1,76 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Linear connector contract: comments.
+//
+// Linear is GraphQL over POST /graphql. Its schema uses camelCase keys;
+// every field declared here already unmarshals under protojson's lowerCamel
+// default, so no json_name is set anywhere in this file. The data envelope
+// GraphQL wraps responses in is unwrapped by the harness; the contract
+// models the payload object.
+syntax = "proto3";
+
+package kei.connectors.linear.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/linear/v1;linear";
+
+// Comment models the subset of the Linear comment object the contract needs.
+message Comment {
+  string id = 1;
+  string body = 2;
+}
+
+// CreateCommentRequest creates a comment on a Linear issue. issue_id is the
+// GraphQL issueId argument key.
+message CreateCommentRequest {
+  string issue_id = 1;
+  string body = 2;
+
+  option (kei.contracts.v1.operation) = {
+    id: "linear.comments.create"
+    connector: "linear"
+    class: OPERATION_CLASS_WRITE
+    destructive: false
+    http_method: "POST"
+    path_template: "/graphql"
+    scopes: ["comments:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateComment"
+    connections: ["user_oauth", "api_key"]
+    resource_template: "issues/{issue_id}"
+    graphql_document:
+      "mutation CommentCreate($issueId: String!, $body: String!) {\n"
+      "  commentCreate(input: {issueId: $issueId, body: $body}) {\n"
+      "    success\n"
+      "    comment { id body }\n"
+      "  }\n"
+      "}\n"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "comment" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// CreateCommentResponse mirrors Linear's CommentPayload: success plus the
+// created comment.
+message CreateCommentResponse {
+  bool success = 1;
+  Comment comment = 2;
+}

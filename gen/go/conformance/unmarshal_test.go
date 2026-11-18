@@ -112,6 +112,9 @@ var fixtureCases = []fixtureCase{
 			if got := resp.(*linearv1.GetIssueResponse).GetIssue().GetIdentifier(); got != "ENG-101" {
 				t.Errorf("issue.identifier = %q, want ENG-101", got)
 			}
+			if got := len(resp.(*linearv1.GetIssueResponse).GetIssue().GetLabels()); got != 1 {
+				t.Errorf("len(issue.labels) = %d, want 1", got)
+			}
 		},
 	},
 	{
@@ -133,6 +136,32 @@ var fixtureCases = []fixtureCase{
 		spotCheck: func(t *testing.T, resp proto.Message) {
 			if got := len(resp.(*linearv1.SearchIssuesResponse).GetNodes()); got != 2 {
 				t.Errorf("len(nodes) = %d, want 2", got)
+			}
+		},
+	},
+	{
+		op:        "linear.teams.get",
+		connector: "linear",
+		request:   func() proto.Message { return &linearv1.GetTeamRequest{} },
+		response:  func() proto.Message { return &linearv1.GetTeamResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			if got := resp.(*linearv1.GetTeamResponse).GetTeam().GetKey(); got != "ENG" {
+				t.Errorf("team.key = %q, want ENG", got)
+			}
+		},
+	},
+	{
+		op:        "linear.comments.create",
+		connector: "linear",
+		request:   func() proto.Message { return &linearv1.CreateCommentRequest{} },
+		response:  func() proto.Message { return &linearv1.CreateCommentResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			created := resp.(*linearv1.CreateCommentResponse)
+			if !created.GetSuccess() {
+				t.Errorf("success = %v, want true", created.GetSuccess())
+			}
+			if got := created.GetComment().GetId(); got == "" {
+				t.Errorf("comment.id is empty, want a synthetic id")
 			}
 		},
 	},

@@ -12,12 +12,22 @@ import (
 // Mock implements Operations with one function field per operation, for
 // tests. Calling an operation whose field is nil returns an error.
 type Mock struct {
-	CreateIssueFunc  func(ctx context.Context, req *linear.CreateIssueRequest) (*linear.CreateIssueResponse, error)
-	GetIssueFunc     func(ctx context.Context, req *linear.GetIssueRequest) (*linear.GetIssueResponse, error)
-	SearchIssuesFunc func(ctx context.Context, req *linear.SearchIssuesRequest) (*linear.SearchIssuesResponse, error)
+	CreateCommentFunc func(ctx context.Context, req *linear.CreateCommentRequest) (*linear.CreateCommentResponse, error)
+	CreateIssueFunc   func(ctx context.Context, req *linear.CreateIssueRequest) (*linear.CreateIssueResponse, error)
+	GetIssueFunc      func(ctx context.Context, req *linear.GetIssueRequest) (*linear.GetIssueResponse, error)
+	SearchIssuesFunc  func(ctx context.Context, req *linear.SearchIssuesRequest) (*linear.SearchIssuesResponse, error)
+	GetTeamFunc       func(ctx context.Context, req *linear.GetTeamRequest) (*linear.GetTeamResponse, error)
 }
 
 var _ Operations = (*Mock)(nil)
+
+// CreateComment calls m.CreateCommentFunc.
+func (m *Mock) CreateComment(ctx context.Context, req *linear.CreateCommentRequest) (*linear.CreateCommentResponse, error) {
+	if m.CreateCommentFunc == nil {
+		return nil, errors.New("linearops.Mock: CreateCommentFunc is not set")
+	}
+	return m.CreateCommentFunc(ctx, req)
+}
 
 // CreateIssue calls m.CreateIssueFunc.
 func (m *Mock) CreateIssue(ctx context.Context, req *linear.CreateIssueRequest) (*linear.CreateIssueResponse, error) {
@@ -41,4 +51,12 @@ func (m *Mock) SearchIssues(ctx context.Context, req *linear.SearchIssuesRequest
 		return nil, errors.New("linearops.Mock: SearchIssuesFunc is not set")
 	}
 	return m.SearchIssuesFunc(ctx, req)
+}
+
+// GetTeam calls m.GetTeamFunc.
+func (m *Mock) GetTeam(ctx context.Context, req *linear.GetTeamRequest) (*linear.GetTeamResponse, error) {
+	if m.GetTeamFunc == nil {
+		return nil, errors.New("linearops.Mock: GetTeamFunc is not set")
+	}
+	return m.GetTeamFunc(ctx, req)
 }

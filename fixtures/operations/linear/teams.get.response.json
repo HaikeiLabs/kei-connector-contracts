@@ -1,0 +1,12 @@
+{
+  "team": {
+    "id": "00000000-0000-0000-0000-000000000201",
+    "key": "ENG",
+    "name": "Synthetic Engineering"
+  },
+  "description": null,
+  "organization": {
+    "id": "00000000-0000-0000-0000-000000000202",
+    "name": "Synthetic Org"
+  }
+}

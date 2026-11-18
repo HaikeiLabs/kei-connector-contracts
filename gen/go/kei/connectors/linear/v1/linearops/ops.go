@@ -15,20 +15,26 @@ import (
 
 // Operations is the linear connector. Callers depend on it; tests use Mock.
 type Operations interface {
+	// CreateComment runs linear.comments.create (GraphQL POST /graphql).
+	CreateComment(ctx context.Context, req *linear.CreateCommentRequest) (*linear.CreateCommentResponse, error)
 	// CreateIssue runs linear.issues.create (GraphQL POST /graphql).
 	CreateIssue(ctx context.Context, req *linear.CreateIssueRequest) (*linear.CreateIssueResponse, error)
 	// GetIssue runs linear.issues.get (GraphQL POST /graphql).
 	GetIssue(ctx context.Context, req *linear.GetIssueRequest) (*linear.GetIssueResponse, error)
 	// SearchIssues runs linear.issues.search (GraphQL POST /graphql).
 	SearchIssues(ctx context.Context, req *linear.SearchIssuesRequest) (*linear.SearchIssuesResponse, error)
+	// GetTeam runs linear.teams.get (GraphQL POST /graphql).
+	GetTeam(ctx context.Context, req *linear.GetTeamRequest) (*linear.GetTeamResponse, error)
 }
 
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpCreateIssue  = connection.Op{ID: "linear.issues.create", Class: connection.Write}
-	OpGetIssue     = connection.Op{ID: "linear.issues.get", Class: connection.Read}
-	OpSearchIssues = connection.Op{ID: "linear.issues.search", Class: connection.Read}
+	OpCreateComment = connection.Op{ID: "linear.comments.create", Class: connection.Write}
+	OpCreateIssue   = connection.Op{ID: "linear.issues.create", Class: connection.Write}
+	OpGetIssue      = connection.Op{ID: "linear.issues.get", Class: connection.Read}
+	OpSearchIssues  = connection.Op{ID: "linear.issues.search", Class: connection.Read}
+	OpGetTeam       = connection.Op{ID: "linear.teams.get", Class: connection.Read}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.
@@ -38,6 +44,23 @@ type Queries struct{ conn connection.HTTP }
 func New(conn connection.HTTP) *Queries { return &Queries{conn: conn} }
 
 var _ Operations = (*Queries)(nil)
+
+var specCreateComment = &connection.HTTPSpec{
+	Op:           OpCreateComment,
+	Method:       "POST",
+	PathTemplate: "/graphql",
+	Params: []connection.Param{
+		{Field: "issue_id", In: connection.InBody, Wire: "issueId"},
+		{Field: "body", In: connection.InBody, Wire: "body"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+	GraphQLDocument: "mutation CommentCreate($issueId: String!, $body: String!) {\n  commentCreate(input: {issueId: $issueId, body: $body}) {\n    success\n    comment { id body }\n  }\n}\n",
+}
 
 var specCreateIssue = &connection.HTTPSpec{
 	Op:           OpCreateIssue,
@@ -92,6 +115,31 @@ var specSearchIssues = &connection.HTTPSpec{
 	GraphQLDocument: "query SearchIssues($term: String!, $first: Int, $after: String) {\n  searchIssues(term: $term, first: $first, after: $after) {\n    nodes { id identifier title description url createdAt updatedAt }\n    pageInfo { hasNextPage endCursor }\n  }\n}\n",
 }
 
+var specGetTeam = &connection.HTTPSpec{
+	Op:           OpGetTeam,
+	Method:       "POST",
+	PathTemplate: "/graphql",
+	Params: []connection.Param{
+		{Field: "team_id", In: connection.InBody, Wire: "teamId"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+	GraphQLDocument: "query Team($teamId: String!) {\n  team(id: $teamId) { id key name }\n}\n",
+}
+
+// CreateComment runs linear.comments.create.
+func (q *Queries) CreateComment(ctx context.Context, req *linear.CreateCommentRequest) (*linear.CreateCommentResponse, error) {
+	resp := &linear.CreateCommentResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specCreateComment, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
 // CreateIssue runs linear.issues.create.
 func (q *Queries) CreateIssue(ctx context.Context, req *linear.CreateIssueRequest) (*linear.CreateIssueResponse, error) {
 	resp := &linear.CreateIssueResponse{}
@@ -114,6 +162,15 @@ func (q *Queries) GetIssue(ctx context.Context, req *linear.GetIssueRequest) (*l
 func (q *Queries) SearchIssues(ctx context.Context, req *linear.SearchIssuesRequest) (*linear.SearchIssuesResponse, error) {
 	resp := &linear.SearchIssuesResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specSearchIssues, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// GetTeam runs linear.teams.get.
+func (q *Queries) GetTeam(ctx context.Context, req *linear.GetTeamRequest) (*linear.GetTeamResponse, error) {
+	resp := &linear.GetTeamResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specGetTeam, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

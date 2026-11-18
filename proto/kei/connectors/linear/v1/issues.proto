@@ -27,6 +27,12 @@ import "kei/contracts/v1/options.proto";
 
 option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/linear/v1;linear";
 
+// Label models the subset of the Linear label object the contract needs.
+message Label {
+  string id = 1;
+  string name = 2;
+}
+
 // Issue models the subset of the Linear issue object the contract needs.
 message Issue {
   string id = 1;
@@ -36,6 +42,7 @@ message Issue {
   string url = 5;
   string created_at = 6;
   string updated_at = 7;
+  repeated Label labels = 8;
 }
 
 // GetIssueRequest reads a single Linear issue by id.
