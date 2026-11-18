@@ -35,6 +35,13 @@ fn render_path_escapes_segments() {
     .expect("render_path");
     assert_eq!(got, "/repos/a%2Fb/x%20y");
 
+    // Go's url.PathEscape is the reference: keep $ & + : = @, escape ! ' ( ) * , ;
+    let got = render_path("/x/{v}", &[("v", "a!b'c(d)e*f,g;h$i&j+k:l=m@n")], &[])
+        .expect("render_path");
+    assert_eq!(got, "/x/a%21b%27c%28d%29e%2Af%2Cg%3Bh$i&j+k:l=m@n");
+    let got = render_path("/x/{v}", &[("v", "d/a!b")], &["v"]).expect("render_path");
+    assert_eq!(got, "/x/d/a%21b");
+
     // Review Focus 1: %, dot-only values, query characters and a value that
     // ends inside a larger segment all keep the path shape.
     for (template, values, want) in [

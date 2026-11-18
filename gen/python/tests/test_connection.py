@@ -14,6 +14,15 @@ def test_render_path_escapes_segments():
         render_path("/{missing}", {})
 
 
+def test_render_path_matches_go_path_escape():
+    # Go's url.PathEscape is the reference: keep $ & + : = @, escape ! ' ( ) * , ;
+    assert (
+        render_path("/x/{v}", {"v": "a!b'c(d)e*f,g;h$i&j+k:l=m@n"})
+        == "/x/a%21b%27c%28d%29e%2Af%2Cg%3Bh$i&j+k:l=m@n"
+    )
+    assert render_path("/x/{v}", {"v": "d/a!b"}, multi_segment={"v"}) == "/x/d/a%21b"
+
+
 def test_render_path_multi_segment():
     assert (
         render_path("/contents/{path}", {"path": "docs/notes.txt"}, multi_segment={"path"})
