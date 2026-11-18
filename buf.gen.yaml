@@ -1,5 +1,7 @@
-# Remote plugins only: no local toolchain beyond buf itself. Output paths are
-# the roots of the per-language modules under gen/.
+# Remote plugins for the message types, plus the local protoc-gen-kei-ops
+# plugin (tools/protoc-gen-kei, its own Go module) for the generated
+# operations; buf runs it with the Go toolchain. Output paths are the roots of
+# the per-language modules under gen/.
 version: v2
 plugins:
   - remote: buf.build/protocolbuffers/go
@@ -24,3 +26,11 @@ plugins:
     opt:
       - ignore_unknown_fields
       - extern_path=.google.protobuf=::pbjson_types
+  # Generated operations (proposal 0002). strategy: all gives the plugin every
+  # file at once, so it validates all operations against all connectors.
+  - local: ["go", "-C", "tools/protoc-gen-kei", "run", "./cmd/protoc-gen-kei-ops"]
+    out: gen/go
+    strategy: all
+    opt:
+      - paths=source_relative
+      - lang=go

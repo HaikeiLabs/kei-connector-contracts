@@ -1,0 +1,41 @@
+// Invalid: two operations share one id.
+syntax = "proto3";
+
+package kei.invalid.duplicateid.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "example.test/invalid/duplicateid;duplicateid";
+option (kei.contracts.v1.connector) = {
+  id: "acme"
+  base_url: "https://api.example.test"
+  connections: [{name: "pat" kind: CONNECTION_KIND_HTTP_BEARER account_model: ACCOUNT_MODEL_SHARED}]
+};
+
+message GetThingRequest {
+  string id = 1;
+  option (kei.contracts.v1.operation) = {
+    id: "acme.things.get"
+    connector: "acme"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/things/{id}"
+    connections: ["pat"]
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "thing" version: 1}
+  };
+}
+message GetThingResponse {}
+
+message FetchThingRequest {
+  string id = 1;
+  option (kei.contracts.v1.operation) = {
+    id: "acme.things.get"
+    connector: "acme"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/things/{id}"
+    connections: ["pat"]
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "thing" version: 1}
+  };
+}
+message FetchThingResponse {}
