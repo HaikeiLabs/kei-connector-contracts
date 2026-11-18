@@ -8,6 +8,9 @@ import * as ghPulls from "../src/kei/connectors/github/v1/pulls_pb.js";
 import * as linear from "../src/kei/connectors/linear/v1/issues_pb.js";
 import * as linearComments from "../src/kei/connectors/linear/v1/comments_pb.js";
 import * as linearTeams from "../src/kei/connectors/linear/v1/teams_pb.js";
+import * as notionPages from "../src/kei/connectors/notion/v1/pages_pb.js";
+import * as notionDatabases from "../src/kei/connectors/notion/v1/databases_pb.js";
+import * as sentry from "../src/kei/connectors/sentry/v1/issues_pb.js";
 import * as http from "../src/kei/connectors/http_api/v1/records_pb.js";
 import * as db from "../src/kei/connectors/database/v1/query_pb.js";
 import * as mcp from "../src/kei/connectors/mcp/v1/tool_pb.js";
@@ -41,6 +44,10 @@ const ops = [
   ["linear.issues.search", linear.SearchIssuesRequestSchema, linear.SearchIssuesResponseSchema, (r: any) => expect(r.nodes).toHaveLength(2)],
   ["linear.teams.get", linearTeams.GetTeamRequestSchema, linearTeams.GetTeamResponseSchema, (r: any) => expect(r.team.key).toBe("ENG")],
   ["linear.comments.create", linearComments.CreateCommentRequestSchema, linearComments.CreateCommentResponseSchema, (r: any) => { expect(r.success).toBe(true); expect(r.comment.body).toBe("Synthetic comment"); }],
+  ["notion.pages.get", notionPages.GetPageRequestSchema, notionPages.GetPageResponseSchema, (r: any) => { expect(r.id).toBe("5f8b7e4a-0000-4000-8000-000000000001"); expect(r.publicUrl).toBeUndefined(); }],
+  ["notion.databases.query", notionDatabases.QueryDatabaseRequestSchema, notionDatabases.QueryDatabaseResponseSchema, (r: any) => { expect(r.results).toHaveLength(2); expect(r.nextCursor).toBe("synthetic-next-cursor"); expect(r.results[1].publicUrl).toBeUndefined(); }],
+  ["sentry.issues.get", sentry.GetIssueRequestSchema, sentry.GetIssueResponseSchema, (r: any) => { expect(r.shortId).toBe("PROJ-103"); expect(r.shareId).toBeUndefined(); }],
+  ["sentry.issues.list", sentry.ListIssuesRequestSchema, sentry.ListIssuesResponseSchema, (r: any) => { expect(r.issues).toHaveLength(2); expect(r.issues[1].shareId).toBe("synthetic-share-id-2"); }],
   ["http_api.records.list", http.ListRecordsRequestSchema, http.ListRecordsResponseSchema, (r: any) => expect(r.records).toHaveLength(2)],
   ["http_api.records.get", http.GetRecordRequestSchema, http.GetRecordResponseSchema, (r: any) => expect(r.record.id).toBe("rec-1")],
   ["database.query.run", db.RunQueryRequestSchema, db.RunQueryResponseSchema, (r: any) => expect(r.columns[0].name).toBe("id")],
