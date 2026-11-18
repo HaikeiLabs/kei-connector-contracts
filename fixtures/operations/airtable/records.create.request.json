@@ -1,0 +1,8 @@
+{
+  "base_id": "appSyntheticBase01",
+  "table_id_or_name": "Tasks",
+  "fields": {
+    "Name": "Synthetic fourth task",
+    "Status": "Todo"
+  }
+}

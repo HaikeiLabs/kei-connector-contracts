@@ -56,6 +56,55 @@ pub struct ListContactsResponse {
     #[prost(string, optional, tag="2")]
     pub next_after: ::core::option::Option<::prost::alloc::string::String>,
 }
+/// CreateContactRequest creates a contact in HubSpot CRM. properties carries
+/// the contact's property values (email, firstname, ...), which is the exact
+/// body HubSpot's v3 create endpoint takes besides its associations array;
+/// the contract does not model associations.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CreateContactRequest {
+    #[prost(message, optional, tag="1")]
+    pub properties: ::core::option::Option<::pbjson_types::Struct>,
+}
+/// CreateContactResponse models the same contact subset the read returns.
+/// It is filled by JSON unmarshal of the provider response.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CreateContactResponse {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="2")]
+    pub properties: ::core::option::Option<::pbjson_types::Struct>,
+    #[prost(string, tag="3")]
+    pub created_at: ::prost::alloc::string::String,
+    #[prost(string, tag="4")]
+    pub updated_at: ::prost::alloc::string::String,
+    #[prost(bool, tag="5")]
+    pub archived: bool,
+}
+/// UpdateContactRequest updates a contact's properties. HubSpot merges the
+/// property patch, so this is not a wholesale overwrite and the operation is
+/// not destructive.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateContactRequest {
+    #[prost(string, tag="1")]
+    pub contact_id: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="2")]
+    pub properties: ::core::option::Option<::pbjson_types::Struct>,
+}
+/// UpdateContactResponse models the same contact subset the read returns.
+/// It is filled by JSON unmarshal of the provider response.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateContactResponse {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="2")]
+    pub properties: ::core::option::Option<::pbjson_types::Struct>,
+    #[prost(string, tag="3")]
+    pub created_at: ::prost::alloc::string::String,
+    #[prost(string, tag="4")]
+    pub updated_at: ::prost::alloc::string::String,
+    #[prost(bool, tag="5")]
+    pub archived: bool,
+}
 /// ListDealsRequest lists the deals of a HubSpot CRM account. after carries
 /// the page cursor returned by the previous call.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]

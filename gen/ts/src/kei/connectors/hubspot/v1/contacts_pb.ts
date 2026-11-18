@@ -28,7 +28,7 @@ import type { JsonObject, Message } from "@bufbuild/protobuf";
  * Describes the file kei/connectors/hubspot/v1/contacts.proto.
  */
 export const file_kei_connectors_hubspot_v1_contacts: GenFile = /*@__PURE__*/
-  fileDesc("CihrZWkvY29ubmVjdG9ycy9odWJzcG90L3YxL2NvbnRhY3RzLnByb3RvEhlrZWkuY29ubmVjdG9ycy5odWJzcG90LnYxIosCChFHZXRDb250YWN0UmVxdWVzdBIaCgpjb250YWN0X2lkGAEgASgJQgaighkCCAE62QGSghnUAQoUaHVic3BvdC5jb250YWN0cy5nZXQSB2h1YnNwb3QYASoDR0VUMiUvY3JtL3YzL29iamVjdHMvY29udGFjdHMve2NvbnRhY3RfaWR9Ohljcm0ub2JqZWN0cy5jb250YWN0cy5yZWFkQAFKCkdldENvbnRhY3RSCnVzZXJfb2F1dGhSC3ByaXZhdGVfYXBwWhVjb250YWN0cy97Y29udGFjdF9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQ0IARIHY29udGFjdBgBIocBChJHZXRDb250YWN0UmVzcG9uc2USCgoCaWQYASABKAkSKwoKcHJvcGVydGllcxgCIAEoCzIXLmdvb2dsZS5wcm90b2J1Zi5TdHJ1Y3QSEgoKY3JlYXRlZF9hdBgDIAEoCRISCgp1cGRhdGVkX2F0GAQgASgJEhAKCGFyY2hpdmVkGAUgASgIIqsCChNMaXN0Q29udGFjdHNSZXF1ZXN0EhIKBWFmdGVyGAEgASgJSACIAQESEgoFbGltaXQYAiABKAVIAYgBATrXAZKCGdIBChVodWJzcG90LmNvbnRhY3RzLmxpc3QSB2h1YnNwb3QYASoDR0VUMhgvY3JtL3YzL29iamVjdHMvY29udGFjdHM6GWNybS5vYmplY3RzLmNvbnRhY3RzLnJlYWRAAUoMTGlzdENvbnRhY3RzUgp1c2VyX29hdXRoUgtwcml2YXRlX2FwcFoIY29udGFjdHNiBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQ0IARIHY29udGFjdBgBkgEFYWZ0ZXKaAQpuZXh0X2FmdGVyQggKBl9hZnRlckIICgZfbGltaXQigwEKDkNvbnRhY3RTdW1tYXJ5EgoKAmlkGAEgASgJEisKCnByb3BlcnRpZXMYAiABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0EhIKCmNyZWF0ZWRfYXQYAyABKAkSEgoKdXBkYXRlZF9hdBgEIAEoCRIQCghhcmNoaXZlZBgFIAEoCCJ6ChRMaXN0Q29udGFjdHNSZXNwb25zZRI6CgdyZXN1bHRzGAEgAygLMikua2VpLmNvbm5lY3RvcnMuaHVic3BvdC52MS5Db250YWN0U3VtbWFyeRIXCgpuZXh0X2FmdGVyGAIgASgJSACIAQFCDQoLX25leHRfYWZ0ZXJCWFpWZ2l0aHViLmNvbS9IYWlrZWlMYWJzL2tlaS1jb25uZWN0b3ItY29udHJhY3RzL2dlbi9nby9rZWkvY29ubmVjdG9ycy9odWJzcG90L3YxO2h1YnNwb3RiBnByb3RvMw", [file_google_protobuf_struct, file_kei_contracts_v1_options]);
+  fileDesc("CihrZWkvY29ubmVjdG9ycy9odWJzcG90L3YxL2NvbnRhY3RzLnByb3RvEhlrZWkuY29ubmVjdG9ycy5odWJzcG90LnYxIosCChFHZXRDb250YWN0UmVxdWVzdBIaCgpjb250YWN0X2lkGAEgASgJQgaighkCCAE62QGSghnUAQoUaHVic3BvdC5jb250YWN0cy5nZXQSB2h1YnNwb3QYASoDR0VUMiUvY3JtL3YzL29iamVjdHMvY29udGFjdHMve2NvbnRhY3RfaWR9Ohljcm0ub2JqZWN0cy5jb250YWN0cy5yZWFkQAFKCkdldENvbnRhY3RSCnVzZXJfb2F1dGhSC3ByaXZhdGVfYXBwWhVjb250YWN0cy97Y29udGFjdF9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQ0IARIHY29udGFjdBgBIocBChJHZXRDb250YWN0UmVzcG9uc2USCgoCaWQYASABKAkSKwoKcHJvcGVydGllcxgCIAEoCzIXLmdvb2dsZS5wcm90b2J1Zi5TdHJ1Y3QSEgoKY3JlYXRlZF9hdBgDIAEoCRISCgp1cGRhdGVkX2F0GAQgASgJEhAKCGFyY2hpdmVkGAUgASgIIqsCChNMaXN0Q29udGFjdHNSZXF1ZXN0EhIKBWFmdGVyGAEgASgJSACIAQESEgoFbGltaXQYAiABKAVIAYgBATrXAZKCGdIBChVodWJzcG90LmNvbnRhY3RzLmxpc3QSB2h1YnNwb3QYASoDR0VUMhgvY3JtL3YzL29iamVjdHMvY29udGFjdHM6GWNybS5vYmplY3RzLmNvbnRhY3RzLnJlYWRAAUoMTGlzdENvbnRhY3RzUgp1c2VyX29hdXRoUgtwcml2YXRlX2FwcFoIY29udGFjdHNiBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQ0IARIHY29udGFjdBgBkgEFYWZ0ZXKaAQpuZXh0X2FmdGVyQggKBl9hZnRlckIICgZfbGltaXQigwEKDkNvbnRhY3RTdW1tYXJ5EgoKAmlkGAEgASgJEisKCnByb3BlcnRpZXMYAiABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0EhIKCmNyZWF0ZWRfYXQYAyABKAkSEgoKdXBkYXRlZF9hdBgEIAEoCRIQCghhcmNoaXZlZBgFIAEoCCJ6ChRMaXN0Q29udGFjdHNSZXNwb25zZRI6CgdyZXN1bHRzGAEgAygLMikua2VpLmNvbm5lY3RvcnMuaHVic3BvdC52MS5Db250YWN0U3VtbWFyeRIXCgpuZXh0X2FmdGVyGAIgASgJSACIAQFCDQoLX25leHRfYWZ0ZXIilAIKFENyZWF0ZUNvbnRhY3RSZXF1ZXN0EisKCnByb3BlcnRpZXMYASABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0Os4BkoIZyQEKF2h1YnNwb3QuY29udGFjdHMuY3JlYXRlEgdodWJzcG90GAIqBFBPU1QyGC9jcm0vdjMvb2JqZWN0cy9jb250YWN0czoaY3JtLm9iamVjdHMuY29udGFjdHMud3JpdGVAAUoNQ3JlYXRlQ29udGFjdFIKdXNlcl9vYXV0aFILcHJpdmF0ZV9hcHBaCGNvbnRhY3RzYgUIkAMQBmIFCJEDEAJiBQiTAxADYgUImQMQBWIHCK0DEAQYAYoBDQgCEgdjb250YWN0GAEiigEKFUNyZWF0ZUNvbnRhY3RSZXNwb25zZRIKCgJpZBgBIAEoCRIrCgpwcm9wZXJ0aWVzGAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdBISCgpjcmVhdGVkX2F0GAMgASgJEhIKCnVwZGF0ZWRfYXQYBCABKAkSEAoIYXJjaGl2ZWQYBSABKAgiywIKFFVwZGF0ZUNvbnRhY3RSZXF1ZXN0EhoKCmNvbnRhY3RfaWQYASABKAlCBqKCGQIIARIrCgpwcm9wZXJ0aWVzGAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdDrpAZKCGeQBChdodWJzcG90LmNvbnRhY3RzLnVwZGF0ZRIHaHVic3BvdBgCKgVQQVRDSDIlL2NybS92My9vYmplY3RzL2NvbnRhY3RzL3tjb250YWN0X2lkfToaY3JtLm9iamVjdHMuY29udGFjdHMud3JpdGVAAUoNVXBkYXRlQ29udGFjdFIKdXNlcl9vYXV0aFILcHJpdmF0ZV9hcHBaFWNvbnRhY3RzL3tjb250YWN0X2lkfWIFCJADEAZiBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQ0IAxIHY29udGFjdBgBIooBChVVcGRhdGVDb250YWN0UmVzcG9uc2USCgoCaWQYASABKAkSKwoKcHJvcGVydGllcxgCIAEoCzIXLmdvb2dsZS5wcm90b2J1Zi5TdHJ1Y3QSEgoKY3JlYXRlZF9hdBgDIAEoCRISCgp1cGRhdGVkX2F0GAQgASgJEhAKCGFyY2hpdmVkGAUgASgIQlhaVmdpdGh1Yi5jb20vSGFpa2VpTGFicy9rZWktY29ubmVjdG9yLWNvbnRyYWN0cy9nZW4vZ28va2VpL2Nvbm5lY3RvcnMvaHVic3BvdC92MTtodWJzcG90YgZwcm90bzM", [file_google_protobuf_struct, file_kei_contracts_v1_options]);
 
 /**
  * GetContactRequest reads a single contact from HubSpot CRM.
@@ -180,4 +180,132 @@ export type ListContactsResponse = Message<"kei.connectors.hubspot.v1.ListContac
  */
 export const ListContactsResponseSchema: GenMessage<ListContactsResponse> = /*@__PURE__*/
   messageDesc(file_kei_connectors_hubspot_v1_contacts, 4);
+
+/**
+ * CreateContactRequest creates a contact in HubSpot CRM. properties carries
+ * the contact's property values (email, firstname, ...), which is the exact
+ * body HubSpot's v3 create endpoint takes besides its associations array;
+ * the contract does not model associations.
+ *
+ * @generated from message kei.connectors.hubspot.v1.CreateContactRequest
+ */
+export type CreateContactRequest = Message<"kei.connectors.hubspot.v1.CreateContactRequest"> & {
+  /**
+   * @generated from field: google.protobuf.Struct properties = 1;
+   */
+  properties?: JsonObject | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.hubspot.v1.CreateContactRequest.
+ * Use `create(CreateContactRequestSchema)` to create a new message.
+ */
+export const CreateContactRequestSchema: GenMessage<CreateContactRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_hubspot_v1_contacts, 5);
+
+/**
+ * CreateContactResponse models the same contact subset the read returns.
+ * It is filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.hubspot.v1.CreateContactResponse
+ */
+export type CreateContactResponse = Message<"kei.connectors.hubspot.v1.CreateContactResponse"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: google.protobuf.Struct properties = 2;
+   */
+  properties?: JsonObject | undefined;
+
+  /**
+   * @generated from field: string created_at = 3;
+   */
+  createdAt: string;
+
+  /**
+   * @generated from field: string updated_at = 4;
+   */
+  updatedAt: string;
+
+  /**
+   * @generated from field: bool archived = 5;
+   */
+  archived: boolean;
+};
+
+/**
+ * Describes the message kei.connectors.hubspot.v1.CreateContactResponse.
+ * Use `create(CreateContactResponseSchema)` to create a new message.
+ */
+export const CreateContactResponseSchema: GenMessage<CreateContactResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_hubspot_v1_contacts, 6);
+
+/**
+ * UpdateContactRequest updates a contact's properties. HubSpot merges the
+ * property patch, so this is not a wholesale overwrite and the operation is
+ * not destructive.
+ *
+ * @generated from message kei.connectors.hubspot.v1.UpdateContactRequest
+ */
+export type UpdateContactRequest = Message<"kei.connectors.hubspot.v1.UpdateContactRequest"> & {
+  /**
+   * @generated from field: string contact_id = 1;
+   */
+  contactId: string;
+
+  /**
+   * @generated from field: google.protobuf.Struct properties = 2;
+   */
+  properties?: JsonObject | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.hubspot.v1.UpdateContactRequest.
+ * Use `create(UpdateContactRequestSchema)` to create a new message.
+ */
+export const UpdateContactRequestSchema: GenMessage<UpdateContactRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_hubspot_v1_contacts, 7);
+
+/**
+ * UpdateContactResponse models the same contact subset the read returns.
+ * It is filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.hubspot.v1.UpdateContactResponse
+ */
+export type UpdateContactResponse = Message<"kei.connectors.hubspot.v1.UpdateContactResponse"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: google.protobuf.Struct properties = 2;
+   */
+  properties?: JsonObject | undefined;
+
+  /**
+   * @generated from field: string created_at = 3;
+   */
+  createdAt: string;
+
+  /**
+   * @generated from field: string updated_at = 4;
+   */
+  updatedAt: string;
+
+  /**
+   * @generated from field: bool archived = 5;
+   */
+  archived: boolean;
+};
+
+/**
+ * Describes the message kei.connectors.hubspot.v1.UpdateContactResponse.
+ * Use `create(UpdateContactResponseSchema)` to create a new message.
+ */
+export const UpdateContactResponseSchema: GenMessage<UpdateContactResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_hubspot_v1_contacts, 8);
 

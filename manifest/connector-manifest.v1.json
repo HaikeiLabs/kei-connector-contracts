@@ -24,6 +24,27 @@
       ],
       "capabilities": [
         {
+          "id": "airtable.records.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "data.records:write"
+          ],
+          "connections": [
+            "pat"
+          ],
+          "resource_template": "bases/{base_id}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "record",
+            "version": 1
+          },
+          "request": "kei.connectors.airtable.v1.CreateRecordRequest",
+          "response": "kei.connectors.airtable.v1.CreateRecordResponse"
+        },
+        {
           "id": "airtable.records.get",
           "class": "read",
           "destructive": false,
@@ -64,6 +85,27 @@
           },
           "request": "kei.connectors.airtable.v1.ListRecordsRequest",
           "response": "kei.connectors.airtable.v1.ListRecordsResponse"
+        },
+        {
+          "id": "airtable.records.update",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "data.records:write"
+          ],
+          "connections": [
+            "pat"
+          ],
+          "resource_template": "bases/{base_id}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "record",
+            "version": 1
+          },
+          "request": "kei.connectors.airtable.v1.UpdateRecordRequest",
+          "response": "kei.connectors.airtable.v1.UpdateRecordResponse"
         }
       ]
     },
@@ -1053,6 +1095,28 @@
       ],
       "capabilities": [
         {
+          "id": "hubspot.contacts.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "crm.objects.contacts.write"
+          ],
+          "connections": [
+            "user_oauth",
+            "private_app"
+          ],
+          "resource_template": "contacts",
+          "semantics": {
+            "action": "create",
+            "resource_type": "contact",
+            "version": 1
+          },
+          "request": "kei.connectors.hubspot.v1.CreateContactRequest",
+          "response": "kei.connectors.hubspot.v1.CreateContactResponse"
+        },
+        {
           "id": "hubspot.contacts.get",
           "class": "read",
           "destructive": false,
@@ -1095,6 +1159,28 @@
           },
           "request": "kei.connectors.hubspot.v1.ListContactsRequest",
           "response": "kei.connectors.hubspot.v1.ListContactsResponse"
+        },
+        {
+          "id": "hubspot.contacts.update",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "crm.objects.contacts.write"
+          ],
+          "connections": [
+            "user_oauth",
+            "private_app"
+          ],
+          "resource_template": "contacts/{contact_id}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "contact",
+            "version": 1
+          },
+          "request": "kei.connectors.hubspot.v1.UpdateContactRequest",
+          "response": "kei.connectors.hubspot.v1.UpdateContactResponse"
         },
         {
           "id": "hubspot.deals.list",
