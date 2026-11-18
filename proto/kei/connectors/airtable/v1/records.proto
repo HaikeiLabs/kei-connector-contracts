@@ -1,0 +1,107 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Airtable connector contract.
+syntax = "proto3";
+
+package kei.connectors.airtable.v1;
+
+import "google/protobuf/struct.proto";
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/airtable/v1;airtable";
+
+// ListRecordsRequest lists the records of one Airtable table. offset carries
+// the page cursor returned by the previous call; the next cursor comes back
+// in the response's offset field too.
+message ListRecordsRequest {
+  string base_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string table_id_or_name = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional string offset = 3;
+  optional int32 page_size = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "airtable.records.list"
+    connector: "airtable"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/v0/{base_id}/{table_id_or_name}"
+    scopes: ["data.records:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListRecords"
+    connections: ["pat"]
+    resource_template: "bases/{base_id}"
+    cursor_field: "offset"
+    next_cursor_field: "offset"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "record" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// RecordSummary models the subset of each record entry a list response
+// carries. Record fields are provider-specific, so the field body is a
+// google.protobuf.Struct; a null field value is a null entry.
+message RecordSummary {
+  string id = 1;
+  google.protobuf.Struct fields = 2;
+  string created_time = 3;
+}
+
+// ListRecordsResponse wraps the record entries of a list response. It is
+// filled by JSON unmarshal of the provider response.
+message ListRecordsResponse {
+  repeated RecordSummary records = 1;
+  optional string offset = 2;
+}
+
+// GetRecordRequest reads a single record from one Airtable table.
+message GetRecordRequest {
+  string base_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string table_id_or_name = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string record_id = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "airtable.records.get"
+    connector: "airtable"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/v0/{base_id}/{table_id_or_name}/{record_id}"
+    scopes: ["data.records:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetRecord"
+    connections: ["pat"]
+    resource_template: "bases/{base_id}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "record" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// GetRecordResponse models the subset of the Airtable record payload the
+// contract needs. The field body is a google.protobuf.Struct. It is filled
+// by JSON unmarshal of the provider response.
+message GetRecordResponse {
+  string id = 1;
+  google.protobuf.Struct fields = 2;
+  string created_time = 3;
+}

@@ -3,6 +3,71 @@
   "contracts_version": "v0.19.0",
   "connectors": [
     {
+      "id": "airtable",
+      "base_url": "https://api.airtable.com",
+      "connections": [
+        {
+          "name": "pat",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "airtable.records.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "data.records:read"
+          ],
+          "connections": [
+            "pat"
+          ],
+          "resource_template": "bases/{base_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "record",
+            "version": 1
+          },
+          "request": "kei.connectors.airtable.v1.GetRecordRequest",
+          "response": "kei.connectors.airtable.v1.GetRecordResponse"
+        },
+        {
+          "id": "airtable.records.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "data.records:read"
+          ],
+          "connections": [
+            "pat"
+          ],
+          "resource_template": "bases/{base_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "record",
+            "version": 1
+          },
+          "request": "kei.connectors.airtable.v1.ListRecordsRequest",
+          "response": "kei.connectors.airtable.v1.ListRecordsResponse"
+        }
+      ]
+    },
+    {
       "id": "database",
       "connections": [
         {
@@ -231,6 +296,103 @@
           },
           "request": "kei.connectors.http_api.v1.ListRecordsRequest",
           "response": "kei.connectors.http_api.v1.ListRecordsResponse"
+        }
+      ]
+    },
+    {
+      "id": "hubspot",
+      "base_url": "https://api.hubapi.com",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "scopes": [],
+          "setup_fields": []
+        },
+        {
+          "name": "private_app",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "hubspot.contacts.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "crm.objects.contacts.read"
+          ],
+          "connections": [
+            "user_oauth",
+            "private_app"
+          ],
+          "resource_template": "contacts/{contact_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "contact",
+            "version": 1
+          },
+          "request": "kei.connectors.hubspot.v1.GetContactRequest",
+          "response": "kei.connectors.hubspot.v1.GetContactResponse"
+        },
+        {
+          "id": "hubspot.contacts.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "crm.objects.contacts.read"
+          ],
+          "connections": [
+            "user_oauth",
+            "private_app"
+          ],
+          "resource_template": "contacts",
+          "semantics": {
+            "action": "read",
+            "resource_type": "contact",
+            "version": 1
+          },
+          "request": "kei.connectors.hubspot.v1.ListContactsRequest",
+          "response": "kei.connectors.hubspot.v1.ListContactsResponse"
+        },
+        {
+          "id": "hubspot.deals.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "crm.objects.deals.read"
+          ],
+          "connections": [
+            "user_oauth",
+            "private_app"
+          ],
+          "resource_template": "deals",
+          "semantics": {
+            "action": "read",
+            "resource_type": "deal",
+            "version": 1
+          },
+          "request": "kei.connectors.hubspot.v1.ListDealsRequest",
+          "response": "kei.connectors.hubspot.v1.ListDealsResponse"
         }
       ]
     },

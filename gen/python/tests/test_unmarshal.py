@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""HAI-990 gate: the 16 pilot operation fixtures unmarshal in Python.
+"""HAI-990 gate: the 21 pilot operation fixtures unmarshal in Python.
 
 Every registered pilot operation needs synthetic request and response
 fixtures under fixtures/operations/<connector>/, and both must parse into
@@ -26,9 +26,11 @@ from pathlib import Path
 import pytest
 from google.protobuf import json_format
 
+from kei.connectors.airtable.v1 import records_pb2 as airtable_records_pb2
 from kei.connectors.database.v1 import query_pb2
 from kei.connectors.github.v1 import contents_pb2, issues_pb2, pulls_pb2
 from kei.connectors.http_api.v1 import records_pb2
+from kei.connectors.hubspot.v1 import contacts_pb2, deals_pb2
 from kei.connectors.linear.v1 import (
     comments_pb2,
     issues_pb2 as linear_issues_pb2,
@@ -87,6 +89,36 @@ def _spot_linear_teams_get(response):
 def _spot_linear_comments_create(response):
     assert response.success is True
     assert response.comment.body == "Synthetic comment"
+
+
+def _spot_airtable_records_get(response):
+    assert response.id == "recSynthetic00003"
+    assert response.fields.fields["Name"].string_value == "Synthetic third task"
+    assert response.fields.fields["Priority"].WhichOneof("kind") == "null_value"
+
+
+def _spot_airtable_records_list(response):
+    assert len(response.records) == 2
+    assert response.offset == "synthetic-next-offset"
+    assert response.records[1].fields.fields["Priority"].WhichOneof("kind") == "null_value"
+
+
+def _spot_hubspot_contacts_get(response):
+    assert response.id == "701"
+    assert response.properties.fields["email"].string_value == "synthetic.contact@example.invalid"
+    assert response.properties.fields["lastname"].WhichOneof("kind") == "null_value"
+
+
+def _spot_hubspot_contacts_list(response):
+    assert len(response.results) == 2
+    assert response.next_after == "synthetic-next-cursor"
+    assert response.results[1].properties.fields["lastname"].WhichOneof("kind") == "null_value"
+
+
+def _spot_hubspot_deals_list(response):
+    assert len(response.results) == 2
+    assert response.results[0].properties.fields["dealname"].string_value == "Synthetic first deal"
+    assert response.results[0].properties.fields["description"].WhichOneof("kind") == "null_value"
 
 
 def _spot_notion_pages_get(response):
@@ -157,6 +189,11 @@ OPS = [
     ("linear.issues.search", "linear", linear_issues_pb2.SearchIssuesRequest, linear_issues_pb2.SearchIssuesResponse, _spot_linear_issues_search),
     ("linear.teams.get", "linear", teams_pb2.GetTeamRequest, teams_pb2.GetTeamResponse, _spot_linear_teams_get),
     ("linear.comments.create", "linear", comments_pb2.CreateCommentRequest, comments_pb2.CreateCommentResponse, _spot_linear_comments_create),
+    ("airtable.records.get", "airtable", airtable_records_pb2.GetRecordRequest, airtable_records_pb2.GetRecordResponse, _spot_airtable_records_get),
+    ("airtable.records.list", "airtable", airtable_records_pb2.ListRecordsRequest, airtable_records_pb2.ListRecordsResponse, _spot_airtable_records_list),
+    ("hubspot.contacts.get", "hubspot", contacts_pb2.GetContactRequest, contacts_pb2.GetContactResponse, _spot_hubspot_contacts_get),
+    ("hubspot.contacts.list", "hubspot", contacts_pb2.ListContactsRequest, contacts_pb2.ListContactsResponse, _spot_hubspot_contacts_list),
+    ("hubspot.deals.list", "hubspot", deals_pb2.ListDealsRequest, deals_pb2.ListDealsResponse, _spot_hubspot_deals_list),
     ("notion.pages.get", "notion", pages_pb2.GetPageRequest, pages_pb2.GetPageResponse, _spot_notion_pages_get),
     ("notion.databases.query", "notion", databases_pb2.QueryDatabaseRequest, databases_pb2.QueryDatabaseResponse, _spot_notion_databases_query),
     ("sentry.issues.get", "sentry", sentry_issues_pb2.GetIssueRequest, sentry_issues_pb2.GetIssueResponse, _spot_sentry_issues_get),

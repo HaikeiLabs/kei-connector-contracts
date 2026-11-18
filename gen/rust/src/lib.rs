@@ -73,6 +73,22 @@ pub mod kei {
                 include!("gen/kei/connectors/database/v1/kei.connectors.database.v1.rs");
             }
         }
+        /// Airtable connector contract.
+        pub mod airtable {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/airtable/v1/kei.connectors.airtable.v1.rs");
+            }
+        }
+        /// HubSpot connector contract.
+        pub mod hubspot {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/hubspot/v1/kei.connectors.hubspot.v1.rs");
+            }
+        }
         /// Notion connector contract.
         pub mod notion {
             /// Version 1.
