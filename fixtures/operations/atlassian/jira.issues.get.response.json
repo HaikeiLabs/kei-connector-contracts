@@ -1,0 +1,12 @@
+{
+  "id": "10001",
+  "key": "SYN-101",
+  "fields": {
+    "summary": "Synthetic Jira issue",
+    "description": null,
+    "priority": {
+      "name": "High"
+    }
+  },
+  "expand": ["schema"]
+}

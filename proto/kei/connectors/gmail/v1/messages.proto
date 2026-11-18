@@ -1,0 +1,105 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Gmail connector contract: message reads.
+syntax = "proto3";
+
+package kei.connectors.gmail.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/gmail/v1;gmail";
+
+// ListMessagesRequest lists the messages of one Gmail user. The contract
+// models only the query, the page token and the page size of the query
+// parameters.
+message ListMessagesRequest {
+  string user_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional string q = 2;
+  optional string page_token = 3;
+  optional int32 max_results = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "gmail.messages.list"
+    connector: "gmail"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/gmail/v1/users/{user_id}/messages"
+    scopes: ["https://www.googleapis.com/auth/gmail.readonly"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListMessages"
+    connections: ["user_oauth", "domain_delegation"]
+    resource_template: "users/{user_id}"
+    cursor_field: "page_token"
+    next_cursor_field: "next_page_token"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "message" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// MessageSummary models the subset of each message entry a list response
+// carries; Gmail list entries are (id, thread_id) pairs.
+message MessageSummary {
+  string id = 1;
+  string thread_id = 2;
+}
+
+// ListMessagesResponse wraps the message entries of a list response. The
+// messages key matches the provider shape. It is filled by JSON unmarshal of
+// the provider response.
+message ListMessagesResponse {
+  repeated MessageSummary messages = 1;
+  optional string next_page_token = 2;
+}
+
+// GetMessageRequest reads a single message of one Gmail user.
+message GetMessageRequest {
+  string user_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string message_id = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "gmail.messages.get"
+    connector: "gmail"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/gmail/v1/users/{user_id}/messages/{message_id}"
+    scopes: ["https://www.googleapis.com/auth/gmail.readonly"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetMessage"
+    connections: ["user_oauth", "domain_delegation"]
+    resource_template: "users/{user_id}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "message" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// GetMessageResponse models the subset of the Gmail message payload the
+// contract needs. snippet is empty when the message has no preview text. It
+// is filled by JSON unmarshal of the provider response.
+message GetMessageResponse {
+  string id = 1;
+  string thread_id = 2;
+  string snippet = 3;
+  optional int64 internal_date = 4;
+}
