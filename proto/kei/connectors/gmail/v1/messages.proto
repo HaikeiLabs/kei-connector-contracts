@@ -17,6 +17,7 @@ syntax = "proto3";
 
 package kei.connectors.gmail.v1;
 
+import "google/protobuf/struct.proto";
 import "kei/contracts/v1/options.proto";
 
 option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/gmail/v1;gmail";
@@ -102,4 +103,50 @@ message GetMessageResponse {
   string thread_id = 2;
   string snippet = 3;
   optional int64 internal_date = 4;
+}
+
+// CreateDraftRequest creates a draft in one Gmail user's mailbox. message
+// carries the draft's message body in Gmail's JSON shape (typically
+// {"raw": base64url}, or structured fields), which stays a
+// google.protobuf.Struct. This creates a draft only — it never sends mail;
+// the contract does not model the send or sendAs operations.
+message CreateDraftRequest {
+  string user_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  google.protobuf.Struct message = 2;
+
+  option (kei.contracts.v1.operation) = {
+    id: "gmail.drafts.create"
+    connector: "gmail"
+    class: OPERATION_CLASS_WRITE
+    destructive: false
+    http_method: "POST"
+    path_template: "/gmail/v1/users/{user_id}/drafts"
+    scopes: ["https://www.googleapis.com/auth/gmail.compose"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateDraft"
+    connections: ["user_oauth", "domain_delegation"]
+    resource_template: "users/{user_id}"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "draft" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// DraftMessage models the subset of the created draft's message entry the
+// contract needs.
+message DraftMessage {
+  string id = 1;
+  string thread_id = 2;
+}
+
+// CreateDraftResponse models the subset of Gmail's draft response the
+// contract needs: the draft id and its message entry. It is filled by JSON
+// unmarshal of the provider response.
+message CreateDraftResponse {
+  string id = 1;
+  DraftMessage message = 2;
 }

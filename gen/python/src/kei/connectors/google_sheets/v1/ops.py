@@ -30,11 +30,24 @@ _SPEC_GET_VALUES = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
+OP_UPDATE_VALUES = Op(id="google_sheets.values.update", op_class=OpClass.WRITE, destructive=True)
+_SPEC_UPDATE_VALUES = {
+    "op": OP_UPDATE_VALUES,
+    "method": "PUT",
+    "path_template": "/v4/spreadsheets/{spreadsheet_id}/values/{range}",
+    "params": [{"field": "spreadsheet_id", "in": "path", "multi_segment": False, "wire": "spreadsheet_id"}, {"field": "range", "in": "path", "multi_segment": False, "wire": "range"}, {"field": "values", "in": "body", "multi_segment": False, "wire": "values"}],
+    "errors": [{"kind": "invalid", "retryable": False, "status": 400}, {"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 
 class GoogleSheetsOperations(Protocol):
     async def get_spreadsheet(self, req: spreadsheets_pb2.GetSpreadsheetRequest) -> spreadsheets_pb2.GetSpreadsheetResponse:
         ...
     async def get_values(self, req: spreadsheets_pb2.GetValuesRequest) -> spreadsheets_pb2.GetValuesResponse:
+        ...
+    async def update_values(self, req: spreadsheets_pb2.UpdateValuesRequest) -> spreadsheets_pb2.UpdateValuesResponse:
         ...
 
 class GoogleSheetsQueries:
@@ -48,3 +61,6 @@ class GoogleSheetsQueries:
 
     async def get_values(self, req: spreadsheets_pb2.GetValuesRequest) -> spreadsheets_pb2.GetValuesResponse:
         return await call_http(self._conn, _SPEC_GET_VALUES, req, spreadsheets_pb2.GetValuesResponse)
+
+    async def update_values(self, req: spreadsheets_pb2.UpdateValuesRequest) -> spreadsheets_pb2.UpdateValuesResponse:
+        return await call_http(self._conn, _SPEC_UPDATE_VALUES, req, spreadsheets_pb2.UpdateValuesResponse)

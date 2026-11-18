@@ -14,6 +14,7 @@ import (
 type Mock struct {
 	GetSpreadsheetFunc func(ctx context.Context, req *google_sheets.GetSpreadsheetRequest) (*google_sheets.GetSpreadsheetResponse, error)
 	GetValuesFunc      func(ctx context.Context, req *google_sheets.GetValuesRequest) (*google_sheets.GetValuesResponse, error)
+	UpdateValuesFunc   func(ctx context.Context, req *google_sheets.UpdateValuesRequest) (*google_sheets.UpdateValuesResponse, error)
 }
 
 var _ Operations = (*Mock)(nil)
@@ -32,4 +33,12 @@ func (m *Mock) GetValues(ctx context.Context, req *google_sheets.GetValuesReques
 		return nil, errors.New("googlesheetsops.Mock: GetValuesFunc is not set")
 	}
 	return m.GetValuesFunc(ctx, req)
+}
+
+// UpdateValues calls m.UpdateValuesFunc.
+func (m *Mock) UpdateValues(ctx context.Context, req *google_sheets.UpdateValuesRequest) (*google_sheets.UpdateValuesResponse, error) {
+	if m.UpdateValuesFunc == nil {
+		return nil, errors.New("googlesheetsops.Mock: UpdateValuesFunc is not set")
+	}
+	return m.UpdateValuesFunc(ctx, req)
 }

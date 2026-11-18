@@ -19,6 +19,8 @@ type Operations interface {
 	GetSpreadsheet(ctx context.Context, req *google_sheets.GetSpreadsheetRequest) (*google_sheets.GetSpreadsheetResponse, error)
 	// GetValues runs google_sheets.values.get (GET /v4/spreadsheets/{spreadsheet_id}/values/{range}).
 	GetValues(ctx context.Context, req *google_sheets.GetValuesRequest) (*google_sheets.GetValuesResponse, error)
+	// UpdateValues runs google_sheets.values.update (PUT /v4/spreadsheets/{spreadsheet_id}/values/{range}).
+	UpdateValues(ctx context.Context, req *google_sheets.UpdateValuesRequest) (*google_sheets.UpdateValuesResponse, error)
 }
 
 // Operation descriptors, for authorization and audit. Each ID is the
@@ -26,6 +28,7 @@ type Operations interface {
 var (
 	OpGetSpreadsheet = connection.Op{ID: "google_sheets.spreadsheets.get", Class: connection.Read}
 	OpGetValues      = connection.Op{ID: "google_sheets.values.get", Class: connection.Read}
+	OpUpdateValues   = connection.Op{ID: "google_sheets.values.update", Class: connection.Write, Destructive: true}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.
@@ -68,6 +71,24 @@ var specGetValues = &connection.HTTPSpec{
 	},
 }
 
+var specUpdateValues = &connection.HTTPSpec{
+	Op:           OpUpdateValues,
+	Method:       "PUT",
+	PathTemplate: "/v4/spreadsheets/{spreadsheet_id}/values/{range}",
+	Params: []connection.Param{
+		{Field: "spreadsheet_id", In: connection.InPath, Wire: "spreadsheet_id"},
+		{Field: "range", In: connection.InPath, Wire: "range"},
+		{Field: "values", In: connection.InBody, Wire: "values"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 400, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
 // GetSpreadsheet runs google_sheets.spreadsheets.get.
 func (q *Queries) GetSpreadsheet(ctx context.Context, req *google_sheets.GetSpreadsheetRequest) (*google_sheets.GetSpreadsheetResponse, error) {
 	resp := &google_sheets.GetSpreadsheetResponse{}
@@ -81,6 +102,15 @@ func (q *Queries) GetSpreadsheet(ctx context.Context, req *google_sheets.GetSpre
 func (q *Queries) GetValues(ctx context.Context, req *google_sheets.GetValuesRequest) (*google_sheets.GetValuesResponse, error) {
 	resp := &google_sheets.GetValuesResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specGetValues, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// UpdateValues runs google_sheets.values.update.
+func (q *Queries) UpdateValues(ctx context.Context, req *google_sheets.UpdateValuesRequest) (*google_sheets.UpdateValuesResponse, error) {
+	resp := &google_sheets.UpdateValuesResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specUpdateValues, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

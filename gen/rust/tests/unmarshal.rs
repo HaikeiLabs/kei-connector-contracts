@@ -41,10 +41,10 @@ use haikeilabs_connector_contracts::kei::connectors::github::v1::{
     UpdateRefResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::gmail::v1::{
-    GetMessageResponse, ListMessagesResponse,
+    CreateDraftResponse, GetMessageResponse, ListMessagesResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::google_sheets::v1::{
-    GetSpreadsheetResponse, GetValuesResponse,
+    GetSpreadsheetResponse, GetValuesResponse, UpdateValuesResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::http_api::v1::{
     GetRecordResponse, ListRecordsResponse,
@@ -283,6 +283,15 @@ fn fixtures_unmarshal() {
     assert_eq!(resp.snippet, "Synthetic message preview text");
     assert!(resp.internal_date.is_none(), "internal_date must be null");
 
+    // gmail.drafts.create — spot: the draft id and its message entry.
+    let resp: CreateDraftResponse =
+        serde_json::from_str(&fixture("gmail", "drafts.create.response.json"))
+            .expect("gmail.drafts.create response unmarshals");
+    assert_eq!(resp.id, "draft-3001");
+    let draft_message = resp.message.as_ref().expect("message present");
+    assert_eq!(draft_message.id, "msg-1002");
+    assert_eq!(draft_message.thread_id, "thr-2002");
+
     // google_sheets.values.get — spot: the echoed range, two rows, and the
     // null cell in the first row.
     let resp: GetValuesResponse =
@@ -304,6 +313,13 @@ fn fixtures_unmarshal() {
     assert_eq!(resp.spreadsheet_id, "synthetic-sheet-1");
     let properties = resp.properties.as_ref().expect("properties present");
     assert_eq!(properties.title, "Synthetic sheet");
+
+    // google_sheets.values.update — spot: the updated range and cell count.
+    let resp: UpdateValuesResponse =
+        serde_json::from_str(&fixture("google_sheets", "values.update.response.json"))
+            .expect("google_sheets.values.update response unmarshals");
+    assert_eq!(resp.updated_range, "Sheet1!A1:B2");
+    assert_eq!(resp.updated_cells, Some(4));
 
     // atlassian.jira.issues.get — spot: issue key, the summary, and the null
     // description.

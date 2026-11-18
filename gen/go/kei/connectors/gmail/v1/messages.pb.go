@@ -26,6 +26,7 @@ import (
 	_ "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -342,11 +343,177 @@ func (x *GetMessageResponse) GetInternalDate() int64 {
 	return 0
 }
 
+// CreateDraftRequest creates a draft in one Gmail user's mailbox. message
+// carries the draft's message body in Gmail's JSON shape (typically
+// {"raw": base64url}, or structured fields), which stays a
+// google.protobuf.Struct. This creates a draft only — it never sends mail;
+// the contract does not model the send or sendAs operations.
+type CreateDraftRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Message       *structpb.Struct       `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateDraftRequest) Reset() {
+	*x = CreateDraftRequest{}
+	mi := &file_kei_connectors_gmail_v1_messages_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateDraftRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateDraftRequest) ProtoMessage() {}
+
+func (x *CreateDraftRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_gmail_v1_messages_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateDraftRequest.ProtoReflect.Descriptor instead.
+func (*CreateDraftRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_gmail_v1_messages_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CreateDraftRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *CreateDraftRequest) GetMessage() *structpb.Struct {
+	if x != nil {
+		return x.Message
+	}
+	return nil
+}
+
+// DraftMessage models the subset of the created draft's message entry the
+// contract needs.
+type DraftMessage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	ThreadId      string                 `protobuf:"bytes,2,opt,name=thread_id,json=threadId,proto3" json:"thread_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DraftMessage) Reset() {
+	*x = DraftMessage{}
+	mi := &file_kei_connectors_gmail_v1_messages_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DraftMessage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DraftMessage) ProtoMessage() {}
+
+func (x *DraftMessage) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_gmail_v1_messages_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DraftMessage.ProtoReflect.Descriptor instead.
+func (*DraftMessage) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_gmail_v1_messages_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *DraftMessage) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *DraftMessage) GetThreadId() string {
+	if x != nil {
+		return x.ThreadId
+	}
+	return ""
+}
+
+// CreateDraftResponse models the subset of Gmail's draft response the
+// contract needs: the draft id and its message entry. It is filled by JSON
+// unmarshal of the provider response.
+type CreateDraftResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Message       *DraftMessage          `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateDraftResponse) Reset() {
+	*x = CreateDraftResponse{}
+	mi := &file_kei_connectors_gmail_v1_messages_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateDraftResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateDraftResponse) ProtoMessage() {}
+
+func (x *CreateDraftResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_gmail_v1_messages_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateDraftResponse.ProtoReflect.Descriptor instead.
+func (*CreateDraftResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_gmail_v1_messages_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *CreateDraftResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CreateDraftResponse) GetMessage() *DraftMessage {
+	if x != nil {
+		return x.Message
+	}
+	return nil
+}
+
 var File_kei_connectors_gmail_v1_messages_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_gmail_v1_messages_proto_rawDesc = "" +
 	"\n" +
-	"&kei/connectors/gmail/v1/messages.proto\x12\x17kei.connectors.gmail.v1\x1a\x1ekei/contracts/v1/options.proto\"\xc4\x03\n" +
+	"&kei/connectors/gmail/v1/messages.proto\x12\x17kei.connectors.gmail.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1ekei/contracts/v1/options.proto\"\xc4\x03\n" +
 	"\x13ListMessagesRequest\x12\x1f\n" +
 	"\auser_id\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x06userId\x12\x11\n" +
 	"\x01q\x18\x02 \x01(\tH\x00R\x01q\x88\x01\x01\x12\"\n" +
@@ -379,7 +546,18 @@ const file_kei_connectors_gmail_v1_messages_proto_rawDesc = "" +
 	"\tthread_id\x18\x02 \x01(\tR\bthreadId\x12\x18\n" +
 	"\asnippet\x18\x03 \x01(\tR\asnippet\x12(\n" +
 	"\rinternal_date\x18\x04 \x01(\x03H\x00R\finternalDate\x88\x01\x01B\x10\n" +
-	"\x0e_internal_dateBTZRgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/gmail/v1;gmailb\x06proto3"
+	"\x0e_internal_date\"\xd0\x02\n" +
+	"\x12CreateDraftRequest\x12\x1f\n" +
+	"\auser_id\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x06userId\x121\n" +
+	"\amessage\x18\x02 \x01(\v2\x17.google.protobuf.StructR\amessage:\xe5\x01\x92\x82\x19\xe0\x01\n" +
+	"\x13gmail.drafts.create\x12\x05gmail\x18\x02*\x04POST2 /gmail/v1/users/{user_id}/drafts:-https://www.googleapis.com/auth/gmail.compose@\x01J\vCreateDraftR\n" +
+	"user_oauthR\x11domain_delegationZ\x0fusers/{user_id}b\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\v\b\x02\x12\x05draft\x18\x01\";\n" +
+	"\fDraftMessage\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1b\n" +
+	"\tthread_id\x18\x02 \x01(\tR\bthreadId\"f\n" +
+	"\x13CreateDraftResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12?\n" +
+	"\amessage\x18\x02 \x01(\v2%.kei.connectors.gmail.v1.DraftMessageR\amessageBTZRgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/gmail/v1;gmailb\x06proto3"
 
 var (
 	file_kei_connectors_gmail_v1_messages_proto_rawDescOnce sync.Once
@@ -393,21 +571,27 @@ func file_kei_connectors_gmail_v1_messages_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_gmail_v1_messages_proto_rawDescData
 }
 
-var file_kei_connectors_gmail_v1_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_kei_connectors_gmail_v1_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_kei_connectors_gmail_v1_messages_proto_goTypes = []any{
 	(*ListMessagesRequest)(nil),  // 0: kei.connectors.gmail.v1.ListMessagesRequest
 	(*MessageSummary)(nil),       // 1: kei.connectors.gmail.v1.MessageSummary
 	(*ListMessagesResponse)(nil), // 2: kei.connectors.gmail.v1.ListMessagesResponse
 	(*GetMessageRequest)(nil),    // 3: kei.connectors.gmail.v1.GetMessageRequest
 	(*GetMessageResponse)(nil),   // 4: kei.connectors.gmail.v1.GetMessageResponse
+	(*CreateDraftRequest)(nil),   // 5: kei.connectors.gmail.v1.CreateDraftRequest
+	(*DraftMessage)(nil),         // 6: kei.connectors.gmail.v1.DraftMessage
+	(*CreateDraftResponse)(nil),  // 7: kei.connectors.gmail.v1.CreateDraftResponse
+	(*structpb.Struct)(nil),      // 8: google.protobuf.Struct
 }
 var file_kei_connectors_gmail_v1_messages_proto_depIdxs = []int32{
 	1, // 0: kei.connectors.gmail.v1.ListMessagesResponse.messages:type_name -> kei.connectors.gmail.v1.MessageSummary
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	8, // 1: kei.connectors.gmail.v1.CreateDraftRequest.message:type_name -> google.protobuf.Struct
+	6, // 2: kei.connectors.gmail.v1.CreateDraftResponse.message:type_name -> kei.connectors.gmail.v1.DraftMessage
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_gmail_v1_messages_proto_init() }
@@ -424,7 +608,7 @@ func file_kei_connectors_gmail_v1_messages_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_gmail_v1_messages_proto_rawDesc), len(file_kei_connectors_gmail_v1_messages_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

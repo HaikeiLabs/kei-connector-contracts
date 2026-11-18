@@ -189,10 +189,21 @@ def _spot_gmail_messages_get(response):
     assert not response.HasField("internal_date")
 
 
+def _spot_gmail_drafts_create(response):
+    assert response.id == "draft-3001"
+    assert response.message.id == "msg-1002"
+    assert response.message.thread_id == "thr-2002"
+
+
 def _spot_google_sheets_values_get(response):
     assert response.range == "Sheet1!A1:B2"
     assert len(response.values) == 2
     assert response.values[0].values[1].WhichOneof("kind") == "null_value"
+
+
+def _spot_google_sheets_values_update(response):
+    assert response.updated_range == "Sheet1!A1:B2"
+    assert response.updated_cells == 4
 
 
 def _spot_google_sheets_spreadsheets_get(response):
@@ -529,7 +540,9 @@ OPS = [
     ("linear.comments.create", "linear", comments_pb2.CreateCommentRequest, comments_pb2.CreateCommentResponse, _spot_linear_comments_create),
     ("gmail.messages.list", "gmail", messages_pb2.ListMessagesRequest, messages_pb2.ListMessagesResponse, _spot_gmail_messages_list),
     ("gmail.messages.get", "gmail", messages_pb2.GetMessageRequest, messages_pb2.GetMessageResponse, _spot_gmail_messages_get),
+    ("gmail.drafts.create", "gmail", messages_pb2.CreateDraftRequest, messages_pb2.CreateDraftResponse, _spot_gmail_drafts_create),
     ("google_sheets.values.get", "google_sheets", spreadsheets_pb2.GetValuesRequest, spreadsheets_pb2.GetValuesResponse, _spot_google_sheets_values_get),
+    ("google_sheets.values.update", "google_sheets", spreadsheets_pb2.UpdateValuesRequest, spreadsheets_pb2.UpdateValuesResponse, _spot_google_sheets_values_update),
     ("google_sheets.spreadsheets.get", "google_sheets", spreadsheets_pb2.GetSpreadsheetRequest, spreadsheets_pb2.GetSpreadsheetResponse, _spot_google_sheets_spreadsheets_get),
     ("atlassian.jira.issues.get", "atlassian", jira_pb2.GetJiraIssueRequest, jira_pb2.GetJiraIssueResponse, _spot_atlassian_jira_issues_get),
     ("atlassian.jira.issues.create", "atlassian", jira_pb2.CreateJiraIssueRequest, jira_pb2.CreateJiraIssueResponse, _spot_atlassian_jira_issues_create),

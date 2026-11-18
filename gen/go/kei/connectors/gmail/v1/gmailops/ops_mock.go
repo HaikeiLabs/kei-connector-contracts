@@ -12,11 +12,20 @@ import (
 // Mock implements Operations with one function field per operation, for
 // tests. Calling an operation whose field is nil returns an error.
 type Mock struct {
+	CreateDraftFunc  func(ctx context.Context, req *gmail.CreateDraftRequest) (*gmail.CreateDraftResponse, error)
 	GetMessageFunc   func(ctx context.Context, req *gmail.GetMessageRequest) (*gmail.GetMessageResponse, error)
 	ListMessagesFunc func(ctx context.Context, req *gmail.ListMessagesRequest) (*gmail.ListMessagesResponse, error)
 }
 
 var _ Operations = (*Mock)(nil)
+
+// CreateDraft calls m.CreateDraftFunc.
+func (m *Mock) CreateDraft(ctx context.Context, req *gmail.CreateDraftRequest) (*gmail.CreateDraftResponse, error) {
+	if m.CreateDraftFunc == nil {
+		return nil, errors.New("gmailops.Mock: CreateDraftFunc is not set")
+	}
+	return m.CreateDraftFunc(ctx, req)
+}
 
 // GetMessage calls m.GetMessageFunc.
 func (m *Mock) GetMessage(ctx context.Context, req *gmail.GetMessageRequest) (*gmail.GetMessageResponse, error) {
