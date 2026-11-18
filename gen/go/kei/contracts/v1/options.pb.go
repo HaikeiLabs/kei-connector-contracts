@@ -158,6 +158,763 @@ func (CredentialPlacement) EnumDescriptor() ([]byte, []int) {
 	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{1}
 }
 
+// ConnectionKind says how an authenticated connection to a connector is
+// built. The contract names the kind; the credential value is supplied by
+// the caller at run time and is never part of the contract.
+type ConnectionKind int32
+
+const (
+	ConnectionKind_CONNECTION_KIND_UNSPECIFIED ConnectionKind = 0
+	// Authorization: Bearer <credential>.
+	ConnectionKind_CONNECTION_KIND_HTTP_BEARER ConnectionKind = 1
+	// The credential in a named header (for example X-Api-Key).
+	ConnectionKind_CONNECTION_KIND_HTTP_HEADER ConnectionKind = 2
+	// HTTP basic authentication.
+	ConnectionKind_CONNECTION_KIND_HTTP_BASIC ConnectionKind = 3
+	// A database DSN; the connection is a SQL pool, not HTTP.
+	ConnectionKind_CONNECTION_KIND_SQL_DSN ConnectionKind = 4
+	// A signed JWT built from a private key.
+	ConnectionKind_CONNECTION_KIND_KEY_PAIR_JWT ConnectionKind = 5
+	// A token obtained by exchanging another token.
+	ConnectionKind_CONNECTION_KIND_TOKEN_EXCHANGE ConnectionKind = 6
+)
+
+// Enum value maps for ConnectionKind.
+var (
+	ConnectionKind_name = map[int32]string{
+		0: "CONNECTION_KIND_UNSPECIFIED",
+		1: "CONNECTION_KIND_HTTP_BEARER",
+		2: "CONNECTION_KIND_HTTP_HEADER",
+		3: "CONNECTION_KIND_HTTP_BASIC",
+		4: "CONNECTION_KIND_SQL_DSN",
+		5: "CONNECTION_KIND_KEY_PAIR_JWT",
+		6: "CONNECTION_KIND_TOKEN_EXCHANGE",
+	}
+	ConnectionKind_value = map[string]int32{
+		"CONNECTION_KIND_UNSPECIFIED":    0,
+		"CONNECTION_KIND_HTTP_BEARER":    1,
+		"CONNECTION_KIND_HTTP_HEADER":    2,
+		"CONNECTION_KIND_HTTP_BASIC":     3,
+		"CONNECTION_KIND_SQL_DSN":        4,
+		"CONNECTION_KIND_KEY_PAIR_JWT":   5,
+		"CONNECTION_KIND_TOKEN_EXCHANGE": 6,
+	}
+)
+
+func (x ConnectionKind) Enum() *ConnectionKind {
+	p := new(ConnectionKind)
+	*p = x
+	return p
+}
+
+func (x ConnectionKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ConnectionKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_kei_contracts_v1_options_proto_enumTypes[2].Descriptor()
+}
+
+func (ConnectionKind) Type() protoreflect.EnumType {
+	return &file_kei_contracts_v1_options_proto_enumTypes[2]
+}
+
+func (x ConnectionKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ConnectionKind.Descriptor instead.
+func (ConnectionKind) EnumDescriptor() ([]byte, []int) {
+	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{2}
+}
+
+// AccountModel says whose account a connection acts as.
+type AccountModel int32
+
+const (
+	AccountModel_ACCOUNT_MODEL_UNSPECIFIED AccountModel = 0
+	// Each user connects their own account.
+	AccountModel_ACCOUNT_MODEL_PER_USER AccountModel = 1
+	// One account configured by an admin, shared by every caller.
+	AccountModel_ACCOUNT_MODEL_SHARED AccountModel = 2
+)
+
+// Enum value maps for AccountModel.
+var (
+	AccountModel_name = map[int32]string{
+		0: "ACCOUNT_MODEL_UNSPECIFIED",
+		1: "ACCOUNT_MODEL_PER_USER",
+		2: "ACCOUNT_MODEL_SHARED",
+	}
+	AccountModel_value = map[string]int32{
+		"ACCOUNT_MODEL_UNSPECIFIED": 0,
+		"ACCOUNT_MODEL_PER_USER":    1,
+		"ACCOUNT_MODEL_SHARED":      2,
+	}
+)
+
+func (x AccountModel) Enum() *AccountModel {
+	p := new(AccountModel)
+	*p = x
+	return p
+}
+
+func (x AccountModel) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (AccountModel) Descriptor() protoreflect.EnumDescriptor {
+	return file_kei_contracts_v1_options_proto_enumTypes[3].Descriptor()
+}
+
+func (AccountModel) Type() protoreflect.EnumType {
+	return &file_kei_contracts_v1_options_proto_enumTypes[3]
+}
+
+func (x AccountModel) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use AccountModel.Descriptor instead.
+func (AccountModel) EnumDescriptor() ([]byte, []int) {
+	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{3}
+}
+
+// ErrorKind is the provider-neutral kind an operation error maps to.
+type ErrorKind int32
+
+const (
+	ErrorKind_ERROR_KIND_UNSPECIFIED  ErrorKind = 0
+	ErrorKind_ERROR_KIND_NOT_FOUND    ErrorKind = 1
+	ErrorKind_ERROR_KIND_UNAUTHORIZED ErrorKind = 2
+	ErrorKind_ERROR_KIND_FORBIDDEN    ErrorKind = 3
+	ErrorKind_ERROR_KIND_RATE_LIMITED ErrorKind = 4
+	ErrorKind_ERROR_KIND_CONFLICT     ErrorKind = 5
+	ErrorKind_ERROR_KIND_INVALID      ErrorKind = 6
+	ErrorKind_ERROR_KIND_UNAVAILABLE  ErrorKind = 7
+)
+
+// Enum value maps for ErrorKind.
+var (
+	ErrorKind_name = map[int32]string{
+		0: "ERROR_KIND_UNSPECIFIED",
+		1: "ERROR_KIND_NOT_FOUND",
+		2: "ERROR_KIND_UNAUTHORIZED",
+		3: "ERROR_KIND_FORBIDDEN",
+		4: "ERROR_KIND_RATE_LIMITED",
+		5: "ERROR_KIND_CONFLICT",
+		6: "ERROR_KIND_INVALID",
+		7: "ERROR_KIND_UNAVAILABLE",
+	}
+	ErrorKind_value = map[string]int32{
+		"ERROR_KIND_UNSPECIFIED":  0,
+		"ERROR_KIND_NOT_FOUND":    1,
+		"ERROR_KIND_UNAUTHORIZED": 2,
+		"ERROR_KIND_FORBIDDEN":    3,
+		"ERROR_KIND_RATE_LIMITED": 4,
+		"ERROR_KIND_CONFLICT":     5,
+		"ERROR_KIND_INVALID":      6,
+		"ERROR_KIND_UNAVAILABLE":  7,
+	}
+)
+
+func (x ErrorKind) Enum() *ErrorKind {
+	p := new(ErrorKind)
+	*p = x
+	return p
+}
+
+func (x ErrorKind) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ErrorKind) Descriptor() protoreflect.EnumDescriptor {
+	return file_kei_contracts_v1_options_proto_enumTypes[4].Descriptor()
+}
+
+func (ErrorKind) Type() protoreflect.EnumType {
+	return &file_kei_contracts_v1_options_proto_enumTypes[4]
+}
+
+func (x ErrorKind) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ErrorKind.Descriptor instead.
+func (ErrorKind) EnumDescriptor() ([]byte, []int) {
+	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{4}
+}
+
+// ParamIn says where a request field goes on the outgoing HTTP request.
+type ParamIn int32
+
+const (
+	ParamIn_PARAM_IN_UNSPECIFIED ParamIn = 0
+	ParamIn_PARAM_IN_PATH        ParamIn = 1
+	ParamIn_PARAM_IN_QUERY       ParamIn = 2
+	ParamIn_PARAM_IN_BODY        ParamIn = 3
+	ParamIn_PARAM_IN_HEADER      ParamIn = 4
+)
+
+// Enum value maps for ParamIn.
+var (
+	ParamIn_name = map[int32]string{
+		0: "PARAM_IN_UNSPECIFIED",
+		1: "PARAM_IN_PATH",
+		2: "PARAM_IN_QUERY",
+		3: "PARAM_IN_BODY",
+		4: "PARAM_IN_HEADER",
+	}
+	ParamIn_value = map[string]int32{
+		"PARAM_IN_UNSPECIFIED": 0,
+		"PARAM_IN_PATH":        1,
+		"PARAM_IN_QUERY":       2,
+		"PARAM_IN_BODY":        3,
+		"PARAM_IN_HEADER":      4,
+	}
+)
+
+func (x ParamIn) Enum() *ParamIn {
+	p := new(ParamIn)
+	*p = x
+	return p
+}
+
+func (x ParamIn) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (ParamIn) Descriptor() protoreflect.EnumDescriptor {
+	return file_kei_contracts_v1_options_proto_enumTypes[5].Descriptor()
+}
+
+func (ParamIn) Type() protoreflect.EnumType {
+	return &file_kei_contracts_v1_options_proto_enumTypes[5]
+}
+
+func (x ParamIn) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use ParamIn.Descriptor instead.
+func (ParamIn) EnumDescriptor() ([]byte, []int) {
+	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{5}
+}
+
+// SemanticAction is the shared, connector-neutral action vocabulary of a
+// semantic mapping.
+type SemanticAction int32
+
+const (
+	SemanticAction_SEMANTIC_ACTION_UNSPECIFIED SemanticAction = 0
+	SemanticAction_SEMANTIC_ACTION_READ        SemanticAction = 1
+	SemanticAction_SEMANTIC_ACTION_CREATE      SemanticAction = 2
+	SemanticAction_SEMANTIC_ACTION_UPDATE      SemanticAction = 3
+	SemanticAction_SEMANTIC_ACTION_DELETE      SemanticAction = 4
+)
+
+// Enum value maps for SemanticAction.
+var (
+	SemanticAction_name = map[int32]string{
+		0: "SEMANTIC_ACTION_UNSPECIFIED",
+		1: "SEMANTIC_ACTION_READ",
+		2: "SEMANTIC_ACTION_CREATE",
+		3: "SEMANTIC_ACTION_UPDATE",
+		4: "SEMANTIC_ACTION_DELETE",
+	}
+	SemanticAction_value = map[string]int32{
+		"SEMANTIC_ACTION_UNSPECIFIED": 0,
+		"SEMANTIC_ACTION_READ":        1,
+		"SEMANTIC_ACTION_CREATE":      2,
+		"SEMANTIC_ACTION_UPDATE":      3,
+		"SEMANTIC_ACTION_DELETE":      4,
+	}
+)
+
+func (x SemanticAction) Enum() *SemanticAction {
+	p := new(SemanticAction)
+	*p = x
+	return p
+}
+
+func (x SemanticAction) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (SemanticAction) Descriptor() protoreflect.EnumDescriptor {
+	return file_kei_contracts_v1_options_proto_enumTypes[6].Descriptor()
+}
+
+func (SemanticAction) Type() protoreflect.EnumType {
+	return &file_kei_contracts_v1_options_proto_enumTypes[6]
+}
+
+func (x SemanticAction) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use SemanticAction.Descriptor instead.
+func (SemanticAction) EnumDescriptor() ([]byte, []int) {
+	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{6}
+}
+
+// SetupField is one value an admin fills in when configuring a connection.
+// A secret field holds a credential: it is stored in a secret backend, never
+// shown back, and never has a default value.
+type SetupField struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Type          string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"`
+	Pattern       string                 `protobuf:"bytes,3,opt,name=pattern,proto3" json:"pattern,omitempty"`
+	Secret        bool                   `protobuf:"varint,4,opt,name=secret,proto3" json:"secret,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SetupField) Reset() {
+	*x = SetupField{}
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SetupField) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SetupField) ProtoMessage() {}
+
+func (x *SetupField) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SetupField.ProtoReflect.Descriptor instead.
+func (*SetupField) Descriptor() ([]byte, []int) {
+	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *SetupField) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *SetupField) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *SetupField) GetPattern() string {
+	if x != nil {
+		return x.Pattern
+	}
+	return ""
+}
+
+func (x *SetupField) GetSecret() bool {
+	if x != nil {
+		return x.Secret
+	}
+	return false
+}
+
+// Connection declares one way to build an authenticated connection to a
+// connector. Operations name the connections they accept.
+type Connection struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Stable name within the connector, for example user_oauth or pat.
+	Name string         `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Kind ConnectionKind `protobuf:"varint,2,opt,name=kind,proto3,enum=kei.contracts.v1.ConnectionKind" json:"kind,omitempty"`
+	// The auth method in docs/connector-auth.md (sso_reuse, oauth,
+	// secret_ref, kei_token_exchange, service_principal_key).
+	AuthMethod   string       `protobuf:"bytes,3,opt,name=auth_method,json=authMethod,proto3" json:"auth_method,omitempty"`
+	AccountModel AccountModel `protobuf:"varint,4,opt,name=account_model,json=accountModel,proto3,enum=kei.contracts.v1.AccountModel" json:"account_model,omitempty"`
+	// Fixed provider origin for this connection; overrides the connector's.
+	BaseUrl string `protobuf:"bytes,5,opt,name=base_url,json=baseUrl,proto3" json:"base_url,omitempty"`
+	// Name of the setup field that holds the origin, when it is configured.
+	BaseUrlField string        `protobuf:"bytes,6,opt,name=base_url_field,json=baseUrlField,proto3" json:"base_url_field,omitempty"`
+	SetupFields  []*SetupField `protobuf:"bytes,7,rep,name=setup_fields,json=setupFields,proto3" json:"setup_fields,omitempty"`
+	// Provider scopes the credential must carry, if any.
+	Scopes []string `protobuf:"bytes,8,rep,name=scopes,proto3" json:"scopes,omitempty"`
+	// For CONNECTION_KIND_SQL_DSN, the engine(s) the DSN may name; empty
+	// means any. The query dialect itself is a field of the request.
+	Engine string `protobuf:"bytes,9,opt,name=engine,proto3" json:"engine,omitempty"`
+	// For CONNECTION_KIND_HTTP_HEADER, the header that carries the credential
+	// as is (for example X-Api-Key, or Authorization with no scheme).
+	HeaderName    string `protobuf:"bytes,10,opt,name=header_name,json=headerName,proto3" json:"header_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Connection) Reset() {
+	*x = Connection{}
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Connection) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Connection) ProtoMessage() {}
+
+func (x *Connection) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Connection.ProtoReflect.Descriptor instead.
+func (*Connection) Descriptor() ([]byte, []int) {
+	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Connection) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Connection) GetKind() ConnectionKind {
+	if x != nil {
+		return x.Kind
+	}
+	return ConnectionKind_CONNECTION_KIND_UNSPECIFIED
+}
+
+func (x *Connection) GetAuthMethod() string {
+	if x != nil {
+		return x.AuthMethod
+	}
+	return ""
+}
+
+func (x *Connection) GetAccountModel() AccountModel {
+	if x != nil {
+		return x.AccountModel
+	}
+	return AccountModel_ACCOUNT_MODEL_UNSPECIFIED
+}
+
+func (x *Connection) GetBaseUrl() string {
+	if x != nil {
+		return x.BaseUrl
+	}
+	return ""
+}
+
+func (x *Connection) GetBaseUrlField() string {
+	if x != nil {
+		return x.BaseUrlField
+	}
+	return ""
+}
+
+func (x *Connection) GetSetupFields() []*SetupField {
+	if x != nil {
+		return x.SetupFields
+	}
+	return nil
+}
+
+func (x *Connection) GetScopes() []string {
+	if x != nil {
+		return x.Scopes
+	}
+	return nil
+}
+
+func (x *Connection) GetEngine() string {
+	if x != nil {
+		return x.Engine
+	}
+	return ""
+}
+
+func (x *Connection) GetHeaderName() string {
+	if x != nil {
+		return x.HeaderName
+	}
+	return ""
+}
+
+// Connector declares a connector and its connection kinds, once per
+// connector, as a file option on its connector.proto.
+type Connector struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Connector id; the first segment of every operation id it owns.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Default provider origin for its HTTP connections.
+	BaseUrl       string        `protobuf:"bytes,2,opt,name=base_url,json=baseUrl,proto3" json:"base_url,omitempty"`
+	Connections   []*Connection `protobuf:"bytes,3,rep,name=connections,proto3" json:"connections,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Connector) Reset() {
+	*x = Connector{}
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Connector) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Connector) ProtoMessage() {}
+
+func (x *Connector) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Connector.ProtoReflect.Descriptor instead.
+func (*Connector) Descriptor() ([]byte, []int) {
+	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Connector) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Connector) GetBaseUrl() string {
+	if x != nil {
+		return x.BaseUrl
+	}
+	return ""
+}
+
+func (x *Connector) GetConnections() []*Connection {
+	if x != nil {
+		return x.Connections
+	}
+	return nil
+}
+
+// ErrorMapping maps one provider status to an error kind.
+type ErrorMapping struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Status        int32                  `protobuf:"varint,1,opt,name=status,proto3" json:"status,omitempty"`
+	Kind          ErrorKind              `protobuf:"varint,2,opt,name=kind,proto3,enum=kei.contracts.v1.ErrorKind" json:"kind,omitempty"`
+	Retryable     bool                   `protobuf:"varint,3,opt,name=retryable,proto3" json:"retryable,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ErrorMapping) Reset() {
+	*x = ErrorMapping{}
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ErrorMapping) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ErrorMapping) ProtoMessage() {}
+
+func (x *ErrorMapping) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ErrorMapping.ProtoReflect.Descriptor instead.
+func (*ErrorMapping) Descriptor() ([]byte, []int) {
+	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ErrorMapping) GetStatus() int32 {
+	if x != nil {
+		return x.Status
+	}
+	return 0
+}
+
+func (x *ErrorMapping) GetKind() ErrorKind {
+	if x != nil {
+		return x.Kind
+	}
+	return ErrorKind_ERROR_KIND_UNSPECIFIED
+}
+
+func (x *ErrorMapping) GetRetryable() bool {
+	if x != nil {
+		return x.Retryable
+	}
+	return false
+}
+
+// Param overrides where a request field goes. Without it, path-template
+// fields go in the path, and the rest in the query for GET and in the body
+// otherwise.
+type Param struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	In    ParamIn                `protobuf:"varint,1,opt,name=in,proto3,enum=kei.contracts.v1.ParamIn" json:"in,omitempty"`
+	// Wire name, when it differs from the field's JSON name.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// A path param whose value may contain '/' (a file path, a git ref). The
+	// renderer escapes each '/'-separated segment of the value and keeps the
+	// slashes; '.' and '..' segments are still rejected. Default false: the
+	// whole value is one escaped segment.
+	MultiSegment  bool `protobuf:"varint,3,opt,name=multi_segment,json=multiSegment,proto3" json:"multi_segment,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Param) Reset() {
+	*x = Param{}
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Param) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Param) ProtoMessage() {}
+
+func (x *Param) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Param.ProtoReflect.Descriptor instead.
+func (*Param) Descriptor() ([]byte, []int) {
+	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Param) GetIn() ParamIn {
+	if x != nil {
+		return x.In
+	}
+	return ParamIn_PARAM_IN_UNSPECIFIED
+}
+
+func (x *Param) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *Param) GetMultiSegment() bool {
+	if x != nil {
+		return x.MultiSegment
+	}
+	return false
+}
+
+// Semantics is an operation's versioned semantic mapping: what kind of
+// action it is on what kind of resource. It is metadata for semantic policy
+// and audit, never a grant and never a replacement for the operation id.
+type Semantics struct {
+	state  protoimpl.MessageState `protogen:"open.v1"`
+	Action SemanticAction         `protobuf:"varint,1,opt,name=action,proto3,enum=kei.contracts.v1.SemanticAction" json:"action,omitempty"`
+	// Shared resource type name, for example issue, pull_request, query.
+	ResourceType string `protobuf:"bytes,2,opt,name=resource_type,json=resourceType,proto3" json:"resource_type,omitempty"`
+	// Bumped whenever the mapping changes.
+	Version       uint32 `protobuf:"varint,3,opt,name=version,proto3" json:"version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Semantics) Reset() {
+	*x = Semantics{}
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Semantics) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Semantics) ProtoMessage() {}
+
+func (x *Semantics) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Semantics.ProtoReflect.Descriptor instead.
+func (*Semantics) Descriptor() ([]byte, []int) {
+	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *Semantics) GetAction() SemanticAction {
+	if x != nil {
+		return x.Action
+	}
+	return SemanticAction_SEMANTIC_ACTION_UNSPECIFIED
+}
+
+func (x *Semantics) GetResourceType() string {
+	if x != nil {
+		return x.ResourceType
+	}
+	return ""
+}
+
+func (x *Semantics) GetVersion() uint32 {
+	if x != nil {
+		return x.Version
+	}
+	return 0
+}
+
 // Operation declares how a connector operation is invoked and governed.
 //
 // Attach it to a request message with the operation message option below.
@@ -165,22 +922,49 @@ func (CredentialPlacement) EnumDescriptor() ([]byte, []int) {
 // (connector.domain.action); the connector field must equal the first id
 // segment. Write operations must declare at least one scope.
 type Operation struct {
-	state               protoimpl.MessageState `protogen:"open.v1"`
-	Id                  string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Connector           string                 `protobuf:"bytes,2,opt,name=connector,proto3" json:"connector,omitempty"`
-	Class               OperationClass         `protobuf:"varint,3,opt,name=class,proto3,enum=kei.contracts.v1.OperationClass" json:"class,omitempty"`
-	Destructive         bool                   `protobuf:"varint,4,opt,name=destructive,proto3" json:"destructive,omitempty"`
-	HttpMethod          string                 `protobuf:"bytes,5,opt,name=http_method,json=httpMethod,proto3" json:"http_method,omitempty"`
-	PathTemplate        string                 `protobuf:"bytes,6,opt,name=path_template,json=pathTemplate,proto3" json:"path_template,omitempty"`
-	Scopes              []string               `protobuf:"bytes,7,rep,name=scopes,proto3" json:"scopes,omitempty"`
-	CredentialPlacement CredentialPlacement    `protobuf:"varint,8,opt,name=credential_placement,json=credentialPlacement,proto3,enum=kei.contracts.v1.CredentialPlacement" json:"credential_placement,omitempty"`
-	unknownFields       protoimpl.UnknownFields
-	sizeCache           protoimpl.SizeCache
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	Id           string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Connector    string                 `protobuf:"bytes,2,opt,name=connector,proto3" json:"connector,omitempty"`
+	Class        OperationClass         `protobuf:"varint,3,opt,name=class,proto3,enum=kei.contracts.v1.OperationClass" json:"class,omitempty"`
+	Destructive  bool                   `protobuf:"varint,4,opt,name=destructive,proto3" json:"destructive,omitempty"`
+	HttpMethod   string                 `protobuf:"bytes,5,opt,name=http_method,json=httpMethod,proto3" json:"http_method,omitempty"`
+	PathTemplate string                 `protobuf:"bytes,6,opt,name=path_template,json=pathTemplate,proto3" json:"path_template,omitempty"`
+	Scopes       []string               `protobuf:"bytes,7,rep,name=scopes,proto3" json:"scopes,omitempty"`
+	// Kept for compatibility; the placement now follows from the connection
+	// kind.
+	CredentialPlacement CredentialPlacement `protobuf:"varint,8,opt,name=credential_placement,json=credentialPlacement,proto3,enum=kei.contracts.v1.CredentialPlacement" json:"credential_placement,omitempty"`
+	// Generated function name; empty means the request message name without
+	// the Request suffix.
+	MethodName string `protobuf:"bytes,9,opt,name=method_name,json=methodName,proto3" json:"method_name,omitempty"`
+	// Names of the connector's connections this operation accepts.
+	Connections []string `protobuf:"bytes,10,rep,name=connections,proto3" json:"connections,omitempty"`
+	// Default policy resource the call touches, for example
+	// repos/{owner}/{repository}; its variables are request fields.
+	ResourceTemplate string `protobuf:"bytes,11,opt,name=resource_template,json=resourceTemplate,proto3" json:"resource_template,omitempty"`
+	// Provider status to error kind.
+	Errors []*ErrorMapping `protobuf:"bytes,12,rep,name=errors,proto3" json:"errors,omitempty"`
+	// A deprecated operation stays callable until a major version removes it.
+	Deprecated bool `protobuf:"varint,13,opt,name=deprecated,proto3" json:"deprecated,omitempty"`
+	// The operation id that replaces a deprecated one.
+	ReplacedBy string `protobuf:"bytes,14,opt,name=replaced_by,json=replacedBy,proto3" json:"replaced_by,omitempty"`
+	// For a GraphQL connector, the one fixed document this operation sends;
+	// its variables are request fields.
+	GraphqlDocument string `protobuf:"bytes,15,opt,name=graphql_document,json=graphqlDocument,proto3" json:"graphql_document,omitempty"`
+	// Also generate a positional-argument helper beside the message form.
+	PositionalHelper bool `protobuf:"varint,16,opt,name=positional_helper,json=positionalHelper,proto3" json:"positional_helper,omitempty"`
+	// Versioned semantic mapping, for semantic policy and audit.
+	Semantics *Semantics `protobuf:"bytes,17,opt,name=semantics,proto3" json:"semantics,omitempty"`
+	// Request field that carries the page cursor (one page per call).
+	CursorField string `protobuf:"bytes,18,opt,name=cursor_field,json=cursorField,proto3" json:"cursor_field,omitempty"`
+	// Response field that returns the next cursor, empty on the last page.
+	NextCursorField string `protobuf:"bytes,19,opt,name=next_cursor_field,json=nextCursorField,proto3" json:"next_cursor_field,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *Operation) Reset() {
 	*x = Operation{}
-	mi := &file_kei_contracts_v1_options_proto_msgTypes[0]
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -192,7 +976,7 @@ func (x *Operation) String() string {
 func (*Operation) ProtoMessage() {}
 
 func (x *Operation) ProtoReflect() protoreflect.Message {
-	mi := &file_kei_contracts_v1_options_proto_msgTypes[0]
+	mi := &file_kei_contracts_v1_options_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -205,7 +989,7 @@ func (x *Operation) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Operation.ProtoReflect.Descriptor instead.
 func (*Operation) Descriptor() ([]byte, []int) {
-	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{0}
+	return file_kei_contracts_v1_options_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *Operation) GetId() string {
@@ -264,6 +1048,83 @@ func (x *Operation) GetCredentialPlacement() CredentialPlacement {
 	return CredentialPlacement_CREDENTIAL_PLACEMENT_UNSPECIFIED
 }
 
+func (x *Operation) GetMethodName() string {
+	if x != nil {
+		return x.MethodName
+	}
+	return ""
+}
+
+func (x *Operation) GetConnections() []string {
+	if x != nil {
+		return x.Connections
+	}
+	return nil
+}
+
+func (x *Operation) GetResourceTemplate() string {
+	if x != nil {
+		return x.ResourceTemplate
+	}
+	return ""
+}
+
+func (x *Operation) GetErrors() []*ErrorMapping {
+	if x != nil {
+		return x.Errors
+	}
+	return nil
+}
+
+func (x *Operation) GetDeprecated() bool {
+	if x != nil {
+		return x.Deprecated
+	}
+	return false
+}
+
+func (x *Operation) GetReplacedBy() string {
+	if x != nil {
+		return x.ReplacedBy
+	}
+	return ""
+}
+
+func (x *Operation) GetGraphqlDocument() string {
+	if x != nil {
+		return x.GraphqlDocument
+	}
+	return ""
+}
+
+func (x *Operation) GetPositionalHelper() bool {
+	if x != nil {
+		return x.PositionalHelper
+	}
+	return false
+}
+
+func (x *Operation) GetSemantics() *Semantics {
+	if x != nil {
+		return x.Semantics
+	}
+	return nil
+}
+
+func (x *Operation) GetCursorField() string {
+	if x != nil {
+		return x.CursorField
+	}
+	return ""
+}
+
+func (x *Operation) GetNextCursorField() string {
+	if x != nil {
+		return x.NextCursorField
+	}
+	return ""
+}
+
 var file_kei_contracts_v1_options_proto_extTypes = []protoimpl.ExtensionInfo{
 	{
 		ExtendedType:  (*descriptorpb.MessageOptions)(nil),
@@ -271,6 +1132,22 @@ var file_kei_contracts_v1_options_proto_extTypes = []protoimpl.ExtensionInfo{
 		Field:         51234,
 		Name:          "kei.contracts.v1.operation",
 		Tag:           "bytes,51234,opt,name=operation",
+		Filename:      "kei/contracts/v1/options.proto",
+	},
+	{
+		ExtendedType:  (*descriptorpb.FileOptions)(nil),
+		ExtensionType: (*Connector)(nil),
+		Field:         51235,
+		Name:          "kei.contracts.v1.connector",
+		Tag:           "bytes,51235,opt,name=connector",
+		Filename:      "kei/contracts/v1/options.proto",
+	},
+	{
+		ExtendedType:  (*descriptorpb.FieldOptions)(nil),
+		ExtensionType: (*Param)(nil),
+		Field:         51236,
+		Name:          "kei.contracts.v1.param",
+		Tag:           "bytes,51236,opt,name=param",
 		Filename:      "kei/contracts/v1/options.proto",
 	},
 }
@@ -281,11 +1158,60 @@ var (
 	E_Operation = &file_kei_contracts_v1_options_proto_extTypes[0]
 )
 
+// Extension fields to descriptorpb.FileOptions.
+var (
+	// optional kei.contracts.v1.Connector connector = 51235;
+	E_Connector = &file_kei_contracts_v1_options_proto_extTypes[1]
+)
+
+// Extension fields to descriptorpb.FieldOptions.
+var (
+	// optional kei.contracts.v1.Param param = 51236;
+	E_Param = &file_kei_contracts_v1_options_proto_extTypes[2]
+)
+
 var File_kei_contracts_v1_options_proto protoreflect.FileDescriptor
 
 const file_kei_contracts_v1_options_proto_rawDesc = "" +
 	"\n" +
-	"\x1ekei/contracts/v1/options.proto\x12\x10kei.contracts.v1\x1a google/protobuf/descriptor.proto\"\xcb\x02\n" +
+	"\x1ekei/contracts/v1/options.proto\x12\x10kei.contracts.v1\x1a google/protobuf/descriptor.proto\"f\n" +
+	"\n" +
+	"SetupField\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n" +
+	"\x04type\x18\x02 \x01(\tR\x04type\x12\x18\n" +
+	"\apattern\x18\x03 \x01(\tR\apattern\x12\x16\n" +
+	"\x06secret\x18\x04 \x01(\bR\x06secret\"\x8f\x03\n" +
+	"\n" +
+	"Connection\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x124\n" +
+	"\x04kind\x18\x02 \x01(\x0e2 .kei.contracts.v1.ConnectionKindR\x04kind\x12\x1f\n" +
+	"\vauth_method\x18\x03 \x01(\tR\n" +
+	"authMethod\x12C\n" +
+	"\raccount_model\x18\x04 \x01(\x0e2\x1e.kei.contracts.v1.AccountModelR\faccountModel\x12\x19\n" +
+	"\bbase_url\x18\x05 \x01(\tR\abaseUrl\x12$\n" +
+	"\x0ebase_url_field\x18\x06 \x01(\tR\fbaseUrlField\x12?\n" +
+	"\fsetup_fields\x18\a \x03(\v2\x1c.kei.contracts.v1.SetupFieldR\vsetupFields\x12\x16\n" +
+	"\x06scopes\x18\b \x03(\tR\x06scopes\x12\x16\n" +
+	"\x06engine\x18\t \x01(\tR\x06engine\x12\x1f\n" +
+	"\vheader_name\x18\n" +
+	" \x01(\tR\n" +
+	"headerName\"v\n" +
+	"\tConnector\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
+	"\bbase_url\x18\x02 \x01(\tR\abaseUrl\x12>\n" +
+	"\vconnections\x18\x03 \x03(\v2\x1c.kei.contracts.v1.ConnectionR\vconnections\"u\n" +
+	"\fErrorMapping\x12\x16\n" +
+	"\x06status\x18\x01 \x01(\x05R\x06status\x12/\n" +
+	"\x04kind\x18\x02 \x01(\x0e2\x1b.kei.contracts.v1.ErrorKindR\x04kind\x12\x1c\n" +
+	"\tretryable\x18\x03 \x01(\bR\tretryable\"k\n" +
+	"\x05Param\x12)\n" +
+	"\x02in\x18\x01 \x01(\x0e2\x19.kei.contracts.v1.ParamInR\x02in\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
+	"\rmulti_segment\x18\x03 \x01(\bR\fmultiSegment\"\x84\x01\n" +
+	"\tSemantics\x128\n" +
+	"\x06action\x18\x01 \x01(\x0e2 .kei.contracts.v1.SemanticActionR\x06action\x12#\n" +
+	"\rresource_type\x18\x02 \x01(\tR\fresourceType\x12\x18\n" +
+	"\aversion\x18\x03 \x01(\rR\aversion\"\x96\x06\n" +
 	"\tOperation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
 	"\tconnector\x18\x02 \x01(\tR\tconnector\x126\n" +
@@ -295,7 +1221,23 @@ const file_kei_contracts_v1_options_proto_rawDesc = "" +
 	"httpMethod\x12#\n" +
 	"\rpath_template\x18\x06 \x01(\tR\fpathTemplate\x12\x16\n" +
 	"\x06scopes\x18\a \x03(\tR\x06scopes\x12X\n" +
-	"\x14credential_placement\x18\b \x01(\x0e2%.kei.contracts.v1.CredentialPlacementR\x13credentialPlacement*f\n" +
+	"\x14credential_placement\x18\b \x01(\x0e2%.kei.contracts.v1.CredentialPlacementR\x13credentialPlacement\x12\x1f\n" +
+	"\vmethod_name\x18\t \x01(\tR\n" +
+	"methodName\x12 \n" +
+	"\vconnections\x18\n" +
+	" \x03(\tR\vconnections\x12+\n" +
+	"\x11resource_template\x18\v \x01(\tR\x10resourceTemplate\x126\n" +
+	"\x06errors\x18\f \x03(\v2\x1e.kei.contracts.v1.ErrorMappingR\x06errors\x12\x1e\n" +
+	"\n" +
+	"deprecated\x18\r \x01(\bR\n" +
+	"deprecated\x12\x1f\n" +
+	"\vreplaced_by\x18\x0e \x01(\tR\n" +
+	"replacedBy\x12)\n" +
+	"\x10graphql_document\x18\x0f \x01(\tR\x0fgraphqlDocument\x12+\n" +
+	"\x11positional_helper\x18\x10 \x01(\bR\x10positionalHelper\x129\n" +
+	"\tsemantics\x18\x11 \x01(\v2\x1b.kei.contracts.v1.SemanticsR\tsemantics\x12!\n" +
+	"\fcursor_field\x18\x12 \x01(\tR\vcursorField\x12*\n" +
+	"\x11next_cursor_field\x18\x13 \x01(\tR\x0fnextCursorField*f\n" +
 	"\x0eOperationClass\x12\x1f\n" +
 	"\x1bOPERATION_CLASS_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14OPERATION_CLASS_READ\x10\x01\x12\x19\n" +
@@ -306,8 +1248,43 @@ const file_kei_contracts_v1_options_proto_rawDesc = "" +
 	"\"CREDENTIAL_PLACEMENT_HEADER_CUSTOM\x10\x02\x12\x1e\n" +
 	"\x1aCREDENTIAL_PLACEMENT_QUERY\x10\x03\x12\x1e\n" +
 	"\x1aCREDENTIAL_PLACEMENT_BASIC\x10\x04\x12\x1d\n" +
-	"\x19CREDENTIAL_PLACEMENT_NONE\x10\x05:\\\n" +
-	"\toperation\x12\x1f.google.protobuf.MessageOptions\x18\xa2\x90\x03 \x01(\v2\x1b.kei.contracts.v1.OperationR\toperationBQZOgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1;contractsb\x06proto3"
+	"\x19CREDENTIAL_PLACEMENT_NONE\x10\x05*\xf6\x01\n" +
+	"\x0eConnectionKind\x12\x1f\n" +
+	"\x1bCONNECTION_KIND_UNSPECIFIED\x10\x00\x12\x1f\n" +
+	"\x1bCONNECTION_KIND_HTTP_BEARER\x10\x01\x12\x1f\n" +
+	"\x1bCONNECTION_KIND_HTTP_HEADER\x10\x02\x12\x1e\n" +
+	"\x1aCONNECTION_KIND_HTTP_BASIC\x10\x03\x12\x1b\n" +
+	"\x17CONNECTION_KIND_SQL_DSN\x10\x04\x12 \n" +
+	"\x1cCONNECTION_KIND_KEY_PAIR_JWT\x10\x05\x12\"\n" +
+	"\x1eCONNECTION_KIND_TOKEN_EXCHANGE\x10\x06*c\n" +
+	"\fAccountModel\x12\x1d\n" +
+	"\x19ACCOUNT_MODEL_UNSPECIFIED\x10\x00\x12\x1a\n" +
+	"\x16ACCOUNT_MODEL_PER_USER\x10\x01\x12\x18\n" +
+	"\x14ACCOUNT_MODEL_SHARED\x10\x02*\xe2\x01\n" +
+	"\tErrorKind\x12\x1a\n" +
+	"\x16ERROR_KIND_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14ERROR_KIND_NOT_FOUND\x10\x01\x12\x1b\n" +
+	"\x17ERROR_KIND_UNAUTHORIZED\x10\x02\x12\x18\n" +
+	"\x14ERROR_KIND_FORBIDDEN\x10\x03\x12\x1b\n" +
+	"\x17ERROR_KIND_RATE_LIMITED\x10\x04\x12\x17\n" +
+	"\x13ERROR_KIND_CONFLICT\x10\x05\x12\x16\n" +
+	"\x12ERROR_KIND_INVALID\x10\x06\x12\x1a\n" +
+	"\x16ERROR_KIND_UNAVAILABLE\x10\a*r\n" +
+	"\aParamIn\x12\x18\n" +
+	"\x14PARAM_IN_UNSPECIFIED\x10\x00\x12\x11\n" +
+	"\rPARAM_IN_PATH\x10\x01\x12\x12\n" +
+	"\x0ePARAM_IN_QUERY\x10\x02\x12\x11\n" +
+	"\rPARAM_IN_BODY\x10\x03\x12\x13\n" +
+	"\x0fPARAM_IN_HEADER\x10\x04*\x9f\x01\n" +
+	"\x0eSemanticAction\x12\x1f\n" +
+	"\x1bSEMANTIC_ACTION_UNSPECIFIED\x10\x00\x12\x18\n" +
+	"\x14SEMANTIC_ACTION_READ\x10\x01\x12\x1a\n" +
+	"\x16SEMANTIC_ACTION_CREATE\x10\x02\x12\x1a\n" +
+	"\x16SEMANTIC_ACTION_UPDATE\x10\x03\x12\x1a\n" +
+	"\x16SEMANTIC_ACTION_DELETE\x10\x04:\\\n" +
+	"\toperation\x12\x1f.google.protobuf.MessageOptions\x18\xa2\x90\x03 \x01(\v2\x1b.kei.contracts.v1.OperationR\toperation:Y\n" +
+	"\tconnector\x12\x1c.google.protobuf.FileOptions\x18\xa3\x90\x03 \x01(\v2\x1b.kei.contracts.v1.ConnectorR\tconnector:N\n" +
+	"\x05param\x12\x1d.google.protobuf.FieldOptions\x18\xa4\x90\x03 \x01(\v2\x17.kei.contracts.v1.ParamR\x05paramBQZOgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1;contractsb\x06proto3"
 
 var (
 	file_kei_contracts_v1_options_proto_rawDescOnce sync.Once
@@ -321,24 +1298,50 @@ func file_kei_contracts_v1_options_proto_rawDescGZIP() []byte {
 	return file_kei_contracts_v1_options_proto_rawDescData
 }
 
-var file_kei_contracts_v1_options_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_kei_contracts_v1_options_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_kei_contracts_v1_options_proto_enumTypes = make([]protoimpl.EnumInfo, 7)
+var file_kei_contracts_v1_options_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_kei_contracts_v1_options_proto_goTypes = []any{
 	(OperationClass)(0),                 // 0: kei.contracts.v1.OperationClass
 	(CredentialPlacement)(0),            // 1: kei.contracts.v1.CredentialPlacement
-	(*Operation)(nil),                   // 2: kei.contracts.v1.Operation
-	(*descriptorpb.MessageOptions)(nil), // 3: google.protobuf.MessageOptions
+	(ConnectionKind)(0),                 // 2: kei.contracts.v1.ConnectionKind
+	(AccountModel)(0),                   // 3: kei.contracts.v1.AccountModel
+	(ErrorKind)(0),                      // 4: kei.contracts.v1.ErrorKind
+	(ParamIn)(0),                        // 5: kei.contracts.v1.ParamIn
+	(SemanticAction)(0),                 // 6: kei.contracts.v1.SemanticAction
+	(*SetupField)(nil),                  // 7: kei.contracts.v1.SetupField
+	(*Connection)(nil),                  // 8: kei.contracts.v1.Connection
+	(*Connector)(nil),                   // 9: kei.contracts.v1.Connector
+	(*ErrorMapping)(nil),                // 10: kei.contracts.v1.ErrorMapping
+	(*Param)(nil),                       // 11: kei.contracts.v1.Param
+	(*Semantics)(nil),                   // 12: kei.contracts.v1.Semantics
+	(*Operation)(nil),                   // 13: kei.contracts.v1.Operation
+	(*descriptorpb.MessageOptions)(nil), // 14: google.protobuf.MessageOptions
+	(*descriptorpb.FileOptions)(nil),    // 15: google.protobuf.FileOptions
+	(*descriptorpb.FieldOptions)(nil),   // 16: google.protobuf.FieldOptions
 }
 var file_kei_contracts_v1_options_proto_depIdxs = []int32{
-	0, // 0: kei.contracts.v1.Operation.class:type_name -> kei.contracts.v1.OperationClass
-	1, // 1: kei.contracts.v1.Operation.credential_placement:type_name -> kei.contracts.v1.CredentialPlacement
-	3, // 2: kei.contracts.v1.operation:extendee -> google.protobuf.MessageOptions
-	2, // 3: kei.contracts.v1.operation:type_name -> kei.contracts.v1.Operation
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	3, // [3:4] is the sub-list for extension type_name
-	2, // [2:3] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2,  // 0: kei.contracts.v1.Connection.kind:type_name -> kei.contracts.v1.ConnectionKind
+	3,  // 1: kei.contracts.v1.Connection.account_model:type_name -> kei.contracts.v1.AccountModel
+	7,  // 2: kei.contracts.v1.Connection.setup_fields:type_name -> kei.contracts.v1.SetupField
+	8,  // 3: kei.contracts.v1.Connector.connections:type_name -> kei.contracts.v1.Connection
+	4,  // 4: kei.contracts.v1.ErrorMapping.kind:type_name -> kei.contracts.v1.ErrorKind
+	5,  // 5: kei.contracts.v1.Param.in:type_name -> kei.contracts.v1.ParamIn
+	6,  // 6: kei.contracts.v1.Semantics.action:type_name -> kei.contracts.v1.SemanticAction
+	0,  // 7: kei.contracts.v1.Operation.class:type_name -> kei.contracts.v1.OperationClass
+	1,  // 8: kei.contracts.v1.Operation.credential_placement:type_name -> kei.contracts.v1.CredentialPlacement
+	10, // 9: kei.contracts.v1.Operation.errors:type_name -> kei.contracts.v1.ErrorMapping
+	12, // 10: kei.contracts.v1.Operation.semantics:type_name -> kei.contracts.v1.Semantics
+	14, // 11: kei.contracts.v1.operation:extendee -> google.protobuf.MessageOptions
+	15, // 12: kei.contracts.v1.connector:extendee -> google.protobuf.FileOptions
+	16, // 13: kei.contracts.v1.param:extendee -> google.protobuf.FieldOptions
+	13, // 14: kei.contracts.v1.operation:type_name -> kei.contracts.v1.Operation
+	9,  // 15: kei.contracts.v1.connector:type_name -> kei.contracts.v1.Connector
+	11, // 16: kei.contracts.v1.param:type_name -> kei.contracts.v1.Param
+	17, // [17:17] is the sub-list for method output_type
+	17, // [17:17] is the sub-list for method input_type
+	14, // [14:17] is the sub-list for extension type_name
+	11, // [11:14] is the sub-list for extension extendee
+	0,  // [0:11] is the sub-list for field type_name
 }
 
 func init() { file_kei_contracts_v1_options_proto_init() }
@@ -351,9 +1354,9 @@ func file_kei_contracts_v1_options_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_contracts_v1_options_proto_rawDesc), len(file_kei_contracts_v1_options_proto_rawDesc)),
-			NumEnums:      2,
-			NumMessages:   1,
-			NumExtensions: 1,
+			NumEnums:      7,
+			NumMessages:   7,
+			NumExtensions: 3,
 			NumServices:   0,
 		},
 		GoTypes:           file_kei_contracts_v1_options_proto_goTypes,

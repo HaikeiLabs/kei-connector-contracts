@@ -49,6 +49,142 @@ enum CredentialPlacement {
   CREDENTIAL_PLACEMENT_NONE = 5;
 }
 
+// ConnectionKind says how an authenticated connection to a connector is
+// built. The contract names the kind; the credential value is supplied by
+// the caller at run time and is never part of the contract.
+enum ConnectionKind {
+  CONNECTION_KIND_UNSPECIFIED = 0;
+  // Authorization: Bearer <credential>.
+  CONNECTION_KIND_HTTP_BEARER = 1;
+  // The credential in a named header (for example X-Api-Key).
+  CONNECTION_KIND_HTTP_HEADER = 2;
+  // HTTP basic authentication.
+  CONNECTION_KIND_HTTP_BASIC = 3;
+  // A database DSN; the connection is a SQL pool, not HTTP.
+  CONNECTION_KIND_SQL_DSN = 4;
+  // A signed JWT built from a private key.
+  CONNECTION_KIND_KEY_PAIR_JWT = 5;
+  // A token obtained by exchanging another token.
+  CONNECTION_KIND_TOKEN_EXCHANGE = 6;
+}
+
+// AccountModel says whose account a connection acts as.
+enum AccountModel {
+  ACCOUNT_MODEL_UNSPECIFIED = 0;
+  // Each user connects their own account.
+  ACCOUNT_MODEL_PER_USER = 1;
+  // One account configured by an admin, shared by every caller.
+  ACCOUNT_MODEL_SHARED = 2;
+}
+
+// ErrorKind is the provider-neutral kind an operation error maps to.
+enum ErrorKind {
+  ERROR_KIND_UNSPECIFIED = 0;
+  ERROR_KIND_NOT_FOUND = 1;
+  ERROR_KIND_UNAUTHORIZED = 2;
+  ERROR_KIND_FORBIDDEN = 3;
+  ERROR_KIND_RATE_LIMITED = 4;
+  ERROR_KIND_CONFLICT = 5;
+  ERROR_KIND_INVALID = 6;
+  ERROR_KIND_UNAVAILABLE = 7;
+}
+
+// ParamIn says where a request field goes on the outgoing HTTP request.
+enum ParamIn {
+  PARAM_IN_UNSPECIFIED = 0;
+  PARAM_IN_PATH = 1;
+  PARAM_IN_QUERY = 2;
+  PARAM_IN_BODY = 3;
+  PARAM_IN_HEADER = 4;
+}
+
+// SemanticAction is the shared, connector-neutral action vocabulary of a
+// semantic mapping.
+enum SemanticAction {
+  SEMANTIC_ACTION_UNSPECIFIED = 0;
+  SEMANTIC_ACTION_READ = 1;
+  SEMANTIC_ACTION_CREATE = 2;
+  SEMANTIC_ACTION_UPDATE = 3;
+  SEMANTIC_ACTION_DELETE = 4;
+}
+
+// SetupField is one value an admin fills in when configuring a connection.
+// A secret field holds a credential: it is stored in a secret backend, never
+// shown back, and never has a default value.
+message SetupField {
+  string name = 1;
+  string type = 2;
+  string pattern = 3;
+  bool secret = 4;
+}
+
+// Connection declares one way to build an authenticated connection to a
+// connector. Operations name the connections they accept.
+message Connection {
+  // Stable name within the connector, for example user_oauth or pat.
+  string name = 1;
+  ConnectionKind kind = 2;
+  // The auth method in docs/connector-auth.md (sso_reuse, oauth,
+  // secret_ref, kei_token_exchange, service_principal_key).
+  string auth_method = 3;
+  AccountModel account_model = 4;
+  // Fixed provider origin for this connection; overrides the connector's.
+  string base_url = 5;
+  // Name of the setup field that holds the origin, when it is configured.
+  string base_url_field = 6;
+  repeated SetupField setup_fields = 7;
+  // Provider scopes the credential must carry, if any.
+  repeated string scopes = 8;
+  // For CONNECTION_KIND_SQL_DSN, the engine(s) the DSN may name; empty
+  // means any. The query dialect itself is a field of the request.
+  string engine = 9;
+  // For CONNECTION_KIND_HTTP_HEADER, the header that carries the credential
+  // as is (for example X-Api-Key, or Authorization with no scheme).
+  string header_name = 10;
+}
+
+// Connector declares a connector and its connection kinds, once per
+// connector, as a file option on its connector.proto.
+message Connector {
+  // Connector id; the first segment of every operation id it owns.
+  string id = 1;
+  // Default provider origin for its HTTP connections.
+  string base_url = 2;
+  repeated Connection connections = 3;
+}
+
+// ErrorMapping maps one provider status to an error kind.
+message ErrorMapping {
+  int32 status = 1;
+  ErrorKind kind = 2;
+  bool retryable = 3;
+}
+
+// Param overrides where a request field goes. Without it, path-template
+// fields go in the path, and the rest in the query for GET and in the body
+// otherwise.
+message Param {
+  ParamIn in = 1;
+  // Wire name, when it differs from the field's JSON name.
+  string name = 2;
+  // A path param whose value may contain '/' (a file path, a git ref). The
+  // renderer escapes each '/'-separated segment of the value and keeps the
+  // slashes; '.' and '..' segments are still rejected. Default false: the
+  // whole value is one escaped segment.
+  bool multi_segment = 3;
+}
+
+// Semantics is an operation's versioned semantic mapping: what kind of
+// action it is on what kind of resource. It is metadata for semantic policy
+// and audit, never a grant and never a replacement for the operation id.
+message Semantics {
+  SemanticAction action = 1;
+  // Shared resource type name, for example issue, pull_request, query.
+  string resource_type = 2;
+  // Bumped whenever the mapping changes.
+  uint32 version = 3;
+}
+
 // Operation declares how a connector operation is invoked and governed.
 //
 // Attach it to a request message with the operation message option below.
@@ -63,9 +199,44 @@ message Operation {
   string http_method = 5;
   string path_template = 6;
   repeated string scopes = 7;
+  // Kept for compatibility; the placement now follows from the connection
+  // kind.
   CredentialPlacement credential_placement = 8;
+  // Generated function name; empty means the request message name without
+  // the Request suffix.
+  string method_name = 9;
+  // Names of the connector's connections this operation accepts.
+  repeated string connections = 10;
+  // Default policy resource the call touches, for example
+  // repos/{owner}/{repository}; its variables are request fields.
+  string resource_template = 11;
+  // Provider status to error kind.
+  repeated ErrorMapping errors = 12;
+  // A deprecated operation stays callable until a major version removes it.
+  bool deprecated = 13;
+  // The operation id that replaces a deprecated one.
+  string replaced_by = 14;
+  // For a GraphQL connector, the one fixed document this operation sends;
+  // its variables are request fields.
+  string graphql_document = 15;
+  // Also generate a positional-argument helper beside the message form.
+  bool positional_helper = 16;
+  // Versioned semantic mapping, for semantic policy and audit.
+  Semantics semantics = 17;
+  // Request field that carries the page cursor (one page per call).
+  string cursor_field = 18;
+  // Response field that returns the next cursor, empty on the last page.
+  string next_cursor_field = 19;
 }
 
 extend google.protobuf.MessageOptions {
   Operation operation = 51234;
+}
+
+extend google.protobuf.FileOptions {
+  Connector connector = 51235;
+}
+
+extend google.protobuf.FieldOptions {
+  Param param = 51236;
 }

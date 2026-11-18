@@ -26,7 +26,7 @@
 
 import type { GenEnum, GenExtension, GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { enumDesc, extDesc, fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
-import type { MessageOptions } from "@bufbuild/protobuf/wkt";
+import type { FieldOptions, FileOptions, MessageOptions } from "@bufbuild/protobuf/wkt";
 import { file_google_protobuf_descriptor } from "@bufbuild/protobuf/wkt";
 import type { Message } from "@bufbuild/protobuf";
 
@@ -34,7 +34,261 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file kei/contracts/v1/options.proto.
  */
 export const file_kei_contracts_v1_options: GenFile = /*@__PURE__*/
-  fileDesc("Ch5rZWkvY29udHJhY3RzL3YxL29wdGlvbnMucHJvdG8SEGtlaS5jb250cmFjdHMudjEi8QEKCU9wZXJhdGlvbhIKCgJpZBgBIAEoCRIRCgljb25uZWN0b3IYAiABKAkSLwoFY2xhc3MYAyABKA4yIC5rZWkuY29udHJhY3RzLnYxLk9wZXJhdGlvbkNsYXNzEhMKC2Rlc3RydWN0aXZlGAQgASgIEhMKC2h0dHBfbWV0aG9kGAUgASgJEhUKDXBhdGhfdGVtcGxhdGUYBiABKAkSDgoGc2NvcGVzGAcgAygJEkMKFGNyZWRlbnRpYWxfcGxhY2VtZW50GAggASgOMiUua2VpLmNvbnRyYWN0cy52MS5DcmVkZW50aWFsUGxhY2VtZW50KmYKDk9wZXJhdGlvbkNsYXNzEh8KG09QRVJBVElPTl9DTEFTU19VTlNQRUNJRklFRBAAEhgKFE9QRVJBVElPTl9DTEFTU19SRUFEEAESGQoVT1BFUkFUSU9OX0NMQVNTX1dSSVRFEAIq6gEKE0NyZWRlbnRpYWxQbGFjZW1lbnQSJAogQ1JFREVOVElBTF9QTEFDRU1FTlRfVU5TUEVDSUZJRUQQABImCiJDUkVERU5USUFMX1BMQUNFTUVOVF9IRUFERVJfQkVBUkVSEAESJgoiQ1JFREVOVElBTF9QTEFDRU1FTlRfSEVBREVSX0NVU1RPTRACEh4KGkNSRURFTlRJQUxfUExBQ0VNRU5UX1FVRVJZEAMSHgoaQ1JFREVOVElBTF9QTEFDRU1FTlRfQkFTSUMQBBIdChlDUkVERU5USUFMX1BMQUNFTUVOVF9OT05FEAU6XAoJb3BlcmF0aW9uEh8uZ29vZ2xlLnByb3RvYnVmLk1lc3NhZ2VPcHRpb25zGKKQAyABKAsyGy5rZWkuY29udHJhY3RzLnYxLk9wZXJhdGlvblIJb3BlcmF0aW9uQlFaT2dpdGh1Yi5jb20vSGFpa2VpTGFicy9rZWktY29ubmVjdG9yLWNvbnRyYWN0cy9nZW4vZ28va2VpL2NvbnRyYWN0cy92MTtjb250cmFjdHNiBnByb3RvMw", [file_google_protobuf_descriptor]);
+  fileDesc("Ch5rZWkvY29udHJhY3RzL3YxL29wdGlvbnMucHJvdG8SEGtlaS5jb250cmFjdHMudjEiSQoKU2V0dXBGaWVsZBIMCgRuYW1lGAEgASgJEgwKBHR5cGUYAiABKAkSDwoHcGF0dGVybhgDIAEoCRIOCgZzZWNyZXQYBCABKAgiqQIKCkNvbm5lY3Rpb24SDAoEbmFtZRgBIAEoCRIuCgRraW5kGAIgASgOMiAua2VpLmNvbnRyYWN0cy52MS5Db25uZWN0aW9uS2luZBITCgthdXRoX21ldGhvZBgDIAEoCRI1Cg1hY2NvdW50X21vZGVsGAQgASgOMh4ua2VpLmNvbnRyYWN0cy52MS5BY2NvdW50TW9kZWwSEAoIYmFzZV91cmwYBSABKAkSFgoOYmFzZV91cmxfZmllbGQYBiABKAkSMgoMc2V0dXBfZmllbGRzGAcgAygLMhwua2VpLmNvbnRyYWN0cy52MS5TZXR1cEZpZWxkEg4KBnNjb3BlcxgIIAMoCRIOCgZlbmdpbmUYCSABKAkSEwoLaGVhZGVyX25hbWUYCiABKAkiXAoJQ29ubmVjdG9yEgoKAmlkGAEgASgJEhAKCGJhc2VfdXJsGAIgASgJEjEKC2Nvbm5lY3Rpb25zGAMgAygLMhwua2VpLmNvbnRyYWN0cy52MS5Db25uZWN0aW9uIlwKDEVycm9yTWFwcGluZxIOCgZzdGF0dXMYASABKAUSKQoEa2luZBgCIAEoDjIbLmtlaS5jb250cmFjdHMudjEuRXJyb3JLaW5kEhEKCXJldHJ5YWJsZRgDIAEoCCJTCgVQYXJhbRIlCgJpbhgBIAEoDjIZLmtlaS5jb250cmFjdHMudjEuUGFyYW1JbhIMCgRuYW1lGAIgASgJEhUKDW11bHRpX3NlZ21lbnQYAyABKAgiZQoJU2VtYW50aWNzEjAKBmFjdGlvbhgBIAEoDjIgLmtlaS5jb250cmFjdHMudjEuU2VtYW50aWNBY3Rpb24SFQoNcmVzb3VyY2VfdHlwZRgCIAEoCRIPCgd2ZXJzaW9uGAMgASgNIqUECglPcGVyYXRpb24SCgoCaWQYASABKAkSEQoJY29ubmVjdG9yGAIgASgJEi8KBWNsYXNzGAMgASgOMiAua2VpLmNvbnRyYWN0cy52MS5PcGVyYXRpb25DbGFzcxITCgtkZXN0cnVjdGl2ZRgEIAEoCBITCgtodHRwX21ldGhvZBgFIAEoCRIVCg1wYXRoX3RlbXBsYXRlGAYgASgJEg4KBnNjb3BlcxgHIAMoCRJDChRjcmVkZW50aWFsX3BsYWNlbWVudBgIIAEoDjIlLmtlaS5jb250cmFjdHMudjEuQ3JlZGVudGlhbFBsYWNlbWVudBITCgttZXRob2RfbmFtZRgJIAEoCRITCgtjb25uZWN0aW9ucxgKIAMoCRIZChFyZXNvdXJjZV90ZW1wbGF0ZRgLIAEoCRIuCgZlcnJvcnMYDCADKAsyHi5rZWkuY29udHJhY3RzLnYxLkVycm9yTWFwcGluZxISCgpkZXByZWNhdGVkGA0gASgIEhMKC3JlcGxhY2VkX2J5GA4gASgJEhgKEGdyYXBocWxfZG9jdW1lbnQYDyABKAkSGQoRcG9zaXRpb25hbF9oZWxwZXIYECABKAgSLgoJc2VtYW50aWNzGBEgASgLMhsua2VpLmNvbnRyYWN0cy52MS5TZW1hbnRpY3MSFAoMY3Vyc29yX2ZpZWxkGBIgASgJEhkKEW5leHRfY3Vyc29yX2ZpZWxkGBMgASgJKmYKDk9wZXJhdGlvbkNsYXNzEh8KG09QRVJBVElPTl9DTEFTU19VTlNQRUNJRklFRBAAEhgKFE9QRVJBVElPTl9DTEFTU19SRUFEEAESGQoVT1BFUkFUSU9OX0NMQVNTX1dSSVRFEAIq6gEKE0NyZWRlbnRpYWxQbGFjZW1lbnQSJAogQ1JFREVOVElBTF9QTEFDRU1FTlRfVU5TUEVDSUZJRUQQABImCiJDUkVERU5USUFMX1BMQUNFTUVOVF9IRUFERVJfQkVBUkVSEAESJgoiQ1JFREVOVElBTF9QTEFDRU1FTlRfSEVBREVSX0NVU1RPTRACEh4KGkNSRURFTlRJQUxfUExBQ0VNRU5UX1FVRVJZEAMSHgoaQ1JFREVOVElBTF9QTEFDRU1FTlRfQkFTSUMQBBIdChlDUkVERU5USUFMX1BMQUNFTUVOVF9OT05FEAUq9gEKDkNvbm5lY3Rpb25LaW5kEh8KG0NPTk5FQ1RJT05fS0lORF9VTlNQRUNJRklFRBAAEh8KG0NPTk5FQ1RJT05fS0lORF9IVFRQX0JFQVJFUhABEh8KG0NPTk5FQ1RJT05fS0lORF9IVFRQX0hFQURFUhACEh4KGkNPTk5FQ1RJT05fS0lORF9IVFRQX0JBU0lDEAMSGwoXQ09OTkVDVElPTl9LSU5EX1NRTF9EU04QBBIgChxDT05ORUNUSU9OX0tJTkRfS0VZX1BBSVJfSldUEAUSIgoeQ09OTkVDVElPTl9LSU5EX1RPS0VOX0VYQ0hBTkdFEAYqYwoMQWNjb3VudE1vZGVsEh0KGUFDQ09VTlRfTU9ERUxfVU5TUEVDSUZJRUQQABIaChZBQ0NPVU5UX01PREVMX1BFUl9VU0VSEAESGAoUQUNDT1VOVF9NT0RFTF9TSEFSRUQQAiriAQoJRXJyb3JLaW5kEhoKFkVSUk9SX0tJTkRfVU5TUEVDSUZJRUQQABIYChRFUlJPUl9LSU5EX05PVF9GT1VORBABEhsKF0VSUk9SX0tJTkRfVU5BVVRIT1JJWkVEEAISGAoURVJST1JfS0lORF9GT1JCSURERU4QAxIbChdFUlJPUl9LSU5EX1JBVEVfTElNSVRFRBAEEhcKE0VSUk9SX0tJTkRfQ09ORkxJQ1QQBRIWChJFUlJPUl9LSU5EX0lOVkFMSUQQBhIaChZFUlJPUl9LSU5EX1VOQVZBSUxBQkxFEAcqcgoHUGFyYW1JbhIYChRQQVJBTV9JTl9VTlNQRUNJRklFRBAAEhEKDVBBUkFNX0lOX1BBVEgQARISCg5QQVJBTV9JTl9RVUVSWRACEhEKDVBBUkFNX0lOX0JPRFkQAxITCg9QQVJBTV9JTl9IRUFERVIQBCqfAQoOU2VtYW50aWNBY3Rpb24SHwobU0VNQU5USUNfQUNUSU9OX1VOU1BFQ0lGSUVEEAASGAoUU0VNQU5USUNfQUNUSU9OX1JFQUQQARIaChZTRU1BTlRJQ19BQ1RJT05fQ1JFQVRFEAISGgoWU0VNQU5USUNfQUNUSU9OX1VQREFURRADEhoKFlNFTUFOVElDX0FDVElPTl9ERUxFVEUQBDpcCglvcGVyYXRpb24SHy5nb29nbGUucHJvdG9idWYuTWVzc2FnZU9wdGlvbnMYopADIAEoCzIbLmtlaS5jb250cmFjdHMudjEuT3BlcmF0aW9uUglvcGVyYXRpb246WQoJY29ubmVjdG9yEhwuZ29vZ2xlLnByb3RvYnVmLkZpbGVPcHRpb25zGKOQAyABKAsyGy5rZWkuY29udHJhY3RzLnYxLkNvbm5lY3RvclIJY29ubmVjdG9yOk4KBXBhcmFtEh0uZ29vZ2xlLnByb3RvYnVmLkZpZWxkT3B0aW9ucxikkAMgASgLMhcua2VpLmNvbnRyYWN0cy52MS5QYXJhbVIFcGFyYW1CUVpPZ2l0aHViLmNvbS9IYWlrZWlMYWJzL2tlaS1jb25uZWN0b3ItY29udHJhY3RzL2dlbi9nby9rZWkvY29udHJhY3RzL3YxO2NvbnRyYWN0c2IGcHJvdG8z", [file_google_protobuf_descriptor]);
+
+/**
+ * SetupField is one value an admin fills in when configuring a connection.
+ * A secret field holds a credential: it is stored in a secret backend, never
+ * shown back, and never has a default value.
+ *
+ * @generated from message kei.contracts.v1.SetupField
+ */
+export type SetupField = Message<"kei.contracts.v1.SetupField"> & {
+  /**
+   * @generated from field: string name = 1;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string type = 2;
+   */
+  type: string;
+
+  /**
+   * @generated from field: string pattern = 3;
+   */
+  pattern: string;
+
+  /**
+   * @generated from field: bool secret = 4;
+   */
+  secret: boolean;
+};
+
+/**
+ * Describes the message kei.contracts.v1.SetupField.
+ * Use `create(SetupFieldSchema)` to create a new message.
+ */
+export const SetupFieldSchema: GenMessage<SetupField> = /*@__PURE__*/
+  messageDesc(file_kei_contracts_v1_options, 0);
+
+/**
+ * Connection declares one way to build an authenticated connection to a
+ * connector. Operations name the connections they accept.
+ *
+ * @generated from message kei.contracts.v1.Connection
+ */
+export type Connection = Message<"kei.contracts.v1.Connection"> & {
+  /**
+   * Stable name within the connector, for example user_oauth or pat.
+   *
+   * @generated from field: string name = 1;
+   */
+  name: string;
+
+  /**
+   * @generated from field: kei.contracts.v1.ConnectionKind kind = 2;
+   */
+  kind: ConnectionKind;
+
+  /**
+   * The auth method in docs/connector-auth.md (sso_reuse, oauth,
+   * secret_ref, kei_token_exchange, service_principal_key).
+   *
+   * @generated from field: string auth_method = 3;
+   */
+  authMethod: string;
+
+  /**
+   * @generated from field: kei.contracts.v1.AccountModel account_model = 4;
+   */
+  accountModel: AccountModel;
+
+  /**
+   * Fixed provider origin for this connection; overrides the connector's.
+   *
+   * @generated from field: string base_url = 5;
+   */
+  baseUrl: string;
+
+  /**
+   * Name of the setup field that holds the origin, when it is configured.
+   *
+   * @generated from field: string base_url_field = 6;
+   */
+  baseUrlField: string;
+
+  /**
+   * @generated from field: repeated kei.contracts.v1.SetupField setup_fields = 7;
+   */
+  setupFields: SetupField[];
+
+  /**
+   * Provider scopes the credential must carry, if any.
+   *
+   * @generated from field: repeated string scopes = 8;
+   */
+  scopes: string[];
+
+  /**
+   * For CONNECTION_KIND_SQL_DSN, the engine(s) the DSN may name; empty
+   * means any. The query dialect itself is a field of the request.
+   *
+   * @generated from field: string engine = 9;
+   */
+  engine: string;
+
+  /**
+   * For CONNECTION_KIND_HTTP_HEADER, the header that carries the credential
+   * as is (for example X-Api-Key, or Authorization with no scheme).
+   *
+   * @generated from field: string header_name = 10;
+   */
+  headerName: string;
+};
+
+/**
+ * Describes the message kei.contracts.v1.Connection.
+ * Use `create(ConnectionSchema)` to create a new message.
+ */
+export const ConnectionSchema: GenMessage<Connection> = /*@__PURE__*/
+  messageDesc(file_kei_contracts_v1_options, 1);
+
+/**
+ * Connector declares a connector and its connection kinds, once per
+ * connector, as a file option on its connector.proto.
+ *
+ * @generated from message kei.contracts.v1.Connector
+ */
+export type Connector = Message<"kei.contracts.v1.Connector"> & {
+  /**
+   * Connector id; the first segment of every operation id it owns.
+   *
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * Default provider origin for its HTTP connections.
+   *
+   * @generated from field: string base_url = 2;
+   */
+  baseUrl: string;
+
+  /**
+   * @generated from field: repeated kei.contracts.v1.Connection connections = 3;
+   */
+  connections: Connection[];
+};
+
+/**
+ * Describes the message kei.contracts.v1.Connector.
+ * Use `create(ConnectorSchema)` to create a new message.
+ */
+export const ConnectorSchema: GenMessage<Connector> = /*@__PURE__*/
+  messageDesc(file_kei_contracts_v1_options, 2);
+
+/**
+ * ErrorMapping maps one provider status to an error kind.
+ *
+ * @generated from message kei.contracts.v1.ErrorMapping
+ */
+export type ErrorMapping = Message<"kei.contracts.v1.ErrorMapping"> & {
+  /**
+   * @generated from field: int32 status = 1;
+   */
+  status: number;
+
+  /**
+   * @generated from field: kei.contracts.v1.ErrorKind kind = 2;
+   */
+  kind: ErrorKind;
+
+  /**
+   * @generated from field: bool retryable = 3;
+   */
+  retryable: boolean;
+};
+
+/**
+ * Describes the message kei.contracts.v1.ErrorMapping.
+ * Use `create(ErrorMappingSchema)` to create a new message.
+ */
+export const ErrorMappingSchema: GenMessage<ErrorMapping> = /*@__PURE__*/
+  messageDesc(file_kei_contracts_v1_options, 3);
+
+/**
+ * Param overrides where a request field goes. Without it, path-template
+ * fields go in the path, and the rest in the query for GET and in the body
+ * otherwise.
+ *
+ * @generated from message kei.contracts.v1.Param
+ */
+export type Param = Message<"kei.contracts.v1.Param"> & {
+  /**
+   * @generated from field: kei.contracts.v1.ParamIn in = 1;
+   */
+  in: ParamIn;
+
+  /**
+   * Wire name, when it differs from the field's JSON name.
+   *
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * A path param whose value may contain '/' (a file path, a git ref). The
+   * renderer escapes each '/'-separated segment of the value and keeps the
+   * slashes; '.' and '..' segments are still rejected. Default false: the
+   * whole value is one escaped segment.
+   *
+   * @generated from field: bool multi_segment = 3;
+   */
+  multiSegment: boolean;
+};
+
+/**
+ * Describes the message kei.contracts.v1.Param.
+ * Use `create(ParamSchema)` to create a new message.
+ */
+export const ParamSchema: GenMessage<Param> = /*@__PURE__*/
+  messageDesc(file_kei_contracts_v1_options, 4);
+
+/**
+ * Semantics is an operation's versioned semantic mapping: what kind of
+ * action it is on what kind of resource. It is metadata for semantic policy
+ * and audit, never a grant and never a replacement for the operation id.
+ *
+ * @generated from message kei.contracts.v1.Semantics
+ */
+export type Semantics = Message<"kei.contracts.v1.Semantics"> & {
+  /**
+   * @generated from field: kei.contracts.v1.SemanticAction action = 1;
+   */
+  action: SemanticAction;
+
+  /**
+   * Shared resource type name, for example issue, pull_request, query.
+   *
+   * @generated from field: string resource_type = 2;
+   */
+  resourceType: string;
+
+  /**
+   * Bumped whenever the mapping changes.
+   *
+   * @generated from field: uint32 version = 3;
+   */
+  version: number;
+};
+
+/**
+ * Describes the message kei.contracts.v1.Semantics.
+ * Use `create(SemanticsSchema)` to create a new message.
+ */
+export const SemanticsSchema: GenMessage<Semantics> = /*@__PURE__*/
+  messageDesc(file_kei_contracts_v1_options, 5);
 
 /**
  * Operation declares how a connector operation is invoked and governed.
@@ -83,9 +337,92 @@ export type Operation = Message<"kei.contracts.v1.Operation"> & {
   scopes: string[];
 
   /**
+   * Kept for compatibility; the placement now follows from the connection
+   * kind.
+   *
    * @generated from field: kei.contracts.v1.CredentialPlacement credential_placement = 8;
    */
   credentialPlacement: CredentialPlacement;
+
+  /**
+   * Generated function name; empty means the request message name without
+   * the Request suffix.
+   *
+   * @generated from field: string method_name = 9;
+   */
+  methodName: string;
+
+  /**
+   * Names of the connector's connections this operation accepts.
+   *
+   * @generated from field: repeated string connections = 10;
+   */
+  connections: string[];
+
+  /**
+   * Default policy resource the call touches, for example
+   * repos/{owner}/{repository}; its variables are request fields.
+   *
+   * @generated from field: string resource_template = 11;
+   */
+  resourceTemplate: string;
+
+  /**
+   * Provider status to error kind.
+   *
+   * @generated from field: repeated kei.contracts.v1.ErrorMapping errors = 12;
+   */
+  errors: ErrorMapping[];
+
+  /**
+   * A deprecated operation stays callable until a major version removes it.
+   *
+   * @generated from field: bool deprecated = 13;
+   */
+  deprecated: boolean;
+
+  /**
+   * The operation id that replaces a deprecated one.
+   *
+   * @generated from field: string replaced_by = 14;
+   */
+  replacedBy: string;
+
+  /**
+   * For a GraphQL connector, the one fixed document this operation sends;
+   * its variables are request fields.
+   *
+   * @generated from field: string graphql_document = 15;
+   */
+  graphqlDocument: string;
+
+  /**
+   * Also generate a positional-argument helper beside the message form.
+   *
+   * @generated from field: bool positional_helper = 16;
+   */
+  positionalHelper: boolean;
+
+  /**
+   * Versioned semantic mapping, for semantic policy and audit.
+   *
+   * @generated from field: kei.contracts.v1.Semantics semantics = 17;
+   */
+  semantics?: Semantics | undefined;
+
+  /**
+   * Request field that carries the page cursor (one page per call).
+   *
+   * @generated from field: string cursor_field = 18;
+   */
+  cursorField: string;
+
+  /**
+   * Response field that returns the next cursor, empty on the last page.
+   *
+   * @generated from field: string next_cursor_field = 19;
+   */
+  nextCursorField: string;
 };
 
 /**
@@ -93,7 +430,7 @@ export type Operation = Message<"kei.contracts.v1.Operation"> & {
  * Use `create(OperationSchema)` to create a new message.
  */
 export const OperationSchema: GenMessage<Operation> = /*@__PURE__*/
-  messageDesc(file_kei_contracts_v1_options, 0);
+  messageDesc(file_kei_contracts_v1_options, 6);
 
 /**
  * OperationClass classifies what an operation does to the connector's
@@ -172,8 +509,244 @@ export const CredentialPlacementSchema: GenEnum<CredentialPlacement> = /*@__PURE
   enumDesc(file_kei_contracts_v1_options, 1);
 
 /**
+ * ConnectionKind says how an authenticated connection to a connector is
+ * built. The contract names the kind; the credential value is supplied by
+ * the caller at run time and is never part of the contract.
+ *
+ * @generated from enum kei.contracts.v1.ConnectionKind
+ */
+export enum ConnectionKind {
+  /**
+   * @generated from enum value: CONNECTION_KIND_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Authorization: Bearer <credential>.
+   *
+   * @generated from enum value: CONNECTION_KIND_HTTP_BEARER = 1;
+   */
+  HTTP_BEARER = 1,
+
+  /**
+   * The credential in a named header (for example X-Api-Key).
+   *
+   * @generated from enum value: CONNECTION_KIND_HTTP_HEADER = 2;
+   */
+  HTTP_HEADER = 2,
+
+  /**
+   * HTTP basic authentication.
+   *
+   * @generated from enum value: CONNECTION_KIND_HTTP_BASIC = 3;
+   */
+  HTTP_BASIC = 3,
+
+  /**
+   * A database DSN; the connection is a SQL pool, not HTTP.
+   *
+   * @generated from enum value: CONNECTION_KIND_SQL_DSN = 4;
+   */
+  SQL_DSN = 4,
+
+  /**
+   * A signed JWT built from a private key.
+   *
+   * @generated from enum value: CONNECTION_KIND_KEY_PAIR_JWT = 5;
+   */
+  KEY_PAIR_JWT = 5,
+
+  /**
+   * A token obtained by exchanging another token.
+   *
+   * @generated from enum value: CONNECTION_KIND_TOKEN_EXCHANGE = 6;
+   */
+  TOKEN_EXCHANGE = 6,
+}
+
+/**
+ * Describes the enum kei.contracts.v1.ConnectionKind.
+ */
+export const ConnectionKindSchema: GenEnum<ConnectionKind> = /*@__PURE__*/
+  enumDesc(file_kei_contracts_v1_options, 2);
+
+/**
+ * AccountModel says whose account a connection acts as.
+ *
+ * @generated from enum kei.contracts.v1.AccountModel
+ */
+export enum AccountModel {
+  /**
+   * @generated from enum value: ACCOUNT_MODEL_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * Each user connects their own account.
+   *
+   * @generated from enum value: ACCOUNT_MODEL_PER_USER = 1;
+   */
+  PER_USER = 1,
+
+  /**
+   * One account configured by an admin, shared by every caller.
+   *
+   * @generated from enum value: ACCOUNT_MODEL_SHARED = 2;
+   */
+  SHARED = 2,
+}
+
+/**
+ * Describes the enum kei.contracts.v1.AccountModel.
+ */
+export const AccountModelSchema: GenEnum<AccountModel> = /*@__PURE__*/
+  enumDesc(file_kei_contracts_v1_options, 3);
+
+/**
+ * ErrorKind is the provider-neutral kind an operation error maps to.
+ *
+ * @generated from enum kei.contracts.v1.ErrorKind
+ */
+export enum ErrorKind {
+  /**
+   * @generated from enum value: ERROR_KIND_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: ERROR_KIND_NOT_FOUND = 1;
+   */
+  NOT_FOUND = 1,
+
+  /**
+   * @generated from enum value: ERROR_KIND_UNAUTHORIZED = 2;
+   */
+  UNAUTHORIZED = 2,
+
+  /**
+   * @generated from enum value: ERROR_KIND_FORBIDDEN = 3;
+   */
+  FORBIDDEN = 3,
+
+  /**
+   * @generated from enum value: ERROR_KIND_RATE_LIMITED = 4;
+   */
+  RATE_LIMITED = 4,
+
+  /**
+   * @generated from enum value: ERROR_KIND_CONFLICT = 5;
+   */
+  CONFLICT = 5,
+
+  /**
+   * @generated from enum value: ERROR_KIND_INVALID = 6;
+   */
+  INVALID = 6,
+
+  /**
+   * @generated from enum value: ERROR_KIND_UNAVAILABLE = 7;
+   */
+  UNAVAILABLE = 7,
+}
+
+/**
+ * Describes the enum kei.contracts.v1.ErrorKind.
+ */
+export const ErrorKindSchema: GenEnum<ErrorKind> = /*@__PURE__*/
+  enumDesc(file_kei_contracts_v1_options, 4);
+
+/**
+ * ParamIn says where a request field goes on the outgoing HTTP request.
+ *
+ * @generated from enum kei.contracts.v1.ParamIn
+ */
+export enum ParamIn {
+  /**
+   * @generated from enum value: PARAM_IN_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: PARAM_IN_PATH = 1;
+   */
+  PATH = 1,
+
+  /**
+   * @generated from enum value: PARAM_IN_QUERY = 2;
+   */
+  QUERY = 2,
+
+  /**
+   * @generated from enum value: PARAM_IN_BODY = 3;
+   */
+  BODY = 3,
+
+  /**
+   * @generated from enum value: PARAM_IN_HEADER = 4;
+   */
+  HEADER = 4,
+}
+
+/**
+ * Describes the enum kei.contracts.v1.ParamIn.
+ */
+export const ParamInSchema: GenEnum<ParamIn> = /*@__PURE__*/
+  enumDesc(file_kei_contracts_v1_options, 5);
+
+/**
+ * SemanticAction is the shared, connector-neutral action vocabulary of a
+ * semantic mapping.
+ *
+ * @generated from enum kei.contracts.v1.SemanticAction
+ */
+export enum SemanticAction {
+  /**
+   * @generated from enum value: SEMANTIC_ACTION_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: SEMANTIC_ACTION_READ = 1;
+   */
+  READ = 1,
+
+  /**
+   * @generated from enum value: SEMANTIC_ACTION_CREATE = 2;
+   */
+  CREATE = 2,
+
+  /**
+   * @generated from enum value: SEMANTIC_ACTION_UPDATE = 3;
+   */
+  UPDATE = 3,
+
+  /**
+   * @generated from enum value: SEMANTIC_ACTION_DELETE = 4;
+   */
+  DELETE = 4,
+}
+
+/**
+ * Describes the enum kei.contracts.v1.SemanticAction.
+ */
+export const SemanticActionSchema: GenEnum<SemanticAction> = /*@__PURE__*/
+  enumDesc(file_kei_contracts_v1_options, 6);
+
+/**
  * @generated from extension: kei.contracts.v1.Operation operation = 51234;
  */
 export const operation: GenExtension<MessageOptions, Operation> = /*@__PURE__*/
   extDesc(file_kei_contracts_v1_options, 0);
+
+/**
+ * @generated from extension: kei.contracts.v1.Connector connector = 51235;
+ */
+export const connector: GenExtension<FileOptions, Connector> = /*@__PURE__*/
+  extDesc(file_kei_contracts_v1_options, 1);
+
+/**
+ * @generated from extension: kei.contracts.v1.Param param = 51236;
+ */
+export const param: GenExtension<FieldOptions, Param> = /*@__PURE__*/
+  extDesc(file_kei_contracts_v1_options, 2);
 
