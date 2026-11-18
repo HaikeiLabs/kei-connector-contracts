@@ -24,13 +24,14 @@ var tsTemplate = template.Must(template.New("ts").Parse(tsTemplateText))
 type tsImport struct{ Path, Names string }
 type tsOperation struct {
 	Const, Descriptor, Method, Req, Resp, Spec string
-	SQL                                        bool
+	Params, Build                              string
+	SQL, Helper                                bool
 }
 type tsFile struct {
-	Source, Runtime, Name string
-	SQL                   bool
-	Imports               []tsImport
-	Ops                   []tsOperation
+	Source, Runtime, Name        string
+	SQL, Positional, NeedsCreate bool
+	Imports                      []tsImport
+	Ops                          []tsOperation
 }
 
 func tsRelative(from, to string) string {
@@ -63,7 +64,7 @@ func tsSnake(s string) string {
 }
 func renderTS(gen *protogen.Plugin, c *model.Connector, opts Options) error {
 	dir := path.Dir(c.File.Desc.Path())
-	d := tsFile{Source: c.File.Desc.Path(), Runtime: tsRelative(dir, "kei/connection/index.js"), Name: tsPascal(c.ID), SQL: c.IsSQL()}
+	d := tsFile{Source: c.File.Desc.Path(), Runtime: tsRelative(dir, "kei/connection/index.js"), Name: tsPascal(c.ID), SQL: c.IsSQL(), Positional: opts.positional()}
 	imports := map[string]map[string]bool{}
 	for _, op := range c.Ops {
 		for _, m := range []*protogen.Message{op.Request, op.Response} {
@@ -82,6 +83,40 @@ func renderTS(gen *protogen.Plugin, c *model.Connector, opts Options) error {
 		descriptor := fmt.Sprintf("{ id: %s, class: %s, destructive: %t }", tsJSON(op.ID), tsJSON(class), op.Opt.GetDestructive())
 		name := "OP_" + tsSnake(op.MethodName)
 		o := tsOperation{Const: name, Descriptor: descriptor, Method: strings.ToLower(op.MethodName[:1]) + op.MethodName[1:], Req: op.Request.GoIdent.GoName, Resp: op.Response.GoIdent.GoName, SQL: op.Transport == model.SQL}
+		o.Helper = !opts.positional() && op.Opt.GetPositionalHelper()
+		if opts.positional() || o.Helper {
+			d.NeedsCreate = true
+			for _, oneof := range op.Request.Oneofs {
+				if !oneof.Desc.IsSynthetic() {
+					return fmt.Errorf("protoc-gen-kei-ops: %s: positional signatures do not support oneof %s", op.ID, oneof.Desc.Name())
+				}
+			}
+			var args, properties []string
+			used := map[string]bool{"req": true, "ops": true}
+			for _, f := range op.Request.Fields {
+				property := string(f.Desc.Name())
+				parts := strings.Split(property, "_")
+				for i := 1; i < len(parts); i++ {
+					if parts[i] != "" {
+						parts[i] = strings.ToUpper(parts[i][:1]) + parts[i][1:]
+					}
+				}
+				property = strings.Join(parts, "")
+				arg := property
+				switch arg {
+				case "default", "class", "function", "new", "return", "var", "let", "const", "delete", "this", "export", "import", "extends", "super", "void", "typeof", "in", "instanceof", "await", "yield":
+					arg += "_"
+				}
+				for used[arg] {
+					arg += "_"
+				}
+				used[arg] = true
+				args = append(args, fmt.Sprintf("%s: %s[%s]", arg, o.Req, tsJSON(property)))
+				properties = append(properties, fmt.Sprintf("%s: %s", tsJSON(property), arg))
+			}
+			o.Params = strings.Join(args, ", ")
+			o.Build = "create(" + o.Req + "Schema, { " + strings.Join(properties, ", ") + " })"
+		}
 		params := []map[string]any{}
 		for _, p := range op.Params {
 			loc := "body"

@@ -19,6 +19,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strings"
 	"testing"
 
 	"github.com/HaikeiLabs/kei-connector-contracts/tools/protoc-gen-kei/internal/plugintest"
@@ -110,6 +111,21 @@ func TestGoGolden(t *testing.T) {
 
 func TestTSGolden(t *testing.T) {
 	checkGolden(t, "testdata/golden/ts", generate(t, "paths=source_relative,lang=ts"))
+}
+
+func TestTSGolden_Positional(t *testing.T) {
+	got := generate(t, "paths=source_relative,lang=ts,signature=positional")
+	if !strings.Contains(got["kei/testconn/v1/ops.ts"], `getThing(space: GetThingRequest["space"], thingId: GetThingRequest["thingId"])`) {
+		t.Fatal("positional signature missing")
+	}
+	checkGolden(t, "testdata/golden/ts-positional", got)
+}
+
+func TestTSPositionalHelper(t *testing.T) {
+	got := generate(t, "paths=source_relative,lang=ts")
+	if !strings.Contains(got["kei/testconn/v1/ops.ts"], "getThingPositional(") {
+		t.Fatal("positional helper missing")
+	}
 }
 
 func TestGoGolden_Positional(t *testing.T) {
