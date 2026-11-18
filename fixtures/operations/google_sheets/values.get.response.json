@@ -1,0 +1,8 @@
+{
+  "range": "Sheet1!A1:B2",
+  "majorDimension": "ROWS",
+  "values": [
+    ["Synthetic first cell", null],
+    ["Synthetic third cell", "Synthetic fourth cell"]
+  ]
+}

@@ -1,3 +1,4 @@
+from google.protobuf import struct_pb2 as _struct_pb2
 from kei.contracts.v1 import options_pb2 as _options_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
@@ -14,6 +15,30 @@ class GetConfluencePageRequest(_message.Message):
     def __init__(self, page_id: _Optional[int] = ...) -> None: ...
 
 class GetConfluencePageResponse(_message.Message):
+    __slots__ = ("id", "title", "space_id", "parent_id")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    TITLE_FIELD_NUMBER: _ClassVar[int]
+    SPACE_ID_FIELD_NUMBER: _ClassVar[int]
+    PARENT_ID_FIELD_NUMBER: _ClassVar[int]
+    id: int
+    title: str
+    space_id: str
+    parent_id: str
+    def __init__(self, id: _Optional[int] = ..., title: _Optional[str] = ..., space_id: _Optional[str] = ..., parent_id: _Optional[str] = ...) -> None: ...
+
+class CreateConfluencePageRequest(_message.Message):
+    __slots__ = ("space_id", "title", "parent_id", "body")
+    SPACE_ID_FIELD_NUMBER: _ClassVar[int]
+    TITLE_FIELD_NUMBER: _ClassVar[int]
+    PARENT_ID_FIELD_NUMBER: _ClassVar[int]
+    BODY_FIELD_NUMBER: _ClassVar[int]
+    space_id: str
+    title: str
+    parent_id: str
+    body: _struct_pb2.Struct
+    def __init__(self, space_id: _Optional[str] = ..., title: _Optional[str] = ..., parent_id: _Optional[str] = ..., body: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ...) -> None: ...
+
+class CreateConfluencePageResponse(_message.Message):
     __slots__ = ("id", "title", "space_id", "parent_id")
     ID_FIELD_NUMBER: _ClassVar[int]
     TITLE_FIELD_NUMBER: _ClassVar[int]

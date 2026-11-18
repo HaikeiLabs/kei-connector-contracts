@@ -66,3 +66,37 @@ class GetIssueResponse(_message.Message):
     share_id: str
     permalink: str
     def __init__(self, id: _Optional[str] = ..., short_id: _Optional[str] = ..., title: _Optional[str] = ..., status: _Optional[str] = ..., level: _Optional[str] = ..., share_id: _Optional[str] = ..., permalink: _Optional[str] = ...) -> None: ...
+
+class UpdateIssueRequest(_message.Message):
+    __slots__ = ("organization_slug", "issue_id", "status", "assigned_to", "has_seen", "is_bookmarked")
+    ORGANIZATION_SLUG_FIELD_NUMBER: _ClassVar[int]
+    ISSUE_ID_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    ASSIGNED_TO_FIELD_NUMBER: _ClassVar[int]
+    HAS_SEEN_FIELD_NUMBER: _ClassVar[int]
+    IS_BOOKMARKED_FIELD_NUMBER: _ClassVar[int]
+    organization_slug: str
+    issue_id: str
+    status: str
+    assigned_to: str
+    has_seen: bool
+    is_bookmarked: bool
+    def __init__(self, organization_slug: _Optional[str] = ..., issue_id: _Optional[str] = ..., status: _Optional[str] = ..., assigned_to: _Optional[str] = ..., has_seen: _Optional[bool] = ..., is_bookmarked: _Optional[bool] = ...) -> None: ...
+
+class UpdateIssueResponse(_message.Message):
+    __slots__ = ("id", "short_id", "title", "status", "level", "share_id", "permalink")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    SHORT_ID_FIELD_NUMBER: _ClassVar[int]
+    TITLE_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    LEVEL_FIELD_NUMBER: _ClassVar[int]
+    SHARE_ID_FIELD_NUMBER: _ClassVar[int]
+    PERMALINK_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    short_id: str
+    title: str
+    status: str
+    level: str
+    share_id: str
+    permalink: str
+    def __init__(self, id: _Optional[str] = ..., short_id: _Optional[str] = ..., title: _Optional[str] = ..., status: _Optional[str] = ..., level: _Optional[str] = ..., share_id: _Optional[str] = ..., permalink: _Optional[str] = ...) -> None: ...

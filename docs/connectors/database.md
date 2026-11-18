@@ -8,6 +8,13 @@ correctly for that engine. The general rules are in
 
 Source: `proto/kei/connectors/database/v1/query.proto`.
 
+
+## Operations
+
+| Operation id | Method | Path | Class | Connections |
+| --- | --- | --- | --- | --- |
+| `database.query.run` | — | — | `read` | `dsn` |
+
 ## Operations
 
 | Id | Class | HTTP method | Path template | Scopes | Credential placement |

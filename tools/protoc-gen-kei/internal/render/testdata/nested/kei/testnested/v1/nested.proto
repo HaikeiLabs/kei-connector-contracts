@@ -1,0 +1,54 @@
+// Rust template test: a body parameter that is a repeated message with
+// nested fields (the shape of power_bi.datasets.execute_queries).
+syntax = "proto3";
+
+package kei.testnested.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "example.test/gen/go/kei/testnested/v1;testnested";
+option (kei.contracts.v1.connector) = {
+  id: "testnested"
+  base_url: "https://api.example.test"
+  connections: [{name: "pat" kind: CONNECTION_KIND_HTTP_BEARER account_model: ACCOUNT_MODEL_SHARED}]
+};
+
+message Serializer {
+  bool include_nulls = 1;
+}
+
+message QueryDefinition {
+  string query = 1;
+  int64 max_rows = 2;
+  optional string label = 3;
+  repeated string tags = 4;
+  Serializer serializer = 5;
+  string display_name = 6 [json_name = "title"];
+  // A Rust keyword: prost names the struct field r#type.
+  string type = 7;
+}
+
+message RunQueriesRequest {
+  string space = 1;
+  repeated QueryDefinition queries = 2;
+  Serializer settings = 3;
+  // Rust keywords in the path and the body: prost names them r#ref, r#where.
+  string ref = 4;
+  string where = 5;
+
+  option (kei.contracts.v1.operation) = {
+    id: "testnested.queries.run"
+    connector: "testnested"
+    class: OPERATION_CLASS_READ
+    http_method: "POST"
+    path_template: "/spaces/{space}/queries/{ref}"
+    scopes: ["queries:read"]
+    connections: ["pat"]
+    resource_template: "spaces/{space}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "query" version: 1}
+  };
+}
+
+message RunQueriesResponse {
+  repeated string results = 1;
+}

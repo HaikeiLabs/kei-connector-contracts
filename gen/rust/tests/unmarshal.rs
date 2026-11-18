@@ -25,6 +25,7 @@ use haikeilabs_connector_contracts::kei::connectors::airtable::v1::{
     UpdateRecordResponse as AirtableUpdateRecordResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::atlassian::v1::{
+    CreateConfluencePageResponse, CreateJiraCommentResponse, CreateJiraIssueResponse,
     GetConfluencePageResponse, GetJiraIssueResponse, ListConfluencePagesResponse,
     SearchJiraIssuesResponse,
 };
@@ -32,7 +33,18 @@ use haikeilabs_connector_contracts::kei::connectors::database::v1::{
     RunQueryRequest, RunQueryResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::github::v1::{
-    GetIssueResponse, GetPullRequestResponse, ListIssuesResponse, PutContentsResponse,
+    CreateBlobResponse, CreateCommitResponse, CreateIssueCommentResponse,
+    CreateIssueResponse as GhCreateIssueResponse, CreatePullRequestResponse,
+    CreatePullReviewResponse, CreateRefResponse, CreateTreeResponse, GetIssueResponse,
+    GetPullRequestResponse, GetRefResponse, ListIssuesResponse, ListPullReviewsResponse,
+    ListPullsResponse, ListWorkflowRunsResponse, PutContentsResponse, UpdatePullRequestResponse,
+    UpdateRefResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::gmail::v1::{
+    GetMessageResponse, ListMessagesResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::google_sheets::v1::{
+    GetSpreadsheetResponse, GetValuesResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::http_api::v1::{
     GetRecordResponse, ListRecordsResponse,
@@ -46,11 +58,18 @@ use haikeilabs_connector_contracts::kei::connectors::linear::v1::{
     CreateCommentResponse, CreateIssueResponse, GetIssueResponse as LinearGetIssueResponse,
     GetTeamResponse, SearchIssuesResponse,
 };
+use haikeilabs_connector_contracts::kei::connectors::omni::v1::{
+    ListDocumentsResponse, RunQueryResponse as OmniRunQueryResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::power_bi::v1::{
+    ExecuteQueriesResponse, ListDatasetsResponse,
+};
 use haikeilabs_connector_contracts::kei::connectors::notion::v1::{
-    GetPageResponse, QueryDatabaseResponse,
+    CreatePageResponse, GetPageResponse, QueryDatabaseResponse, UpdatePageResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::sentry::v1::{
     GetIssueResponse as SentryGetIssueResponse, ListIssuesResponse as SentryListIssuesResponse,
+    UpdateIssueResponse as SentryUpdateIssueResponse,
 };
 use pbjson_types::value::Kind;
 
@@ -101,6 +120,117 @@ fn fixtures_unmarshal() {
             .expect("github.pulls.get response unmarshals");
     assert_eq!(resp.number, 42);
 
+    // github.pulls.list — spot: head/base refs, author login, labels, the
+    // >2^53 id, and the next_page cursor.
+    let resp: ListPullsResponse =
+        serde_json::from_str(&fixture("github", "pulls.list.response.json"))
+            .expect("github.pulls.list response unmarshals");
+    let pull = &resp.pulls[0];
+    assert_eq!(
+        pull.head.as_ref().expect("head present").r#ref,
+        "feature/x"
+    );
+    assert_eq!(pull.base.as_ref().expect("base present").r#ref, "main");
+    assert_eq!(
+        pull.author.as_ref().expect("author present").login,
+        "example-user"
+    );
+    assert_eq!(pull.labels[0].name, "synthetic-label");
+    assert_eq!(pull.id, 9007199254740999, "int64 must not go through f64");
+    assert_eq!(resp.next_page, Some(2));
+
+    // github.actions.runs.list — spot: head_branch and the >2^53 run id.
+    let resp: ListWorkflowRunsResponse =
+        serde_json::from_str(&fixture("github", "actions.runs.list.response.json"))
+            .expect("github.actions.runs.list response unmarshals");
+    assert_eq!(resp.workflow_runs[0].head_branch, "feature/x");
+    assert_eq!(resp.workflow_runs[0].id, 9007199254741001);
+
+    // github.issues.create — spot: number, author login, labels.
+    let resp: GhCreateIssueResponse =
+        serde_json::from_str(&fixture("github", "issues.create.response.json"))
+            .expect("github.issues.create response unmarshals");
+    assert_eq!(resp.number, 42);
+    assert_eq!(resp.author.as_ref().expect("author present").login, "example-user");
+    assert_eq!(resp.labels[0].name, "synthetic-label");
+
+    // github.issues.comments.create — spot: body and author login.
+    let resp: CreateIssueCommentResponse =
+        serde_json::from_str(&fixture("github", "issues.comments.create.response.json"))
+            .expect("github.issues.comments.create response unmarshals");
+    assert_eq!(resp.body, "Synthetic comment");
+    assert_eq!(resp.author.as_ref().expect("author present").login, "example-user");
+
+    // github.pulls.create — spot: number, draft flag, head/base refs.
+    let resp: CreatePullRequestResponse =
+        serde_json::from_str(&fixture("github", "pulls.create.response.json"))
+            .expect("github.pulls.create response unmarshals");
+    assert_eq!(resp.number, 43);
+    assert!(resp.draft);
+    assert_eq!(resp.head.as_ref().expect("head present").r#ref, "feature/x");
+    assert_eq!(resp.base.as_ref().expect("base present").r#ref, "main");
+
+    // github.pulls.update — spot: title and state.
+    let resp: UpdatePullRequestResponse =
+        serde_json::from_str(&fixture("github", "pulls.update.response.json"))
+            .expect("github.pulls.update response unmarshals");
+    assert_eq!(resp.title, "Synthetic updated title");
+    assert_eq!(resp.state, "open");
+
+    // github.pulls.reviews.list — spot: review state and author login.
+    let resp: ListPullReviewsResponse =
+        serde_json::from_str(&fixture("github", "pulls.reviews.list.response.json"))
+            .expect("github.pulls.reviews.list response unmarshals");
+    assert_eq!(resp.reviews[0].state, "APPROVED");
+    assert_eq!(resp.reviews[0].author.as_ref().expect("author present").login, "example-reviewer");
+
+    // github.pulls.reviews.create — spot: state and the >2^53 review id.
+    let resp: CreatePullReviewResponse =
+        serde_json::from_str(&fixture("github", "pulls.reviews.create.response.json"))
+            .expect("github.pulls.reviews.create response unmarshals");
+    assert_eq!(resp.state, "APPROVED");
+    assert_eq!(resp.id, 9007199254741006);
+
+    // github.git.refs.get — spot: full ref and the commit sha it points at.
+    let resp: GetRefResponse =
+        serde_json::from_str(&fixture("github", "git.refs.get.response.json"))
+            .expect("github.git.refs.get response unmarshals");
+    assert_eq!(resp.r#ref, "refs/heads/feature/x");
+    assert_eq!(resp.object.as_ref().expect("object present").sha, "synthetic-ref-sha-1");
+
+    // github.git.refs.create — spot: ref and object type.
+    let resp: CreateRefResponse =
+        serde_json::from_str(&fixture("github", "git.refs.create.response.json"))
+            .expect("github.git.refs.create response unmarshals");
+    assert_eq!(resp.r#ref, "refs/heads/feature/y");
+    assert_eq!(resp.object.as_ref().expect("object present").r#type, "commit");
+
+    // github.git.refs.update — spot: the moved sha.
+    let resp: UpdateRefResponse =
+        serde_json::from_str(&fixture("github", "git.refs.update.response.json"))
+            .expect("github.git.refs.update response unmarshals");
+    assert_eq!(resp.object.as_ref().expect("object present").sha, "synthetic-ref-sha-2");
+
+    // github.git.blobs.create — spot: blob sha.
+    let resp: CreateBlobResponse =
+        serde_json::from_str(&fixture("github", "git.blobs.create.response.json"))
+            .expect("github.git.blobs.create response unmarshals");
+    assert_eq!(resp.sha, "synthetic-blob-sha-1");
+
+    // github.git.trees.create — spot: tree sha and entry path.
+    let resp: CreateTreeResponse =
+        serde_json::from_str(&fixture("github", "git.trees.create.response.json"))
+            .expect("github.git.trees.create response unmarshals");
+    assert_eq!(resp.sha, "synthetic-tree-sha-1");
+    assert_eq!(resp.tree[0].path, "notes.txt");
+
+    // github.git.commits.create — spot: commit sha and single parent.
+    let resp: CreateCommitResponse =
+        serde_json::from_str(&fixture("github", "git.commits.create.response.json"))
+            .expect("github.git.commits.create response unmarshals");
+    assert_eq!(resp.sha, "synthetic-commit-sha-2");
+    assert_eq!(resp.parents.len(), 1);
+
     // linear.issues.get — spot: issue.identifier and labels[0].name.
     let resp: LinearGetIssueResponse =
         serde_json::from_str(&fixture("linear", "issues.get.response.json"))
@@ -137,6 +267,44 @@ fn fixtures_unmarshal() {
         "Synthetic comment"
     );
 
+    // gmail.messages.list — spot: two messages and the next cursor.
+    let resp: ListMessagesResponse =
+        serde_json::from_str(&fixture("gmail", "messages.list.response.json"))
+            .expect("gmail.messages.list response unmarshals");
+    assert_eq!(resp.messages.len(), 2);
+    assert_eq!(resp.next_page_token.as_deref(), Some("synthetic-next-token"));
+
+    // gmail.messages.get — spot: message id, the snippet, and the null
+    // internal date.
+    let resp: GetMessageResponse =
+        serde_json::from_str(&fixture("gmail", "messages.get.response.json"))
+            .expect("gmail.messages.get response unmarshals");
+    assert_eq!(resp.id, "msg-1001");
+    assert_eq!(resp.snippet, "Synthetic message preview text");
+    assert!(resp.internal_date.is_none(), "internal_date must be null");
+
+    // google_sheets.values.get — spot: the echoed range, two rows, and the
+    // null cell in the first row.
+    let resp: GetValuesResponse =
+        serde_json::from_str(&fixture("google_sheets", "values.get.response.json"))
+            .expect("google_sheets.values.get response unmarshals");
+    assert_eq!(resp.range, "Sheet1!A1:B2");
+    assert_eq!(resp.values.len(), 2);
+    match resp.values[0].values.get(1) {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("values[0][1] must be null, got {:?}", other),
+    }
+
+    // google_sheets.spreadsheets.get — spot: spreadsheet id and the title.
+    let resp: GetSpreadsheetResponse =
+        serde_json::from_str(&fixture("google_sheets", "spreadsheets.get.response.json"))
+            .expect("google_sheets.spreadsheets.get response unmarshals");
+    assert_eq!(resp.spreadsheet_id, "synthetic-sheet-1");
+    let properties = resp.properties.as_ref().expect("properties present");
+    assert_eq!(properties.title, "Synthetic sheet");
+
     // atlassian.jira.issues.get — spot: issue key, the summary, and the null
     // description.
     let resp: GetJiraIssueResponse =
@@ -146,6 +314,28 @@ fn fixtures_unmarshal() {
     let fields = resp.fields.as_ref().expect("fields present");
     assert_eq!(fields.summary, "Synthetic Jira issue");
     assert!(fields.description.is_none(), "description must be null");
+
+    // atlassian.jira.issues.create — spot: the created issue's id and key.
+    let resp: CreateJiraIssueResponse =
+        serde_json::from_str(&fixture("atlassian", "jira.issues.create.response.json"))
+            .expect("atlassian.jira.issues.create response unmarshals");
+    assert_eq!(resp.id, "30001");
+    assert_eq!(resp.key, "SYN-301");
+
+    // atlassian.jira.issues.comments.create — spot: the comment id, its ADF
+    // body and the created timestamp.
+    let resp: CreateJiraCommentResponse =
+        serde_json::from_str(&fixture("atlassian", "jira.issues.comments.create.response.json"))
+            .expect("atlassian.jira.issues.comments.create response unmarshals");
+    assert_eq!(resp.id, "40001");
+    let comment_body = resp.body.as_ref().expect("body present");
+    match comment_body.fields.get("type") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(kind)),
+        }) => assert_eq!(kind, "doc"),
+        other => panic!("body.type must be a string, got {:?}", other),
+    }
+    assert_eq!(resp.created, "2026-02-11T12:00:00.000Z");
 
     // atlassian.jira.issues.search — spot: two issues, the next cursor, and
     // the null description on the second issue.
@@ -164,6 +354,15 @@ fn fixtures_unmarshal() {
             .expect("atlassian.confluence.pages.get response unmarshals");
     assert_eq!(resp.id, 78643201);
     assert_eq!(resp.title, "Synthetic Confluence page");
+    assert!(resp.parent_id.is_none(), "parent_id must be null");
+
+    // atlassian.confluence.pages.create — spot: the created page's id and
+    // title, and the null parent_id of a root page.
+    let resp: CreateConfluencePageResponse =
+        serde_json::from_str(&fixture("atlassian", "confluence.pages.create.response.json"))
+            .expect("atlassian.confluence.pages.create response unmarshals");
+    assert_eq!(resp.id, 78643205);
+    assert_eq!(resp.title, "Synthetic created page");
     assert!(resp.parent_id.is_none(), "parent_id must be null");
 
     // atlassian.confluence.pages.list — spot: two page entries.
@@ -325,6 +524,21 @@ fn fixtures_unmarshal() {
     assert_eq!(resp.id, "5f8b7e4a-0000-4000-8000-000000000001");
     assert!(resp.public_url.is_none(), "public_url must stay null");
 
+    // notion.pages.create — spot: the synthetic created page id and the null
+    // public_url.
+    let resp: CreatePageResponse =
+        serde_json::from_str(&fixture("notion", "pages.create.response.json"))
+            .expect("notion.pages.create response unmarshals");
+    assert_eq!(resp.id, "d4e5f6a7-0000-4000-8000-000000000005");
+    assert!(resp.public_url.is_none(), "public_url must stay null");
+
+    // notion.pages.update — spot: the synthetic edit time and archived false.
+    let resp: UpdatePageResponse =
+        serde_json::from_str(&fixture("notion", "pages.update.response.json"))
+            .expect("notion.pages.update response unmarshals");
+    assert_eq!(resp.last_edited_time, "2026-02-11T09:45:00.000Z");
+    assert!(!resp.archived);
+
     // notion.databases.query — spot: two results, the next cursor, and the
     // null public_url on the second page.
     let resp: QueryDatabaseResponse =
@@ -339,6 +553,14 @@ fn fixtures_unmarshal() {
     let resp: SentryGetIssueResponse =
         serde_json::from_str(&fixture("sentry", "issues.get.response.json"))
             .expect("sentry.issues.get response unmarshals");
+    assert_eq!(resp.short_id, "PROJ-103");
+    assert!(resp.share_id.is_none(), "share_id must stay null");
+
+    // sentry.issues.update — spot: the resolved status and the null share_id.
+    let resp: SentryUpdateIssueResponse =
+        serde_json::from_str(&fixture("sentry", "issues.update.response.json"))
+            .expect("sentry.issues.update response unmarshals");
+    assert_eq!(resp.status, "resolved");
     assert_eq!(resp.short_id, "PROJ-103");
     assert!(resp.share_id.is_none(), "share_id must stay null");
 
@@ -420,4 +642,68 @@ fn fixtures_unmarshal() {
         other => panic!("rows[1][3] must be a string, got {:?}", other),
     }
     assert!(!resp.truncated);
+
+    // omni.documents.list — spot: two entries, the unicode name and the next
+    // page cursor.
+    let resp: ListDocumentsResponse =
+        serde_json::from_str(&fixture("omni", "documents.list.response.json"))
+            .expect("omni.documents.list response unmarshals");
+    assert_eq!(resp.documents.len(), 2);
+    assert_eq!(resp.documents[0].name, "Q3 Revenue — ünïcodé ✓");
+    assert_eq!(resp.next_cursor.as_deref(), Some("synthetic-cursor-2"));
+
+    // omni.queries.run — spot: two Struct rows with region and revenue.
+    let resp: OmniRunQueryResponse =
+        serde_json::from_str(&fixture("omni", "queries.run.response.json"))
+            .expect("omni.queries.run response unmarshals");
+    assert_eq!(resp.rows.len(), 2);
+    match resp.rows[0].fields.get("region") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(region)),
+        }) => assert_eq!(region, "EMEA"),
+        other => panic!("rows[0].region is not a string: {:?}", other),
+    }
+    match resp.rows[0].fields.get("revenue") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::NumberValue(revenue)),
+        }) => assert_eq!(*revenue, 1234567.89),
+        other => panic!("rows[0].revenue is not a number: {:?}", other),
+    }
+
+    // power_bi.datasets.list — spot: two datasets under value; the PascalCase
+    // wire keys ConfiguredBy and TargetStorageMode decode via json_name.
+    let resp: ListDatasetsResponse =
+        serde_json::from_str(&fixture("power_bi", "datasets.list.response.json"))
+            .expect("power_bi.datasets.list response unmarshals");
+    assert_eq!(resp.value.len(), 2);
+    assert_eq!(resp.value[0].name, "Sales Marketing");
+    assert_eq!(
+        resp.value[0].configured_by.as_deref(),
+        Some("synthetic-admin@example.invalid")
+    );
+    assert_eq!(resp.value[0].target_storage_mode.as_deref(), Some("Abf"));
+
+    // power_bi.datasets.execute_queries — spot: one result, one table, two
+    // Struct rows with Region and Sales Amount.
+    let resp: ExecuteQueriesResponse = serde_json::from_str(&fixture(
+        "power_bi",
+        "datasets.execute_queries.response.json",
+    ))
+    .expect("power_bi.datasets.execute_queries response unmarshals");
+    assert_eq!(resp.results.len(), 1);
+    assert_eq!(resp.results[0].tables.len(), 1);
+    let rows = &resp.results[0].tables[0].rows;
+    assert_eq!(rows.len(), 2);
+    match rows[0].fields.get("Region") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(region)),
+        }) => assert_eq!(region, "EMEA"),
+        other => panic!("rows[0].Region is not a string: {:?}", other),
+    }
+    match rows[0].fields.get("Sales Amount") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::NumberValue(amount)),
+        }) => assert_eq!(*amount, 1234567.89),
+        other => panic!("rows[0].Sales Amount is not a number: {:?}", other),
+    }
 }

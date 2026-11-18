@@ -82,7 +82,7 @@ pub fn map_error(op: &Op, status: u16, table: &[ErrorMapping]) -> Option<Operati
                 kind: ErrorKind::try_from(m.kind).unwrap_or(ErrorKind::Unspecified),
                 status,
                 retryable: m.retryable,
-                op_id: op.id.clone(),
+                op_id: op.id.to_string(),
                 detail: None,
             });
         }
@@ -92,7 +92,7 @@ pub fn map_error(op: &Op, status: u16, table: &[ErrorMapping]) -> Option<Operati
         kind,
         status,
         retryable,
-        op_id: op.id.clone(),
+        op_id: op.id.to_string(),
         detail: None,
     })
 }

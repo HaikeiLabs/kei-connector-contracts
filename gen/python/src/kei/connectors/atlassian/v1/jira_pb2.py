@@ -22,10 +22,11 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 from kei.contracts.v1 import options_pb2 as kei_dot_contracts_dot_v1_dot_options__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&kei/connectors/atlassian/v1/jira.proto\x12\x1bkei.connectors.atlassian.v1\x1a\x1ekei/contracts/v1/options.proto\"\x8a\x02\n\x13GetJiraIssueRequest\x12#\n\tissue_key\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\x08issueKey:\xcd\x01\x92\x82\x19\xc8\x01\n\x19\x61tlassian.jira.issues.get\x12\tatlassian\x18\x01*\x03GET2\x1d/rest/api/3/issue/{issue_key}:\x0eread:jira-work@\x01J\x0cGetJiraIssueR\nuser_oauthR\tapi_tokenZ\x17jira/issues/{issue_key}b\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\x0b\x08\x01\x12\x05issue\x18\x01\"b\n\x0fJiraIssueFields\x12\x18\n\x07summary\x18\x01 \x01(\tR\x07summary\x12%\n\x0b\x64\x65scription\x18\x02 \x01(\tH\x00R\x0b\x64\x65scription\x88\x01\x01\x42\x0e\n\x0c_description\"~\n\x14GetJiraIssueResponse\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n\x03key\x18\x02 \x01(\tR\x03key\x12\x44\n\x06\x66ields\x18\x03 \x01(\x0b\x32,.kei.connectors.atlassian.v1.JiraIssueFieldsR\x06\x66ields\"\x98\x03\n\x17SearchJiraIssuesRequest\x12\x15\n\x03jql\x18\x01 \x01(\tH\x00R\x03jql\x88\x01\x01\x12+\n\x0fnext_page_token\x18\x02 \x01(\tH\x01R\rnextPageToken\x88\x01\x01\x12$\n\x0bmax_results\x18\x03 \x01(\x05H\x02R\nmaxResults\x88\x01\x01:\xe6\x01\x92\x82\x19\xe1\x01\n\x1c\x61tlassian.jira.issues.search\x12\tatlassian\x18\x01*\x04POST2\x16/rest/api/3/search/jql:\x0eread:jira-work@\x01J\x10SearchJiraIssuesR\nuser_oauthR\tapi_tokenZ\x0bjira/issuesb\x05\x08\x90\x03\x10\x06\x62\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\x0b\x08\x01\x12\x05issue\x18\x01\x92\x01\x0fnext_page_token\x9a\x01\x0fnext_page_tokenB\x06\n\x04_jqlB\x12\n\x10_next_page_tokenB\x0e\n\x0c_max_results\"z\n\x10JiraIssueSummary\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n\x03key\x18\x02 \x01(\tR\x03key\x12\x44\n\x06\x66ields\x18\x03 \x01(\x0b\x32,.kei.connectors.atlassian.v1.JiraIssueFieldsR\x06\x66ields\"\xa2\x01\n\x18SearchJiraIssuesResponse\x12\x45\n\x06issues\x18\x01 \x03(\x0b\x32-.kei.connectors.atlassian.v1.JiraIssueSummaryR\x06issues\x12+\n\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01\x42\x12\n\x10_next_page_tokenB\\ZZgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1;atlassianb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n&kei/connectors/atlassian/v1/jira.proto\x12\x1bkei.connectors.atlassian.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1ekei/contracts/v1/options.proto\"\x8a\x02\n\x13GetJiraIssueRequest\x12#\n\tissue_key\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\x08issueKey:\xcd\x01\x92\x82\x19\xc8\x01\n\x19\x61tlassian.jira.issues.get\x12\tatlassian\x18\x01*\x03GET2\x1d/rest/api/3/issue/{issue_key}:\x0eread:jira-work@\x01J\x0cGetJiraIssueR\nuser_oauthR\tapi_tokenZ\x17jira/issues/{issue_key}b\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\x0b\x08\x01\x12\x05issue\x18\x01\"b\n\x0fJiraIssueFields\x12\x18\n\x07summary\x18\x01 \x01(\tR\x07summary\x12%\n\x0b\x64\x65scription\x18\x02 \x01(\tH\x00R\x0b\x64\x65scription\x88\x01\x01\x42\x0e\n\x0c_description\"~\n\x14GetJiraIssueResponse\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n\x03key\x18\x02 \x01(\tR\x03key\x12\x44\n\x06\x66ields\x18\x03 \x01(\x0b\x32,.kei.connectors.atlassian.v1.JiraIssueFieldsR\x06\x66ields\"\x98\x03\n\x17SearchJiraIssuesRequest\x12\x15\n\x03jql\x18\x01 \x01(\tH\x00R\x03jql\x88\x01\x01\x12+\n\x0fnext_page_token\x18\x02 \x01(\tH\x01R\rnextPageToken\x88\x01\x01\x12$\n\x0bmax_results\x18\x03 \x01(\x05H\x02R\nmaxResults\x88\x01\x01:\xe6\x01\x92\x82\x19\xe1\x01\n\x1c\x61tlassian.jira.issues.search\x12\tatlassian\x18\x01*\x04POST2\x16/rest/api/3/search/jql:\x0eread:jira-work@\x01J\x10SearchJiraIssuesR\nuser_oauthR\tapi_tokenZ\x0bjira/issuesb\x05\x08\x90\x03\x10\x06\x62\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\x0b\x08\x01\x12\x05issue\x18\x01\x92\x01\x0fnext_page_token\x9a\x01\x0fnext_page_tokenB\x06\n\x04_jqlB\x12\n\x10_next_page_tokenB\x0e\n\x0c_max_results\"z\n\x10JiraIssueSummary\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n\x03key\x18\x02 \x01(\tR\x03key\x12\x44\n\x06\x66ields\x18\x03 \x01(\x0b\x32,.kei.connectors.atlassian.v1.JiraIssueFieldsR\x06\x66ields\"\xa2\x01\n\x18SearchJiraIssuesResponse\x12\x45\n\x06issues\x18\x01 \x03(\x0b\x32-.kei.connectors.atlassian.v1.JiraIssueSummaryR\x06issues\x12+\n\x0fnext_page_token\x18\x02 \x01(\tH\x00R\rnextPageToken\x88\x01\x01\x42\x12\n\x10_next_page_token\"\x89\x02\n\x16\x43reateJiraIssueRequest\x12/\n\x06\x66ields\x18\x01 \x01(\x0b\x32\x17.google.protobuf.StructR\x06\x66ields:\xbd\x01\x92\x82\x19\xb8\x01\n\x1c\x61tlassian.jira.issues.create\x12\tatlassian\x18\x02*\x04POST2\x11/rest/api/3/issue:\x0fwrite:jira-work@\x01J\x0f\x43reateJiraIssueR\nuser_oauthR\tapi_tokenZ\x0bjira/issuesb\x05\x08\x90\x03\x10\x06\x62\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\x0b\x08\x02\x12\x05issue\x18\x01\";\n\x17\x43reateJiraIssueResponse\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x10\n\x03key\x18\x02 \x01(\tR\x03key\"\xe0\x02\n\x18\x43reateJiraCommentRequest\x12#\n\tissue_key\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\x08issueKey\x12+\n\x04\x62ody\x18\x02 \x01(\x0b\x32\x17.google.protobuf.StructR\x04\x62ody:\xf1\x01\x92\x82\x19\xec\x01\n%atlassian.jira.issues.comments.create\x12\tatlassian\x18\x02*\x04POST2%/rest/api/3/issue/{issue_key}/comment:\x0fwrite:jira-work@\x01J\x11\x43reateJiraCommentR\nuser_oauthR\tapi_tokenZ\x17jira/issues/{issue_key}b\x05\x08\x90\x03\x10\x06\x62\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\r\x08\x02\x12\x07\x63omment\x18\x01\"\x9a\x01\n\x19\x43reateJiraCommentResponse\x12\x0e\n\x02id\x18\x01 \x01(\tR\x02id\x12\x30\n\x04\x62ody\x18\x02 \x01(\x0b\x32\x17.google.protobuf.StructH\x00R\x04\x62ody\x88\x01\x01\x12\x18\n\x07\x63reated\x18\x03 \x01(\tR\x07\x63reated\x12\x18\n\x07updated\x18\x04 \x01(\tR\x07updatedB\x07\n\x05_bodyB\\ZZgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1;atlassianb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -39,16 +40,30 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_GETJIRAISSUEREQUEST']._serialized_options = b'\222\202\031\310\001\n\031atlassian.jira.issues.get\022\tatlassian\030\001*\003GET2\035/rest/api/3/issue/{issue_key}:\016read:jira-work@\001J\014GetJiraIssueR\nuser_oauthR\tapi_tokenZ\027jira/issues/{issue_key}b\005\010\221\003\020\002b\005\010\223\003\020\003b\005\010\224\003\020\001b\007\010\255\003\020\004\030\001\212\001\013\010\001\022\005issue\030\001'
   _globals['_SEARCHJIRAISSUESREQUEST']._loaded_options = None
   _globals['_SEARCHJIRAISSUESREQUEST']._serialized_options = b'\222\202\031\341\001\n\034atlassian.jira.issues.search\022\tatlassian\030\001*\004POST2\026/rest/api/3/search/jql:\016read:jira-work@\001J\020SearchJiraIssuesR\nuser_oauthR\tapi_tokenZ\013jira/issuesb\005\010\220\003\020\006b\005\010\221\003\020\002b\005\010\223\003\020\003b\007\010\255\003\020\004\030\001\212\001\013\010\001\022\005issue\030\001\222\001\017next_page_token\232\001\017next_page_token'
-  _globals['_GETJIRAISSUEREQUEST']._serialized_start=104
-  _globals['_GETJIRAISSUEREQUEST']._serialized_end=370
-  _globals['_JIRAISSUEFIELDS']._serialized_start=372
-  _globals['_JIRAISSUEFIELDS']._serialized_end=470
-  _globals['_GETJIRAISSUERESPONSE']._serialized_start=472
-  _globals['_GETJIRAISSUERESPONSE']._serialized_end=598
-  _globals['_SEARCHJIRAISSUESREQUEST']._serialized_start=601
-  _globals['_SEARCHJIRAISSUESREQUEST']._serialized_end=1009
-  _globals['_JIRAISSUESUMMARY']._serialized_start=1011
-  _globals['_JIRAISSUESUMMARY']._serialized_end=1133
-  _globals['_SEARCHJIRAISSUESRESPONSE']._serialized_start=1136
-  _globals['_SEARCHJIRAISSUESRESPONSE']._serialized_end=1298
+  _globals['_CREATEJIRAISSUEREQUEST']._loaded_options = None
+  _globals['_CREATEJIRAISSUEREQUEST']._serialized_options = b'\222\202\031\270\001\n\034atlassian.jira.issues.create\022\tatlassian\030\002*\004POST2\021/rest/api/3/issue:\017write:jira-work@\001J\017CreateJiraIssueR\nuser_oauthR\tapi_tokenZ\013jira/issuesb\005\010\220\003\020\006b\005\010\221\003\020\002b\005\010\223\003\020\003b\007\010\255\003\020\004\030\001\212\001\013\010\002\022\005issue\030\001'
+  _globals['_CREATEJIRACOMMENTREQUEST'].fields_by_name['issue_key']._loaded_options = None
+  _globals['_CREATEJIRACOMMENTREQUEST'].fields_by_name['issue_key']._serialized_options = b'\242\202\031\002\010\001'
+  _globals['_CREATEJIRACOMMENTREQUEST']._loaded_options = None
+  _globals['_CREATEJIRACOMMENTREQUEST']._serialized_options = b'\222\202\031\354\001\n%atlassian.jira.issues.comments.create\022\tatlassian\030\002*\004POST2%/rest/api/3/issue/{issue_key}/comment:\017write:jira-work@\001J\021CreateJiraCommentR\nuser_oauthR\tapi_tokenZ\027jira/issues/{issue_key}b\005\010\220\003\020\006b\005\010\221\003\020\002b\005\010\223\003\020\003b\005\010\224\003\020\001b\007\010\255\003\020\004\030\001\212\001\r\010\002\022\007comment\030\001'
+  _globals['_GETJIRAISSUEREQUEST']._serialized_start=134
+  _globals['_GETJIRAISSUEREQUEST']._serialized_end=400
+  _globals['_JIRAISSUEFIELDS']._serialized_start=402
+  _globals['_JIRAISSUEFIELDS']._serialized_end=500
+  _globals['_GETJIRAISSUERESPONSE']._serialized_start=502
+  _globals['_GETJIRAISSUERESPONSE']._serialized_end=628
+  _globals['_SEARCHJIRAISSUESREQUEST']._serialized_start=631
+  _globals['_SEARCHJIRAISSUESREQUEST']._serialized_end=1039
+  _globals['_JIRAISSUESUMMARY']._serialized_start=1041
+  _globals['_JIRAISSUESUMMARY']._serialized_end=1163
+  _globals['_SEARCHJIRAISSUESRESPONSE']._serialized_start=1166
+  _globals['_SEARCHJIRAISSUESRESPONSE']._serialized_end=1328
+  _globals['_CREATEJIRAISSUEREQUEST']._serialized_start=1331
+  _globals['_CREATEJIRAISSUEREQUEST']._serialized_end=1596
+  _globals['_CREATEJIRAISSUERESPONSE']._serialized_start=1598
+  _globals['_CREATEJIRAISSUERESPONSE']._serialized_end=1657
+  _globals['_CREATEJIRACOMMENTREQUEST']._serialized_start=1660
+  _globals['_CREATEJIRACOMMENTREQUEST']._serialized_end=2012
+  _globals['_CREATEJIRACOMMENTRESPONSE']._serialized_start=2015
+  _globals['_CREATEJIRACOMMENTRESPONSE']._serialized_end=2169
 # @@protoc_insertion_point(module_scope)

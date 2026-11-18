@@ -68,6 +68,8 @@ var specCreateThing = &connection.HTTPSpec{
 		{Field: "space", In: connection.InPath, Wire: "space"},
 		{Field: "name", In: connection.InBody, Wire: "name"},
 		{Field: "note", In: connection.InBody, Wire: "description"},
+		{Field: "metadata", In: connection.InBody, Wire: "metadata"},
+		{Field: "rows", In: connection.InBody, Wire: "rows"},
 	},
 	Errors: []*contracts.ErrorMapping{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},

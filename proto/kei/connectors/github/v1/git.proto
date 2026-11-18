@@ -1,0 +1,276 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// GitHub connector contract: git data (refs, blobs, trees, commits).
+syntax = "proto3";
+
+package kei.connectors.github.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;github";
+
+// GetRefRequest reads a single git ref from a GitHub repository. The ref is
+// the provider's path form without the refs/ prefix (heads/main); it may
+// contain slashes, so it renders as multiple path segments.
+message GetRefRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string ref = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH, multi_segment: true}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.git.refs.get"
+    connector: "github"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/repos/{owner}/{repository}/git/ref/{ref}"
+    scopes: ["contents:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetRef"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "git_ref" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// GitObject models the object a git ref or tree entry points at.
+message GitObject {
+  string sha = 1;
+  string type = 2;
+}
+
+// GetRefResponse models the ref payload. It is filled by JSON unmarshal of
+// the provider response.
+message GetRefResponse {
+  string ref = 1;
+  GitObject object = 2;
+}
+
+// CreateRefRequest creates a git ref in a GitHub repository. The ref is the
+// provider's full form (refs/heads/x); the sha names the object it points
+// at.
+message CreateRefRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string ref = 3;
+  string sha = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.git.refs.create"
+    connector: "github"
+    class: OPERATION_CLASS_WRITE
+    http_method: "POST"
+    path_template: "/repos/{owner}/{repository}/git/refs"
+    scopes: ["contents:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateRef"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "git_ref" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true},
+      {status: 409 kind: ERROR_KIND_CONFLICT},
+      {status: 422 kind: ERROR_KIND_INVALID}
+    ]
+  };
+}
+
+// CreateRefResponse models the created ref. It is filled by JSON unmarshal
+// of the provider response.
+message CreateRefResponse {
+  string ref = 1;
+  GitObject object = 2;
+}
+
+// UpdateRefRequest moves a git ref to a new sha. force bypasses the
+// fast-forward check; the ref is the provider's path form without the
+// refs/ prefix (heads/main) and may contain slashes, so it renders as
+// multiple path segments. Moving a ref rewrites history from the caller's
+// point of view, so the operation is destructive.
+message UpdateRefRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string ref = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH, multi_segment: true}];
+  string sha = 4;
+  optional bool force = 5;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.git.refs.update"
+    connector: "github"
+    class: OPERATION_CLASS_WRITE
+    destructive: true
+    http_method: "PATCH"
+    path_template: "/repos/{owner}/{repository}/git/refs/{ref}"
+    scopes: ["contents:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "UpdateRef"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "git_ref" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true},
+      {status: 409 kind: ERROR_KIND_CONFLICT},
+      {status: 422 kind: ERROR_KIND_INVALID}
+    ]
+  };
+}
+
+// UpdateRefResponse models the moved ref. It is filled by JSON unmarshal of
+// the provider response.
+message UpdateRefResponse {
+  string ref = 1;
+  GitObject object = 2;
+}
+
+// CreateBlobRequest creates a blob in a GitHub repository. The content is
+// the file content and encoding names its encoding (utf-8 or base64).
+message CreateBlobRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string content = 3;
+  string encoding = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.git.blobs.create"
+    connector: "github"
+    class: OPERATION_CLASS_WRITE
+    http_method: "POST"
+    path_template: "/repos/{owner}/{repository}/git/blobs"
+    scopes: ["contents:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateBlob"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "git_blob" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true},
+      {status: 409 kind: ERROR_KIND_CONFLICT},
+      {status: 422 kind: ERROR_KIND_INVALID}
+    ]
+  };
+}
+
+// CreateBlobResponse models the created blob: the provider answers with the
+// new object's sha. It is filled by JSON unmarshal of the provider response.
+message CreateBlobResponse {
+  string sha = 1;
+  string url = 2;
+}
+
+// TreeEntry models one entry of a git tree the contract writes: the path
+// inside the tree, the entry mode, the entry type and the sha it points at.
+message TreeEntry {
+  string path = 1;
+  string mode = 2;
+  string type = 3;
+  string sha = 4;
+}
+
+// CreateTreeRequest creates a tree in a GitHub repository. Each entry points
+// at an existing blob, tree or commit; base_tree derives the new tree from an
+// existing one instead of the empty tree.
+message CreateTreeRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  repeated TreeEntry tree = 3;
+  optional string base_tree = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.git.trees.create"
+    connector: "github"
+    class: OPERATION_CLASS_WRITE
+    http_method: "POST"
+    path_template: "/repos/{owner}/{repository}/git/trees"
+    scopes: ["contents:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateTree"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "git_tree" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true},
+      {status: 409 kind: ERROR_KIND_CONFLICT},
+      {status: 422 kind: ERROR_KIND_INVALID}
+    ]
+  };
+}
+
+// CreateTreeResponse models the created tree: the provider answers with the
+// new tree's sha and its resolved entries. It is filled by JSON unmarshal of
+// the provider response.
+message CreateTreeResponse {
+  string sha = 1;
+  string url = 2;
+  repeated TreeEntry tree = 3;
+}
+
+// CreateCommitRequest creates a commit in a GitHub repository. The commit
+// points at an existing tree and at its parent commits by sha.
+message CreateCommitRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string message = 3;
+  string tree = 4;
+  repeated string parents = 5;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.git.commits.create"
+    connector: "github"
+    class: OPERATION_CLASS_WRITE
+    http_method: "POST"
+    path_template: "/repos/{owner}/{repository}/git/commits"
+    scopes: ["contents:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateCommit"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "git_commit" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true},
+      {status: 409 kind: ERROR_KIND_CONFLICT},
+      {status: 422 kind: ERROR_KIND_INVALID}
+    ]
+  };
+}
+
+// CreateCommitResponse models the created commit: its sha, its tree and its
+// parents. It is filled by JSON unmarshal of the provider response.
+message CreateCommitResponse {
+  string sha = 1;
+  string html_url = 2;
+  string message = 3;
+  GitObject tree = 4;
+  repeated GitObject parents = 5;
+}

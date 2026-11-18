@@ -20,14 +20,15 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import { file_kei_contracts_v1_options } from "../../../contracts/v1/options_pb.js";
-import type { Message } from "@bufbuild/protobuf";
+import type { JsonObject, Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file kei/connectors/atlassian/v1/confluence.proto.
  */
 export const file_kei_connectors_atlassian_v1_confluence: GenFile = /*@__PURE__*/
-  fileDesc("CixrZWkvY29ubmVjdG9ycy9hdGxhc3NpYW4vdjEvY29uZmx1ZW5jZS5wcm90bxIba2VpLmNvbm5lY3RvcnMuYXRsYXNzaWFuLnYxIpQCChhHZXRDb25mbHVlbmNlUGFnZVJlcXVlc3QSFwoHcGFnZV9pZBgBIAEoA0IGooIZAggBOt4BkoIZ2QEKHmF0bGFzc2lhbi5jb25mbHVlbmNlLnBhZ2VzLmdldBIJYXRsYXNzaWFuGAEqA0dFVDIcL3dpa2kvYXBpL3YyL3BhZ2VzL3twYWdlX2lkfToUcmVhZDpwYWdlOmNvbmZsdWVuY2VAAUoRR2V0Q29uZmx1ZW5jZVBhZ2VSCnVzZXJfb2F1dGhSCWFwaV90b2tlbloaY29uZmx1ZW5jZS9wYWdlcy97cGFnZV9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQoIARIEcGFnZRgBIm4KGUdldENvbmZsdWVuY2VQYWdlUmVzcG9uc2USCgoCaWQYASABKAMSDQoFdGl0bGUYAiABKAkSEAoIc3BhY2VfaWQYAyABKAkSFgoJcGFyZW50X2lkGAQgASgJSACIAQFCDAoKX3BhcmVudF9pZCK2AgoaTGlzdENvbmZsdWVuY2VQYWdlc1JlcXVlc3QSGAoIc3BhY2VfaWQYASABKANCBqKCGQIIARISCgVsaW1pdBgCIAEoBUgAiAEBOt8BkoIZ2gEKH2F0bGFzc2lhbi5jb25mbHVlbmNlLnBhZ2VzLmxpc3QSCWF0bGFzc2lhbhgBKgNHRVQyJC93aWtpL2FwaS92Mi9zcGFjZXMve3NwYWNlX2lkfS9wYWdlczoUcmVhZDpwYWdlOmNvbmZsdWVuY2VAAUoTTGlzdENvbmZsdWVuY2VQYWdlc1IKdXNlcl9vYXV0aFIJYXBpX3Rva2VuWhBjb25mbHVlbmNlL3BhZ2VzYgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBigEKCAESBHBhZ2UYAUIICgZfbGltaXQiRAoVQ29uZmx1ZW5jZVBhZ2VTdW1tYXJ5EgoKAmlkGAEgASgDEg0KBXRpdGxlGAIgASgJEhAKCHNwYWNlX2lkGAMgASgJImIKG0xpc3RDb25mbHVlbmNlUGFnZXNSZXNwb25zZRJDCgdyZXN1bHRzGAEgAygLMjIua2VpLmNvbm5lY3RvcnMuYXRsYXNzaWFuLnYxLkNvbmZsdWVuY2VQYWdlU3VtbWFyeUJcWlpnaXRodWIuY29tL0hhaWtlaUxhYnMva2VpLWNvbm5lY3Rvci1jb250cmFjdHMvZ2VuL2dvL2tlaS9jb25uZWN0b3JzL2F0bGFzc2lhbi92MTthdGxhc3NpYW5iBnByb3RvMw", [file_kei_contracts_v1_options]);
+  fileDesc("CixrZWkvY29ubmVjdG9ycy9hdGxhc3NpYW4vdjEvY29uZmx1ZW5jZS5wcm90bxIba2VpLmNvbm5lY3RvcnMuYXRsYXNzaWFuLnYxIpQCChhHZXRDb25mbHVlbmNlUGFnZVJlcXVlc3QSFwoHcGFnZV9pZBgBIAEoA0IGooIZAggBOt4BkoIZ2QEKHmF0bGFzc2lhbi5jb25mbHVlbmNlLnBhZ2VzLmdldBIJYXRsYXNzaWFuGAEqA0dFVDIcL3dpa2kvYXBpL3YyL3BhZ2VzL3twYWdlX2lkfToUcmVhZDpwYWdlOmNvbmZsdWVuY2VAAUoRR2V0Q29uZmx1ZW5jZVBhZ2VSCnVzZXJfb2F1dGhSCWFwaV90b2tlbloaY29uZmx1ZW5jZS9wYWdlcy97cGFnZV9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQoIARIEcGFnZRgBIm4KGUdldENvbmZsdWVuY2VQYWdlUmVzcG9uc2USCgoCaWQYASABKAMSDQoFdGl0bGUYAiABKAkSEAoIc3BhY2VfaWQYAyABKAkSFgoJcGFyZW50X2lkGAQgASgJSACIAQFCDAoKX3BhcmVudF9pZCLgAgobQ3JlYXRlQ29uZmx1ZW5jZVBhZ2VSZXF1ZXN0EhAKCHNwYWNlX2lkGAEgASgJEg0KBXRpdGxlGAIgASgJEhYKCXBhcmVudF9pZBgDIAEoCUgAiAEBEiUKBGJvZHkYBCABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0OtIBkoIZzQEKIWF0bGFzc2lhbi5jb25mbHVlbmNlLnBhZ2VzLmNyZWF0ZRIJYXRsYXNzaWFuGAIqBFBPU1QyEi93aWtpL2FwaS92Mi9wYWdlczoVd3JpdGU6cGFnZTpjb25mbHVlbmNlQAFKFENyZWF0ZUNvbmZsdWVuY2VQYWdlUgp1c2VyX29hdXRoUglhcGlfdG9rZW5aEGNvbmZsdWVuY2UvcGFnZXNiBQiQAxAGYgUIkQMQAmIFCJMDEANiBwitAxAEGAGKAQoIAhIEcGFnZRgBQgwKCl9wYXJlbnRfaWQicQocQ3JlYXRlQ29uZmx1ZW5jZVBhZ2VSZXNwb25zZRIKCgJpZBgBIAEoAxINCgV0aXRsZRgCIAEoCRIQCghzcGFjZV9pZBgDIAEoCRIWCglwYXJlbnRfaWQYBCABKAlIAIgBAUIMCgpfcGFyZW50X2lkIrYCChpMaXN0Q29uZmx1ZW5jZVBhZ2VzUmVxdWVzdBIYCghzcGFjZV9pZBgBIAEoA0IGooIZAggBEhIKBWxpbWl0GAIgASgFSACIAQE63wGSghnaAQofYXRsYXNzaWFuLmNvbmZsdWVuY2UucGFnZXMubGlzdBIJYXRsYXNzaWFuGAEqA0dFVDIkL3dpa2kvYXBpL3YyL3NwYWNlcy97c3BhY2VfaWR9L3BhZ2VzOhRyZWFkOnBhZ2U6Y29uZmx1ZW5jZUABShNMaXN0Q29uZmx1ZW5jZVBhZ2VzUgp1c2VyX29hdXRoUglhcGlfdG9rZW5aEGNvbmZsdWVuY2UvcGFnZXNiBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQoIARIEcGFnZRgBQggKBl9saW1pdCJEChVDb25mbHVlbmNlUGFnZVN1bW1hcnkSCgoCaWQYASABKAMSDQoFdGl0bGUYAiABKAkSEAoIc3BhY2VfaWQYAyABKAkiYgobTGlzdENvbmZsdWVuY2VQYWdlc1Jlc3BvbnNlEkMKB3Jlc3VsdHMYASADKAsyMi5rZWkuY29ubmVjdG9ycy5hdGxhc3NpYW4udjEuQ29uZmx1ZW5jZVBhZ2VTdW1tYXJ5QlxaWmdpdGh1Yi5jb20vSGFpa2VpTGFicy9rZWktY29ubmVjdG9yLWNvbnRyYWN0cy9nZW4vZ28va2VpL2Nvbm5lY3RvcnMvYXRsYXNzaWFuL3YxO2F0bGFzc2lhbmIGcHJvdG8z", [file_google_protobuf_struct, file_kei_contracts_v1_options]);
 
 /**
  * GetConfluencePageRequest reads a single page from a Confluence site.
@@ -85,6 +86,79 @@ export const GetConfluencePageResponseSchema: GenMessage<GetConfluencePageRespon
   messageDesc(file_kei_connectors_atlassian_v1_confluence, 1);
 
 /**
+ * CreateConfluencePageRequest creates a page in a Confluence space. body
+ * carries the page content in Confluence's {representation, value} shape and
+ * stays a google.protobuf.Struct; the contract does not model the full
+ * version, label or ownership fields the v2 endpoint also accepts.
+ *
+ * @generated from message kei.connectors.atlassian.v1.CreateConfluencePageRequest
+ */
+export type CreateConfluencePageRequest = Message<"kei.connectors.atlassian.v1.CreateConfluencePageRequest"> & {
+  /**
+   * @generated from field: string space_id = 1;
+   */
+  spaceId: string;
+
+  /**
+   * @generated from field: string title = 2;
+   */
+  title: string;
+
+  /**
+   * @generated from field: optional string parent_id = 3;
+   */
+  parentId?: string | undefined;
+
+  /**
+   * @generated from field: google.protobuf.Struct body = 4;
+   */
+  body?: JsonObject | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.atlassian.v1.CreateConfluencePageRequest.
+ * Use `create(CreateConfluencePageRequestSchema)` to create a new message.
+ */
+export const CreateConfluencePageRequestSchema: GenMessage<CreateConfluencePageRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_atlassian_v1_confluence, 2);
+
+/**
+ * CreateConfluencePageResponse models the same page subset the read returns.
+ * parent_id is null on the wire for root pages. It is filled by JSON
+ * unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.atlassian.v1.CreateConfluencePageResponse
+ */
+export type CreateConfluencePageResponse = Message<"kei.connectors.atlassian.v1.CreateConfluencePageResponse"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: string title = 2;
+   */
+  title: string;
+
+  /**
+   * @generated from field: string space_id = 3;
+   */
+  spaceId: string;
+
+  /**
+   * @generated from field: optional string parent_id = 4;
+   */
+  parentId?: string | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.atlassian.v1.CreateConfluencePageResponse.
+ * Use `create(CreateConfluencePageResponseSchema)` to create a new message.
+ */
+export const CreateConfluencePageResponseSchema: GenMessage<CreateConfluencePageResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_atlassian_v1_confluence, 3);
+
+/**
  * ListConfluencePagesRequest lists the pages of a Confluence space. The
  * contract models only the page size of the query parameters.
  *
@@ -107,7 +181,7 @@ export type ListConfluencePagesRequest = Message<"kei.connectors.atlassian.v1.Li
  * Use `create(ListConfluencePagesRequestSchema)` to create a new message.
  */
 export const ListConfluencePagesRequestSchema: GenMessage<ListConfluencePagesRequest> = /*@__PURE__*/
-  messageDesc(file_kei_connectors_atlassian_v1_confluence, 2);
+  messageDesc(file_kei_connectors_atlassian_v1_confluence, 4);
 
 /**
  * ConfluencePageSummary models the subset of each page entry a list response
@@ -137,7 +211,7 @@ export type ConfluencePageSummary = Message<"kei.connectors.atlassian.v1.Conflue
  * Use `create(ConfluencePageSummarySchema)` to create a new message.
  */
 export const ConfluencePageSummarySchema: GenMessage<ConfluencePageSummary> = /*@__PURE__*/
-  messageDesc(file_kei_connectors_atlassian_v1_confluence, 3);
+  messageDesc(file_kei_connectors_atlassian_v1_confluence, 5);
 
 /**
  * ListConfluencePagesResponse wraps the page entries of a list response. The
@@ -159,5 +233,5 @@ export type ListConfluencePagesResponse = Message<"kei.connectors.atlassian.v1.L
  * Use `create(ListConfluencePagesResponseSchema)` to create a new message.
  */
 export const ListConfluencePagesResponseSchema: GenMessage<ListConfluencePagesResponse> = /*@__PURE__*/
-  messageDesc(file_kei_connectors_atlassian_v1_confluence, 4);
+  messageDesc(file_kei_connectors_atlassian_v1_confluence, 6);
 

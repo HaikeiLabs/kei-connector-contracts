@@ -45,6 +45,9 @@ func TestRenderPath_EscapesSegments(t *testing.T) {
 		{"dot dot", "/repos/{owner}/{repository}", map[string]string{"owner": "..", "repository": "."}, "/repos/%2E%2E/%2E"},
 		{"query chars", "/repos/{owner}/{repository}", map[string]string{"owner": "a?b", "repository": "c#d"}, "/repos/a%3Fb/c%23d"},
 		{"partial segment", "/files/{name}.json", map[string]string{"name": "a/b"}, "/files/a%2Fb.json"},
+		// The reference set every language matches: url.PathEscape keeps
+		// A-Za-z0-9 - . _ ~ $ & + : = @ and escapes ! ' ( ) * , ;.
+		{"sub-delims", "/x/{v}", map[string]string{"v": "a!b'c(d)e*f,g;h$i&j+k:l=m@n"}, "/x/a%21b%27c%28d%29e%2Af%2Cg%3Bh$i&j+k:l=m@n"},
 		{"number", "/repos/{owner}/{repository}/issues/{issue_number}", map[string]string{"owner": "acme", "repository": "widgets", "issue_number": "1347"}, "/repos/acme/widgets/issues/1347"},
 	}
 	for _, tc := range cases {

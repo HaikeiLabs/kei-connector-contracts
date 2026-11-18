@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""HAI-990 gate: the 25 pilot operation fixtures unmarshal in Python.
+"""HAI-990 gate: every pilot operation fixture unmarshals in Python.
 
 Every registered pilot operation needs synthetic request and response
 fixtures under fixtures/operations/<connector>/, and both must parse into
@@ -29,7 +29,15 @@ from google.protobuf import json_format
 from kei.connectors.atlassian.v1 import confluence_pb2, jira_pb2
 from kei.connectors.airtable.v1 import records_pb2 as airtable_records_pb2
 from kei.connectors.database.v1 import query_pb2
-from kei.connectors.github.v1 import contents_pb2, issues_pb2, pulls_pb2
+from kei.connectors.github.v1 import (
+    actions_pb2,
+    contents_pb2,
+    git_pb2,
+    issues_pb2,
+    pulls_pb2,
+)
+from kei.connectors.gmail.v1 import messages_pb2
+from kei.connectors.google_sheets.v1 import spreadsheets_pb2
 from kei.connectors.http_api.v1 import records_pb2
 from kei.connectors.hubspot.v1 import contacts_pb2, deals_pb2
 from kei.connectors.linear.v1 import (
@@ -37,6 +45,8 @@ from kei.connectors.linear.v1 import (
     issues_pb2 as linear_issues_pb2,
     teams_pb2,
 )
+from kei.connectors.omni.v1 import documents_pb2, queries_pb2
+from kei.connectors.power_bi.v1 import datasets_pb2
 from kei.connectors.notion.v1 import databases_pb2, pages_pb2
 from kei.connectors.sentry.v1 import issues_pb2 as sentry_issues_pb2
 
@@ -70,6 +80,82 @@ def _spot_github_pulls_get(response):
     assert response.number == 42
 
 
+def _spot_github_pulls_list(response):
+    pull = response.pulls[0]
+    assert pull.head.ref == "feature/x"
+    assert pull.base.ref == "main"
+    assert pull.author.login == "example-user"
+    assert pull.labels[0].name == "synthetic-label"
+    assert pull.id == 9007199254740999
+    assert response.next_page == 2
+
+
+def _spot_github_actions_runs_list(response):
+    assert response.workflow_runs[0].head_branch == "feature/x"
+    assert response.workflow_runs[0].id == 9007199254741001
+
+
+def _spot_github_issues_create(response):
+    assert response.number == 42
+    assert response.author.login == "example-user"
+    assert response.labels[0].name == "synthetic-label"
+
+
+def _spot_github_issues_comments_create(response):
+    assert response.body == "Synthetic comment"
+    assert response.author.login == "example-user"
+
+
+def _spot_github_pulls_create(response):
+    assert response.number == 43
+    assert response.draft is True
+    assert response.head.ref == "feature/x"
+    assert response.base.ref == "main"
+
+
+def _spot_github_pulls_update(response):
+    assert response.title == "Synthetic updated title"
+    assert response.state == "open"
+
+
+def _spot_github_pulls_reviews_list(response):
+    assert response.reviews[0].state == "APPROVED"
+    assert response.reviews[0].author.login == "example-reviewer"
+
+
+def _spot_github_pulls_reviews_create(response):
+    assert response.state == "APPROVED"
+    assert response.id == 9007199254741006
+
+
+def _spot_github_git_refs_get(response):
+    assert response.ref == "refs/heads/feature/x"
+    assert response.object.sha == "synthetic-ref-sha-1"
+
+
+def _spot_github_git_refs_create(response):
+    assert response.ref == "refs/heads/feature/y"
+    assert response.object.type == "commit"
+
+
+def _spot_github_git_refs_update(response):
+    assert response.object.sha == "synthetic-ref-sha-2"
+
+
+def _spot_github_git_blobs_create(response):
+    assert response.sha == "synthetic-blob-sha-1"
+
+
+def _spot_github_git_trees_create(response):
+    assert response.sha == "synthetic-tree-sha-1"
+    assert response.tree[0].path == "notes.txt"
+
+
+def _spot_github_git_commits_create(response):
+    assert response.sha == "synthetic-commit-sha-2"
+    assert len(response.parents) == 1
+
+
 def _spot_linear_issues_get(response):
     assert response.issue.identifier == "ENG-101"
     assert response.issue.labels[0].name == "synthetic-label"
@@ -92,10 +178,43 @@ def _spot_linear_comments_create(response):
     assert response.comment.body == "Synthetic comment"
 
 
+def _spot_gmail_messages_list(response):
+    assert len(response.messages) == 2
+    assert response.next_page_token == "synthetic-next-token"
+
+
+def _spot_gmail_messages_get(response):
+    assert response.id == "msg-1001"
+    assert response.snippet == "Synthetic message preview text"
+    assert not response.HasField("internal_date")
+
+
+def _spot_google_sheets_values_get(response):
+    assert response.range == "Sheet1!A1:B2"
+    assert len(response.values) == 2
+    assert response.values[0].values[1].WhichOneof("kind") == "null_value"
+
+
+def _spot_google_sheets_spreadsheets_get(response):
+    assert response.spreadsheet_id == "synthetic-sheet-1"
+    assert response.properties.title == "Synthetic sheet"
+
+
 def _spot_atlassian_jira_issues_get(response):
     assert response.key == "SYN-101"
     assert response.fields.summary == "Synthetic Jira issue"
     assert not response.fields.HasField("description")
+
+
+def _spot_atlassian_jira_issues_create(response):
+    assert response.id == "30001"
+    assert response.key == "SYN-301"
+
+
+def _spot_atlassian_jira_comments_create(response):
+    assert response.id == "40001"
+    assert response.body.fields["type"].string_value == "doc"
+    assert response.created == "2026-02-11T12:00:00.000Z"
 
 
 def _spot_atlassian_jira_issues_search(response):
@@ -107,6 +226,12 @@ def _spot_atlassian_jira_issues_search(response):
 def _spot_atlassian_confluence_pages_get(response):
     assert response.id == 78643201
     assert response.title == "Synthetic Confluence page"
+    assert not response.HasField("parent_id")
+
+
+def _spot_atlassian_confluence_pages_create(response):
+    assert response.id == 78643205
+    assert response.title == "Synthetic created page"
     assert not response.HasField("parent_id")
 
 
@@ -169,6 +294,16 @@ def _spot_notion_pages_get(response):
     assert not response.HasField("public_url")
 
 
+def _spot_notion_pages_create(response):
+    assert response.id == "d4e5f6a7-0000-4000-8000-000000000005"
+    assert not response.HasField("public_url")
+
+
+def _spot_notion_pages_update(response):
+    assert response.last_edited_time == "2026-02-11T09:45:00.000Z"
+    assert response.archived is False
+
+
 def _spot_notion_databases_query(response):
     assert len(response.results) == 2
     assert response.next_cursor == "synthetic-next-cursor"
@@ -177,6 +312,12 @@ def _spot_notion_databases_query(response):
 
 
 def _spot_sentry_issues_get(response):
+    assert response.short_id == "PROJ-103"
+    assert not response.HasField("share_id")
+
+
+def _spot_sentry_issues_update(response):
+    assert response.status == "resolved"
     assert response.short_id == "PROJ-103"
     assert not response.HasField("share_id")
 
@@ -214,6 +355,37 @@ def _spot_database_query_run(response):
     assert response.truncated is False
 
 
+def _spot_omni_documents_list(response):
+    assert len(response.documents) == 2
+    assert response.documents[0].name == "Q3 Revenue — ünïcodé ✓"
+    assert response.next_cursor == "synthetic-cursor-2"
+
+
+def _spot_omni_queries_run(response):
+    assert len(response.rows) == 2
+    assert response.rows[0].fields["region"].string_value == "EMEA"
+    assert response.rows[0].fields["revenue"].number_value == 1234567.89
+
+
+def _spot_power_bi_datasets_list(response):
+    assert len(response.value) == 2
+    dataset = response.value[0]
+    assert dataset.name == "Sales Marketing"
+    # ConfiguredBy and TargetStorageMode are PascalCase on the wire; the
+    # fields set json_name to match.
+    assert dataset.configured_by == "synthetic-admin@example.invalid"
+    assert dataset.target_storage_mode == "Abf"
+
+
+def _spot_power_bi_datasets_execute_queries(response):
+    assert len(response.results) == 1
+    assert len(response.results[0].tables) == 1
+    rows = response.results[0].tables[0].rows
+    assert len(rows) == 2
+    assert rows[0].fields["Region"].string_value == "EMEA"
+    assert rows[0].fields["Sales Amount"].number_value == 1234567.89
+
+
 def _check_database_query_run_request(request):
     assert request.dialect == query_pb2.DIALECT_POSTGRES
     assert "accounts" in request.sql
@@ -227,14 +399,35 @@ OPS = [
     ("github.issues.list", "github", issues_pb2.ListIssuesRequest, issues_pb2.ListIssuesResponse, _spot_github_issues_list),
     ("github.contents.put", "github", contents_pb2.PutContentsRequest, contents_pb2.PutContentsResponse, _spot_github_contents_put),
     ("github.pulls.get", "github", pulls_pb2.GetPullRequestRequest, pulls_pb2.GetPullRequestResponse, _spot_github_pulls_get),
+    ("github.pulls.list", "github", pulls_pb2.ListPullsRequest, pulls_pb2.ListPullsResponse, _spot_github_pulls_list),
+    ("github.actions.runs.list", "github", actions_pb2.ListWorkflowRunsRequest, actions_pb2.ListWorkflowRunsResponse, _spot_github_actions_runs_list),
+    ("github.issues.create", "github", issues_pb2.CreateIssueRequest, issues_pb2.CreateIssueResponse, _spot_github_issues_create),
+    ("github.issues.comments.create", "github", issues_pb2.CreateIssueCommentRequest, issues_pb2.CreateIssueCommentResponse, _spot_github_issues_comments_create),
+    ("github.pulls.create", "github", pulls_pb2.CreatePullRequestRequest, pulls_pb2.CreatePullRequestResponse, _spot_github_pulls_create),
+    ("github.pulls.update", "github", pulls_pb2.UpdatePullRequestRequest, pulls_pb2.UpdatePullRequestResponse, _spot_github_pulls_update),
+    ("github.pulls.reviews.list", "github", pulls_pb2.ListPullReviewsRequest, pulls_pb2.ListPullReviewsResponse, _spot_github_pulls_reviews_list),
+    ("github.pulls.reviews.create", "github", pulls_pb2.CreatePullReviewRequest, pulls_pb2.CreatePullReviewResponse, _spot_github_pulls_reviews_create),
+    ("github.git.refs.get", "github", git_pb2.GetRefRequest, git_pb2.GetRefResponse, _spot_github_git_refs_get),
+    ("github.git.refs.create", "github", git_pb2.CreateRefRequest, git_pb2.CreateRefResponse, _spot_github_git_refs_create),
+    ("github.git.refs.update", "github", git_pb2.UpdateRefRequest, git_pb2.UpdateRefResponse, _spot_github_git_refs_update),
+    ("github.git.blobs.create", "github", git_pb2.CreateBlobRequest, git_pb2.CreateBlobResponse, _spot_github_git_blobs_create),
+    ("github.git.trees.create", "github", git_pb2.CreateTreeRequest, git_pb2.CreateTreeResponse, _spot_github_git_trees_create),
+    ("github.git.commits.create", "github", git_pb2.CreateCommitRequest, git_pb2.CreateCommitResponse, _spot_github_git_commits_create),
     ("linear.issues.get", "linear", linear_issues_pb2.GetIssueRequest, linear_issues_pb2.GetIssueResponse, _spot_linear_issues_get),
     ("linear.issues.create", "linear", linear_issues_pb2.CreateIssueRequest, linear_issues_pb2.CreateIssueResponse, _spot_linear_issues_create),
     ("linear.issues.search", "linear", linear_issues_pb2.SearchIssuesRequest, linear_issues_pb2.SearchIssuesResponse, _spot_linear_issues_search),
     ("linear.teams.get", "linear", teams_pb2.GetTeamRequest, teams_pb2.GetTeamResponse, _spot_linear_teams_get),
     ("linear.comments.create", "linear", comments_pb2.CreateCommentRequest, comments_pb2.CreateCommentResponse, _spot_linear_comments_create),
+    ("gmail.messages.list", "gmail", messages_pb2.ListMessagesRequest, messages_pb2.ListMessagesResponse, _spot_gmail_messages_list),
+    ("gmail.messages.get", "gmail", messages_pb2.GetMessageRequest, messages_pb2.GetMessageResponse, _spot_gmail_messages_get),
+    ("google_sheets.values.get", "google_sheets", spreadsheets_pb2.GetValuesRequest, spreadsheets_pb2.GetValuesResponse, _spot_google_sheets_values_get),
+    ("google_sheets.spreadsheets.get", "google_sheets", spreadsheets_pb2.GetSpreadsheetRequest, spreadsheets_pb2.GetSpreadsheetResponse, _spot_google_sheets_spreadsheets_get),
     ("atlassian.jira.issues.get", "atlassian", jira_pb2.GetJiraIssueRequest, jira_pb2.GetJiraIssueResponse, _spot_atlassian_jira_issues_get),
+    ("atlassian.jira.issues.create", "atlassian", jira_pb2.CreateJiraIssueRequest, jira_pb2.CreateJiraIssueResponse, _spot_atlassian_jira_issues_create),
+    ("atlassian.jira.issues.comments.create", "atlassian", jira_pb2.CreateJiraCommentRequest, jira_pb2.CreateJiraCommentResponse, _spot_atlassian_jira_comments_create),
     ("atlassian.jira.issues.search", "atlassian", jira_pb2.SearchJiraIssuesRequest, jira_pb2.SearchJiraIssuesResponse, _spot_atlassian_jira_issues_search),
     ("atlassian.confluence.pages.get", "atlassian", confluence_pb2.GetConfluencePageRequest, confluence_pb2.GetConfluencePageResponse, _spot_atlassian_confluence_pages_get),
+    ("atlassian.confluence.pages.create", "atlassian", confluence_pb2.CreateConfluencePageRequest, confluence_pb2.CreateConfluencePageResponse, _spot_atlassian_confluence_pages_create),
     ("atlassian.confluence.pages.list", "atlassian", confluence_pb2.ListConfluencePagesRequest, confluence_pb2.ListConfluencePagesResponse, _spot_atlassian_confluence_pages_list),
     ("airtable.records.get", "airtable", airtable_records_pb2.GetRecordRequest, airtable_records_pb2.GetRecordResponse, _spot_airtable_records_get),
     ("airtable.records.create", "airtable", airtable_records_pb2.CreateRecordRequest, airtable_records_pb2.CreateRecordResponse, _spot_airtable_records_create),
@@ -246,12 +439,19 @@ OPS = [
     ("hubspot.contacts.list", "hubspot", contacts_pb2.ListContactsRequest, contacts_pb2.ListContactsResponse, _spot_hubspot_contacts_list),
     ("hubspot.deals.list", "hubspot", deals_pb2.ListDealsRequest, deals_pb2.ListDealsResponse, _spot_hubspot_deals_list),
     ("notion.pages.get", "notion", pages_pb2.GetPageRequest, pages_pb2.GetPageResponse, _spot_notion_pages_get),
+    ("notion.pages.create", "notion", pages_pb2.CreatePageRequest, pages_pb2.CreatePageResponse, _spot_notion_pages_create),
+    ("notion.pages.update", "notion", pages_pb2.UpdatePageRequest, pages_pb2.UpdatePageResponse, _spot_notion_pages_update),
     ("notion.databases.query", "notion", databases_pb2.QueryDatabaseRequest, databases_pb2.QueryDatabaseResponse, _spot_notion_databases_query),
     ("sentry.issues.get", "sentry", sentry_issues_pb2.GetIssueRequest, sentry_issues_pb2.GetIssueResponse, _spot_sentry_issues_get),
+    ("sentry.issues.update", "sentry", sentry_issues_pb2.UpdateIssueRequest, sentry_issues_pb2.UpdateIssueResponse, _spot_sentry_issues_update),
     ("sentry.issues.list", "sentry", sentry_issues_pb2.ListIssuesRequest, sentry_issues_pb2.ListIssuesResponse, _spot_sentry_issues_list),
     ("http_api.records.list", "http_api", records_pb2.ListRecordsRequest, records_pb2.ListRecordsResponse, _spot_http_api_records_list),
     ("http_api.records.get", "http_api", records_pb2.GetRecordRequest, records_pb2.GetRecordResponse, _spot_http_api_records_get),
     ("database.query.run", "database", query_pb2.RunQueryRequest, query_pb2.RunQueryResponse, _spot_database_query_run),
+    ("omni.documents.list", "omni", documents_pb2.ListDocumentsRequest, documents_pb2.ListDocumentsResponse, _spot_omni_documents_list),
+    ("omni.queries.run", "omni", queries_pb2.RunQueryRequest, queries_pb2.RunQueryResponse, _spot_omni_queries_run),
+    ("power_bi.datasets.list", "power_bi", datasets_pb2.ListDatasetsRequest, datasets_pb2.ListDatasetsResponse, _spot_power_bi_datasets_list),
+    ("power_bi.datasets.execute_queries", "power_bi", datasets_pb2.ExecuteQueriesRequest, datasets_pb2.ExecuteQueriesResponse, _spot_power_bi_datasets_execute_queries),
 ]
 
 

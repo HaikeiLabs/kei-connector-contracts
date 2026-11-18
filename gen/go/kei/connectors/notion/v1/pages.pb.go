@@ -26,6 +26,7 @@ import (
 	_ "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -170,11 +171,322 @@ func (x *GetPageResponse) GetPublicUrl() string {
 	return ""
 }
 
+// CreatePageRequest creates a page in Notion. parent is the parent page or
+// database reference in Notion's parent-object shape (for example
+// {"type": "database_id", "database_id": "..."}); properties carries the
+// page's properties in Notion's property-object shape, which is required
+// when the parent is a database; children are the block objects appended to
+// the page body. The three payloads are provider-shaped objects, so they are
+// Structs rather than modeled fields.
+type CreatePageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Parent        *structpb.Struct       `protobuf:"bytes,1,opt,name=parent,proto3" json:"parent,omitempty"`
+	Properties    *structpb.Struct       `protobuf:"bytes,2,opt,name=properties,proto3" json:"properties,omitempty"`
+	Children      []*structpb.Struct     `protobuf:"bytes,3,rep,name=children,proto3" json:"children,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreatePageRequest) Reset() {
+	*x = CreatePageRequest{}
+	mi := &file_kei_connectors_notion_v1_pages_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreatePageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreatePageRequest) ProtoMessage() {}
+
+func (x *CreatePageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_notion_v1_pages_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreatePageRequest.ProtoReflect.Descriptor instead.
+func (*CreatePageRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_notion_v1_pages_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CreatePageRequest) GetParent() *structpb.Struct {
+	if x != nil {
+		return x.Parent
+	}
+	return nil
+}
+
+func (x *CreatePageRequest) GetProperties() *structpb.Struct {
+	if x != nil {
+		return x.Properties
+	}
+	return nil
+}
+
+func (x *CreatePageRequest) GetChildren() []*structpb.Struct {
+	if x != nil {
+		return x.Children
+	}
+	return nil
+}
+
+// CreatePageResponse models the same page subset the read returns.
+// It is filled by JSON unmarshal of the provider response.
+type CreatePageResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	CreatedTime    string                 `protobuf:"bytes,2,opt,name=created_time,json=createdTime,proto3" json:"created_time,omitempty"`
+	LastEditedTime string                 `protobuf:"bytes,3,opt,name=last_edited_time,json=lastEditedTime,proto3" json:"last_edited_time,omitempty"`
+	Archived       bool                   `protobuf:"varint,4,opt,name=archived,proto3" json:"archived,omitempty"`
+	Url            string                 `protobuf:"bytes,5,opt,name=url,proto3" json:"url,omitempty"`
+	PublicUrl      *string                `protobuf:"bytes,6,opt,name=public_url,json=publicUrl,proto3,oneof" json:"public_url,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *CreatePageResponse) Reset() {
+	*x = CreatePageResponse{}
+	mi := &file_kei_connectors_notion_v1_pages_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreatePageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreatePageResponse) ProtoMessage() {}
+
+func (x *CreatePageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_notion_v1_pages_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreatePageResponse.ProtoReflect.Descriptor instead.
+func (*CreatePageResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_notion_v1_pages_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CreatePageResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CreatePageResponse) GetCreatedTime() string {
+	if x != nil {
+		return x.CreatedTime
+	}
+	return ""
+}
+
+func (x *CreatePageResponse) GetLastEditedTime() string {
+	if x != nil {
+		return x.LastEditedTime
+	}
+	return ""
+}
+
+func (x *CreatePageResponse) GetArchived() bool {
+	if x != nil {
+		return x.Archived
+	}
+	return false
+}
+
+func (x *CreatePageResponse) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *CreatePageResponse) GetPublicUrl() string {
+	if x != nil && x.PublicUrl != nil {
+		return *x.PublicUrl
+	}
+	return ""
+}
+
+// UpdatePageRequest updates a page's properties, or archives (soft-deletes)
+// it. properties carries the property-object patch; archived and in_trash
+// are Notion's two spellings of archive. Notion merges the patch, so this is
+// not a wholesale overwrite and the operation is not destructive.
+type UpdatePageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	PageId        string                 `protobuf:"bytes,1,opt,name=page_id,json=pageId,proto3" json:"page_id,omitempty"`
+	Properties    *structpb.Struct       `protobuf:"bytes,2,opt,name=properties,proto3" json:"properties,omitempty"`
+	Archived      *bool                  `protobuf:"varint,3,opt,name=archived,proto3,oneof" json:"archived,omitempty"`
+	InTrash       *bool                  `protobuf:"varint,4,opt,name=in_trash,json=inTrash,proto3,oneof" json:"in_trash,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdatePageRequest) Reset() {
+	*x = UpdatePageRequest{}
+	mi := &file_kei_connectors_notion_v1_pages_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdatePageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePageRequest) ProtoMessage() {}
+
+func (x *UpdatePageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_notion_v1_pages_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePageRequest.ProtoReflect.Descriptor instead.
+func (*UpdatePageRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_notion_v1_pages_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *UpdatePageRequest) GetPageId() string {
+	if x != nil {
+		return x.PageId
+	}
+	return ""
+}
+
+func (x *UpdatePageRequest) GetProperties() *structpb.Struct {
+	if x != nil {
+		return x.Properties
+	}
+	return nil
+}
+
+func (x *UpdatePageRequest) GetArchived() bool {
+	if x != nil && x.Archived != nil {
+		return *x.Archived
+	}
+	return false
+}
+
+func (x *UpdatePageRequest) GetInTrash() bool {
+	if x != nil && x.InTrash != nil {
+		return *x.InTrash
+	}
+	return false
+}
+
+// UpdatePageResponse models the same page subset the read returns.
+// It is filled by JSON unmarshal of the provider response.
+type UpdatePageResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	Id             string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	CreatedTime    string                 `protobuf:"bytes,2,opt,name=created_time,json=createdTime,proto3" json:"created_time,omitempty"`
+	LastEditedTime string                 `protobuf:"bytes,3,opt,name=last_edited_time,json=lastEditedTime,proto3" json:"last_edited_time,omitempty"`
+	Archived       bool                   `protobuf:"varint,4,opt,name=archived,proto3" json:"archived,omitempty"`
+	Url            string                 `protobuf:"bytes,5,opt,name=url,proto3" json:"url,omitempty"`
+	PublicUrl      *string                `protobuf:"bytes,6,opt,name=public_url,json=publicUrl,proto3,oneof" json:"public_url,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *UpdatePageResponse) Reset() {
+	*x = UpdatePageResponse{}
+	mi := &file_kei_connectors_notion_v1_pages_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdatePageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdatePageResponse) ProtoMessage() {}
+
+func (x *UpdatePageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_notion_v1_pages_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdatePageResponse.ProtoReflect.Descriptor instead.
+func (*UpdatePageResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_notion_v1_pages_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpdatePageResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdatePageResponse) GetCreatedTime() string {
+	if x != nil {
+		return x.CreatedTime
+	}
+	return ""
+}
+
+func (x *UpdatePageResponse) GetLastEditedTime() string {
+	if x != nil {
+		return x.LastEditedTime
+	}
+	return ""
+}
+
+func (x *UpdatePageResponse) GetArchived() bool {
+	if x != nil {
+		return x.Archived
+	}
+	return false
+}
+
+func (x *UpdatePageResponse) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *UpdatePageResponse) GetPublicUrl() string {
+	if x != nil && x.PublicUrl != nil {
+		return *x.PublicUrl
+	}
+	return ""
+}
+
 var File_kei_connectors_notion_v1_pages_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_notion_v1_pages_proto_rawDesc = "" +
 	"\n" +
-	"$kei/connectors/notion/v1/pages.proto\x12\x18kei.connectors.notion.v1\x1a\x1ekei/contracts/v1/options.proto\"\xe1\x01\n" +
+	"$kei/connectors/notion/v1/pages.proto\x12\x18kei.connectors.notion.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1ekei/contracts/v1/options.proto\"\xe1\x01\n" +
 	"\x0eGetPageRequest\x12\x1f\n" +
 	"\apage_id\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x06pageId:\xad\x01\x92\x82\x19\xa8\x01\n" +
 	"\x10notion.pages.get\x12\x06notion\x18\x01*\x03GET2\x13/v1/pages/{page_id}:\n" +
@@ -182,6 +494,47 @@ const file_kei_connectors_notion_v1_pages_proto_rawDesc = "" +
 	"user_oauthR\x11integration_tokenZ\x0fpages/{page_id}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\n" +
 	"\b\x01\x12\x04page\x18\x01\"\xcf\x01\n" +
 	"\x0fGetPageResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
+	"\fcreated_time\x18\x02 \x01(\tR\vcreatedTime\x12(\n" +
+	"\x10last_edited_time\x18\x03 \x01(\tR\x0elastEditedTime\x12\x1a\n" +
+	"\barchived\x18\x04 \x01(\bR\barchived\x12\x10\n" +
+	"\x03url\x18\x05 \x01(\tR\x03url\x12\"\n" +
+	"\n" +
+	"public_url\x18\x06 \x01(\tH\x00R\tpublicUrl\x88\x01\x01B\r\n" +
+	"\v_public_url\"\xd6\x02\n" +
+	"\x11CreatePageRequest\x12/\n" +
+	"\x06parent\x18\x01 \x01(\v2\x17.google.protobuf.StructR\x06parent\x127\n" +
+	"\n" +
+	"properties\x18\x02 \x01(\v2\x17.google.protobuf.StructR\n" +
+	"properties\x123\n" +
+	"\bchildren\x18\x03 \x03(\v2\x17.google.protobuf.StructR\bchildren:\xa1\x01\x92\x82\x19\x9c\x01\n" +
+	"\x13notion.pages.create\x12\x06notion\x18\x02*\x04POST2\t/v1/pages:\vpages:write@\x01J\n" +
+	"CreatePageR\n" +
+	"user_oauthR\x11integration_tokenZ\x05pagesb\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\n" +
+	"\b\x02\x12\x04page\x18\x01\"\xd2\x01\n" +
+	"\x12CreatePageResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
+	"\fcreated_time\x18\x02 \x01(\tR\vcreatedTime\x12(\n" +
+	"\x10last_edited_time\x18\x03 \x01(\tR\x0elastEditedTime\x12\x1a\n" +
+	"\barchived\x18\x04 \x01(\bR\barchived\x12\x10\n" +
+	"\x03url\x18\x05 \x01(\tR\x03url\x12\"\n" +
+	"\n" +
+	"public_url\x18\x06 \x01(\tH\x00R\tpublicUrl\x88\x01\x01B\r\n" +
+	"\v_public_url\"\x88\x03\n" +
+	"\x11UpdatePageRequest\x12\x1f\n" +
+	"\apage_id\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x06pageId\x127\n" +
+	"\n" +
+	"properties\x18\x02 \x01(\v2\x17.google.protobuf.StructR\n" +
+	"properties\x12\x1f\n" +
+	"\barchived\x18\x03 \x01(\bH\x00R\barchived\x88\x01\x01\x12\x1e\n" +
+	"\bin_trash\x18\x04 \x01(\bH\x01R\ainTrash\x88\x01\x01:\xbd\x01\x92\x82\x19\xb8\x01\n" +
+	"\x13notion.pages.update\x12\x06notion\x18\x02*\x05PATCH2\x13/v1/pages/{page_id}:\vpages:write@\x01J\n" +
+	"UpdatePageR\n" +
+	"user_oauthR\x11integration_tokenZ\x0fpages/{page_id}b\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\n" +
+	"\b\x03\x12\x04page\x18\x01B\v\n" +
+	"\t_archivedB\v\n" +
+	"\t_in_trash\"\xd2\x01\n" +
+	"\x12UpdatePageResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12!\n" +
 	"\fcreated_time\x18\x02 \x01(\tR\vcreatedTime\x12(\n" +
 	"\x10last_edited_time\x18\x03 \x01(\tR\x0elastEditedTime\x12\x1a\n" +
@@ -203,17 +556,26 @@ func file_kei_connectors_notion_v1_pages_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_notion_v1_pages_proto_rawDescData
 }
 
-var file_kei_connectors_notion_v1_pages_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_kei_connectors_notion_v1_pages_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_kei_connectors_notion_v1_pages_proto_goTypes = []any{
-	(*GetPageRequest)(nil),  // 0: kei.connectors.notion.v1.GetPageRequest
-	(*GetPageResponse)(nil), // 1: kei.connectors.notion.v1.GetPageResponse
+	(*GetPageRequest)(nil),     // 0: kei.connectors.notion.v1.GetPageRequest
+	(*GetPageResponse)(nil),    // 1: kei.connectors.notion.v1.GetPageResponse
+	(*CreatePageRequest)(nil),  // 2: kei.connectors.notion.v1.CreatePageRequest
+	(*CreatePageResponse)(nil), // 3: kei.connectors.notion.v1.CreatePageResponse
+	(*UpdatePageRequest)(nil),  // 4: kei.connectors.notion.v1.UpdatePageRequest
+	(*UpdatePageResponse)(nil), // 5: kei.connectors.notion.v1.UpdatePageResponse
+	(*structpb.Struct)(nil),    // 6: google.protobuf.Struct
 }
 var file_kei_connectors_notion_v1_pages_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	6, // 0: kei.connectors.notion.v1.CreatePageRequest.parent:type_name -> google.protobuf.Struct
+	6, // 1: kei.connectors.notion.v1.CreatePageRequest.properties:type_name -> google.protobuf.Struct
+	6, // 2: kei.connectors.notion.v1.CreatePageRequest.children:type_name -> google.protobuf.Struct
+	6, // 3: kei.connectors.notion.v1.UpdatePageRequest.properties:type_name -> google.protobuf.Struct
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_notion_v1_pages_proto_init() }
@@ -222,13 +584,16 @@ func file_kei_connectors_notion_v1_pages_proto_init() {
 		return
 	}
 	file_kei_connectors_notion_v1_pages_proto_msgTypes[1].OneofWrappers = []any{}
+	file_kei_connectors_notion_v1_pages_proto_msgTypes[3].OneofWrappers = []any{}
+	file_kei_connectors_notion_v1_pages_proto_msgTypes[4].OneofWrappers = []any{}
+	file_kei_connectors_notion_v1_pages_proto_msgTypes[5].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_notion_v1_pages_proto_rawDesc), len(file_kei_connectors_notion_v1_pages_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

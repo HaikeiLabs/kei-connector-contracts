@@ -1,0 +1,15 @@
+{
+  "spreadsheetId": "synthetic-sheet-1",
+  "properties": {
+    "title": "Synthetic sheet",
+    "locale": "en_US"
+  },
+  "sheets": [
+    {
+      "properties": {
+        "sheetId": 0,
+        "title": "Sheet1"
+      }
+    }
+  ]
+}

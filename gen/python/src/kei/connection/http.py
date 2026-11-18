@@ -491,7 +491,9 @@ def _decode_graphql(spec, status: int, body: bytes, resp) -> None:
     if isinstance(data, dict) and len(data) == 1:
         key = next(iter(data))
         md = resp.DESCRIPTOR
-        if key not in md.fields_by_name and key not in md.fields_by_json_name:
+        # The upb runtime's Descriptor has no fields_by_json_name map.
+        json_names = {f.json_name for f in md.fields}
+        if key not in md.fields_by_name and key not in json_names:
             # GraphQL: data with one key that is not a response field is
             # unwrapped.
             data = data[key]

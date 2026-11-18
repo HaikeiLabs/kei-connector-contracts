@@ -63,5 +63,70 @@ pub struct GetPageResponse {
     #[prost(string, optional, tag="6")]
     pub public_url: ::core::option::Option<::prost::alloc::string::String>,
 }
+/// CreatePageRequest creates a page in Notion. parent is the parent page or
+/// database reference in Notion's parent-object shape (for example
+/// {"type": "database_id", "database_id": "..."}); properties carries the
+/// page's properties in Notion's property-object shape, which is required
+/// when the parent is a database; children are the block objects appended to
+/// the page body. The three payloads are provider-shaped objects, so they are
+/// Structs rather than modeled fields.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CreatePageRequest {
+    #[prost(message, optional, tag="1")]
+    pub parent: ::core::option::Option<::pbjson_types::Struct>,
+    #[prost(message, optional, tag="2")]
+    pub properties: ::core::option::Option<::pbjson_types::Struct>,
+    #[prost(message, repeated, tag="3")]
+    pub children: ::prost::alloc::vec::Vec<::pbjson_types::Struct>,
+}
+/// CreatePageResponse models the same page subset the read returns.
+/// It is filled by JSON unmarshal of the provider response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CreatePageResponse {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub created_time: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub last_edited_time: ::prost::alloc::string::String,
+    #[prost(bool, tag="4")]
+    pub archived: bool,
+    #[prost(string, tag="5")]
+    pub url: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="6")]
+    pub public_url: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// UpdatePageRequest updates a page's properties, or archives (soft-deletes)
+/// it. properties carries the property-object patch; archived and in_trash
+/// are Notion's two spellings of archive. Notion merges the patch, so this is
+/// not a wholesale overwrite and the operation is not destructive.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdatePageRequest {
+    #[prost(string, tag="1")]
+    pub page_id: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="2")]
+    pub properties: ::core::option::Option<::pbjson_types::Struct>,
+    #[prost(bool, optional, tag="3")]
+    pub archived: ::core::option::Option<bool>,
+    #[prost(bool, optional, tag="4")]
+    pub in_trash: ::core::option::Option<bool>,
+}
+/// UpdatePageResponse models the same page subset the read returns.
+/// It is filled by JSON unmarshal of the provider response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct UpdatePageResponse {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub created_time: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub last_edited_time: ::prost::alloc::string::String,
+    #[prost(bool, tag="4")]
+    pub archived: bool,
+    #[prost(string, tag="5")]
+    pub url: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="6")]
+    pub public_url: ::core::option::Option<::prost::alloc::string::String>,
+}
 include!("kei.connectors.notion.v1.serde.rs");
 // @@protoc_insertion_point(module)

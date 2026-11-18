@@ -22,10 +22,11 @@ _runtime_version.ValidateProtobufRuntimeVersion(
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import struct_pb2 as google_dot_protobuf_dot_struct__pb2
 from kei.contracts.v1 import options_pb2 as kei_dot_contracts_dot_v1_dot_options__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,kei/connectors/atlassian/v1/confluence.proto\x12\x1bkei.connectors.atlassian.v1\x1a\x1ekei/contracts/v1/options.proto\"\x9c\x02\n\x18GetConfluencePageRequest\x12\x1f\n\x07page_id\x18\x01 \x01(\x03\x42\x06\xa2\x82\x19\x02\x08\x01R\x06pageId:\xde\x01\x92\x82\x19\xd9\x01\n\x1e\x61tlassian.confluence.pages.get\x12\tatlassian\x18\x01*\x03GET2\x1c/wiki/api/v2/pages/{page_id}:\x14read:page:confluence@\x01J\x11GetConfluencePageR\nuser_oauthR\tapi_tokenZ\x1a\x63onfluence/pages/{page_id}b\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\n\x08\x01\x12\x04page\x18\x01\"\x8c\x01\n\x19GetConfluencePageResponse\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n\x05title\x18\x02 \x01(\tR\x05title\x12\x19\n\x08space_id\x18\x03 \x01(\tR\x07spaceId\x12 \n\tparent_id\x18\x04 \x01(\tH\x00R\x08parentId\x88\x01\x01\x42\x0c\n\n_parent_id\"\xc6\x02\n\x1aListConfluencePagesRequest\x12!\n\x08space_id\x18\x01 \x01(\x03\x42\x06\xa2\x82\x19\x02\x08\x01R\x07spaceId\x12\x19\n\x05limit\x18\x02 \x01(\x05H\x00R\x05limit\x88\x01\x01:\xdf\x01\x92\x82\x19\xda\x01\n\x1f\x61tlassian.confluence.pages.list\x12\tatlassian\x18\x01*\x03GET2$/wiki/api/v2/spaces/{space_id}/pages:\x14read:page:confluence@\x01J\x13ListConfluencePagesR\nuser_oauthR\tapi_tokenZ\x10\x63onfluence/pagesb\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\n\x08\x01\x12\x04page\x18\x01\x42\x08\n\x06_limit\"X\n\x15\x43onfluencePageSummary\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n\x05title\x18\x02 \x01(\tR\x05title\x12\x19\n\x08space_id\x18\x03 \x01(\tR\x07spaceId\"k\n\x1bListConfluencePagesResponse\x12L\n\x07results\x18\x01 \x03(\x0b\x32\x32.kei.connectors.atlassian.v1.ConfluencePageSummaryR\x07resultsB\\ZZgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1;atlassianb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n,kei/connectors/atlassian/v1/confluence.proto\x12\x1bkei.connectors.atlassian.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1ekei/contracts/v1/options.proto\"\x9c\x02\n\x18GetConfluencePageRequest\x12\x1f\n\x07page_id\x18\x01 \x01(\x03\x42\x06\xa2\x82\x19\x02\x08\x01R\x06pageId:\xde\x01\x92\x82\x19\xd9\x01\n\x1e\x61tlassian.confluence.pages.get\x12\tatlassian\x18\x01*\x03GET2\x1c/wiki/api/v2/pages/{page_id}:\x14read:page:confluence@\x01J\x11GetConfluencePageR\nuser_oauthR\tapi_tokenZ\x1a\x63onfluence/pages/{page_id}b\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\n\x08\x01\x12\x04page\x18\x01\"\x8c\x01\n\x19GetConfluencePageResponse\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n\x05title\x18\x02 \x01(\tR\x05title\x12\x19\n\x08space_id\x18\x03 \x01(\tR\x07spaceId\x12 \n\tparent_id\x18\x04 \x01(\tH\x00R\x08parentId\x88\x01\x01\x42\x0c\n\n_parent_id\"\x80\x03\n\x1b\x43reateConfluencePageRequest\x12\x19\n\x08space_id\x18\x01 \x01(\tR\x07spaceId\x12\x14\n\x05title\x18\x02 \x01(\tR\x05title\x12 \n\tparent_id\x18\x03 \x01(\tH\x00R\x08parentId\x88\x01\x01\x12+\n\x04\x62ody\x18\x04 \x01(\x0b\x32\x17.google.protobuf.StructR\x04\x62ody:\xd2\x01\x92\x82\x19\xcd\x01\n!atlassian.confluence.pages.create\x12\tatlassian\x18\x02*\x04POST2\x12/wiki/api/v2/pages:\x15write:page:confluence@\x01J\x14\x43reateConfluencePageR\nuser_oauthR\tapi_tokenZ\x10\x63onfluence/pagesb\x05\x08\x90\x03\x10\x06\x62\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\n\x08\x02\x12\x04page\x18\x01\x42\x0c\n\n_parent_id\"\x8f\x01\n\x1c\x43reateConfluencePageResponse\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n\x05title\x18\x02 \x01(\tR\x05title\x12\x19\n\x08space_id\x18\x03 \x01(\tR\x07spaceId\x12 \n\tparent_id\x18\x04 \x01(\tH\x00R\x08parentId\x88\x01\x01\x42\x0c\n\n_parent_id\"\xc6\x02\n\x1aListConfluencePagesRequest\x12!\n\x08space_id\x18\x01 \x01(\x03\x42\x06\xa2\x82\x19\x02\x08\x01R\x07spaceId\x12\x19\n\x05limit\x18\x02 \x01(\x05H\x00R\x05limit\x88\x01\x01:\xdf\x01\x92\x82\x19\xda\x01\n\x1f\x61tlassian.confluence.pages.list\x12\tatlassian\x18\x01*\x03GET2$/wiki/api/v2/spaces/{space_id}/pages:\x14read:page:confluence@\x01J\x13ListConfluencePagesR\nuser_oauthR\tapi_tokenZ\x10\x63onfluence/pagesb\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x8a\x01\n\x08\x01\x12\x04page\x18\x01\x42\x08\n\x06_limit\"X\n\x15\x43onfluencePageSummary\x12\x0e\n\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n\x05title\x18\x02 \x01(\tR\x05title\x12\x19\n\x08space_id\x18\x03 \x01(\tR\x07spaceId\"k\n\x1bListConfluencePagesResponse\x12L\n\x07results\x18\x01 \x03(\x0b\x32\x32.kei.connectors.atlassian.v1.ConfluencePageSummaryR\x07resultsB\\ZZgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1;atlassianb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -37,18 +38,24 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_GETCONFLUENCEPAGEREQUEST'].fields_by_name['page_id']._serialized_options = b'\242\202\031\002\010\001'
   _globals['_GETCONFLUENCEPAGEREQUEST']._loaded_options = None
   _globals['_GETCONFLUENCEPAGEREQUEST']._serialized_options = b'\222\202\031\331\001\n\036atlassian.confluence.pages.get\022\tatlassian\030\001*\003GET2\034/wiki/api/v2/pages/{page_id}:\024read:page:confluence@\001J\021GetConfluencePageR\nuser_oauthR\tapi_tokenZ\032confluence/pages/{page_id}b\005\010\221\003\020\002b\005\010\223\003\020\003b\005\010\224\003\020\001b\007\010\255\003\020\004\030\001\212\001\n\010\001\022\004page\030\001'
+  _globals['_CREATECONFLUENCEPAGEREQUEST']._loaded_options = None
+  _globals['_CREATECONFLUENCEPAGEREQUEST']._serialized_options = b'\222\202\031\315\001\n!atlassian.confluence.pages.create\022\tatlassian\030\002*\004POST2\022/wiki/api/v2/pages:\025write:page:confluence@\001J\024CreateConfluencePageR\nuser_oauthR\tapi_tokenZ\020confluence/pagesb\005\010\220\003\020\006b\005\010\221\003\020\002b\005\010\223\003\020\003b\007\010\255\003\020\004\030\001\212\001\n\010\002\022\004page\030\001'
   _globals['_LISTCONFLUENCEPAGESREQUEST'].fields_by_name['space_id']._loaded_options = None
   _globals['_LISTCONFLUENCEPAGESREQUEST'].fields_by_name['space_id']._serialized_options = b'\242\202\031\002\010\001'
   _globals['_LISTCONFLUENCEPAGESREQUEST']._loaded_options = None
   _globals['_LISTCONFLUENCEPAGESREQUEST']._serialized_options = b'\222\202\031\332\001\n\037atlassian.confluence.pages.list\022\tatlassian\030\001*\003GET2$/wiki/api/v2/spaces/{space_id}/pages:\024read:page:confluence@\001J\023ListConfluencePagesR\nuser_oauthR\tapi_tokenZ\020confluence/pagesb\005\010\221\003\020\002b\005\010\223\003\020\003b\005\010\224\003\020\001b\007\010\255\003\020\004\030\001\212\001\n\010\001\022\004page\030\001'
-  _globals['_GETCONFLUENCEPAGEREQUEST']._serialized_start=110
-  _globals['_GETCONFLUENCEPAGEREQUEST']._serialized_end=394
-  _globals['_GETCONFLUENCEPAGERESPONSE']._serialized_start=397
-  _globals['_GETCONFLUENCEPAGERESPONSE']._serialized_end=537
-  _globals['_LISTCONFLUENCEPAGESREQUEST']._serialized_start=540
-  _globals['_LISTCONFLUENCEPAGESREQUEST']._serialized_end=866
-  _globals['_CONFLUENCEPAGESUMMARY']._serialized_start=868
-  _globals['_CONFLUENCEPAGESUMMARY']._serialized_end=956
-  _globals['_LISTCONFLUENCEPAGESRESPONSE']._serialized_start=958
-  _globals['_LISTCONFLUENCEPAGESRESPONSE']._serialized_end=1065
+  _globals['_GETCONFLUENCEPAGEREQUEST']._serialized_start=140
+  _globals['_GETCONFLUENCEPAGEREQUEST']._serialized_end=424
+  _globals['_GETCONFLUENCEPAGERESPONSE']._serialized_start=427
+  _globals['_GETCONFLUENCEPAGERESPONSE']._serialized_end=567
+  _globals['_CREATECONFLUENCEPAGEREQUEST']._serialized_start=570
+  _globals['_CREATECONFLUENCEPAGEREQUEST']._serialized_end=954
+  _globals['_CREATECONFLUENCEPAGERESPONSE']._serialized_start=957
+  _globals['_CREATECONFLUENCEPAGERESPONSE']._serialized_end=1100
+  _globals['_LISTCONFLUENCEPAGESREQUEST']._serialized_start=1103
+  _globals['_LISTCONFLUENCEPAGESREQUEST']._serialized_end=1429
+  _globals['_CONFLUENCEPAGESUMMARY']._serialized_start=1431
+  _globals['_CONFLUENCEPAGESUMMARY']._serialized_end=1519
+  _globals['_LISTCONFLUENCEPAGESRESPONSE']._serialized_start=1521
+  _globals['_LISTCONFLUENCEPAGESRESPONSE']._serialized_end=1628
 # @@protoc_insertion_point(module_scope)

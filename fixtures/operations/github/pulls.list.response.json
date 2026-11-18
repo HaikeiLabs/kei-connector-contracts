@@ -1,0 +1,33 @@
+{
+  "pulls": [
+    {
+      "id": 9007199254740999,
+      "number": 42,
+      "title": "Synthetic pilot pull request",
+      "state": "open",
+      "body": null,
+      "html_url": "https://example.invalid/example-org/example-repo/pull/42",
+      "draft": false,
+      "head": {
+        "ref": "feature/x",
+        "sha": "synthetic-head-sha-1"
+      },
+      "base": {
+        "ref": "main",
+        "sha": "synthetic-base-sha-1"
+      },
+      "user": {
+        "id": 7002,
+        "login": "example-user"
+      },
+      "labels": [
+        {
+          "id": 6001,
+          "name": "synthetic-label"
+        }
+      ],
+      "node_id": "synthetic-node-id-3"
+    }
+  ],
+  "next_page": 2
+}

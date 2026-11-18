@@ -1,0 +1,17 @@
+{
+  "reviews": [
+    {
+      "id": 9007199254741005,
+      "state": "APPROVED",
+      "body": "Synthetic review body",
+      "html_url": "https://example.invalid/example-org/example-repo/pull/43#pullrequestreview-9007199254741005",
+      "submitted_at": "2026-11-17T12:00:00Z",
+      "user": {
+        "id": 7003,
+        "login": "example-reviewer"
+      },
+      "node_id": "synthetic-node-id-9"
+    }
+  ],
+  "next_page": null
+}

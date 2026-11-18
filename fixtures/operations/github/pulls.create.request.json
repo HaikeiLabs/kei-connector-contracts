@@ -1,0 +1,8 @@
+{
+  "owner": "example-org",
+  "repository": "example-repo",
+  "title": "Synthetic new pull request",
+  "head": "feature/x",
+  "base": "main",
+  "draft": true
+}

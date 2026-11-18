@@ -9,6 +9,14 @@ call. The general rules are in [operation-contracts.md](../operation-contracts.m
 
 Source: `proto/kei/connectors/http_api/v1/records.proto`.
 
+
+## Operations
+
+| Operation id | Method | Path | Class | Connections |
+| --- | --- | --- | --- | --- |
+| `http_api.records.get` | `GET` | `/{collection}/{record_id}` | `read` | `api_key` |
+| `http_api.records.list` | `GET` | `/{collection}` | `read` | `api_key` |
+
 ## Operations
 
 | Id | Class | HTTP method | Path template | Scopes | Credential placement |

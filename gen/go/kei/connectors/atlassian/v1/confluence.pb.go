@@ -26,6 +26,7 @@ import (
 	_ "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	structpb "google.golang.org/protobuf/types/known/structpb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -154,6 +155,149 @@ func (x *GetConfluencePageResponse) GetParentId() string {
 	return ""
 }
 
+// CreateConfluencePageRequest creates a page in a Confluence space. body
+// carries the page content in Confluence's {representation, value} shape and
+// stays a google.protobuf.Struct; the contract does not model the full
+// version, label or ownership fields the v2 endpoint also accepts.
+type CreateConfluencePageRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SpaceId       string                 `protobuf:"bytes,1,opt,name=space_id,json=spaceId,proto3" json:"space_id,omitempty"`
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	ParentId      *string                `protobuf:"bytes,3,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
+	Body          *structpb.Struct       `protobuf:"bytes,4,opt,name=body,proto3" json:"body,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateConfluencePageRequest) Reset() {
+	*x = CreateConfluencePageRequest{}
+	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateConfluencePageRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateConfluencePageRequest) ProtoMessage() {}
+
+func (x *CreateConfluencePageRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateConfluencePageRequest.ProtoReflect.Descriptor instead.
+func (*CreateConfluencePageRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_atlassian_v1_confluence_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *CreateConfluencePageRequest) GetSpaceId() string {
+	if x != nil {
+		return x.SpaceId
+	}
+	return ""
+}
+
+func (x *CreateConfluencePageRequest) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *CreateConfluencePageRequest) GetParentId() string {
+	if x != nil && x.ParentId != nil {
+		return *x.ParentId
+	}
+	return ""
+}
+
+func (x *CreateConfluencePageRequest) GetBody() *structpb.Struct {
+	if x != nil {
+		return x.Body
+	}
+	return nil
+}
+
+// CreateConfluencePageResponse models the same page subset the read returns.
+// parent_id is null on the wire for root pages. It is filled by JSON
+// unmarshal of the provider response.
+type CreateConfluencePageResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	SpaceId       string                 `protobuf:"bytes,3,opt,name=space_id,json=spaceId,proto3" json:"space_id,omitempty"`
+	ParentId      *string                `protobuf:"bytes,4,opt,name=parent_id,json=parentId,proto3,oneof" json:"parent_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateConfluencePageResponse) Reset() {
+	*x = CreateConfluencePageResponse{}
+	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateConfluencePageResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateConfluencePageResponse) ProtoMessage() {}
+
+func (x *CreateConfluencePageResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateConfluencePageResponse.ProtoReflect.Descriptor instead.
+func (*CreateConfluencePageResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_atlassian_v1_confluence_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CreateConfluencePageResponse) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *CreateConfluencePageResponse) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *CreateConfluencePageResponse) GetSpaceId() string {
+	if x != nil {
+		return x.SpaceId
+	}
+	return ""
+}
+
+func (x *CreateConfluencePageResponse) GetParentId() string {
+	if x != nil && x.ParentId != nil {
+		return *x.ParentId
+	}
+	return ""
+}
+
 // ListConfluencePagesRequest lists the pages of a Confluence space. The
 // contract models only the page size of the query parameters.
 type ListConfluencePagesRequest struct {
@@ -166,7 +310,7 @@ type ListConfluencePagesRequest struct {
 
 func (x *ListConfluencePagesRequest) Reset() {
 	*x = ListConfluencePagesRequest{}
-	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[2]
+	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -178,7 +322,7 @@ func (x *ListConfluencePagesRequest) String() string {
 func (*ListConfluencePagesRequest) ProtoMessage() {}
 
 func (x *ListConfluencePagesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[2]
+	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -191,7 +335,7 @@ func (x *ListConfluencePagesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListConfluencePagesRequest.ProtoReflect.Descriptor instead.
 func (*ListConfluencePagesRequest) Descriptor() ([]byte, []int) {
-	return file_kei_connectors_atlassian_v1_confluence_proto_rawDescGZIP(), []int{2}
+	return file_kei_connectors_atlassian_v1_confluence_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ListConfluencePagesRequest) GetSpaceId() int64 {
@@ -221,7 +365,7 @@ type ConfluencePageSummary struct {
 
 func (x *ConfluencePageSummary) Reset() {
 	*x = ConfluencePageSummary{}
-	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[3]
+	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -233,7 +377,7 @@ func (x *ConfluencePageSummary) String() string {
 func (*ConfluencePageSummary) ProtoMessage() {}
 
 func (x *ConfluencePageSummary) ProtoReflect() protoreflect.Message {
-	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[3]
+	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -246,7 +390,7 @@ func (x *ConfluencePageSummary) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ConfluencePageSummary.ProtoReflect.Descriptor instead.
 func (*ConfluencePageSummary) Descriptor() ([]byte, []int) {
-	return file_kei_connectors_atlassian_v1_confluence_proto_rawDescGZIP(), []int{3}
+	return file_kei_connectors_atlassian_v1_confluence_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *ConfluencePageSummary) GetId() int64 {
@@ -283,7 +427,7 @@ type ListConfluencePagesResponse struct {
 
 func (x *ListConfluencePagesResponse) Reset() {
 	*x = ListConfluencePagesResponse{}
-	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[4]
+	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -295,7 +439,7 @@ func (x *ListConfluencePagesResponse) String() string {
 func (*ListConfluencePagesResponse) ProtoMessage() {}
 
 func (x *ListConfluencePagesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[4]
+	mi := &file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -308,7 +452,7 @@ func (x *ListConfluencePagesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListConfluencePagesResponse.ProtoReflect.Descriptor instead.
 func (*ListConfluencePagesResponse) Descriptor() ([]byte, []int) {
-	return file_kei_connectors_atlassian_v1_confluence_proto_rawDescGZIP(), []int{4}
+	return file_kei_connectors_atlassian_v1_confluence_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *ListConfluencePagesResponse) GetResults() []*ConfluencePageSummary {
@@ -322,13 +466,30 @@ var File_kei_connectors_atlassian_v1_confluence_proto protoreflect.FileDescripto
 
 const file_kei_connectors_atlassian_v1_confluence_proto_rawDesc = "" +
 	"\n" +
-	",kei/connectors/atlassian/v1/confluence.proto\x12\x1bkei.connectors.atlassian.v1\x1a\x1ekei/contracts/v1/options.proto\"\x9c\x02\n" +
+	",kei/connectors/atlassian/v1/confluence.proto\x12\x1bkei.connectors.atlassian.v1\x1a\x1cgoogle/protobuf/struct.proto\x1a\x1ekei/contracts/v1/options.proto\"\x9c\x02\n" +
 	"\x18GetConfluencePageRequest\x12\x1f\n" +
 	"\apage_id\x18\x01 \x01(\x03B\x06\xa2\x82\x19\x02\b\x01R\x06pageId:\xde\x01\x92\x82\x19\xd9\x01\n" +
 	"\x1eatlassian.confluence.pages.get\x12\tatlassian\x18\x01*\x03GET2\x1c/wiki/api/v2/pages/{page_id}:\x14read:page:confluence@\x01J\x11GetConfluencePageR\n" +
 	"user_oauthR\tapi_tokenZ\x1aconfluence/pages/{page_id}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\n" +
 	"\b\x01\x12\x04page\x18\x01\"\x8c\x01\n" +
 	"\x19GetConfluencePageResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12\x19\n" +
+	"\bspace_id\x18\x03 \x01(\tR\aspaceId\x12 \n" +
+	"\tparent_id\x18\x04 \x01(\tH\x00R\bparentId\x88\x01\x01B\f\n" +
+	"\n" +
+	"_parent_id\"\x80\x03\n" +
+	"\x1bCreateConfluencePageRequest\x12\x19\n" +
+	"\bspace_id\x18\x01 \x01(\tR\aspaceId\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
+	"\tparent_id\x18\x03 \x01(\tH\x00R\bparentId\x88\x01\x01\x12+\n" +
+	"\x04body\x18\x04 \x01(\v2\x17.google.protobuf.StructR\x04body:\xd2\x01\x92\x82\x19\xcd\x01\n" +
+	"!atlassian.confluence.pages.create\x12\tatlassian\x18\x02*\x04POST2\x12/wiki/api/v2/pages:\x15write:page:confluence@\x01J\x14CreateConfluencePageR\n" +
+	"user_oauthR\tapi_tokenZ\x10confluence/pagesb\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\n" +
+	"\b\x02\x12\x04page\x18\x01B\f\n" +
+	"\n" +
+	"_parent_id\"\x8f\x01\n" +
+	"\x1cCreateConfluencePageResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x19\n" +
 	"\bspace_id\x18\x03 \x01(\tR\aspaceId\x12 \n" +
@@ -361,21 +522,25 @@ func file_kei_connectors_atlassian_v1_confluence_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_atlassian_v1_confluence_proto_rawDescData
 }
 
-var file_kei_connectors_atlassian_v1_confluence_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_kei_connectors_atlassian_v1_confluence_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_kei_connectors_atlassian_v1_confluence_proto_goTypes = []any{
-	(*GetConfluencePageRequest)(nil),    // 0: kei.connectors.atlassian.v1.GetConfluencePageRequest
-	(*GetConfluencePageResponse)(nil),   // 1: kei.connectors.atlassian.v1.GetConfluencePageResponse
-	(*ListConfluencePagesRequest)(nil),  // 2: kei.connectors.atlassian.v1.ListConfluencePagesRequest
-	(*ConfluencePageSummary)(nil),       // 3: kei.connectors.atlassian.v1.ConfluencePageSummary
-	(*ListConfluencePagesResponse)(nil), // 4: kei.connectors.atlassian.v1.ListConfluencePagesResponse
+	(*GetConfluencePageRequest)(nil),     // 0: kei.connectors.atlassian.v1.GetConfluencePageRequest
+	(*GetConfluencePageResponse)(nil),    // 1: kei.connectors.atlassian.v1.GetConfluencePageResponse
+	(*CreateConfluencePageRequest)(nil),  // 2: kei.connectors.atlassian.v1.CreateConfluencePageRequest
+	(*CreateConfluencePageResponse)(nil), // 3: kei.connectors.atlassian.v1.CreateConfluencePageResponse
+	(*ListConfluencePagesRequest)(nil),   // 4: kei.connectors.atlassian.v1.ListConfluencePagesRequest
+	(*ConfluencePageSummary)(nil),        // 5: kei.connectors.atlassian.v1.ConfluencePageSummary
+	(*ListConfluencePagesResponse)(nil),  // 6: kei.connectors.atlassian.v1.ListConfluencePagesResponse
+	(*structpb.Struct)(nil),              // 7: google.protobuf.Struct
 }
 var file_kei_connectors_atlassian_v1_confluence_proto_depIdxs = []int32{
-	3, // 0: kei.connectors.atlassian.v1.ListConfluencePagesResponse.results:type_name -> kei.connectors.atlassian.v1.ConfluencePageSummary
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	7, // 0: kei.connectors.atlassian.v1.CreateConfluencePageRequest.body:type_name -> google.protobuf.Struct
+	5, // 1: kei.connectors.atlassian.v1.ListConfluencePagesResponse.results:type_name -> kei.connectors.atlassian.v1.ConfluencePageSummary
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_atlassian_v1_confluence_proto_init() }
@@ -385,13 +550,15 @@ func file_kei_connectors_atlassian_v1_confluence_proto_init() {
 	}
 	file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[1].OneofWrappers = []any{}
 	file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[2].OneofWrappers = []any{}
+	file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[3].OneofWrappers = []any{}
+	file_kei_connectors_atlassian_v1_confluence_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_atlassian_v1_confluence_proto_rawDesc), len(file_kei_connectors_atlassian_v1_confluence_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
