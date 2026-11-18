@@ -1,0 +1,22 @@
+{
+  "issues": [
+    {
+      "id": "20001",
+      "key": "SYN-201",
+      "fields": {
+        "summary": "Synthetic first Jira search hit",
+        "description": "Synthetic body one"
+      }
+    },
+    {
+      "id": "20002",
+      "key": "SYN-202",
+      "fields": {
+        "summary": "Synthetic second Jira search hit",
+        "description": null
+      }
+    }
+  ],
+  "next_page_token": "synthetic-next-token",
+  "max_results": 2
+}

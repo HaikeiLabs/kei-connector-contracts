@@ -1,0 +1,14 @@
+{
+  "messages": [
+    {
+      "id": "msg-1001",
+      "threadId": "thr-2001"
+    },
+    {
+      "id": "msg-1002",
+      "threadId": "thr-2002"
+    }
+  ],
+  "nextPageToken": "synthetic-next-token",
+  "resultSizeEstimate": 2
+}

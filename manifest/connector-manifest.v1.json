@@ -3,6 +3,210 @@
   "contracts_version": "v0.19.0",
   "connectors": [
     {
+      "id": "airtable",
+      "base_url": "https://api.airtable.com",
+      "connections": [
+        {
+          "name": "pat",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "airtable.records.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "data.records:read"
+          ],
+          "connections": [
+            "pat"
+          ],
+          "resource_template": "bases/{base_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "record",
+            "version": 1
+          },
+          "request": "kei.connectors.airtable.v1.GetRecordRequest",
+          "response": "kei.connectors.airtable.v1.GetRecordResponse"
+        },
+        {
+          "id": "airtable.records.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "data.records:read"
+          ],
+          "connections": [
+            "pat"
+          ],
+          "resource_template": "bases/{base_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "record",
+            "version": 1
+          },
+          "request": "kei.connectors.airtable.v1.ListRecordsRequest",
+          "response": "kei.connectors.airtable.v1.ListRecordsResponse"
+        }
+      ]
+    },
+    {
+      "id": "atlassian",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "base_url_field": "site_url",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "site_url",
+              "type": "url",
+              "pattern": "^https://\\S+$",
+              "secret": false
+            }
+          ]
+        },
+        {
+          "name": "api_token",
+          "kind": "http_basic",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "base_url_field": "site_url",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "site_url",
+              "type": "url",
+              "pattern": "^https://\\S+$",
+              "secret": false
+            },
+            {
+              "name": "email",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": false
+            },
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "atlassian.confluence.pages.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "read:page:confluence"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "confluence/pages/{page_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.GetConfluencePageRequest",
+          "response": "kei.connectors.atlassian.v1.GetConfluencePageResponse"
+        },
+        {
+          "id": "atlassian.confluence.pages.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "read:page:confluence"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "confluence/pages",
+          "semantics": {
+            "action": "read",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.ListConfluencePagesRequest",
+          "response": "kei.connectors.atlassian.v1.ListConfluencePagesResponse"
+        },
+        {
+          "id": "atlassian.jira.issues.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "read:jira-work"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "jira/issues/{issue_key}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.GetJiraIssueRequest",
+          "response": "kei.connectors.atlassian.v1.GetJiraIssueResponse"
+        },
+        {
+          "id": "atlassian.jira.issues.search",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "read:jira-work"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "jira/issues",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.SearchJiraIssuesRequest",
+          "response": "kei.connectors.atlassian.v1.SearchJiraIssuesResponse"
+        }
+      ]
+    },
+    {
       "id": "database",
       "connections": [
         {
@@ -14,6 +218,46 @@
           "setup_fields": [
             {
               "name": "dsn",
+              "type": "string",
+              "secret": true
+            }
+          ]
+        },
+        {
+          "name": "snowflake_key_pair",
+          "kind": "key_pair_jwt",
+          "auth_method": "service_principal_key",
+          "account_model": "shared",
+          "engine": "snowflake",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "account",
+              "type": "string",
+              "secret": false
+            },
+            {
+              "name": "user",
+              "type": "string",
+              "secret": false
+            },
+            {
+              "name": "role",
+              "type": "string",
+              "secret": false
+            },
+            {
+              "name": "warehouse",
+              "type": "string",
+              "secret": false
+            },
+            {
+              "name": "database",
+              "type": "string",
+              "secret": false
+            },
+            {
+              "name": "private_key_pem",
               "type": "string",
               "secret": true
             }
@@ -31,7 +275,8 @@
             "query:read"
           ],
           "connections": [
-            "dsn"
+            "dsn",
+            "snowflake_key_pair"
           ],
           "resource_template": "query",
           "semantics": {
@@ -164,6 +409,176 @@
       ]
     },
     {
+      "id": "gmail",
+      "base_url": "https://gmail.googleapis.com",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "scopes": [
+            "https://www.googleapis.com/auth/gmail.readonly"
+          ],
+          "setup_fields": []
+        },
+        {
+          "name": "domain_delegation",
+          "kind": "http_bearer",
+          "auth_method": "service_principal_key",
+          "account_model": "shared",
+          "scopes": [
+            "https://www.googleapis.com/auth/gmail.readonly"
+          ],
+          "setup_fields": [
+            {
+              "name": "service_account_json",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            },
+            {
+              "name": "subject_email",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": false
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "gmail.messages.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/gmail.readonly"
+          ],
+          "connections": [
+            "user_oauth",
+            "domain_delegation"
+          ],
+          "resource_template": "users/{user_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "message",
+            "version": 1
+          },
+          "request": "kei.connectors.gmail.v1.GetMessageRequest",
+          "response": "kei.connectors.gmail.v1.GetMessageResponse"
+        },
+        {
+          "id": "gmail.messages.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/gmail.readonly"
+          ],
+          "connections": [
+            "user_oauth",
+            "domain_delegation"
+          ],
+          "resource_template": "users/{user_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "message",
+            "version": 1
+          },
+          "request": "kei.connectors.gmail.v1.ListMessagesRequest",
+          "response": "kei.connectors.gmail.v1.ListMessagesResponse"
+        }
+      ]
+    },
+    {
+      "id": "google_sheets",
+      "base_url": "https://sheets.googleapis.com",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "scopes": [
+            "https://www.googleapis.com/auth/spreadsheets.readonly"
+          ],
+          "setup_fields": []
+        },
+        {
+          "name": "domain_delegation",
+          "kind": "http_bearer",
+          "auth_method": "service_principal_key",
+          "account_model": "shared",
+          "scopes": [
+            "https://www.googleapis.com/auth/spreadsheets.readonly"
+          ],
+          "setup_fields": [
+            {
+              "name": "service_account_json",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            },
+            {
+              "name": "subject_email",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": false
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "google_sheets.spreadsheets.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/spreadsheets.readonly"
+          ],
+          "connections": [
+            "user_oauth",
+            "domain_delegation"
+          ],
+          "resource_template": "spreadsheets/{spreadsheet_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "spreadsheet",
+            "version": 1
+          },
+          "request": "kei.connectors.google_sheets.v1.GetSpreadsheetRequest",
+          "response": "kei.connectors.google_sheets.v1.GetSpreadsheetResponse"
+        },
+        {
+          "id": "google_sheets.values.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/spreadsheets.readonly"
+          ],
+          "connections": [
+            "user_oauth",
+            "domain_delegation"
+          ],
+          "resource_template": "spreadsheets/{spreadsheet_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "spreadsheet",
+            "version": 1
+          },
+          "request": "kei.connectors.google_sheets.v1.GetValuesRequest",
+          "response": "kei.connectors.google_sheets.v1.GetValuesResponse"
+        }
+      ]
+    },
+    {
       "id": "http_api",
       "connections": [
         {
@@ -231,6 +646,103 @@
           },
           "request": "kei.connectors.http_api.v1.ListRecordsRequest",
           "response": "kei.connectors.http_api.v1.ListRecordsResponse"
+        }
+      ]
+    },
+    {
+      "id": "hubspot",
+      "base_url": "https://api.hubapi.com",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "scopes": [],
+          "setup_fields": []
+        },
+        {
+          "name": "private_app",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "hubspot.contacts.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "crm.objects.contacts.read"
+          ],
+          "connections": [
+            "user_oauth",
+            "private_app"
+          ],
+          "resource_template": "contacts/{contact_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "contact",
+            "version": 1
+          },
+          "request": "kei.connectors.hubspot.v1.GetContactRequest",
+          "response": "kei.connectors.hubspot.v1.GetContactResponse"
+        },
+        {
+          "id": "hubspot.contacts.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "crm.objects.contacts.read"
+          ],
+          "connections": [
+            "user_oauth",
+            "private_app"
+          ],
+          "resource_template": "contacts",
+          "semantics": {
+            "action": "read",
+            "resource_type": "contact",
+            "version": 1
+          },
+          "request": "kei.connectors.hubspot.v1.ListContactsRequest",
+          "response": "kei.connectors.hubspot.v1.ListContactsResponse"
+        },
+        {
+          "id": "hubspot.deals.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "crm.objects.deals.read"
+          ],
+          "connections": [
+            "user_oauth",
+            "private_app"
+          ],
+          "resource_template": "deals",
+          "semantics": {
+            "action": "read",
+            "resource_type": "deal",
+            "version": 1
+          },
+          "request": "kei.connectors.hubspot.v1.ListDealsRequest",
+          "response": "kei.connectors.hubspot.v1.ListDealsResponse"
         }
       ]
     },
@@ -373,6 +885,282 @@
           },
           "request": "kei.connectors.linear.v1.GetTeamRequest",
           "response": "kei.connectors.linear.v1.GetTeamResponse"
+        }
+      ]
+    },
+    {
+      "id": "notion",
+      "base_url": "https://api.notion.com",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "scopes": [],
+          "setup_fields": []
+        },
+        {
+          "name": "integration_token",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "notion.databases.query",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pages:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "integration_token"
+          ],
+          "resource_template": "databases/{database_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.notion.v1.QueryDatabaseRequest",
+          "response": "kei.connectors.notion.v1.QueryDatabaseResponse"
+        },
+        {
+          "id": "notion.pages.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pages:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "integration_token"
+          ],
+          "resource_template": "pages/{page_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.notion.v1.GetPageRequest",
+          "response": "kei.connectors.notion.v1.GetPageResponse"
+        }
+      ]
+    },
+    {
+      "id": "omni",
+      "connections": [
+        {
+          "name": "api_key",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "base_url_field": "base_url",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "base_url",
+              "type": "url",
+              "pattern": "^https://\\S+$",
+              "secret": false
+            },
+            {
+              "name": "api_key",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "omni.documents.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "documents:read"
+          ],
+          "connections": [
+            "api_key"
+          ],
+          "resource_template": "documents",
+          "semantics": {
+            "action": "read",
+            "resource_type": "document",
+            "version": 1
+          },
+          "request": "kei.connectors.omni.v1.ListDocumentsRequest",
+          "response": "kei.connectors.omni.v1.ListDocumentsResponse"
+        },
+        {
+          "id": "omni.queries.run",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "queries:read"
+          ],
+          "connections": [
+            "api_key"
+          ],
+          "resource_template": "models/{model_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "query",
+            "version": 1
+          },
+          "request": "kei.connectors.omni.v1.RunQueryRequest",
+          "response": "kei.connectors.omni.v1.RunQueryResponse"
+        }
+      ]
+    },
+    {
+      "id": "power_bi",
+      "base_url": "https://api.powerbi.com",
+      "connections": [
+        {
+          "name": "user_obo",
+          "kind": "token_exchange",
+          "auth_method": "kei_token_exchange",
+          "account_model": "per_user",
+          "scopes": [
+            "https://analysis.windows.net/powerbi/api/.default"
+          ],
+          "setup_fields": []
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "power_bi.datasets.execute_queries",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://analysis.windows.net/powerbi/api/.default"
+          ],
+          "connections": [
+            "user_obo"
+          ],
+          "resource_template": "groups/{group_id}/datasets/{dataset_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "dataset_query",
+            "version": 1
+          },
+          "request": "kei.connectors.power_bi.v1.ExecuteQueriesRequest",
+          "response": "kei.connectors.power_bi.v1.ExecuteQueriesResponse"
+        },
+        {
+          "id": "power_bi.datasets.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://analysis.windows.net/powerbi/api/.default"
+          ],
+          "connections": [
+            "user_obo"
+          ],
+          "resource_template": "groups/{group_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "dataset",
+            "version": 1
+          },
+          "request": "kei.connectors.power_bi.v1.ListDatasetsRequest",
+          "response": "kei.connectors.power_bi.v1.ListDatasetsResponse"
+        }
+      ]
+    },
+    {
+      "id": "sentry",
+      "base_url": "https://sentry.io",
+      "connections": [
+        {
+          "name": "auth_token",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            },
+            {
+              "name": "organization_slug",
+              "type": "string",
+              "secret": false
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "sentry.issues.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issue:read"
+          ],
+          "connections": [
+            "auth_token"
+          ],
+          "resource_template": "organizations/{organization_slug}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.sentry.v1.GetIssueRequest",
+          "response": "kei.connectors.sentry.v1.GetIssueResponse"
+        },
+        {
+          "id": "sentry.issues.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issue:read"
+          ],
+          "connections": [
+            "auth_token"
+          ],
+          "resource_template": "organizations/{organization_slug}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.sentry.v1.ListIssuesRequest",
+          "response": "kei.connectors.sentry.v1.ListIssuesResponse"
         }
       ]
     }

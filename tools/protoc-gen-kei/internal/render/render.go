@@ -82,6 +82,8 @@ func Generate(gen *protogen.Plugin, opts Options) error {
 			err = renderGo(gen, c, opts)
 		case "ts":
 			err = renderTS(gen, c, opts)
+		case "rust":
+			err = renderRust(gen, c, opts)
 		case "python":
 			err = renderPython(gen, c, opts)
 		default:

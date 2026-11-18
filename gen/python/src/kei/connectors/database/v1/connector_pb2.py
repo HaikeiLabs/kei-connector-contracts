@@ -25,12 +25,12 @@ _sym_db = _symbol_database.Default()
 from kei.contracts.v1 import options_pb2 as kei_dot_contracts_dot_v1_dot_options__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n*kei/connectors/database/v1/connector.proto\x12\x1akei.connectors.database.v1\x1a\x1ekei/contracts/v1/options.protoB\x90\x01ZXgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1;database\x9a\x82\x19\x32\n\x08\x64\x61tabase\x1a&\n\x03\x64sn\x10\x04\x1a\nsecret_ref \x02:\x0f\n\x03\x64sn\x12\x06string \x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n*kei/connectors/database/v1/connector.proto\x12\x1akei.connectors.database.v1\x1a\x1ekei/contracts/v1/options.protoB\xc7\x02ZXgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1;database\x9a\x82\x19\xe8\x01\n\x08\x64\x61tabase\x1a&\n\x03\x64sn\x10\x04\x1a\nsecret_ref \x02:\x0f\n\x03\x64sn\x12\x06string \x01\x1a\xb3\x01\n\x12snowflake_key_pair\x10\x05\x1a\x15service_principal_key \x02:\x11\n\x07\x61\x63\x63ount\x12\x06string:\x0e\n\x04user\x12\x06string:\x0e\n\x04role\x12\x06string:\x13\n\twarehouse\x12\x06string:\x12\n\x08\x64\x61tabase\x12\x06string:\x1b\n\x0fprivate_key_pem\x12\x06string \x01J\tsnowflakeb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'kei.connectors.database.v1.connector_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
-  _globals['DESCRIPTOR']._serialized_options = b'ZXgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1;database\232\202\0312\n\010database\032&\n\003dsn\020\004\032\nsecret_ref \002:\017\n\003dsn\022\006string \001'
+  _globals['DESCRIPTOR']._serialized_options = b'ZXgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1;database\232\202\031\350\001\n\010database\032&\n\003dsn\020\004\032\nsecret_ref \002:\017\n\003dsn\022\006string \001\032\263\001\n\022snowflake_key_pair\020\005\032\025service_principal_key \002:\021\n\007account\022\006string:\016\n\004user\022\006string:\016\n\004role\022\006string:\023\n\twarehouse\022\006string:\022\n\010database\022\006string:\033\n\017private_key_pem\022\006string \001J\tsnowflake'
 # @@protoc_insertion_point(module_scope)

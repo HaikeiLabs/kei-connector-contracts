@@ -1,0 +1,8 @@
+{
+  "documents": [
+    {"id": "synthetic-doc-1", "name": "Q3 Revenue — ünïcodé ✓", "updated_at": "2026-11-01T12:00:00Z"},
+    {"id": "synthetic-doc-2", "name": "Pipeline Board", "updated_at": "2026-11-02T09:30:00Z"}
+  ],
+  "next_cursor": "synthetic-cursor-2",
+  "has_next_page": true
+}

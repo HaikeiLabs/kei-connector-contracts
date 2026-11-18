@@ -1,0 +1,111 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Atlassian connector contract: Jira issue reads.
+syntax = "proto3";
+
+package kei.connectors.atlassian.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1;atlassian";
+
+// GetJiraIssueRequest reads a single issue from a Jira site.
+message GetJiraIssueRequest {
+  string issue_key = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "atlassian.jira.issues.get"
+    connector: "atlassian"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/rest/api/3/issue/{issue_key}"
+    scopes: ["read:jira-work"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetJiraIssue"
+    connections: ["user_oauth", "api_token"]
+    resource_template: "jira/issues/{issue_key}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "issue" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// JiraIssueFields models the subset of the Jira fields object the contract
+// needs. description is null on the wire when the issue has none.
+message JiraIssueFields {
+  string summary = 1;
+  optional string description = 2;
+}
+
+// GetJiraIssueResponse models the subset of the Jira issue payload the
+// contract needs. It is filled by JSON unmarshal of the provider response.
+message GetJiraIssueResponse {
+  string id = 1;
+  string key = 2;
+  JiraIssueFields fields = 3;
+}
+
+// SearchJiraIssuesRequest searches Jira issues by JQL. next_page_token is
+// the opaque cursor from the previous response; the request body is the
+// provider's JSON body.
+message SearchJiraIssuesRequest {
+  optional string jql = 1;
+  optional string next_page_token = 2;
+  optional int32 max_results = 3;
+
+  option (kei.contracts.v1.operation) = {
+    id: "atlassian.jira.issues.search"
+    connector: "atlassian"
+    class: OPERATION_CLASS_READ
+    http_method: "POST"
+    path_template: "/rest/api/3/search/jql"
+    scopes: ["read:jira-work"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "SearchJiraIssues"
+    connections: ["user_oauth", "api_token"]
+    resource_template: "jira/issues"
+    cursor_field: "next_page_token"
+    next_cursor_field: "next_page_token"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "issue" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// JiraIssueSummary models the subset of each issue entry a search response
+// carries.
+message JiraIssueSummary {
+  string id = 1;
+  string key = 2;
+  JiraIssueFields fields = 3;
+}
+
+// SearchJiraIssuesResponse wraps the issue entries of a search response.
+// Jira returns a bare JSON array of issues here; the contract envelopes it
+// under issues so the response stays a protojson object and envelope keys
+// stay drift-checkable. It is filled by JSON unmarshal of the provider
+// response.
+message SearchJiraIssuesResponse {
+  repeated JiraIssueSummary issues = 1;
+  optional string next_page_token = 2;
+}

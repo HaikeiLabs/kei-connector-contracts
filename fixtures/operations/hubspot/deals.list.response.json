@@ -1,0 +1,27 @@
+{
+  "results": [
+    {
+      "id": "901551",
+      "properties": {
+        "dealname": "Synthetic first deal",
+        "amount": "12000.00",
+        "description": null
+      },
+      "createdAt": "2026-01-20T08:00:00.000Z",
+      "updatedAt": "2026-02-05T10:15:00.000Z",
+      "archived": false
+    },
+    {
+      "id": "901552",
+      "properties": {
+        "dealname": "Synthetic second deal",
+        "amount": "4800.50"
+      },
+      "createdAt": "2026-01-22T08:30:00.000Z",
+      "updatedAt": "2026-02-06T11:45:00.000Z",
+      "archived": false
+    }
+  ],
+  "next_after": "synthetic-next-cursor",
+  "paging": {"next": {"after": "synthetic-next-cursor"}}
+}
