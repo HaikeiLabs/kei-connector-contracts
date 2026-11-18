@@ -9,24 +9,20 @@ call. The general rules are in [operation-contracts.md](../operation-contracts.m
 
 Source: `proto/kei/connectors/http_api/v1/records.proto`.
 
+## Connections
 
-## Operations
+Source: [`connector.proto`](../../proto/kei/connectors/http_api/v1/connector.proto).
 
-| Operation id | Method | Path | Class | Connections |
+| Name | Kind | Auth method | Account model | Setup fields |
 | --- | --- | --- | --- | --- |
-| `http_api.records.get` | `GET` | `/{collection}/{record_id}` | `read` | `api_key` |
-| `http_api.records.list` | `GET` | `/{collection}` | `read` | `api_key` |
+| `api_key` | `CONNECTION_KIND_HTTP_BEARER` | `secret_ref` | `ACCOUNT_MODEL_SHARED` | `base_url` (url), `api_key` (string, secret) |
 
 ## Operations
 
-| Id | Class | HTTP method | Path template | Scopes | Credential placement |
-| --- | --- | --- | --- | --- | --- |
-| `http_api.records.list` | read | `GET` | `/{collection}` | `records:read` | header bearer |
-| `http_api.records.get` | read | `GET` | `/{collection}/{record_id}` | `records:read` | header bearer |
-
-Both operations are reads. The credential is placed as a bearer header by
-the connector runtime at invocation time; it is never part of the contract
-or a fixture.
+| Id | Method | Path or GraphQL | Class | Destructive | Connections | Resource template |
+| --- | --- | --- | --- | --- | --- | --- |
+| `http_api.records.get` | `GET` | `/{collection}/{record_id}` | `read` | false | `api_key` | `collections/{collection}` |
+| `http_api.records.list` | `GET` | `/{collection}` | `read` | false | `api_key` | `collections/{collection}` |
 
 ## Messages
 
