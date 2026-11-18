@@ -8,6 +8,17 @@ from kei.connection import HttpConnection, Op, OpClass, call_http
 
 from kei.connectors.gmail.v1 import messages_pb2
 
+OP_CREATE_DRAFT = Op(id="gmail.drafts.create", op_class=OpClass.WRITE, destructive=False)
+_SPEC_CREATE_DRAFT = {
+    "op": OP_CREATE_DRAFT,
+    "method": "POST",
+    "path_template": "/gmail/v1/users/{user_id}/drafts",
+    "params": [{"field": "user_id", "in": "path", "multi_segment": False, "wire": "user_id"}, {"field": "message", "in": "body", "multi_segment": False, "wire": "message"}],
+    "errors": [{"kind": "invalid", "retryable": False, "status": 400}, {"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 OP_GET_MESSAGE = Op(id="gmail.messages.get", op_class=OpClass.READ, destructive=False)
 _SPEC_GET_MESSAGE = {
     "op": OP_GET_MESSAGE,
@@ -32,6 +43,8 @@ _SPEC_LIST_MESSAGES = {
 }
 
 class GmailOperations(Protocol):
+    async def create_draft(self, req: messages_pb2.CreateDraftRequest) -> messages_pb2.CreateDraftResponse:
+        ...
     async def get_message(self, req: messages_pb2.GetMessageRequest) -> messages_pb2.GetMessageResponse:
         ...
     async def list_messages(self, req: messages_pb2.ListMessagesRequest) -> messages_pb2.ListMessagesResponse:
@@ -42,6 +55,9 @@ class GmailQueries:
 
     def __init__(self, conn: HttpConnection) -> None:
         self._conn = conn
+
+    async def create_draft(self, req: messages_pb2.CreateDraftRequest) -> messages_pb2.CreateDraftResponse:
+        return await call_http(self._conn, _SPEC_CREATE_DRAFT, req, messages_pb2.CreateDraftResponse)
 
     async def get_message(self, req: messages_pb2.GetMessageRequest) -> messages_pb2.GetMessageResponse:
         return await call_http(self._conn, _SPEC_GET_MESSAGE, req, messages_pb2.GetMessageResponse)

@@ -11,7 +11,15 @@
 
 use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
-use crate::kei::connectors::gmail::v1::{GetMessageRequest, GetMessageResponse, ListMessagesRequest, ListMessagesResponse};
+use crate::kei::connectors::gmail::v1::{CreateDraftRequest, CreateDraftResponse, GetMessageRequest, GetMessageResponse, ListMessagesRequest, ListMessagesResponse};
+
+/// Operation descriptor for gmail.drafts.create, for authorization and audit: the
+/// capability a policy grants is connector:gmail.drafts.create.
+pub const OP_CREATE_DRAFT: Op = Op {
+    id: "gmail.drafts.create",
+    class: Class::Write,
+    destructive: false,
+};
 
 /// Operation descriptor for gmail.messages.get, for authorization and audit: the
 /// capability a policy grants is connector:gmail.messages.get.
@@ -28,6 +36,29 @@ pub const OP_LIST_MESSAGES: Op = Op {
     class: Class::Read,
     destructive: false,
 };
+
+const ERRORS_CREATE_DRAFT: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 400,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
 
 const ERRORS_GET_MESSAGE: &[ErrorMapping] = &[
     ErrorMapping {
@@ -79,6 +110,8 @@ const ERRORS_LIST_MESSAGES: &[ErrorMapping] = &[
 // async-fn-in-trait auto-trait bounds do not matter here.
 #[allow(async_fn_in_trait)]
 pub trait GmailOperations {
+    /// create_draft runs gmail.drafts.create (POST /gmail/v1/users/{user_id}/drafts).
+    async fn create_draft(&self, req: CreateDraftRequest) -> Result<CreateDraftResponse, OperationError>;
     /// get_message runs gmail.messages.get (GET /gmail/v1/users/{user_id}/messages/{message_id}).
     async fn get_message(&self, req: GetMessageRequest) -> Result<GetMessageResponse, OperationError>;
     /// list_messages runs gmail.messages.list (GET /gmail/v1/users/{user_id}/messages).
@@ -90,6 +123,30 @@ pub struct GmailQueries {
 }
 
 impl GmailOperations for GmailQueries {
+    /// create_draft runs gmail.drafts.create (POST /gmail/v1/users/{user_id}/drafts).
+    async fn create_draft(&self, req: CreateDraftRequest) -> Result<CreateDraftResponse, OperationError> {
+        let mut path_values: Vec<(&str, &str)> = Vec::new();
+        path_values.push(("user_id", req.user_id.as_str()));
+        let path = render_path(
+            "/gmail/v1/users/{user_id}/drafts",
+            &path_values,
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_CREATE_DRAFT.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        if let Some(v0) = &req.message { body.insert("message".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_DRAFT.id, e.to_string()))?); }
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_DRAFT.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("POST", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_CREATE_DRAFT.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_CREATE_DRAFT, out.status, &ERRORS_CREATE_DRAFT) {
+            return Err(err);
+        }
+        let resp: CreateDraftResponse = decode_response(OP_CREATE_DRAFT.id, &out.body, None)?;
+        Ok(resp)
+    }
     /// get_message runs gmail.messages.get (GET /gmail/v1/users/{user_id}/messages/{message_id}).
     async fn get_message(&self, req: GetMessageRequest) -> Result<GetMessageResponse, OperationError> {
         let mut path_values: Vec<(&str, &str)> = Vec::new();
