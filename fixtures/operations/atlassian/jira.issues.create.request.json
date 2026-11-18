@@ -1,0 +1,7 @@
+{
+  "fields": {
+    "project": {"key": "SYN"},
+    "issuetype": {"name": "Task"},
+    "summary": "Synthetic created issue"
+  }
+}

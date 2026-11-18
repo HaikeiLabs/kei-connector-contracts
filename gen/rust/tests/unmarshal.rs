@@ -19,6 +19,7 @@
 //! synthetic value intact, and the >2^53 int64 id round-trips exactly.
 
 use haikeilabs_connector_contracts::kei::connectors::atlassian::v1::{
+    CreateConfluencePageResponse, CreateJiraCommentResponse, CreateJiraIssueResponse,
     GetConfluencePageResponse, GetJiraIssueResponse, ListConfluencePagesResponse,
     SearchJiraIssuesResponse,
 };
@@ -130,6 +131,28 @@ fn fixtures_unmarshal() {
     assert_eq!(fields.summary, "Synthetic Jira issue");
     assert!(fields.description.is_none(), "description must be null");
 
+    // atlassian.jira.issues.create — spot: the created issue's id and key.
+    let resp: CreateJiraIssueResponse =
+        serde_json::from_str(&fixture("atlassian", "jira.issues.create.response.json"))
+            .expect("atlassian.jira.issues.create response unmarshals");
+    assert_eq!(resp.id, "30001");
+    assert_eq!(resp.key, "SYN-301");
+
+    // atlassian.jira.issues.comments.create — spot: the comment id, its ADF
+    // body and the created timestamp.
+    let resp: CreateJiraCommentResponse =
+        serde_json::from_str(&fixture("atlassian", "jira.issues.comments.create.response.json"))
+            .expect("atlassian.jira.issues.comments.create response unmarshals");
+    assert_eq!(resp.id, "40001");
+    let comment_body = resp.body.as_ref().expect("body present");
+    match comment_body.fields.get("type") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(kind)),
+        }) => assert_eq!(kind, "doc"),
+        other => panic!("body.type must be a string, got {:?}", other),
+    }
+    assert_eq!(resp.created, "2026-02-11T12:00:00.000Z");
+
     // atlassian.jira.issues.search — spot: two issues, the next cursor, and
     // the null description on the second issue.
     let resp: SearchJiraIssuesResponse =
@@ -147,6 +170,15 @@ fn fixtures_unmarshal() {
             .expect("atlassian.confluence.pages.get response unmarshals");
     assert_eq!(resp.id, 78643201);
     assert_eq!(resp.title, "Synthetic Confluence page");
+    assert!(resp.parent_id.is_none(), "parent_id must be null");
+
+    // atlassian.confluence.pages.create — spot: the created page's id and
+    // title, and the null parent_id of a root page.
+    let resp: CreateConfluencePageResponse =
+        serde_json::from_str(&fixture("atlassian", "confluence.pages.create.response.json"))
+            .expect("atlassian.confluence.pages.create response unmarshals");
+    assert_eq!(resp.id, 78643205);
+    assert_eq!(resp.title, "Synthetic created page");
     assert!(resp.parent_id.is_none(), "parent_id must be null");
 
     // atlassian.confluence.pages.list — spot: two page entries.

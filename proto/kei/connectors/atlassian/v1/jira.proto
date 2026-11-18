@@ -17,6 +17,7 @@ syntax = "proto3";
 
 package kei.connectors.atlassian.v1;
 
+import "google/protobuf/struct.proto";
 import "kei/contracts/v1/options.proto";
 
 option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1;atlassian";
@@ -108,4 +109,82 @@ message JiraIssueSummary {
 message SearchJiraIssuesResponse {
   repeated JiraIssueSummary issues = 1;
   optional string next_page_token = 2;
+}
+
+// CreateJiraIssueRequest creates a Jira issue. fields carries the create
+// payload's fields object (project, issuetype, summary, an ADF description,
+// ...), which is heterogeneous in Jira's API and stays a
+// google.protobuf.Struct; the contract does not model the updateHistory or
+// notifyUsers query flags.
+message CreateJiraIssueRequest {
+  google.protobuf.Struct fields = 1;
+
+  option (kei.contracts.v1.operation) = {
+    id: "atlassian.jira.issues.create"
+    connector: "atlassian"
+    class: OPERATION_CLASS_WRITE
+    destructive: false
+    http_method: "POST"
+    path_template: "/rest/api/3/issue"
+    scopes: ["write:jira-work"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateJiraIssue"
+    connections: ["user_oauth", "api_token"]
+    resource_template: "jira/issues"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "issue" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// CreateJiraIssueResponse models the subset of Jira's create response the
+// contract needs: the new issue's numeric id and key. It is filled by JSON
+// unmarshal of the provider response.
+message CreateJiraIssueResponse {
+  string id = 1;
+  string key = 2;
+}
+
+// CreateJiraCommentRequest adds a comment to a Jira issue. body carries the
+// comment text as an Atlassian Document Format document, which stays a
+// google.protobuf.Struct.
+message CreateJiraCommentRequest {
+  string issue_key = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  google.protobuf.Struct body = 2;
+
+  option (kei.contracts.v1.operation) = {
+    id: "atlassian.jira.issues.comments.create"
+    connector: "atlassian"
+    class: OPERATION_CLASS_WRITE
+    destructive: false
+    http_method: "POST"
+    path_template: "/rest/api/3/issue/{issue_key}/comment"
+    scopes: ["write:jira-work"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateJiraComment"
+    connections: ["user_oauth", "api_token"]
+    resource_template: "jira/issues/{issue_key}"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "comment" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// CreateJiraCommentResponse models the subset of Jira's comment response the
+// contract needs: the comment id, its ADF body and the created/updated
+// timestamps. It is filled by JSON unmarshal of the provider response.
+message CreateJiraCommentResponse {
+  string id = 1;
+  optional google.protobuf.Struct body = 2;
+  string created = 3;
+  string updated = 4;
 }

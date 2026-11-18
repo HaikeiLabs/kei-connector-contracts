@@ -12,13 +12,24 @@ import (
 // Mock implements Operations with one function field per operation, for
 // tests. Calling an operation whose field is nil returns an error.
 type Mock struct {
-	GetConfluencePageFunc   func(ctx context.Context, req *atlassian.GetConfluencePageRequest) (*atlassian.GetConfluencePageResponse, error)
-	ListConfluencePagesFunc func(ctx context.Context, req *atlassian.ListConfluencePagesRequest) (*atlassian.ListConfluencePagesResponse, error)
-	GetJiraIssueFunc        func(ctx context.Context, req *atlassian.GetJiraIssueRequest) (*atlassian.GetJiraIssueResponse, error)
-	SearchJiraIssuesFunc    func(ctx context.Context, req *atlassian.SearchJiraIssuesRequest) (*atlassian.SearchJiraIssuesResponse, error)
+	CreateConfluencePageFunc func(ctx context.Context, req *atlassian.CreateConfluencePageRequest) (*atlassian.CreateConfluencePageResponse, error)
+	GetConfluencePageFunc    func(ctx context.Context, req *atlassian.GetConfluencePageRequest) (*atlassian.GetConfluencePageResponse, error)
+	ListConfluencePagesFunc  func(ctx context.Context, req *atlassian.ListConfluencePagesRequest) (*atlassian.ListConfluencePagesResponse, error)
+	CreateJiraCommentFunc    func(ctx context.Context, req *atlassian.CreateJiraCommentRequest) (*atlassian.CreateJiraCommentResponse, error)
+	CreateJiraIssueFunc      func(ctx context.Context, req *atlassian.CreateJiraIssueRequest) (*atlassian.CreateJiraIssueResponse, error)
+	GetJiraIssueFunc         func(ctx context.Context, req *atlassian.GetJiraIssueRequest) (*atlassian.GetJiraIssueResponse, error)
+	SearchJiraIssuesFunc     func(ctx context.Context, req *atlassian.SearchJiraIssuesRequest) (*atlassian.SearchJiraIssuesResponse, error)
 }
 
 var _ Operations = (*Mock)(nil)
+
+// CreateConfluencePage calls m.CreateConfluencePageFunc.
+func (m *Mock) CreateConfluencePage(ctx context.Context, req *atlassian.CreateConfluencePageRequest) (*atlassian.CreateConfluencePageResponse, error) {
+	if m.CreateConfluencePageFunc == nil {
+		return nil, errors.New("atlassianops.Mock: CreateConfluencePageFunc is not set")
+	}
+	return m.CreateConfluencePageFunc(ctx, req)
+}
 
 // GetConfluencePage calls m.GetConfluencePageFunc.
 func (m *Mock) GetConfluencePage(ctx context.Context, req *atlassian.GetConfluencePageRequest) (*atlassian.GetConfluencePageResponse, error) {
@@ -34,6 +45,22 @@ func (m *Mock) ListConfluencePages(ctx context.Context, req *atlassian.ListConfl
 		return nil, errors.New("atlassianops.Mock: ListConfluencePagesFunc is not set")
 	}
 	return m.ListConfluencePagesFunc(ctx, req)
+}
+
+// CreateJiraComment calls m.CreateJiraCommentFunc.
+func (m *Mock) CreateJiraComment(ctx context.Context, req *atlassian.CreateJiraCommentRequest) (*atlassian.CreateJiraCommentResponse, error) {
+	if m.CreateJiraCommentFunc == nil {
+		return nil, errors.New("atlassianops.Mock: CreateJiraCommentFunc is not set")
+	}
+	return m.CreateJiraCommentFunc(ctx, req)
+}
+
+// CreateJiraIssue calls m.CreateJiraIssueFunc.
+func (m *Mock) CreateJiraIssue(ctx context.Context, req *atlassian.CreateJiraIssueRequest) (*atlassian.CreateJiraIssueResponse, error) {
+	if m.CreateJiraIssueFunc == nil {
+		return nil, errors.New("atlassianops.Mock: CreateJiraIssueFunc is not set")
+	}
+	return m.CreateJiraIssueFunc(ctx, req)
 }
 
 // GetJiraIssue calls m.GetJiraIssueFunc.

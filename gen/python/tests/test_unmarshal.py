@@ -94,6 +94,17 @@ def _spot_atlassian_jira_issues_get(response):
     assert not response.fields.HasField("description")
 
 
+def _spot_atlassian_jira_issues_create(response):
+    assert response.id == "30001"
+    assert response.key == "SYN-301"
+
+
+def _spot_atlassian_jira_comments_create(response):
+    assert response.id == "40001"
+    assert response.body.fields["type"].string_value == "doc"
+    assert response.created == "2026-02-11T12:00:00.000Z"
+
+
 def _spot_atlassian_jira_issues_search(response):
     assert len(response.issues) == 2
     assert response.next_page_token == "synthetic-next-token"
@@ -103,6 +114,12 @@ def _spot_atlassian_jira_issues_search(response):
 def _spot_atlassian_confluence_pages_get(response):
     assert response.id == 78643201
     assert response.title == "Synthetic Confluence page"
+    assert not response.HasField("parent_id")
+
+
+def _spot_atlassian_confluence_pages_create(response):
+    assert response.id == 78643205
+    assert response.title == "Synthetic created page"
     assert not response.HasField("parent_id")
 
 
@@ -158,8 +175,11 @@ OPS = [
     ("linear.teams.get", "linear", teams_pb2.GetTeamRequest, teams_pb2.GetTeamResponse, _spot_linear_teams_get),
     ("linear.comments.create", "linear", comments_pb2.CreateCommentRequest, comments_pb2.CreateCommentResponse, _spot_linear_comments_create),
     ("atlassian.jira.issues.get", "atlassian", jira_pb2.GetJiraIssueRequest, jira_pb2.GetJiraIssueResponse, _spot_atlassian_jira_issues_get),
+    ("atlassian.jira.issues.create", "atlassian", jira_pb2.CreateJiraIssueRequest, jira_pb2.CreateJiraIssueResponse, _spot_atlassian_jira_issues_create),
+    ("atlassian.jira.issues.comments.create", "atlassian", jira_pb2.CreateJiraCommentRequest, jira_pb2.CreateJiraCommentResponse, _spot_atlassian_jira_comments_create),
     ("atlassian.jira.issues.search", "atlassian", jira_pb2.SearchJiraIssuesRequest, jira_pb2.SearchJiraIssuesResponse, _spot_atlassian_jira_issues_search),
     ("atlassian.confluence.pages.get", "atlassian", confluence_pb2.GetConfluencePageRequest, confluence_pb2.GetConfluencePageResponse, _spot_atlassian_confluence_pages_get),
+    ("atlassian.confluence.pages.create", "atlassian", confluence_pb2.CreateConfluencePageRequest, confluence_pb2.CreateConfluencePageResponse, _spot_atlassian_confluence_pages_create),
     ("atlassian.confluence.pages.list", "atlassian", confluence_pb2.ListConfluencePagesRequest, confluence_pb2.ListConfluencePagesResponse, _spot_atlassian_confluence_pages_list),
     ("http_api.records.list", "http_api", records_pb2.ListRecordsRequest, records_pb2.ListRecordsResponse, _spot_http_api_records_list),
     ("http_api.records.get", "http_api", records_pb2.GetRecordRequest, records_pb2.GetRecordResponse, _spot_http_api_records_get),

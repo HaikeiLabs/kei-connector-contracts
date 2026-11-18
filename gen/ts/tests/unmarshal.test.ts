@@ -35,8 +35,11 @@ function fixture(op: string, kind: string): JsonValue {
 // while strict parsing detects it. Requests are also checked for compatibility.
 const ops = [
   ["atlassian.jira.issues.get", atlassianJira.GetJiraIssueRequestSchema, atlassianJira.GetJiraIssueResponseSchema, (r: any) => { expect(r.key).toBe("SYN-101"); expect(r.fields.summary).toBe("Synthetic Jira issue"); expect(r.fields.description).toBeUndefined(); }],
+  ["atlassian.jira.issues.create", atlassianJira.CreateJiraIssueRequestSchema, atlassianJira.CreateJiraIssueResponseSchema, (r: any) => { expect(r.id).toBe("30001"); expect(r.key).toBe("SYN-301"); }],
+  ["atlassian.jira.issues.comments.create", atlassianJira.CreateJiraCommentRequestSchema, atlassianJira.CreateJiraCommentResponseSchema, (r: any) => { expect(r.id).toBe("40001"); expect(r.body["type"]).toBe("doc"); expect(r.created).toBe("2026-02-11T12:00:00.000Z"); }],
   ["atlassian.jira.issues.search", atlassianJira.SearchJiraIssuesRequestSchema, atlassianJira.SearchJiraIssuesResponseSchema, (r: any) => { expect(r.issues).toHaveLength(2); expect(r.nextPageToken).toBe("synthetic-next-token"); expect(r.issues[1].fields.description).toBeUndefined(); }],
   ["atlassian.confluence.pages.get", atlassianConfluence.GetConfluencePageRequestSchema, atlassianConfluence.GetConfluencePageResponseSchema, (r: any) => { expect(r.id).toBe(78643201n); expect(r.title).toBe("Synthetic Confluence page"); expect(r.parentId).toBeUndefined(); }],
+  ["atlassian.confluence.pages.create", atlassianConfluence.CreateConfluencePageRequestSchema, atlassianConfluence.CreateConfluencePageResponseSchema, (r: any) => { expect(r.id).toBe(78643205n); expect(r.title).toBe("Synthetic created page"); expect(r.parentId).toBeUndefined(); }],
   ["atlassian.confluence.pages.list", atlassianConfluence.ListConfluencePagesRequestSchema, atlassianConfluence.ListConfluencePagesResponseSchema, (r: any) => { expect(r.results).toHaveLength(2); expect(r.results[0].title).toBe("Synthetic first page"); }],
   ["github.issues.get", ghIssues.GetIssueRequestSchema, ghIssues.GetIssueResponseSchema, (r: any) => { expect(r.id).toBe(9007199254740993n); expect(r.number).toBe(1347n); }],
   ["github.issues.list", ghIssues.ListIssuesRequestSchema, ghIssues.ListIssuesResponseSchema, (r: any) => expect(r.issues).toHaveLength(2)],
