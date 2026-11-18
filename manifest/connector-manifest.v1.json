@@ -375,6 +375,151 @@
           "response": "kei.connectors.linear.v1.GetTeamResponse"
         }
       ]
+    },
+    {
+      "id": "notion",
+      "base_url": "https://api.notion.com",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "scopes": [],
+          "setup_fields": []
+        },
+        {
+          "name": "integration_token",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "notion.databases.query",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pages:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "integration_token"
+          ],
+          "resource_template": "databases/{database_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.notion.v1.QueryDatabaseRequest",
+          "response": "kei.connectors.notion.v1.QueryDatabaseResponse"
+        },
+        {
+          "id": "notion.pages.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pages:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "integration_token"
+          ],
+          "resource_template": "pages/{page_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.notion.v1.GetPageRequest",
+          "response": "kei.connectors.notion.v1.GetPageResponse"
+        }
+      ]
+    },
+    {
+      "id": "sentry",
+      "base_url": "https://sentry.io",
+      "connections": [
+        {
+          "name": "auth_token",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            },
+            {
+              "name": "organization_slug",
+              "type": "string",
+              "secret": false
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "sentry.issues.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issue:read"
+          ],
+          "connections": [
+            "auth_token"
+          ],
+          "resource_template": "organizations/{organization_slug}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.sentry.v1.GetIssueRequest",
+          "response": "kei.connectors.sentry.v1.GetIssueResponse"
+        },
+        {
+          "id": "sentry.issues.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issue:read"
+          ],
+          "connections": [
+            "auth_token"
+          ],
+          "resource_template": "organizations/{organization_slug}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.sentry.v1.ListIssuesRequest",
+          "response": "kei.connectors.sentry.v1.ListIssuesResponse"
+        }
+      ]
     }
   ],
   "legacy_capabilities": [
@@ -384,6 +529,13 @@
       "operations": [
         "github.issues.get",
         "github.issues.list"
+      ]
+    },
+    {
+      "connector": "linear",
+      "capability": "comment.create",
+      "operations": [
+        "linear.comments.create"
       ]
     },
     {
@@ -399,6 +551,13 @@
       "operations": [
         "linear.issues.get",
         "linear.issues.search"
+      ]
+    },
+    {
+      "connector": "linear",
+      "capability": "team.read",
+      "operations": [
+        "linear.teams.get"
       ]
     }
   ]

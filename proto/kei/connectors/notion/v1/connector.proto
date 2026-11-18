@@ -1,0 +1,50 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Notion connector declaration: the connector id and the connection kinds
+// its operations run over (proposal 0002, section 4.1).
+syntax = "proto3";
+
+package kei.connectors.notion.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/notion/v1;notion";
+
+// Notion connector and its connection kinds. A user's own OAuth token or an
+// admin-configured integration token; both go on the wire as a bearer token.
+//
+// Every Notion API request also carries a fixed `Notion-Version` header
+// (e.g. "2022-06-28") pinning the API version. It is NOT a credential: it is
+// a constant header every caller sends and never carries a per-user or
+// per-connection secret, so it is not modeled as a connection or setup field.
+option (kei.contracts.v1.connector) = {
+  id: "notion"
+  base_url: "https://api.notion.com"
+  connections: [
+    {
+      name: "user_oauth"
+      kind: CONNECTION_KIND_HTTP_BEARER
+      auth_method: "oauth"
+      account_model: ACCOUNT_MODEL_PER_USER
+    },
+    {
+      name: "integration_token"
+      kind: CONNECTION_KIND_HTTP_BEARER
+      auth_method: "secret_ref"
+      account_model: ACCOUNT_MODEL_SHARED
+      setup_fields: [{name: "token" type: "string" pattern: "^\\S+$" secret: true}]
+    }
+  ]
+};
