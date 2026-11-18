@@ -17,6 +17,7 @@ syntax = "proto3";
 
 package kei.connectors.atlassian.v1;
 
+import "google/protobuf/struct.proto";
 import "kei/contracts/v1/options.proto";
 
 option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1;atlassian";
@@ -50,6 +51,48 @@ message GetConfluencePageRequest {
 // the contract needs. parent_id is null on the wire for root pages. It is
 // filled by JSON unmarshal of the provider response.
 message GetConfluencePageResponse {
+  int64 id = 1;
+  string title = 2;
+  string space_id = 3;
+  optional string parent_id = 4;
+}
+
+// CreateConfluencePageRequest creates a page in a Confluence space. body
+// carries the page content in Confluence's {representation, value} shape and
+// stays a google.protobuf.Struct; the contract does not model the full
+// version, label or ownership fields the v2 endpoint also accepts.
+message CreateConfluencePageRequest {
+  string space_id = 1;
+  string title = 2;
+  optional string parent_id = 3;
+  google.protobuf.Struct body = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "atlassian.confluence.pages.create"
+    connector: "atlassian"
+    class: OPERATION_CLASS_WRITE
+    destructive: false
+    http_method: "POST"
+    path_template: "/wiki/api/v2/pages"
+    scopes: ["write:page:confluence"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateConfluencePage"
+    connections: ["user_oauth", "api_token"]
+    resource_template: "confluence/pages"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "page" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// CreateConfluencePageResponse models the same page subset the read returns.
+// parent_id is null on the wire for root pages. It is filled by JSON
+// unmarshal of the provider response.
+message CreateConfluencePageResponse {
   int64 id = 1;
   string title = 2;
   string space_id = 3;

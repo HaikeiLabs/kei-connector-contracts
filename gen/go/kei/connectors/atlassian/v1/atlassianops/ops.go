@@ -15,10 +15,16 @@ import (
 
 // Operations is the atlassian connector. Callers depend on it; tests use Mock.
 type Operations interface {
+	// CreateConfluencePage runs atlassian.confluence.pages.create (POST /wiki/api/v2/pages).
+	CreateConfluencePage(ctx context.Context, req *atlassian.CreateConfluencePageRequest) (*atlassian.CreateConfluencePageResponse, error)
 	// GetConfluencePage runs atlassian.confluence.pages.get (GET /wiki/api/v2/pages/{page_id}).
 	GetConfluencePage(ctx context.Context, req *atlassian.GetConfluencePageRequest) (*atlassian.GetConfluencePageResponse, error)
 	// ListConfluencePages runs atlassian.confluence.pages.list (GET /wiki/api/v2/spaces/{space_id}/pages).
 	ListConfluencePages(ctx context.Context, req *atlassian.ListConfluencePagesRequest) (*atlassian.ListConfluencePagesResponse, error)
+	// CreateJiraComment runs atlassian.jira.issues.comments.create (POST /rest/api/3/issue/{issue_key}/comment).
+	CreateJiraComment(ctx context.Context, req *atlassian.CreateJiraCommentRequest) (*atlassian.CreateJiraCommentResponse, error)
+	// CreateJiraIssue runs atlassian.jira.issues.create (POST /rest/api/3/issue).
+	CreateJiraIssue(ctx context.Context, req *atlassian.CreateJiraIssueRequest) (*atlassian.CreateJiraIssueResponse, error)
 	// GetJiraIssue runs atlassian.jira.issues.get (GET /rest/api/3/issue/{issue_key}).
 	GetJiraIssue(ctx context.Context, req *atlassian.GetJiraIssueRequest) (*atlassian.GetJiraIssueResponse, error)
 	// SearchJiraIssues runs atlassian.jira.issues.search (POST /rest/api/3/search/jql).
@@ -28,10 +34,13 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpGetConfluencePage   = connection.Op{ID: "atlassian.confluence.pages.get", Class: connection.Read}
-	OpListConfluencePages = connection.Op{ID: "atlassian.confluence.pages.list", Class: connection.Read}
-	OpGetJiraIssue        = connection.Op{ID: "atlassian.jira.issues.get", Class: connection.Read}
-	OpSearchJiraIssues    = connection.Op{ID: "atlassian.jira.issues.search", Class: connection.Read}
+	OpCreateConfluencePage = connection.Op{ID: "atlassian.confluence.pages.create", Class: connection.Write}
+	OpGetConfluencePage    = connection.Op{ID: "atlassian.confluence.pages.get", Class: connection.Read}
+	OpListConfluencePages  = connection.Op{ID: "atlassian.confluence.pages.list", Class: connection.Read}
+	OpCreateJiraComment    = connection.Op{ID: "atlassian.jira.issues.comments.create", Class: connection.Write}
+	OpCreateJiraIssue      = connection.Op{ID: "atlassian.jira.issues.create", Class: connection.Write}
+	OpGetJiraIssue         = connection.Op{ID: "atlassian.jira.issues.get", Class: connection.Read}
+	OpSearchJiraIssues     = connection.Op{ID: "atlassian.jira.issues.search", Class: connection.Read}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.
@@ -41,6 +50,24 @@ type Queries struct{ conn connection.HTTP }
 func New(conn connection.HTTP) *Queries { return &Queries{conn: conn} }
 
 var _ Operations = (*Queries)(nil)
+
+var specCreateConfluencePage = &connection.HTTPSpec{
+	Op:           OpCreateConfluencePage,
+	Method:       "POST",
+	PathTemplate: "/wiki/api/v2/pages",
+	Params: []connection.Param{
+		{Field: "space_id", In: connection.InBody, Wire: "space_id"},
+		{Field: "title", In: connection.InBody, Wire: "title"},
+		{Field: "parent_id", In: connection.InBody, Wire: "parent_id"},
+		{Field: "body", In: connection.InBody, Wire: "body"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 400, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
 
 var specGetConfluencePage = &connection.HTTPSpec{
 	Op:           OpGetConfluencePage,
@@ -69,6 +96,38 @@ var specListConfluencePages = &connection.HTTPSpec{
 		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
 		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
 		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
+var specCreateJiraComment = &connection.HTTPSpec{
+	Op:           OpCreateJiraComment,
+	Method:       "POST",
+	PathTemplate: "/rest/api/3/issue/{issue_key}/comment",
+	Params: []connection.Param{
+		{Field: "issue_key", In: connection.InPath, Wire: "issue_key"},
+		{Field: "body", In: connection.InBody, Wire: "body"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 400, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
+var specCreateJiraIssue = &connection.HTTPSpec{
+	Op:           OpCreateJiraIssue,
+	Method:       "POST",
+	PathTemplate: "/rest/api/3/issue",
+	Params: []connection.Param{
+		{Field: "fields", In: connection.InBody, Wire: "fields"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 400, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
 }
@@ -107,6 +166,15 @@ var specSearchJiraIssues = &connection.HTTPSpec{
 	NextCursorField: "next_page_token",
 }
 
+// CreateConfluencePage runs atlassian.confluence.pages.create.
+func (q *Queries) CreateConfluencePage(ctx context.Context, req *atlassian.CreateConfluencePageRequest) (*atlassian.CreateConfluencePageResponse, error) {
+	resp := &atlassian.CreateConfluencePageResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specCreateConfluencePage, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
 // GetConfluencePage runs atlassian.confluence.pages.get.
 func (q *Queries) GetConfluencePage(ctx context.Context, req *atlassian.GetConfluencePageRequest) (*atlassian.GetConfluencePageResponse, error) {
 	resp := &atlassian.GetConfluencePageResponse{}
@@ -120,6 +188,24 @@ func (q *Queries) GetConfluencePage(ctx context.Context, req *atlassian.GetConfl
 func (q *Queries) ListConfluencePages(ctx context.Context, req *atlassian.ListConfluencePagesRequest) (*atlassian.ListConfluencePagesResponse, error) {
 	resp := &atlassian.ListConfluencePagesResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specListConfluencePages, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// CreateJiraComment runs atlassian.jira.issues.comments.create.
+func (q *Queries) CreateJiraComment(ctx context.Context, req *atlassian.CreateJiraCommentRequest) (*atlassian.CreateJiraCommentResponse, error) {
+	resp := &atlassian.CreateJiraCommentResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specCreateJiraComment, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// CreateJiraIssue runs atlassian.jira.issues.create.
+func (q *Queries) CreateJiraIssue(ctx context.Context, req *atlassian.CreateJiraIssueRequest) (*atlassian.CreateJiraIssueResponse, error) {
+	resp := &atlassian.CreateJiraIssueResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specCreateJiraIssue, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

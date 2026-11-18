@@ -20,14 +20,15 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import { file_kei_contracts_v1_options } from "../../../contracts/v1/options_pb.js";
-import type { Message } from "@bufbuild/protobuf";
+import type { JsonObject, Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file kei/connectors/atlassian/v1/jira.proto.
  */
 export const file_kei_connectors_atlassian_v1_jira: GenFile = /*@__PURE__*/
-  fileDesc("CiZrZWkvY29ubmVjdG9ycy9hdGxhc3NpYW4vdjEvamlyYS5wcm90bxIba2VpLmNvbm5lY3RvcnMuYXRsYXNzaWFuLnYxIoACChNHZXRKaXJhSXNzdWVSZXF1ZXN0EhkKCWlzc3VlX2tleRgBIAEoCUIGooIZAggBOs0BkoIZyAEKGWF0bGFzc2lhbi5qaXJhLmlzc3Vlcy5nZXQSCWF0bGFzc2lhbhgBKgNHRVQyHS9yZXN0L2FwaS8zL2lzc3VlL3tpc3N1ZV9rZXl9Og5yZWFkOmppcmEtd29ya0ABSgxHZXRKaXJhSXNzdWVSCnVzZXJfb2F1dGhSCWFwaV90b2tlbloXamlyYS9pc3N1ZXMve2lzc3VlX2tleX1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQsIARIFaXNzdWUYASJMCg9KaXJhSXNzdWVGaWVsZHMSDwoHc3VtbWFyeRgBIAEoCRIYCgtkZXNjcmlwdGlvbhgCIAEoCUgAiAEBQg4KDF9kZXNjcmlwdGlvbiJtChRHZXRKaXJhSXNzdWVSZXNwb25zZRIKCgJpZBgBIAEoCRILCgNrZXkYAiABKAkSPAoGZmllbGRzGAMgASgLMiwua2VpLmNvbm5lY3RvcnMuYXRsYXNzaWFuLnYxLkppcmFJc3N1ZUZpZWxkcyL4AgoXU2VhcmNoSmlyYUlzc3Vlc1JlcXVlc3QSEAoDanFsGAEgASgJSACIAQESHAoPbmV4dF9wYWdlX3Rva2VuGAIgASgJSAGIAQESGAoLbWF4X3Jlc3VsdHMYAyABKAVIAogBATrmAZKCGeEBChxhdGxhc3NpYW4uamlyYS5pc3N1ZXMuc2VhcmNoEglhdGxhc3NpYW4YASoEUE9TVDIWL3Jlc3QvYXBpLzMvc2VhcmNoL2pxbDoOcmVhZDpqaXJhLXdvcmtAAUoQU2VhcmNoSmlyYUlzc3Vlc1IKdXNlcl9vYXV0aFIJYXBpX3Rva2VuWgtqaXJhL2lzc3Vlc2IFCJADEAZiBQiRAxACYgUIkwMQA2IHCK0DEAQYAYoBCwgBEgVpc3N1ZRgBkgEPbmV4dF9wYWdlX3Rva2VumgEPbmV4dF9wYWdlX3Rva2VuQgYKBF9qcWxCEgoQX25leHRfcGFnZV90b2tlbkIOCgxfbWF4X3Jlc3VsdHMiaQoQSmlyYUlzc3VlU3VtbWFyeRIKCgJpZBgBIAEoCRILCgNrZXkYAiABKAkSPAoGZmllbGRzGAMgASgLMiwua2VpLmNvbm5lY3RvcnMuYXRsYXNzaWFuLnYxLkppcmFJc3N1ZUZpZWxkcyKLAQoYU2VhcmNoSmlyYUlzc3Vlc1Jlc3BvbnNlEj0KBmlzc3VlcxgBIAMoCzItLmtlaS5jb25uZWN0b3JzLmF0bGFzc2lhbi52MS5KaXJhSXNzdWVTdW1tYXJ5EhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW5CXFpaZ2l0aHViLmNvbS9IYWlrZWlMYWJzL2tlaS1jb25uZWN0b3ItY29udHJhY3RzL2dlbi9nby9rZWkvY29ubmVjdG9ycy9hdGxhc3NpYW4vdjE7YXRsYXNzaWFuYgZwcm90bzM", [file_kei_contracts_v1_options]);
+  fileDesc("CiZrZWkvY29ubmVjdG9ycy9hdGxhc3NpYW4vdjEvamlyYS5wcm90bxIba2VpLmNvbm5lY3RvcnMuYXRsYXNzaWFuLnYxIoACChNHZXRKaXJhSXNzdWVSZXF1ZXN0EhkKCWlzc3VlX2tleRgBIAEoCUIGooIZAggBOs0BkoIZyAEKGWF0bGFzc2lhbi5qaXJhLmlzc3Vlcy5nZXQSCWF0bGFzc2lhbhgBKgNHRVQyHS9yZXN0L2FwaS8zL2lzc3VlL3tpc3N1ZV9rZXl9Og5yZWFkOmppcmEtd29ya0ABSgxHZXRKaXJhSXNzdWVSCnVzZXJfb2F1dGhSCWFwaV90b2tlbloXamlyYS9pc3N1ZXMve2lzc3VlX2tleX1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQsIARIFaXNzdWUYASJMCg9KaXJhSXNzdWVGaWVsZHMSDwoHc3VtbWFyeRgBIAEoCRIYCgtkZXNjcmlwdGlvbhgCIAEoCUgAiAEBQg4KDF9kZXNjcmlwdGlvbiJtChRHZXRKaXJhSXNzdWVSZXNwb25zZRIKCgJpZBgBIAEoCRILCgNrZXkYAiABKAkSPAoGZmllbGRzGAMgASgLMiwua2VpLmNvbm5lY3RvcnMuYXRsYXNzaWFuLnYxLkppcmFJc3N1ZUZpZWxkcyL4AgoXU2VhcmNoSmlyYUlzc3Vlc1JlcXVlc3QSEAoDanFsGAEgASgJSACIAQESHAoPbmV4dF9wYWdlX3Rva2VuGAIgASgJSAGIAQESGAoLbWF4X3Jlc3VsdHMYAyABKAVIAogBATrmAZKCGeEBChxhdGxhc3NpYW4uamlyYS5pc3N1ZXMuc2VhcmNoEglhdGxhc3NpYW4YASoEUE9TVDIWL3Jlc3QvYXBpLzMvc2VhcmNoL2pxbDoOcmVhZDpqaXJhLXdvcmtAAUoQU2VhcmNoSmlyYUlzc3Vlc1IKdXNlcl9vYXV0aFIJYXBpX3Rva2VuWgtqaXJhL2lzc3Vlc2IFCJADEAZiBQiRAxACYgUIkwMQA2IHCK0DEAQYAYoBCwgBEgVpc3N1ZRgBkgEPbmV4dF9wYWdlX3Rva2VumgEPbmV4dF9wYWdlX3Rva2VuQgYKBF9qcWxCEgoQX25leHRfcGFnZV90b2tlbkIOCgxfbWF4X3Jlc3VsdHMiaQoQSmlyYUlzc3VlU3VtbWFyeRIKCgJpZBgBIAEoCRILCgNrZXkYAiABKAkSPAoGZmllbGRzGAMgASgLMiwua2VpLmNvbm5lY3RvcnMuYXRsYXNzaWFuLnYxLkppcmFJc3N1ZUZpZWxkcyKLAQoYU2VhcmNoSmlyYUlzc3Vlc1Jlc3BvbnNlEj0KBmlzc3VlcxgBIAMoCzItLmtlaS5jb25uZWN0b3JzLmF0bGFzc2lhbi52MS5KaXJhSXNzdWVTdW1tYXJ5EhwKD25leHRfcGFnZV90b2tlbhgCIAEoCUgAiAEBQhIKEF9uZXh0X3BhZ2VfdG9rZW4igQIKFkNyZWF0ZUppcmFJc3N1ZVJlcXVlc3QSJwoGZmllbGRzGAEgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdDq9AZKCGbgBChxhdGxhc3NpYW4uamlyYS5pc3N1ZXMuY3JlYXRlEglhdGxhc3NpYW4YAioEUE9TVDIRL3Jlc3QvYXBpLzMvaXNzdWU6D3dyaXRlOmppcmEtd29ya0ABSg9DcmVhdGVKaXJhSXNzdWVSCnVzZXJfb2F1dGhSCWFwaV90b2tlbloLamlyYS9pc3N1ZXNiBQiQAxAGYgUIkQMQAmIFCJMDEANiBwitAxAEGAGKAQsIAhIFaXNzdWUYASIyChdDcmVhdGVKaXJhSXNzdWVSZXNwb25zZRIKCgJpZBgBIAEoCRILCgNrZXkYAiABKAki0AIKGENyZWF0ZUppcmFDb21tZW50UmVxdWVzdBIZCglpc3N1ZV9rZXkYASABKAlCBqKCGQIIARIlCgRib2R5GAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdDrxAZKCGewBCiVhdGxhc3NpYW4uamlyYS5pc3N1ZXMuY29tbWVudHMuY3JlYXRlEglhdGxhc3NpYW4YAioEUE9TVDIlL3Jlc3QvYXBpLzMvaXNzdWUve2lzc3VlX2tleX0vY29tbWVudDoPd3JpdGU6amlyYS13b3JrQAFKEUNyZWF0ZUppcmFDb21tZW50Ugp1c2VyX29hdXRoUglhcGlfdG9rZW5aF2ppcmEvaXNzdWVzL3tpc3N1ZV9rZXl9YgUIkAMQBmIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAYoBDQgCEgdjb21tZW50GAEifgoZQ3JlYXRlSmlyYUNvbW1lbnRSZXNwb25zZRIKCgJpZBgBIAEoCRIqCgRib2R5GAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdEgAiAEBEg8KB2NyZWF0ZWQYAyABKAkSDwoHdXBkYXRlZBgEIAEoCUIHCgVfYm9keUJcWlpnaXRodWIuY29tL0hhaWtlaUxhYnMva2VpLWNvbm5lY3Rvci1jb250cmFjdHMvZ2VuL2dvL2tlaS9jb25uZWN0b3JzL2F0bGFzc2lhbi92MTthdGxhc3NpYW5iBnByb3RvMw", [file_google_protobuf_struct, file_kei_contracts_v1_options]);
 
 /**
  * GetJiraIssueRequest reads a single issue from a Jira site.
@@ -191,4 +192,115 @@ export type SearchJiraIssuesResponse = Message<"kei.connectors.atlassian.v1.Sear
  */
 export const SearchJiraIssuesResponseSchema: GenMessage<SearchJiraIssuesResponse> = /*@__PURE__*/
   messageDesc(file_kei_connectors_atlassian_v1_jira, 5);
+
+/**
+ * CreateJiraIssueRequest creates a Jira issue. fields carries the create
+ * payload's fields object (project, issuetype, summary, an ADF description,
+ * ...), which is heterogeneous in Jira's API and stays a
+ * google.protobuf.Struct; the contract does not model the updateHistory or
+ * notifyUsers query flags.
+ *
+ * @generated from message kei.connectors.atlassian.v1.CreateJiraIssueRequest
+ */
+export type CreateJiraIssueRequest = Message<"kei.connectors.atlassian.v1.CreateJiraIssueRequest"> & {
+  /**
+   * @generated from field: google.protobuf.Struct fields = 1;
+   */
+  fields?: JsonObject | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.atlassian.v1.CreateJiraIssueRequest.
+ * Use `create(CreateJiraIssueRequestSchema)` to create a new message.
+ */
+export const CreateJiraIssueRequestSchema: GenMessage<CreateJiraIssueRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_atlassian_v1_jira, 6);
+
+/**
+ * CreateJiraIssueResponse models the subset of Jira's create response the
+ * contract needs: the new issue's numeric id and key. It is filled by JSON
+ * unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.atlassian.v1.CreateJiraIssueResponse
+ */
+export type CreateJiraIssueResponse = Message<"kei.connectors.atlassian.v1.CreateJiraIssueResponse"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string key = 2;
+   */
+  key: string;
+};
+
+/**
+ * Describes the message kei.connectors.atlassian.v1.CreateJiraIssueResponse.
+ * Use `create(CreateJiraIssueResponseSchema)` to create a new message.
+ */
+export const CreateJiraIssueResponseSchema: GenMessage<CreateJiraIssueResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_atlassian_v1_jira, 7);
+
+/**
+ * CreateJiraCommentRequest adds a comment to a Jira issue. body carries the
+ * comment text as an Atlassian Document Format document, which stays a
+ * google.protobuf.Struct.
+ *
+ * @generated from message kei.connectors.atlassian.v1.CreateJiraCommentRequest
+ */
+export type CreateJiraCommentRequest = Message<"kei.connectors.atlassian.v1.CreateJiraCommentRequest"> & {
+  /**
+   * @generated from field: string issue_key = 1;
+   */
+  issueKey: string;
+
+  /**
+   * @generated from field: google.protobuf.Struct body = 2;
+   */
+  body?: JsonObject | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.atlassian.v1.CreateJiraCommentRequest.
+ * Use `create(CreateJiraCommentRequestSchema)` to create a new message.
+ */
+export const CreateJiraCommentRequestSchema: GenMessage<CreateJiraCommentRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_atlassian_v1_jira, 8);
+
+/**
+ * CreateJiraCommentResponse models the subset of Jira's comment response the
+ * contract needs: the comment id, its ADF body and the created/updated
+ * timestamps. It is filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.atlassian.v1.CreateJiraCommentResponse
+ */
+export type CreateJiraCommentResponse = Message<"kei.connectors.atlassian.v1.CreateJiraCommentResponse"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: optional google.protobuf.Struct body = 2;
+   */
+  body?: JsonObject | undefined;
+
+  /**
+   * @generated from field: string created = 3;
+   */
+  created: string;
+
+  /**
+   * @generated from field: string updated = 4;
+   */
+  updated: string;
+};
+
+/**
+ * Describes the message kei.connectors.atlassian.v1.CreateJiraCommentResponse.
+ * Use `create(CreateJiraCommentResponseSchema)` to create a new message.
+ */
+export const CreateJiraCommentResponseSchema: GenMessage<CreateJiraCommentResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_atlassian_v1_jira, 9);
 

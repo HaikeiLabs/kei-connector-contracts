@@ -397,6 +397,36 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "atlassian.jira.issues.create",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.CreateJiraIssueRequest{} },
+		response:  func() proto.Message { return &atlassianv1.CreateJiraIssueResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.CreateJiraIssueResponse)
+			if got.GetId() != "30001" {
+				t.Errorf("id = %q, want 30001", got.GetId())
+			}
+			if got.GetKey() != "SYN-301" {
+				t.Errorf("key = %q, want SYN-301", got.GetKey())
+			}
+		},
+	},
+	{
+		op:        "atlassian.jira.issues.comments.create",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.CreateJiraCommentRequest{} },
+		response:  func() proto.Message { return &atlassianv1.CreateJiraCommentResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.CreateJiraCommentResponse)
+			if got.GetId() != "40001" {
+				t.Errorf("id = %q, want 40001", got.GetId())
+			}
+			if got.GetBody() == nil || got.GetBody().GetFields()["type"].GetStringValue() != "doc" {
+				t.Errorf("body.type = %v, want doc", got.GetBody())
+			}
+		},
+	},
+	{
 		op:        "atlassian.jira.issues.search",
 		connector: "atlassian",
 		request:   func() proto.Message { return &atlassianv1.SearchJiraIssuesRequest{} },
@@ -426,6 +456,24 @@ var fixtureCases = []fixtureCase{
 			}
 			if got.GetTitle() != "Synthetic Confluence page" {
 				t.Errorf("title = %q, want Synthetic Confluence page", got.GetTitle())
+			}
+			if got.ParentId != nil {
+				t.Errorf("parent_id = %v, want nil (provider null)", got.ParentId)
+			}
+		},
+	},
+	{
+		op:        "atlassian.confluence.pages.create",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.CreateConfluencePageRequest{} },
+		response:  func() proto.Message { return &atlassianv1.CreateConfluencePageResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.CreateConfluencePageResponse)
+			if got.GetId() != 78643205 {
+				t.Errorf("id = %d, want 78643205", got.GetId())
+			}
+			if got.GetTitle() != "Synthetic created page" {
+				t.Errorf("title = %q, want Synthetic created page", got.GetTitle())
 			}
 			if got.ParentId != nil {
 				t.Errorf("parent_id = %v, want nil (provider null)", got.ParentId)
