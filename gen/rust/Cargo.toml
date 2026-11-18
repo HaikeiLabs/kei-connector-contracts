@@ -15,6 +15,11 @@ prost = "0.14"
 pbjson = "0.8"
 pbjson-types = "0.8"
 serde = "1"
+serde_json = "1"
+base64 = "0.22"
+url = "2"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
 
 [dev-dependencies]
-serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+wiremock = "0.6"
