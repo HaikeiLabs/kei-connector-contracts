@@ -117,6 +117,28 @@
       ],
       "capabilities": [
         {
+          "id": "atlassian.confluence.pages.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "write:page:confluence"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "confluence/pages",
+          "semantics": {
+            "action": "create",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.CreateConfluencePageRequest",
+          "response": "kei.connectors.atlassian.v1.CreateConfluencePageResponse"
+        },
+        {
           "id": "atlassian.confluence.pages.get",
           "class": "read",
           "destructive": false,
@@ -159,6 +181,50 @@
           },
           "request": "kei.connectors.atlassian.v1.ListConfluencePagesRequest",
           "response": "kei.connectors.atlassian.v1.ListConfluencePagesResponse"
+        },
+        {
+          "id": "atlassian.jira.issues.comments.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "write:jira-work"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "jira/issues/{issue_key}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "comment",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.CreateJiraCommentRequest",
+          "response": "kei.connectors.atlassian.v1.CreateJiraCommentResponse"
+        },
+        {
+          "id": "atlassian.jira.issues.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "write:jira-work"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "jira/issues",
+          "semantics": {
+            "action": "create",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.CreateJiraIssueRequest",
+          "response": "kei.connectors.atlassian.v1.CreateJiraIssueResponse"
         },
         {
           "id": "atlassian.jira.issues.get",

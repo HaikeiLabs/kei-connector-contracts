@@ -8,6 +8,17 @@ from kei.connection import HttpConnection, Op, OpClass, call_http
 
 from kei.connectors.atlassian.v1 import confluence_pb2, jira_pb2
 
+OP_CREATE_CONFLUENCE_PAGE = Op(id="atlassian.confluence.pages.create", op_class=OpClass.WRITE, destructive=False)
+_SPEC_CREATE_CONFLUENCE_PAGE = {
+    "op": OP_CREATE_CONFLUENCE_PAGE,
+    "method": "POST",
+    "path_template": "/wiki/api/v2/pages",
+    "params": [{"field": "space_id", "in": "body", "multi_segment": False, "wire": "space_id"}, {"field": "title", "in": "body", "multi_segment": False, "wire": "title"}, {"field": "parent_id", "in": "body", "multi_segment": False, "wire": "parent_id"}, {"field": "body", "in": "body", "multi_segment": False, "wire": "body"}],
+    "errors": [{"kind": "invalid", "retryable": False, "status": 400}, {"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 OP_GET_CONFLUENCE_PAGE = Op(id="atlassian.confluence.pages.get", op_class=OpClass.READ, destructive=False)
 _SPEC_GET_CONFLUENCE_PAGE = {
     "op": OP_GET_CONFLUENCE_PAGE,
@@ -26,6 +37,28 @@ _SPEC_LIST_CONFLUENCE_PAGES = {
     "path_template": "/wiki/api/v2/spaces/{space_id}/pages",
     "params": [{"field": "space_id", "in": "path", "multi_segment": False, "wire": "space_id"}, {"field": "limit", "in": "query", "multi_segment": False, "wire": "limit"}],
     "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
+OP_CREATE_JIRA_COMMENT = Op(id="atlassian.jira.issues.comments.create", op_class=OpClass.WRITE, destructive=False)
+_SPEC_CREATE_JIRA_COMMENT = {
+    "op": OP_CREATE_JIRA_COMMENT,
+    "method": "POST",
+    "path_template": "/rest/api/3/issue/{issue_key}/comment",
+    "params": [{"field": "issue_key", "in": "path", "multi_segment": False, "wire": "issue_key"}, {"field": "body", "in": "body", "multi_segment": False, "wire": "body"}],
+    "errors": [{"kind": "invalid", "retryable": False, "status": 400}, {"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
+OP_CREATE_JIRA_ISSUE = Op(id="atlassian.jira.issues.create", op_class=OpClass.WRITE, destructive=False)
+_SPEC_CREATE_JIRA_ISSUE = {
+    "op": OP_CREATE_JIRA_ISSUE,
+    "method": "POST",
+    "path_template": "/rest/api/3/issue",
+    "params": [{"field": "fields", "in": "body", "multi_segment": False, "wire": "fields"}],
+    "errors": [{"kind": "invalid", "retryable": False, "status": 400}, {"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "rate_limited", "retryable": True, "status": 429}],
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
@@ -54,9 +87,15 @@ _SPEC_SEARCH_JIRA_ISSUES = {
 }
 
 class AtlassianOperations(Protocol):
+    async def create_confluence_page(self, req: confluence_pb2.CreateConfluencePageRequest) -> confluence_pb2.CreateConfluencePageResponse:
+        ...
     async def get_confluence_page(self, req: confluence_pb2.GetConfluencePageRequest) -> confluence_pb2.GetConfluencePageResponse:
         ...
     async def list_confluence_pages(self, req: confluence_pb2.ListConfluencePagesRequest) -> confluence_pb2.ListConfluencePagesResponse:
+        ...
+    async def create_jira_comment(self, req: jira_pb2.CreateJiraCommentRequest) -> jira_pb2.CreateJiraCommentResponse:
+        ...
+    async def create_jira_issue(self, req: jira_pb2.CreateJiraIssueRequest) -> jira_pb2.CreateJiraIssueResponse:
         ...
     async def get_jira_issue(self, req: jira_pb2.GetJiraIssueRequest) -> jira_pb2.GetJiraIssueResponse:
         ...
@@ -69,11 +108,20 @@ class AtlassianQueries:
     def __init__(self, conn: HttpConnection) -> None:
         self._conn = conn
 
+    async def create_confluence_page(self, req: confluence_pb2.CreateConfluencePageRequest) -> confluence_pb2.CreateConfluencePageResponse:
+        return await call_http(self._conn, _SPEC_CREATE_CONFLUENCE_PAGE, req, confluence_pb2.CreateConfluencePageResponse)
+
     async def get_confluence_page(self, req: confluence_pb2.GetConfluencePageRequest) -> confluence_pb2.GetConfluencePageResponse:
         return await call_http(self._conn, _SPEC_GET_CONFLUENCE_PAGE, req, confluence_pb2.GetConfluencePageResponse)
 
     async def list_confluence_pages(self, req: confluence_pb2.ListConfluencePagesRequest) -> confluence_pb2.ListConfluencePagesResponse:
         return await call_http(self._conn, _SPEC_LIST_CONFLUENCE_PAGES, req, confluence_pb2.ListConfluencePagesResponse)
+
+    async def create_jira_comment(self, req: jira_pb2.CreateJiraCommentRequest) -> jira_pb2.CreateJiraCommentResponse:
+        return await call_http(self._conn, _SPEC_CREATE_JIRA_COMMENT, req, jira_pb2.CreateJiraCommentResponse)
+
+    async def create_jira_issue(self, req: jira_pb2.CreateJiraIssueRequest) -> jira_pb2.CreateJiraIssueResponse:
+        return await call_http(self._conn, _SPEC_CREATE_JIRA_ISSUE, req, jira_pb2.CreateJiraIssueResponse)
 
     async def get_jira_issue(self, req: jira_pb2.GetJiraIssueRequest) -> jira_pb2.GetJiraIssueResponse:
         return await call_http(self._conn, _SPEC_GET_JIRA_ISSUE, req, jira_pb2.GetJiraIssueResponse)

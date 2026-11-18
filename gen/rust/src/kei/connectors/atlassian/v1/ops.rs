@@ -11,7 +11,15 @@
 
 use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
-use crate::kei::connectors::atlassian::v1::{GetConfluencePageRequest, GetConfluencePageResponse, GetJiraIssueRequest, GetJiraIssueResponse, ListConfluencePagesRequest, ListConfluencePagesResponse, SearchJiraIssuesRequest, SearchJiraIssuesResponse};
+use crate::kei::connectors::atlassian::v1::{CreateConfluencePageRequest, CreateConfluencePageResponse, CreateJiraCommentRequest, CreateJiraCommentResponse, CreateJiraIssueRequest, CreateJiraIssueResponse, GetConfluencePageRequest, GetConfluencePageResponse, GetJiraIssueRequest, GetJiraIssueResponse, ListConfluencePagesRequest, ListConfluencePagesResponse, SearchJiraIssuesRequest, SearchJiraIssuesResponse};
+
+/// Operation descriptor for atlassian.confluence.pages.create, for authorization and audit: the
+/// capability a policy grants is connector:atlassian.confluence.pages.create.
+pub const OP_CREATE_CONFLUENCE_PAGE: Op = Op {
+    id: "atlassian.confluence.pages.create",
+    class: Class::Write,
+    destructive: false,
+};
 
 /// Operation descriptor for atlassian.confluence.pages.get, for authorization and audit: the
 /// capability a policy grants is connector:atlassian.confluence.pages.get.
@@ -26,6 +34,22 @@ pub const OP_GET_CONFLUENCE_PAGE: Op = Op {
 pub const OP_LIST_CONFLUENCE_PAGES: Op = Op {
     id: "atlassian.confluence.pages.list",
     class: Class::Read,
+    destructive: false,
+};
+
+/// Operation descriptor for atlassian.jira.issues.comments.create, for authorization and audit: the
+/// capability a policy grants is connector:atlassian.jira.issues.comments.create.
+pub const OP_CREATE_JIRA_COMMENT: Op = Op {
+    id: "atlassian.jira.issues.comments.create",
+    class: Class::Write,
+    destructive: false,
+};
+
+/// Operation descriptor for atlassian.jira.issues.create, for authorization and audit: the
+/// capability a policy grants is connector:atlassian.jira.issues.create.
+pub const OP_CREATE_JIRA_ISSUE: Op = Op {
+    id: "atlassian.jira.issues.create",
+    class: Class::Write,
     destructive: false,
 };
 
@@ -44,6 +68,29 @@ pub const OP_SEARCH_JIRA_ISSUES: Op = Op {
     class: Class::Read,
     destructive: false,
 };
+
+const ERRORS_CREATE_CONFLUENCE_PAGE: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 400,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
 
 const ERRORS_GET_CONFLUENCE_PAGE: &[ErrorMapping] = &[
     ErrorMapping {
@@ -82,6 +129,57 @@ const ERRORS_LIST_CONFLUENCE_PAGES: &[ErrorMapping] = &[
     ErrorMapping {
         status: 404,
         kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
+const ERRORS_CREATE_JIRA_COMMENT: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 400,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 404,
+        kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
+const ERRORS_CREATE_JIRA_ISSUE: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 400,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
         retryable: false,
     },
     ErrorMapping {
@@ -141,10 +239,16 @@ const ERRORS_SEARCH_JIRA_ISSUES: &[ErrorMapping] = &[
 // async-fn-in-trait auto-trait bounds do not matter here.
 #[allow(async_fn_in_trait)]
 pub trait AtlassianOperations {
+    /// create_confluence_page runs atlassian.confluence.pages.create (POST /wiki/api/v2/pages).
+    async fn create_confluence_page(&self, req: CreateConfluencePageRequest) -> Result<CreateConfluencePageResponse, OperationError>;
     /// get_confluence_page runs atlassian.confluence.pages.get (GET /wiki/api/v2/pages/{page_id}).
     async fn get_confluence_page(&self, req: GetConfluencePageRequest) -> Result<GetConfluencePageResponse, OperationError>;
     /// list_confluence_pages runs atlassian.confluence.pages.list (GET /wiki/api/v2/spaces/{space_id}/pages).
     async fn list_confluence_pages(&self, req: ListConfluencePagesRequest) -> Result<ListConfluencePagesResponse, OperationError>;
+    /// create_jira_comment runs atlassian.jira.issues.comments.create (POST /rest/api/3/issue/{issue_key}/comment).
+    async fn create_jira_comment(&self, req: CreateJiraCommentRequest) -> Result<CreateJiraCommentResponse, OperationError>;
+    /// create_jira_issue runs atlassian.jira.issues.create (POST /rest/api/3/issue).
+    async fn create_jira_issue(&self, req: CreateJiraIssueRequest) -> Result<CreateJiraIssueResponse, OperationError>;
     /// get_jira_issue runs atlassian.jira.issues.get (GET /rest/api/3/issue/{issue_key}).
     async fn get_jira_issue(&self, req: GetJiraIssueRequest) -> Result<GetJiraIssueResponse, OperationError>;
     /// search_jira_issues runs atlassian.jira.issues.search (POST /rest/api/3/search/jql).
@@ -156,6 +260,31 @@ pub struct AtlassianQueries {
 }
 
 impl AtlassianOperations for AtlassianQueries {
+    /// create_confluence_page runs atlassian.confluence.pages.create (POST /wiki/api/v2/pages).
+    async fn create_confluence_page(&self, req: CreateConfluencePageRequest) -> Result<CreateConfluencePageResponse, OperationError> {
+        let path = render_path(
+            "/wiki/api/v2/pages",
+            &[],
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_CREATE_CONFLUENCE_PAGE.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        body.insert("space_id".to_string(), serde_json::Value::String(req.space_id.clone()));
+        body.insert("title".to_string(), serde_json::Value::String(req.title.clone()));
+        if let Some(v) = &req.parent_id { body.insert("parent_id".to_string(), serde_json::Value::String(v.clone())); }
+        if let Some(v0) = &req.body { body.insert("body".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_CONFLUENCE_PAGE.id, e.to_string()))?); }
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_CONFLUENCE_PAGE.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("POST", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_CREATE_CONFLUENCE_PAGE.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_CREATE_CONFLUENCE_PAGE, out.status, &ERRORS_CREATE_CONFLUENCE_PAGE) {
+            return Err(err);
+        }
+        let resp: CreateConfluencePageResponse = decode_response(OP_CREATE_CONFLUENCE_PAGE.id, &out.body, None)?;
+        Ok(resp)
+    }
     /// get_confluence_page runs atlassian.confluence.pages.get (GET /wiki/api/v2/pages/{page_id}).
     async fn get_confluence_page(&self, req: GetConfluencePageRequest) -> Result<GetConfluencePageResponse, OperationError> {
         let mut path_values: Vec<(&str, &str)> = Vec::new();
@@ -200,6 +329,52 @@ impl AtlassianOperations for AtlassianQueries {
             return Err(err);
         }
         let resp: ListConfluencePagesResponse = decode_response(OP_LIST_CONFLUENCE_PAGES.id, &out.body, Some("results"))?;
+        Ok(resp)
+    }
+    /// create_jira_comment runs atlassian.jira.issues.comments.create (POST /rest/api/3/issue/{issue_key}/comment).
+    async fn create_jira_comment(&self, req: CreateJiraCommentRequest) -> Result<CreateJiraCommentResponse, OperationError> {
+        let mut path_values: Vec<(&str, &str)> = Vec::new();
+        path_values.push(("issue_key", req.issue_key.as_str()));
+        let path = render_path(
+            "/rest/api/3/issue/{issue_key}/comment",
+            &path_values,
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_CREATE_JIRA_COMMENT.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        if let Some(v0) = &req.body { body.insert("body".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_JIRA_COMMENT.id, e.to_string()))?); }
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_JIRA_COMMENT.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("POST", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_CREATE_JIRA_COMMENT.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_CREATE_JIRA_COMMENT, out.status, &ERRORS_CREATE_JIRA_COMMENT) {
+            return Err(err);
+        }
+        let resp: CreateJiraCommentResponse = decode_response(OP_CREATE_JIRA_COMMENT.id, &out.body, None)?;
+        Ok(resp)
+    }
+    /// create_jira_issue runs atlassian.jira.issues.create (POST /rest/api/3/issue).
+    async fn create_jira_issue(&self, req: CreateJiraIssueRequest) -> Result<CreateJiraIssueResponse, OperationError> {
+        let path = render_path(
+            "/rest/api/3/issue",
+            &[],
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_CREATE_JIRA_ISSUE.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        if let Some(v0) = &req.fields { body.insert("fields".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_JIRA_ISSUE.id, e.to_string()))?); }
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_JIRA_ISSUE.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("POST", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_CREATE_JIRA_ISSUE.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_CREATE_JIRA_ISSUE, out.status, &ERRORS_CREATE_JIRA_ISSUE) {
+            return Err(err);
+        }
+        let resp: CreateJiraIssueResponse = decode_response(OP_CREATE_JIRA_ISSUE.id, &out.body, None)?;
         Ok(resp)
     }
     /// get_jira_issue runs atlassian.jira.issues.get (GET /rest/api/3/issue/{issue_key}).
