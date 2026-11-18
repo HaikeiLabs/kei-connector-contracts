@@ -70,6 +70,38 @@ pub mod kei {
                 include!("gen/kei/connectors/atlassian/v1/kei.connectors.atlassian.v1.rs");
             }
         }
+        /// Airtable connector contract.
+        pub mod airtable {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/airtable/v1/kei.connectors.airtable.v1.rs");
+            }
+        }
+        /// HubSpot connector contract.
+        pub mod hubspot {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/hubspot/v1/kei.connectors.hubspot.v1.rs");
+            }
+        }
+        /// Notion connector contract.
+        pub mod notion {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/notion/v1/kei.connectors.notion.v1.rs");
+            }
+        }
+        /// Sentry connector contract.
+        pub mod sentry {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/sentry/v1/kei.connectors.sentry.v1.rs");
+            }
+        }
         /// MCP connector contract: tool calls against remote MCP servers.
         pub mod mcp {
             /// Version 1.

@@ -18,6 +18,10 @@
 //! are skipped). One spot assert per op proves a field survived with its
 //! synthetic value intact, and the >2^53 int64 id round-trips exactly.
 
+use haikeilabs_connector_contracts::kei::connectors::airtable::v1::{
+    GetRecordResponse as AirtableGetRecordResponse,
+    ListRecordsResponse as AirtableListRecordsResponse,
+};
 use haikeilabs_connector_contracts::kei::connectors::atlassian::v1::{
     GetConfluencePageResponse, GetJiraIssueResponse, ListConfluencePagesResponse,
     SearchJiraIssuesResponse,
@@ -31,9 +35,18 @@ use haikeilabs_connector_contracts::kei::connectors::github::v1::{
 use haikeilabs_connector_contracts::kei::connectors::http_api::v1::{
     GetRecordResponse, ListRecordsResponse,
 };
+use haikeilabs_connector_contracts::kei::connectors::hubspot::v1::{
+    GetContactResponse, ListContactsResponse, ListDealsResponse,
+};
 use haikeilabs_connector_contracts::kei::connectors::linear::v1::{
     CreateCommentResponse, CreateIssueResponse, GetIssueResponse as LinearGetIssueResponse,
     GetTeamResponse, SearchIssuesResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::notion::v1::{
+    GetPageResponse, QueryDatabaseResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::sentry::v1::{
+    GetIssueResponse as SentryGetIssueResponse, ListIssuesResponse as SentryListIssuesResponse,
 };
 use pbjson_types::value::Kind;
 
@@ -155,6 +168,127 @@ fn fixtures_unmarshal() {
             .expect("atlassian.confluence.pages.list response unmarshals");
     assert_eq!(resp.results.len(), 2);
     assert_eq!(resp.results[0].title, "Synthetic first page");
+
+    // airtable.records.get — spot: record id, the Name string, and the null
+    // Priority field.
+    let resp: AirtableGetRecordResponse =
+        serde_json::from_str(&fixture("airtable", "records.get.response.json"))
+            .expect("airtable.records.get response unmarshals");
+    assert_eq!(resp.id, "recSynthetic00003");
+    let fields = resp.fields.as_ref().expect("fields present");
+    match fields.fields.get("Name") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(name)),
+        }) => assert_eq!(name, "Synthetic third task"),
+        other => panic!("fields.Name must be a string, got {:?}", other),
+    }
+    match fields.fields.get("Priority") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("fields.Priority must be null, got {:?}", other),
+    }
+
+    // airtable.records.list — spot: two records, the offset cursor, and the
+    // null Priority field on the second record.
+    let resp: AirtableListRecordsResponse =
+        serde_json::from_str(&fixture("airtable", "records.list.response.json"))
+            .expect("airtable.records.list response unmarshals");
+    assert_eq!(resp.records.len(), 2);
+    assert_eq!(resp.offset.as_deref(), Some("synthetic-next-offset"));
+    let second = resp.records[1].fields.as_ref().expect("fields present");
+    match second.fields.get("Priority") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("records[1].fields.Priority must be null, got {:?}", other),
+    }
+
+    // hubspot.contacts.get — spot: contact id, the email string, and the null
+    // lastname property.
+    let resp: GetContactResponse =
+        serde_json::from_str(&fixture("hubspot", "contacts.get.response.json"))
+            .expect("hubspot.contacts.get response unmarshals");
+    assert_eq!(resp.id, "701");
+    let props = resp.properties.as_ref().expect("properties present");
+    match props.fields.get("email") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(email)),
+        }) => assert_eq!(email, "synthetic.contact@example.invalid"),
+        other => panic!("properties.email must be a string, got {:?}", other),
+    }
+    match props.fields.get("lastname") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("properties.lastname must be null, got {:?}", other),
+    }
+
+    // hubspot.contacts.list — spot: two results and the next cursor.
+    let resp: ListContactsResponse =
+        serde_json::from_str(&fixture("hubspot", "contacts.list.response.json"))
+            .expect("hubspot.contacts.list response unmarshals");
+    assert_eq!(resp.results.len(), 2);
+    assert_eq!(resp.next_after.as_deref(), Some("synthetic-next-cursor"));
+    let second = resp.results[1].properties.as_ref().expect("properties present");
+    match second.fields.get("lastname") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("results[1].properties.lastname must be null, got {:?}", other),
+    }
+
+    // hubspot.deals.list — spot: two results and the null description.
+    let resp: ListDealsResponse =
+        serde_json::from_str(&fixture("hubspot", "deals.list.response.json"))
+            .expect("hubspot.deals.list response unmarshals");
+    assert_eq!(resp.results.len(), 2);
+    let first = resp.results[0].properties.as_ref().expect("properties present");
+    match first.fields.get("dealname") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(name)),
+        }) => assert_eq!(name, "Synthetic first deal"),
+        other => panic!("properties.dealname must be a string, got {:?}", other),
+    }
+    match first.fields.get("description") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("properties.description must be null, got {:?}", other),
+    }
+    // notion.pages.get — spot: the synthetic page id and the null public_url.
+    let resp: GetPageResponse =
+        serde_json::from_str(&fixture("notion", "pages.get.response.json"))
+            .expect("notion.pages.get response unmarshals");
+    assert_eq!(resp.id, "5f8b7e4a-0000-4000-8000-000000000001");
+    assert!(resp.public_url.is_none(), "public_url must stay null");
+
+    // notion.databases.query — spot: two results, the next cursor, and the
+    // null public_url on the second page.
+    let resp: QueryDatabaseResponse =
+        serde_json::from_str(&fixture("notion", "databases.query.response.json"))
+            .expect("notion.databases.query response unmarshals");
+    assert_eq!(resp.results.len(), 2);
+    assert_eq!(resp.next_cursor.as_deref(), Some("synthetic-next-cursor"));
+    assert!(resp.has_more);
+    assert!(resp.results[1].public_url.is_none(), "public_url must stay null");
+
+    // sentry.issues.get — spot: short_id and the null share_id.
+    let resp: SentryGetIssueResponse =
+        serde_json::from_str(&fixture("sentry", "issues.get.response.json"))
+            .expect("sentry.issues.get response unmarshals");
+    assert_eq!(resp.short_id, "PROJ-103");
+    assert!(resp.share_id.is_none(), "share_id must stay null");
+
+    // sentry.issues.list — spot: two issues and the share id on the second.
+    let resp: SentryListIssuesResponse =
+        serde_json::from_str(&fixture("sentry", "issues.list.response.json"))
+            .expect("sentry.issues.list response unmarshals");
+    assert_eq!(resp.issues.len(), 2);
+    assert_eq!(
+        resp.issues[1].share_id.as_deref(),
+        Some("synthetic-share-id-2")
+    );
 
     // http_api.records.list — spot: two Struct records.
     let resp: ListRecordsResponse =

@@ -1,0 +1,25 @@
+{
+  "results": [
+    {
+      "id": "701",
+      "properties": {
+        "email": "synthetic.contact@example.invalid"
+      },
+      "createdAt": "2026-01-15T09:30:00.000Z",
+      "updatedAt": "2026-02-01T12:00:00.000Z",
+      "archived": false
+    },
+    {
+      "id": "702",
+      "properties": {
+        "email": "synthetic.second@example.invalid",
+        "lastname": null
+      },
+      "createdAt": "2026-01-16T09:30:00.000Z",
+      "updatedAt": "2026-02-02T12:00:00.000Z",
+      "archived": false
+    }
+  ],
+  "next_after": "synthetic-next-cursor",
+  "paging": {"next": {"after": "synthetic-next-cursor"}}
+}

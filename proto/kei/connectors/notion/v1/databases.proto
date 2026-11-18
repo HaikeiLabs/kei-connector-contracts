@@ -1,0 +1,71 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Notion connector contract.
+syntax = "proto3";
+
+package kei.connectors.notion.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/notion/v1;notion";
+
+// QueryDatabaseRequest queries the pages of a Notion database. start_cursor
+// carries the page cursor returned by the previous call.
+message QueryDatabaseRequest {
+  string database_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional string start_cursor = 2;
+  optional int32 page_size = 3;
+
+  option (kei.contracts.v1.operation) = {
+    id: "notion.databases.query"
+    connector: "notion"
+    class: OPERATION_CLASS_READ
+    http_method: "POST"
+    path_template: "/v1/databases/{database_id}/query"
+    scopes: ["pages:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "QueryDatabase"
+    connections: ["user_oauth", "integration_token"]
+    resource_template: "databases/{database_id}"
+    cursor_field: "start_cursor"
+    next_cursor_field: "next_cursor"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "page" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// PageSummary models the subset of each page entry a query response carries.
+// public_url is null for pages not published to the web.
+message PageSummary {
+  string id = 1;
+  string created_time = 2;
+  string last_edited_time = 3;
+  bool archived = 4;
+  string url = 5;
+  optional string public_url = 6;
+}
+
+// QueryDatabaseResponse wraps the page entries of a database query. It is
+// filled by JSON unmarshal of the provider response.
+message QueryDatabaseResponse {
+  repeated PageSummary results = 1;
+  optional string next_cursor = 2;
+  bool has_more = 3;
+}
