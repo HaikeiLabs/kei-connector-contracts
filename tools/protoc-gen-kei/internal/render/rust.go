@@ -355,7 +355,7 @@ func rustJSONValue(op *model.Operation, fd protoreflect.FieldDescriptor, ref str
 		// WKT messages (Struct, ListValue, Value, Timestamp, ...) have a
 		// canonical protojson shape; pbjson-types serializes them directly.
 		opConst := "OP_" + rustSnake(op.MethodName)
-		return fmt.Sprintf("serde_json::to_value(%s).map_err(|e| OperationError::wrap(%s.id, e.to_string()))?", ref, opConst), nil
+		return fmt.Sprintf("crate::connection::normalize_protojson_numbers(serde_json::to_value(%s).map_err(|e| OperationError::wrap(%s.id, e.to_string()))?)", ref, opConst), nil
 	case k == protoreflect.MessageKind && fd.Message().ParentFile().Package() != "google.protobuf":
 	default:
 		return "", fmt.Errorf("protoc-gen-kei-ops: %s: field %s: %s body values are not supported by the Rust template yet", op.ID, fd.Name(), k)
@@ -479,7 +479,7 @@ func rustFnBody(op *model.Operation) (string, error) {
 				tmp := string(f.Desc.Name()) + "_json"
 				opConst := "OP_" + rustSnake(op.MethodName)
 				bodyParams = append(bodyParams, fmt.Sprintf("let mut %s = Vec::with_capacity(req.%s.len());", tmp, name))
-				bodyParams = append(bodyParams, fmt.Sprintf("for v0 in &req.%s { %s.push(serde_json::to_value(v0).map_err(|e| OperationError::wrap(%s.id, e.to_string()))?); }", name, tmp, opConst))
+				bodyParams = append(bodyParams, fmt.Sprintf("for v0 in &req.%s { %s.push(crate::connection::normalize_protojson_numbers(serde_json::to_value(v0).map_err(|e| OperationError::wrap(%s.id, e.to_string()))?)); }", name, tmp, opConst))
 				bodyParams = append(bodyParams, fmt.Sprintf("body.insert(%s.to_string(), serde_json::Value::Array(%s));", rustQuote(p.Wire), tmp))
 			case f.Desc.IsList() && !f.Desc.IsMap():
 				elem, err := rustJSONValue(op, f.Desc, "v0", 1, graphql)

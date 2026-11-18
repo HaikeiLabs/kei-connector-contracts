@@ -272,7 +272,7 @@ impl AtlassianOperations for AtlassianQueries {
         body.insert("space_id".to_string(), serde_json::Value::String(req.space_id.clone()));
         body.insert("title".to_string(), serde_json::Value::String(req.title.clone()));
         if let Some(v) = &req.parent_id { body.insert("parent_id".to_string(), serde_json::Value::String(v.clone())); }
-        if let Some(v0) = &req.body { body.insert("body".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_CONFLUENCE_PAGE.id, e.to_string()))?); }
+        if let Some(v0) = &req.body { body.insert("body".to_string(), crate::connection::normalize_protojson_numbers(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_CONFLUENCE_PAGE.id, e.to_string()))?)); }
         let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_CONFLUENCE_PAGE.id, e.to_string()))?;
         let out = self
             .conn
@@ -342,7 +342,7 @@ impl AtlassianOperations for AtlassianQueries {
         )
         .map_err(|e| OperationError::wrap(OP_CREATE_JIRA_COMMENT.id, format!("render path: {e}")))?;
         let mut body = serde_json::Map::new();
-        if let Some(v0) = &req.body { body.insert("body".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_JIRA_COMMENT.id, e.to_string()))?); }
+        if let Some(v0) = &req.body { body.insert("body".to_string(), crate::connection::normalize_protojson_numbers(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_JIRA_COMMENT.id, e.to_string()))?)); }
         let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_JIRA_COMMENT.id, e.to_string()))?;
         let out = self
             .conn
@@ -364,7 +364,7 @@ impl AtlassianOperations for AtlassianQueries {
         )
         .map_err(|e| OperationError::wrap(OP_CREATE_JIRA_ISSUE.id, format!("render path: {e}")))?;
         let mut body = serde_json::Map::new();
-        if let Some(v0) = &req.fields { body.insert("fields".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_JIRA_ISSUE.id, e.to_string()))?); }
+        if let Some(v0) = &req.fields { body.insert("fields".to_string(), crate::connection::normalize_protojson_numbers(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_JIRA_ISSUE.id, e.to_string()))?)); }
         let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_JIRA_ISSUE.id, e.to_string()))?;
         let out = self
             .conn
