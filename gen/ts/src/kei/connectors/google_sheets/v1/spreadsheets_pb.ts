@@ -29,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file kei/connectors/google_sheets/v1/spreadsheets.proto.
  */
 export const file_kei_connectors_google_sheets_v1_spreadsheets: GenFile = /*@__PURE__*/
-  fileDesc("CjJrZWkvY29ubmVjdG9ycy9nb29nbGVfc2hlZXRzL3YxL3NwcmVhZHNoZWV0cy5wcm90bxIfa2VpLmNvbm5lY3RvcnMuZ29vZ2xlX3NoZWV0cy52MSLuAgoQR2V0VmFsdWVzUmVxdWVzdBIeCg5zcHJlYWRzaGVldF9pZBgBIAEoCUIGooIZAggBEhUKBXJhbmdlGAIgASgJQgaighkCCAE6ogKSghmdAgoYZ29vZ2xlX3NoZWV0cy52YWx1ZXMuZ2V0Eg1nb29nbGVfc2hlZXRzGAEqA0dFVDIwL3Y0L3NwcmVhZHNoZWV0cy97c3ByZWFkc2hlZXRfaWR9L3ZhbHVlcy97cmFuZ2V9OjVodHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9hdXRoL3NwcmVhZHNoZWV0cy5yZWFkb25seUABSglHZXRWYWx1ZXNSCnVzZXJfb2F1dGhSEWRvbWFpbl9kZWxlZ2F0aW9uWh1zcHJlYWRzaGVldHMve3NwcmVhZHNoZWV0X2lkfWIFCJADEAZiBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAREIARILc3ByZWFkc2hlZXQYASJOChFHZXRWYWx1ZXNSZXNwb25zZRINCgVyYW5nZRgBIAEoCRIqCgZ2YWx1ZXMYAiADKAsyGi5nb29nbGUucHJvdG9idWYuTGlzdFZhbHVlItECChVHZXRTcHJlYWRzaGVldFJlcXVlc3QSHgoOc3ByZWFkc2hlZXRfaWQYASABKAlCBqKCGQIIATqXApKCGZICCh5nb29nbGVfc2hlZXRzLnNwcmVhZHNoZWV0cy5nZXQSDWdvb2dsZV9zaGVldHMYASoDR0VUMiEvdjQvc3ByZWFkc2hlZXRzL3tzcHJlYWRzaGVldF9pZH06NWh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL2F1dGgvc3ByZWFkc2hlZXRzLnJlYWRvbmx5QAFKDkdldFNwcmVhZHNoZWV0Ugp1c2VyX29hdXRoUhFkb21haW5fZGVsZWdhdGlvblodc3ByZWFkc2hlZXRzL3tzcHJlYWRzaGVldF9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAREIARILc3ByZWFkc2hlZXQYASImChVTcHJlYWRzaGVldFByb3BlcnRpZXMSDQoFdGl0bGUYASABKAkifAoWR2V0U3ByZWFkc2hlZXRSZXNwb25zZRIWCg5zcHJlYWRzaGVldF9pZBgBIAEoCRJKCgpwcm9wZXJ0aWVzGAIgASgLMjYua2VpLmNvbm5lY3RvcnMuZ29vZ2xlX3NoZWV0cy52MS5TcHJlYWRzaGVldFByb3BlcnRpZXNCZFpiZ2l0aHViLmNvbS9IYWlrZWlMYWJzL2tlaS1jb25uZWN0b3ItY29udHJhY3RzL2dlbi9nby9rZWkvY29ubmVjdG9ycy9nb29nbGVfc2hlZXRzL3YxO2dvb2dsZV9zaGVldHNiBnByb3RvMw", [file_google_protobuf_struct, file_kei_contracts_v1_options]);
+  fileDesc("CjJrZWkvY29ubmVjdG9ycy9nb29nbGVfc2hlZXRzL3YxL3NwcmVhZHNoZWV0cy5wcm90bxIfa2VpLmNvbm5lY3RvcnMuZ29vZ2xlX3NoZWV0cy52MSLuAgoQR2V0VmFsdWVzUmVxdWVzdBIeCg5zcHJlYWRzaGVldF9pZBgBIAEoCUIGooIZAggBEhUKBXJhbmdlGAIgASgJQgaighkCCAE6ogKSghmdAgoYZ29vZ2xlX3NoZWV0cy52YWx1ZXMuZ2V0Eg1nb29nbGVfc2hlZXRzGAEqA0dFVDIwL3Y0L3NwcmVhZHNoZWV0cy97c3ByZWFkc2hlZXRfaWR9L3ZhbHVlcy97cmFuZ2V9OjVodHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9hdXRoL3NwcmVhZHNoZWV0cy5yZWFkb25seUABSglHZXRWYWx1ZXNSCnVzZXJfb2F1dGhSEWRvbWFpbl9kZWxlZ2F0aW9uWh1zcHJlYWRzaGVldHMve3NwcmVhZHNoZWV0X2lkfWIFCJADEAZiBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAREIARILc3ByZWFkc2hlZXQYASJOChFHZXRWYWx1ZXNSZXNwb25zZRINCgVyYW5nZRgBIAEoCRIqCgZ2YWx1ZXMYAiADKAsyGi5nb29nbGUucHJvdG9idWYuTGlzdFZhbHVlItECChVHZXRTcHJlYWRzaGVldFJlcXVlc3QSHgoOc3ByZWFkc2hlZXRfaWQYASABKAlCBqKCGQIIATqXApKCGZICCh5nb29nbGVfc2hlZXRzLnNwcmVhZHNoZWV0cy5nZXQSDWdvb2dsZV9zaGVldHMYASoDR0VUMiEvdjQvc3ByZWFkc2hlZXRzL3tzcHJlYWRzaGVldF9pZH06NWh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL2F1dGgvc3ByZWFkc2hlZXRzLnJlYWRvbmx5QAFKDkdldFNwcmVhZHNoZWV0Ugp1c2VyX29hdXRoUhFkb21haW5fZGVsZWdhdGlvblodc3ByZWFkc2hlZXRzL3tzcHJlYWRzaGVldF9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAREIARILc3ByZWFkc2hlZXQYASImChVTcHJlYWRzaGVldFByb3BlcnRpZXMSDQoFdGl0bGUYASABKAkifAoWR2V0U3ByZWFkc2hlZXRSZXNwb25zZRIWCg5zcHJlYWRzaGVldF9pZBgBIAEoCRJKCgpwcm9wZXJ0aWVzGAIgASgLMjYua2VpLmNvbm5lY3RvcnMuZ29vZ2xlX3NoZWV0cy52MS5TcHJlYWRzaGVldFByb3BlcnRpZXMinAMKE1VwZGF0ZVZhbHVlc1JlcXVlc3QSHgoOc3ByZWFkc2hlZXRfaWQYASABKAlCBqKCGQIIARIVCgVyYW5nZRgCIAEoCUIGooIZAggBEioKBnZhbHVlcxgDIAMoCzIaLmdvb2dsZS5wcm90b2J1Zi5MaXN0VmFsdWU6oQKSghmcAgobZ29vZ2xlX3NoZWV0cy52YWx1ZXMudXBkYXRlEg1nb29nbGVfc2hlZXRzGAIgASoDUFVUMjAvdjQvc3ByZWFkc2hlZXRzL3tzcHJlYWRzaGVldF9pZH0vdmFsdWVzL3tyYW5nZX06LGh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL2F1dGgvc3ByZWFkc2hlZXRzQAFKDFVwZGF0ZVZhbHVlc1IKdXNlcl9vYXV0aFIRZG9tYWluX2RlbGVnYXRpb25aHXNwcmVhZHNoZWV0cy97c3ByZWFkc2hlZXRfaWR9YgUIkAMQBmIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAYoBEQgDEgtzcHJlYWRzaGVldBgBItEBChRVcGRhdGVWYWx1ZXNSZXNwb25zZRIWCg5zcHJlYWRzaGVldF9pZBgBIAEoCRIVCg11cGRhdGVkX3JhbmdlGAIgASgJEhkKDHVwZGF0ZWRfcm93cxgDIAEoBUgAiAEBEhwKD3VwZGF0ZWRfY29sdW1ucxgEIAEoBUgBiAEBEhoKDXVwZGF0ZWRfY2VsbHMYBSABKAVIAogBAUIPCg1fdXBkYXRlZF9yb3dzQhIKEF91cGRhdGVkX2NvbHVtbnNCEAoOX3VwZGF0ZWRfY2VsbHNCZFpiZ2l0aHViLmNvbS9IYWlrZWlMYWJzL2tlaS1jb25uZWN0b3ItY29udHJhY3RzL2dlbi9nby9rZWkvY29ubmVjdG9ycy9nb29nbGVfc2hlZXRzL3YxO2dvb2dsZV9zaGVldHNiBnByb3RvMw", [file_google_protobuf_struct, file_kei_contracts_v1_options]);
 
 /**
  * GetValuesRequest reads one A1-notation range of cell values. The range is
@@ -150,4 +150,76 @@ export type GetSpreadsheetResponse = Message<"kei.connectors.google_sheets.v1.Ge
  */
 export const GetSpreadsheetResponseSchema: GenMessage<GetSpreadsheetResponse> = /*@__PURE__*/
   messageDesc(file_kei_connectors_google_sheets_v1_spreadsheets, 4);
+
+/**
+ * UpdateValuesRequest writes cell values into one A1-notation range. The
+ * range is a single path segment like the read's; values carries the rows to
+ * write in the same positional ListValue shape the read returns. Google
+ * overwrites every cell in the range, so this operation is destructive.
+ *
+ * @generated from message kei.connectors.google_sheets.v1.UpdateValuesRequest
+ */
+export type UpdateValuesRequest = Message<"kei.connectors.google_sheets.v1.UpdateValuesRequest"> & {
+  /**
+   * @generated from field: string spreadsheet_id = 1;
+   */
+  spreadsheetId: string;
+
+  /**
+   * @generated from field: string range = 2;
+   */
+  range: string;
+
+  /**
+   * @generated from field: repeated google.protobuf.ListValue values = 3;
+   */
+  values: ListValue[];
+};
+
+/**
+ * Describes the message kei.connectors.google_sheets.v1.UpdateValuesRequest.
+ * Use `create(UpdateValuesRequestSchema)` to create a new message.
+ */
+export const UpdateValuesRequestSchema: GenMessage<UpdateValuesRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_google_sheets_v1_spreadsheets, 5);
+
+/**
+ * UpdateValuesResponse models the subset of the Sheets update response the
+ * contract needs. It is filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.google_sheets.v1.UpdateValuesResponse
+ */
+export type UpdateValuesResponse = Message<"kei.connectors.google_sheets.v1.UpdateValuesResponse"> & {
+  /**
+   * @generated from field: string spreadsheet_id = 1;
+   */
+  spreadsheetId: string;
+
+  /**
+   * @generated from field: string updated_range = 2;
+   */
+  updatedRange: string;
+
+  /**
+   * @generated from field: optional int32 updated_rows = 3;
+   */
+  updatedRows?: number | undefined;
+
+  /**
+   * @generated from field: optional int32 updated_columns = 4;
+   */
+  updatedColumns?: number | undefined;
+
+  /**
+   * @generated from field: optional int32 updated_cells = 5;
+   */
+  updatedCells?: number | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.google_sheets.v1.UpdateValuesResponse.
+ * Use `create(UpdateValuesResponseSchema)` to create a new message.
+ */
+export const UpdateValuesResponseSchema: GenMessage<UpdateValuesResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_google_sheets_v1_spreadsheets, 6);
 

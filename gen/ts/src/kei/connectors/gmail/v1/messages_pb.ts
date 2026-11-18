@@ -20,14 +20,15 @@
 
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
+import { file_google_protobuf_struct } from "@bufbuild/protobuf/wkt";
 import { file_kei_contracts_v1_options } from "../../../contracts/v1/options_pb.js";
-import type { Message } from "@bufbuild/protobuf";
+import type { JsonObject, Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file kei/connectors/gmail/v1/messages.proto.
  */
 export const file_kei_connectors_gmail_v1_messages: GenFile = /*@__PURE__*/
-  fileDesc("CiZrZWkvY29ubmVjdG9ycy9nbWFpbC92MS9tZXNzYWdlcy5wcm90bxIXa2VpLmNvbm5lY3RvcnMuZ21haWwudjEiogMKE0xpc3RNZXNzYWdlc1JlcXVlc3QSFwoHdXNlcl9pZBgBIAEoCUIGooIZAggBEg4KAXEYAiABKAlIAIgBARIXCgpwYWdlX3Rva2VuGAMgASgJSAGIAQESGAoLbWF4X3Jlc3VsdHMYBCABKAVIAogBATqJApKCGYQCChNnbWFpbC5tZXNzYWdlcy5saXN0EgVnbWFpbBgBKgNHRVQyIi9nbWFpbC92MS91c2Vycy97dXNlcl9pZH0vbWVzc2FnZXM6Lmh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL2F1dGgvZ21haWwucmVhZG9ubHlAAUoMTGlzdE1lc3NhZ2VzUgp1c2VyX29hdXRoUhFkb21haW5fZGVsZWdhdGlvbloPdXNlcnMve3VzZXJfaWR9YgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBigENCAESB21lc3NhZ2UYAZIBCnBhZ2VfdG9rZW6aAQ9uZXh0X3BhZ2VfdG9rZW5CBAoCX3FCDQoLX3BhZ2VfdG9rZW5CDgoMX21heF9yZXN1bHRzIi8KDk1lc3NhZ2VTdW1tYXJ5EgoKAmlkGAEgASgJEhEKCXRocmVhZF9pZBgCIAEoCSKDAQoUTGlzdE1lc3NhZ2VzUmVzcG9uc2USOQoIbWVzc2FnZXMYASADKAsyJy5rZWkuY29ubmVjdG9ycy5nbWFpbC52MS5NZXNzYWdlU3VtbWFyeRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIr8CChFHZXRNZXNzYWdlUmVxdWVzdBIXCgd1c2VyX2lkGAEgASgJQgaighkCCAESGgoKbWVzc2FnZV9pZBgCIAEoCUIGooIZAggBOvQBkoIZ7wEKEmdtYWlsLm1lc3NhZ2VzLmdldBIFZ21haWwYASoDR0VUMi8vZ21haWwvdjEvdXNlcnMve3VzZXJfaWR9L21lc3NhZ2VzL3ttZXNzYWdlX2lkfTouaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vYXV0aC9nbWFpbC5yZWFkb25seUABSgpHZXRNZXNzYWdlUgp1c2VyX29hdXRoUhFkb21haW5fZGVsZWdhdGlvbloPdXNlcnMve3VzZXJfaWR9YgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBigENCAESB21lc3NhZ2UYASJyChJHZXRNZXNzYWdlUmVzcG9uc2USCgoCaWQYASABKAkSEQoJdGhyZWFkX2lkGAIgASgJEg8KB3NuaXBwZXQYAyABKAkSGgoNaW50ZXJuYWxfZGF0ZRgEIAEoA0gAiAEBQhAKDl9pbnRlcm5hbF9kYXRlQlRaUmdpdGh1Yi5jb20vSGFpa2VpTGFicy9rZWktY29ubmVjdG9yLWNvbnRyYWN0cy9nZW4vZ28va2VpL2Nvbm5lY3RvcnMvZ21haWwvdjE7Z21haWxiBnByb3RvMw", [file_kei_contracts_v1_options]);
+  fileDesc("CiZrZWkvY29ubmVjdG9ycy9nbWFpbC92MS9tZXNzYWdlcy5wcm90bxIXa2VpLmNvbm5lY3RvcnMuZ21haWwudjEiogMKE0xpc3RNZXNzYWdlc1JlcXVlc3QSFwoHdXNlcl9pZBgBIAEoCUIGooIZAggBEg4KAXEYAiABKAlIAIgBARIXCgpwYWdlX3Rva2VuGAMgASgJSAGIAQESGAoLbWF4X3Jlc3VsdHMYBCABKAVIAogBATqJApKCGYQCChNnbWFpbC5tZXNzYWdlcy5saXN0EgVnbWFpbBgBKgNHRVQyIi9nbWFpbC92MS91c2Vycy97dXNlcl9pZH0vbWVzc2FnZXM6Lmh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL2F1dGgvZ21haWwucmVhZG9ubHlAAUoMTGlzdE1lc3NhZ2VzUgp1c2VyX29hdXRoUhFkb21haW5fZGVsZWdhdGlvbloPdXNlcnMve3VzZXJfaWR9YgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBigENCAESB21lc3NhZ2UYAZIBCnBhZ2VfdG9rZW6aAQ9uZXh0X3BhZ2VfdG9rZW5CBAoCX3FCDQoLX3BhZ2VfdG9rZW5CDgoMX21heF9yZXN1bHRzIi8KDk1lc3NhZ2VTdW1tYXJ5EgoKAmlkGAEgASgJEhEKCXRocmVhZF9pZBgCIAEoCSKDAQoUTGlzdE1lc3NhZ2VzUmVzcG9uc2USOQoIbWVzc2FnZXMYASADKAsyJy5rZWkuY29ubmVjdG9ycy5nbWFpbC52MS5NZXNzYWdlU3VtbWFyeRIcCg9uZXh0X3BhZ2VfdG9rZW4YAiABKAlIAIgBAUISChBfbmV4dF9wYWdlX3Rva2VuIr8CChFHZXRNZXNzYWdlUmVxdWVzdBIXCgd1c2VyX2lkGAEgASgJQgaighkCCAESGgoKbWVzc2FnZV9pZBgCIAEoCUIGooIZAggBOvQBkoIZ7wEKEmdtYWlsLm1lc3NhZ2VzLmdldBIFZ21haWwYASoDR0VUMi8vZ21haWwvdjEvdXNlcnMve3VzZXJfaWR9L21lc3NhZ2VzL3ttZXNzYWdlX2lkfTouaHR0cHM6Ly93d3cuZ29vZ2xlYXBpcy5jb20vYXV0aC9nbWFpbC5yZWFkb25seUABSgpHZXRNZXNzYWdlUgp1c2VyX29hdXRoUhFkb21haW5fZGVsZWdhdGlvbloPdXNlcnMve3VzZXJfaWR9YgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBigENCAESB21lc3NhZ2UYASJyChJHZXRNZXNzYWdlUmVzcG9uc2USCgoCaWQYASABKAkSEQoJdGhyZWFkX2lkGAIgASgJEg8KB3NuaXBwZXQYAyABKAkSGgoNaW50ZXJuYWxfZGF0ZRgEIAEoA0gAiAEBQhAKDl9pbnRlcm5hbF9kYXRlIr8CChJDcmVhdGVEcmFmdFJlcXVlc3QSFwoHdXNlcl9pZBgBIAEoCUIGooIZAggBEigKB21lc3NhZ2UYAiABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0OuUBkoIZ4AEKE2dtYWlsLmRyYWZ0cy5jcmVhdGUSBWdtYWlsGAIqBFBPU1QyIC9nbWFpbC92MS91c2Vycy97dXNlcl9pZH0vZHJhZnRzOi1odHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9hdXRoL2dtYWlsLmNvbXBvc2VAAUoLQ3JlYXRlRHJhZnRSCnVzZXJfb2F1dGhSEWRvbWFpbl9kZWxlZ2F0aW9uWg91c2Vycy97dXNlcl9pZH1iBQiQAxAGYgUIkQMQAmIFCJMDEANiBwitAxAEGAGKAQsIAhIFZHJhZnQYASItCgxEcmFmdE1lc3NhZ2USCgoCaWQYASABKAkSEQoJdGhyZWFkX2lkGAIgASgJIlkKE0NyZWF0ZURyYWZ0UmVzcG9uc2USCgoCaWQYASABKAkSNgoHbWVzc2FnZRgCIAEoCzIlLmtlaS5jb25uZWN0b3JzLmdtYWlsLnYxLkRyYWZ0TWVzc2FnZUJUWlJnaXRodWIuY29tL0hhaWtlaUxhYnMva2VpLWNvbm5lY3Rvci1jb250cmFjdHMvZ2VuL2dvL2tlaS9jb25uZWN0b3JzL2dtYWlsL3YxO2dtYWlsYgZwcm90bzM", [file_google_protobuf_struct, file_kei_contracts_v1_options]);
 
 /**
  * ListMessagesRequest lists the messages of one Gmail user. The contract
@@ -175,4 +176,83 @@ export type GetMessageResponse = Message<"kei.connectors.gmail.v1.GetMessageResp
  */
 export const GetMessageResponseSchema: GenMessage<GetMessageResponse> = /*@__PURE__*/
   messageDesc(file_kei_connectors_gmail_v1_messages, 4);
+
+/**
+ * CreateDraftRequest creates a draft in one Gmail user's mailbox. message
+ * carries the draft's message body in Gmail's JSON shape (typically
+ * {"raw": base64url}, or structured fields), which stays a
+ * google.protobuf.Struct. This creates a draft only — it never sends mail;
+ * the contract does not model the send or sendAs operations.
+ *
+ * @generated from message kei.connectors.gmail.v1.CreateDraftRequest
+ */
+export type CreateDraftRequest = Message<"kei.connectors.gmail.v1.CreateDraftRequest"> & {
+  /**
+   * @generated from field: string user_id = 1;
+   */
+  userId: string;
+
+  /**
+   * @generated from field: google.protobuf.Struct message = 2;
+   */
+  message?: JsonObject | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.gmail.v1.CreateDraftRequest.
+ * Use `create(CreateDraftRequestSchema)` to create a new message.
+ */
+export const CreateDraftRequestSchema: GenMessage<CreateDraftRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_gmail_v1_messages, 5);
+
+/**
+ * DraftMessage models the subset of the created draft's message entry the
+ * contract needs.
+ *
+ * @generated from message kei.connectors.gmail.v1.DraftMessage
+ */
+export type DraftMessage = Message<"kei.connectors.gmail.v1.DraftMessage"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string thread_id = 2;
+   */
+  threadId: string;
+};
+
+/**
+ * Describes the message kei.connectors.gmail.v1.DraftMessage.
+ * Use `create(DraftMessageSchema)` to create a new message.
+ */
+export const DraftMessageSchema: GenMessage<DraftMessage> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_gmail_v1_messages, 6);
+
+/**
+ * CreateDraftResponse models the subset of Gmail's draft response the
+ * contract needs: the draft id and its message entry. It is filled by JSON
+ * unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.gmail.v1.CreateDraftResponse
+ */
+export type CreateDraftResponse = Message<"kei.connectors.gmail.v1.CreateDraftResponse"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: kei.connectors.gmail.v1.DraftMessage message = 2;
+   */
+  message?: DraftMessage | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.gmail.v1.CreateDraftResponse.
+ * Use `create(CreateDraftResponseSchema)` to create a new message.
+ */
+export const CreateDraftResponseSchema: GenMessage<CreateDraftResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_gmail_v1_messages, 7);
 

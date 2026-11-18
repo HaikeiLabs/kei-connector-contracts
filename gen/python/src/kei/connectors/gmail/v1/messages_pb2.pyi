@@ -1,3 +1,4 @@
+from google.protobuf import struct_pb2 as _struct_pb2
 from kei.contracts.v1 import options_pb2 as _options_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
@@ -54,3 +55,27 @@ class GetMessageResponse(_message.Message):
     snippet: str
     internal_date: int
     def __init__(self, id: _Optional[str] = ..., thread_id: _Optional[str] = ..., snippet: _Optional[str] = ..., internal_date: _Optional[int] = ...) -> None: ...
+
+class CreateDraftRequest(_message.Message):
+    __slots__ = ("user_id", "message")
+    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    user_id: str
+    message: _struct_pb2.Struct
+    def __init__(self, user_id: _Optional[str] = ..., message: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ...) -> None: ...
+
+class DraftMessage(_message.Message):
+    __slots__ = ("id", "thread_id")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    THREAD_ID_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    thread_id: str
+    def __init__(self, id: _Optional[str] = ..., thread_id: _Optional[str] = ...) -> None: ...
+
+class CreateDraftResponse(_message.Message):
+    __slots__ = ("id", "message")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    message: DraftMessage
+    def __init__(self, id: _Optional[str] = ..., message: _Optional[_Union[DraftMessage, _Mapping]] = ...) -> None: ...

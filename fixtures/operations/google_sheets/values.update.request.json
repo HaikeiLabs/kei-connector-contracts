@@ -1,0 +1,8 @@
+{
+  "spreadsheet_id": "synthetic-sheet-1",
+  "range": "Sheet1!A1:B2",
+  "values": [
+    ["Synthetic new first cell", "Synthetic new second cell"],
+    ["Synthetic third cell", null]
+  ]
+}

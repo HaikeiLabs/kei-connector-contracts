@@ -298,6 +298,148 @@ func (x *GetSpreadsheetResponse) GetProperties() *SpreadsheetProperties {
 	return nil
 }
 
+// UpdateValuesRequest writes cell values into one A1-notation range. The
+// range is a single path segment like the read's; values carries the rows to
+// write in the same positional ListValue shape the read returns. Google
+// overwrites every cell in the range, so this operation is destructive.
+type UpdateValuesRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SpreadsheetId string                 `protobuf:"bytes,1,opt,name=spreadsheet_id,json=spreadsheetId,proto3" json:"spreadsheet_id,omitempty"`
+	Range         string                 `protobuf:"bytes,2,opt,name=range,proto3" json:"range,omitempty"`
+	Values        []*structpb.ListValue  `protobuf:"bytes,3,rep,name=values,proto3" json:"values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateValuesRequest) Reset() {
+	*x = UpdateValuesRequest{}
+	mi := &file_kei_connectors_google_sheets_v1_spreadsheets_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateValuesRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateValuesRequest) ProtoMessage() {}
+
+func (x *UpdateValuesRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_google_sheets_v1_spreadsheets_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateValuesRequest.ProtoReflect.Descriptor instead.
+func (*UpdateValuesRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_google_sheets_v1_spreadsheets_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *UpdateValuesRequest) GetSpreadsheetId() string {
+	if x != nil {
+		return x.SpreadsheetId
+	}
+	return ""
+}
+
+func (x *UpdateValuesRequest) GetRange() string {
+	if x != nil {
+		return x.Range
+	}
+	return ""
+}
+
+func (x *UpdateValuesRequest) GetValues() []*structpb.ListValue {
+	if x != nil {
+		return x.Values
+	}
+	return nil
+}
+
+// UpdateValuesResponse models the subset of the Sheets update response the
+// contract needs. It is filled by JSON unmarshal of the provider response.
+type UpdateValuesResponse struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	SpreadsheetId  string                 `protobuf:"bytes,1,opt,name=spreadsheet_id,json=spreadsheetId,proto3" json:"spreadsheet_id,omitempty"`
+	UpdatedRange   string                 `protobuf:"bytes,2,opt,name=updated_range,json=updatedRange,proto3" json:"updated_range,omitempty"`
+	UpdatedRows    *int32                 `protobuf:"varint,3,opt,name=updated_rows,json=updatedRows,proto3,oneof" json:"updated_rows,omitempty"`
+	UpdatedColumns *int32                 `protobuf:"varint,4,opt,name=updated_columns,json=updatedColumns,proto3,oneof" json:"updated_columns,omitempty"`
+	UpdatedCells   *int32                 `protobuf:"varint,5,opt,name=updated_cells,json=updatedCells,proto3,oneof" json:"updated_cells,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *UpdateValuesResponse) Reset() {
+	*x = UpdateValuesResponse{}
+	mi := &file_kei_connectors_google_sheets_v1_spreadsheets_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateValuesResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateValuesResponse) ProtoMessage() {}
+
+func (x *UpdateValuesResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_google_sheets_v1_spreadsheets_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateValuesResponse.ProtoReflect.Descriptor instead.
+func (*UpdateValuesResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_google_sheets_v1_spreadsheets_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *UpdateValuesResponse) GetSpreadsheetId() string {
+	if x != nil {
+		return x.SpreadsheetId
+	}
+	return ""
+}
+
+func (x *UpdateValuesResponse) GetUpdatedRange() string {
+	if x != nil {
+		return x.UpdatedRange
+	}
+	return ""
+}
+
+func (x *UpdateValuesResponse) GetUpdatedRows() int32 {
+	if x != nil && x.UpdatedRows != nil {
+		return *x.UpdatedRows
+	}
+	return 0
+}
+
+func (x *UpdateValuesResponse) GetUpdatedColumns() int32 {
+	if x != nil && x.UpdatedColumns != nil {
+		return *x.UpdatedColumns
+	}
+	return 0
+}
+
+func (x *UpdateValuesResponse) GetUpdatedCells() int32 {
+	if x != nil && x.UpdatedCells != nil {
+		return *x.UpdatedCells
+	}
+	return 0
+}
+
 var File_kei_connectors_google_sheets_v1_spreadsheets_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_google_sheets_v1_spreadsheets_proto_rawDesc = "" +
@@ -321,7 +463,22 @@ const file_kei_connectors_google_sheets_v1_spreadsheets_proto_rawDesc = "" +
 	"\x0espreadsheet_id\x18\x01 \x01(\tR\rspreadsheetId\x12V\n" +
 	"\n" +
 	"properties\x18\x02 \x01(\v26.kei.connectors.google_sheets.v1.SpreadsheetPropertiesR\n" +
-	"propertiesBdZbgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/google_sheets/v1;google_sheetsb\x06proto3"
+	"properties\"\xba\x03\n" +
+	"\x13UpdateValuesRequest\x12-\n" +
+	"\x0espreadsheet_id\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\rspreadsheetId\x12\x1c\n" +
+	"\x05range\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05range\x122\n" +
+	"\x06values\x18\x03 \x03(\v2\x1a.google.protobuf.ListValueR\x06values:\xa1\x02\x92\x82\x19\x9c\x02\n" +
+	"\x1bgoogle_sheets.values.update\x12\rgoogle_sheets\x18\x02 \x01*\x03PUT20/v4/spreadsheets/{spreadsheet_id}/values/{range}:,https://www.googleapis.com/auth/spreadsheets@\x01J\fUpdateValuesR\n" +
+	"user_oauthR\x11domain_delegationZ\x1dspreadsheets/{spreadsheet_id}b\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x11\b\x03\x12\vspreadsheet\x18\x01\"\x99\x02\n" +
+	"\x14UpdateValuesResponse\x12%\n" +
+	"\x0espreadsheet_id\x18\x01 \x01(\tR\rspreadsheetId\x12#\n" +
+	"\rupdated_range\x18\x02 \x01(\tR\fupdatedRange\x12&\n" +
+	"\fupdated_rows\x18\x03 \x01(\x05H\x00R\vupdatedRows\x88\x01\x01\x12,\n" +
+	"\x0fupdated_columns\x18\x04 \x01(\x05H\x01R\x0eupdatedColumns\x88\x01\x01\x12(\n" +
+	"\rupdated_cells\x18\x05 \x01(\x05H\x02R\fupdatedCells\x88\x01\x01B\x0f\n" +
+	"\r_updated_rowsB\x12\n" +
+	"\x10_updated_columnsB\x10\n" +
+	"\x0e_updated_cellsBdZbgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/google_sheets/v1;google_sheetsb\x06proto3"
 
 var (
 	file_kei_connectors_google_sheets_v1_spreadsheets_proto_rawDescOnce sync.Once
@@ -335,23 +492,26 @@ func file_kei_connectors_google_sheets_v1_spreadsheets_proto_rawDescGZIP() []byt
 	return file_kei_connectors_google_sheets_v1_spreadsheets_proto_rawDescData
 }
 
-var file_kei_connectors_google_sheets_v1_spreadsheets_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_kei_connectors_google_sheets_v1_spreadsheets_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_kei_connectors_google_sheets_v1_spreadsheets_proto_goTypes = []any{
 	(*GetValuesRequest)(nil),       // 0: kei.connectors.google_sheets.v1.GetValuesRequest
 	(*GetValuesResponse)(nil),      // 1: kei.connectors.google_sheets.v1.GetValuesResponse
 	(*GetSpreadsheetRequest)(nil),  // 2: kei.connectors.google_sheets.v1.GetSpreadsheetRequest
 	(*SpreadsheetProperties)(nil),  // 3: kei.connectors.google_sheets.v1.SpreadsheetProperties
 	(*GetSpreadsheetResponse)(nil), // 4: kei.connectors.google_sheets.v1.GetSpreadsheetResponse
-	(*structpb.ListValue)(nil),     // 5: google.protobuf.ListValue
+	(*UpdateValuesRequest)(nil),    // 5: kei.connectors.google_sheets.v1.UpdateValuesRequest
+	(*UpdateValuesResponse)(nil),   // 6: kei.connectors.google_sheets.v1.UpdateValuesResponse
+	(*structpb.ListValue)(nil),     // 7: google.protobuf.ListValue
 }
 var file_kei_connectors_google_sheets_v1_spreadsheets_proto_depIdxs = []int32{
-	5, // 0: kei.connectors.google_sheets.v1.GetValuesResponse.values:type_name -> google.protobuf.ListValue
+	7, // 0: kei.connectors.google_sheets.v1.GetValuesResponse.values:type_name -> google.protobuf.ListValue
 	3, // 1: kei.connectors.google_sheets.v1.GetSpreadsheetResponse.properties:type_name -> kei.connectors.google_sheets.v1.SpreadsheetProperties
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	7, // 2: kei.connectors.google_sheets.v1.UpdateValuesRequest.values:type_name -> google.protobuf.ListValue
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_google_sheets_v1_spreadsheets_proto_init() }
@@ -359,13 +519,14 @@ func file_kei_connectors_google_sheets_v1_spreadsheets_proto_init() {
 	if File_kei_connectors_google_sheets_v1_spreadsheets_proto != nil {
 		return
 	}
+	file_kei_connectors_google_sheets_v1_spreadsheets_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_google_sheets_v1_spreadsheets_proto_rawDesc), len(file_kei_connectors_google_sheets_v1_spreadsheets_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

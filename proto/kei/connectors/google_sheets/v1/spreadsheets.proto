@@ -100,3 +100,45 @@ message GetSpreadsheetResponse {
   string spreadsheet_id = 1;
   SpreadsheetProperties properties = 2;
 }
+
+// UpdateValuesRequest writes cell values into one A1-notation range. The
+// range is a single path segment like the read's; values carries the rows to
+// write in the same positional ListValue shape the read returns. Google
+// overwrites every cell in the range, so this operation is destructive.
+message UpdateValuesRequest {
+  string spreadsheet_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string range = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH multi_segment: false}];
+  repeated google.protobuf.ListValue values = 3;
+
+  option (kei.contracts.v1.operation) = {
+    id: "google_sheets.values.update"
+    connector: "google_sheets"
+    class: OPERATION_CLASS_WRITE
+    destructive: true
+    http_method: "PUT"
+    path_template: "/v4/spreadsheets/{spreadsheet_id}/values/{range}"
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "UpdateValues"
+    connections: ["user_oauth", "domain_delegation"]
+    resource_template: "spreadsheets/{spreadsheet_id}"
+    semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "spreadsheet" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// UpdateValuesResponse models the subset of the Sheets update response the
+// contract needs. It is filled by JSON unmarshal of the provider response.
+message UpdateValuesResponse {
+  string spreadsheet_id = 1;
+  string updated_range = 2;
+  optional int32 updated_rows = 3;
+  optional int32 updated_columns = 4;
+  optional int32 updated_cells = 5;
+}

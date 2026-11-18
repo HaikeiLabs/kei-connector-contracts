@@ -499,6 +499,24 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "gmail.drafts.create",
+		connector: "gmail",
+		request:   func() proto.Message { return &gmailv1.CreateDraftRequest{} },
+		response:  func() proto.Message { return &gmailv1.CreateDraftResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*gmailv1.CreateDraftResponse)
+			if got.GetId() != "draft-3001" {
+				t.Errorf("id = %q, want draft-3001", got.GetId())
+			}
+			if got.GetMessage().GetId() != "msg-1002" {
+				t.Errorf("message.id = %q, want msg-1002", got.GetMessage().GetId())
+			}
+			if got.GetMessage().GetThreadId() != "thr-2002" {
+				t.Errorf("message.thread_id = %q, want thr-2002", got.GetMessage().GetThreadId())
+			}
+		},
+	},
+	{
 		op:        "google_sheets.values.get",
 		connector: "google_sheets",
 		request:   func() proto.Message { return &googlesheetsv1.GetValuesRequest{} },
@@ -513,6 +531,21 @@ var fixtureCases = []fixtureCase{
 			}
 			if got.GetValues()[0].GetValues()[1].GetNullValue() != structpb.NullValue_NULL_VALUE {
 				t.Errorf("values[0][1] = %v, want null (provider null)", got.GetValues()[0].GetValues()[1])
+			}
+		},
+	},
+	{
+		op:        "google_sheets.values.update",
+		connector: "google_sheets",
+		request:   func() proto.Message { return &googlesheetsv1.UpdateValuesRequest{} },
+		response:  func() proto.Message { return &googlesheetsv1.UpdateValuesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*googlesheetsv1.UpdateValuesResponse)
+			if got.GetUpdatedRange() != "Sheet1!A1:B2" {
+				t.Errorf("updated_range = %q, want Sheet1!A1:B2", got.GetUpdatedRange())
+			}
+			if got.GetUpdatedCells() != 4 {
+				t.Errorf("updated_cells = %d, want 4", got.GetUpdatedCells())
 			}
 		},
 	},
