@@ -38,6 +38,12 @@ use haikeilabs_connector_contracts::kei::connectors::linear::v1::{
     CreateCommentResponse, CreateIssueResponse, GetIssueResponse as LinearGetIssueResponse,
     GetTeamResponse, SearchIssuesResponse,
 };
+use haikeilabs_connector_contracts::kei::connectors::notion::v1::{
+    GetPageResponse, QueryDatabaseResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::sentry::v1::{
+    GetIssueResponse as SentryGetIssueResponse, ListIssuesResponse as SentryListIssuesResponse,
+};
 use pbjson_types::value::Kind;
 
 fn fixture(connector: &str, name: &str) -> String {
@@ -210,6 +216,39 @@ fn fixtures_unmarshal() {
         }) => {}
         other => panic!("properties.description must be null, got {:?}", other),
     }
+    // notion.pages.get — spot: the synthetic page id and the null public_url.
+    let resp: GetPageResponse =
+        serde_json::from_str(&fixture("notion", "pages.get.response.json"))
+            .expect("notion.pages.get response unmarshals");
+    assert_eq!(resp.id, "5f8b7e4a-0000-4000-8000-000000000001");
+    assert!(resp.public_url.is_none(), "public_url must stay null");
+
+    // notion.databases.query — spot: two results, the next cursor, and the
+    // null public_url on the second page.
+    let resp: QueryDatabaseResponse =
+        serde_json::from_str(&fixture("notion", "databases.query.response.json"))
+            .expect("notion.databases.query response unmarshals");
+    assert_eq!(resp.results.len(), 2);
+    assert_eq!(resp.next_cursor.as_deref(), Some("synthetic-next-cursor"));
+    assert!(resp.has_more);
+    assert!(resp.results[1].public_url.is_none(), "public_url must stay null");
+
+    // sentry.issues.get — spot: short_id and the null share_id.
+    let resp: SentryGetIssueResponse =
+        serde_json::from_str(&fixture("sentry", "issues.get.response.json"))
+            .expect("sentry.issues.get response unmarshals");
+    assert_eq!(resp.short_id, "PROJ-103");
+    assert!(resp.share_id.is_none(), "share_id must stay null");
+
+    // sentry.issues.list — spot: two issues and the share id on the second.
+    let resp: SentryListIssuesResponse =
+        serde_json::from_str(&fixture("sentry", "issues.list.response.json"))
+            .expect("sentry.issues.list response unmarshals");
+    assert_eq!(resp.issues.len(), 2);
+    assert_eq!(
+        resp.issues[1].share_id.as_deref(),
+        Some("synthetic-share-id-2")
+    );
 
     // http_api.records.list — spot: two Struct records.
     let resp: ListRecordsResponse =

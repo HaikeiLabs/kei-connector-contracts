@@ -40,6 +40,8 @@ import (
 	httpapiv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/http_api/v1"
 	hubspotv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/hubspot/v1"
 	linearv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/linear/v1"
+	notionv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/notion/v1"
+	sentryv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/sentry/v1"
 	contracts "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1"
 )
 
@@ -254,6 +256,72 @@ var fixtureCases = []fixtureCase{
 			}
 			if got := list.GetResults()[0].GetProperties().GetFields()["description"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
 				t.Errorf("results[0].properties.description = %v, want null", got)
+			}
+		},
+	},
+	{
+		op:        "notion.pages.get",
+		connector: "notion",
+		request:   func() proto.Message { return &notionv1.GetPageRequest{} },
+		response:  func() proto.Message { return &notionv1.GetPageResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			page := resp.(*notionv1.GetPageResponse)
+			if page.GetId() != "5f8b7e4a-0000-4000-8000-000000000001" {
+				t.Errorf("id = %q, want the synthetic page id", page.GetId())
+			}
+			if page.PublicUrl != nil {
+				t.Error("public_url is set, want nil (null in the fixture)")
+			}
+		},
+	},
+	{
+		op:        "notion.databases.query",
+		connector: "notion",
+		request:   func() proto.Message { return &notionv1.QueryDatabaseRequest{} },
+		response:  func() proto.Message { return &notionv1.QueryDatabaseResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			q := resp.(*notionv1.QueryDatabaseResponse)
+			if got := len(q.GetResults()); got != 2 {
+				t.Errorf("len(results) = %d, want 2", got)
+			}
+			if q.GetNextCursor() != "synthetic-next-cursor" {
+				t.Errorf("next_cursor = %q, want synthetic-next-cursor", q.GetNextCursor())
+			}
+			if !q.GetHasMore() {
+				t.Error("has_more = false, want true")
+			}
+			if q.GetResults()[1].PublicUrl != nil {
+				t.Error("results[1].public_url is set, want nil (null in the fixture)")
+			}
+		},
+	},
+	{
+		op:        "sentry.issues.get",
+		connector: "sentry",
+		request:   func() proto.Message { return &sentryv1.GetIssueRequest{} },
+		response:  func() proto.Message { return &sentryv1.GetIssueResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			issue := resp.(*sentryv1.GetIssueResponse)
+			if issue.GetShortId() != "PROJ-103" {
+				t.Errorf("short_id = %q, want PROJ-103", issue.GetShortId())
+			}
+			if issue.ShareId != nil {
+				t.Error("share_id is set, want nil (null in the fixture)")
+			}
+		},
+	},
+	{
+		op:        "sentry.issues.list",
+		connector: "sentry",
+		request:   func() proto.Message { return &sentryv1.ListIssuesRequest{} },
+		response:  func() proto.Message { return &sentryv1.ListIssuesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			issues := resp.(*sentryv1.ListIssuesResponse).GetIssues()
+			if got := len(issues); got != 2 {
+				t.Errorf("len(issues) = %d, want 2", got)
+			}
+			if issues[1].ShareId == nil || issues[1].GetShareId() != "synthetic-share-id-2" {
+				t.Errorf("issues[1].share_id = %v, want synthetic-share-id-2", issues[1].ShareId)
 			}
 		},
 	},
