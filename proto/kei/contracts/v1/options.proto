@@ -167,6 +167,11 @@ message Param {
   ParamIn in = 1;
   // Wire name, when it differs from the field's JSON name.
   string name = 2;
+  // A path param whose value may contain '/' (a file path, a git ref). The
+  // renderer escapes each '/'-separated segment of the value and keeps the
+  // slashes; '.' and '..' segments are still rejected. Default false: the
+  // whole value is one escaped segment.
+  bool multi_segment = 3;
 }
 
 // Semantics is an operation's versioned semantic mapping: what kind of

@@ -789,7 +789,12 @@ type Param struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	In    ParamIn                `protobuf:"varint,1,opt,name=in,proto3,enum=kei.contracts.v1.ParamIn" json:"in,omitempty"`
 	// Wire name, when it differs from the field's JSON name.
-	Name          string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// A path param whose value may contain '/' (a file path, a git ref). The
+	// renderer escapes each '/'-separated segment of the value and keeps the
+	// slashes; '.' and '..' segments are still rejected. Default false: the
+	// whole value is one escaped segment.
+	MultiSegment  bool `protobuf:"varint,3,opt,name=multi_segment,json=multiSegment,proto3" json:"multi_segment,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -836,6 +841,13 @@ func (x *Param) GetName() string {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *Param) GetMultiSegment() bool {
+	if x != nil {
+		return x.MultiSegment
+	}
+	return false
 }
 
 // Semantics is an operation's versioned semantic mapping: what kind of
@@ -1191,10 +1203,11 @@ const file_kei_contracts_v1_options_proto_rawDesc = "" +
 	"\fErrorMapping\x12\x16\n" +
 	"\x06status\x18\x01 \x01(\x05R\x06status\x12/\n" +
 	"\x04kind\x18\x02 \x01(\x0e2\x1b.kei.contracts.v1.ErrorKindR\x04kind\x12\x1c\n" +
-	"\tretryable\x18\x03 \x01(\bR\tretryable\"F\n" +
+	"\tretryable\x18\x03 \x01(\bR\tretryable\"k\n" +
 	"\x05Param\x12)\n" +
 	"\x02in\x18\x01 \x01(\x0e2\x19.kei.contracts.v1.ParamInR\x02in\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\x84\x01\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12#\n" +
+	"\rmulti_segment\x18\x03 \x01(\bR\fmultiSegment\"\x84\x01\n" +
 	"\tSemantics\x128\n" +
 	"\x06action\x18\x01 \x01(\x0e2 .kei.contracts.v1.SemanticActionR\x06action\x12#\n" +
 	"\rresource_type\x18\x02 \x01(\tR\fresourceType\x12\x18\n" +
