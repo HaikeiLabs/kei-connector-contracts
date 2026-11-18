@@ -49,14 +49,16 @@ case "$lang" in
     exec node "$root/scripts/parity/runner.mjs" "$@"
     ;;
   python)
-    # Task 7 adds scripts/parity/runner.py and the Python generated operations.
-    [ -f "$root/scripts/parity/runner.py" ] || skip "no Python runner yet (scripts/parity/runner.py)"
-    exec env PYTHONPATH="$root/gen/python/src" python3 -I "$root/scripts/parity/runner.py" "$@"
+    # PYTHON may name the interpreter (a venv); it needs protobuf and httpx.
+    py="${PYTHON:-python3}"
+    command -v "$py" >/dev/null || skip "$py is not installed"
+    PYTHONPATH="$root/gen/python/src" "$py" -c 'import google.protobuf, httpx' 2>/dev/null ||
+      skip "$py lacks protobuf or httpx (pip install 'protobuf>=7.36.2' httpx)"
+    exec env PYTHONPATH="$root/gen/python/src" "$py" "$root/scripts/parity/runner.py" "$@"
     ;;
   rust)
-    # Task 9 adds scripts/parity/rust (a cargo binary) and the Rust operations.
-    [ -f "$root/scripts/parity/rust/Cargo.toml" ] || skip "no Rust runner yet (scripts/parity/rust)"
-    exec cargo run --quiet --manifest-path "$root/scripts/parity/rust/Cargo.toml" -- "$@"
+    command -v cargo >/dev/null || skip "cargo is not installed"
+    exec cargo run --quiet --release --manifest-path "$root/scripts/parity/rust/Cargo.toml" -- "$@"
     ;;
   *)
     echo "unknown language: $lang" >&2

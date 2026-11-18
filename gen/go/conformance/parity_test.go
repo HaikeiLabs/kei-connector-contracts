@@ -54,10 +54,9 @@ import (
 // parityLanguages are every language with generated operations.
 var parityLanguages = []string{"go", "ts", "python", "rust"}
 
-// requiredParityLanguages must run; an absent runner fails the test. Add
-// "python" (Task 7) and "rust" (Task 9) when their runners land: once all
-// four are listed, no language can silently skip.
-var requiredParityLanguages = []string{"go", "ts"}
+// requiredParityLanguages must run; an absent runner fails the test. All
+// four are listed, so no language can silently skip.
+var requiredParityLanguages = []string{"go", "ts", "python", "rust"}
 
 const parityToken = "kei-parity-token-0001"
 
