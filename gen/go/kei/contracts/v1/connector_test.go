@@ -76,10 +76,12 @@ func TestNewFieldNumbersAreStable(t *testing.T) {
 		msg   protoreflect.MessageDescriptor
 		field protoreflect.Name
 		want  protoreflect.FieldNumber
+		kind  protoreflect.Kind
 	}{
-		{(&contracts.Connection{}).ProtoReflect().Descriptor(), "header_name", 10},
-		{(&contracts.Operation{}).ProtoReflect().Descriptor(), "cursor_field", 18},
-		{(&contracts.Operation{}).ProtoReflect().Descriptor(), "next_cursor_field", 19},
+		{(&contracts.Connection{}).ProtoReflect().Descriptor(), "header_name", 10, protoreflect.StringKind},
+		{(&contracts.Operation{}).ProtoReflect().Descriptor(), "cursor_field", 18, protoreflect.StringKind},
+		{(&contracts.Operation{}).ProtoReflect().Descriptor(), "next_cursor_field", 19, protoreflect.StringKind},
+		{(&contracts.Param{}).ProtoReflect().Descriptor(), "multi_segment", 3, protoreflect.BoolKind},
 	}
 	for _, c := range cases {
 		fd := c.msg.Fields().ByName(c.field)
@@ -87,9 +89,26 @@ func TestNewFieldNumbersAreStable(t *testing.T) {
 			t.Errorf("%s has no field %s", c.msg.FullName(), c.field)
 			continue
 		}
-		if fd.Number() != c.want || fd.Kind() != protoreflect.StringKind {
-			t.Errorf("%s.%s = #%d %v, want #%d string", c.msg.FullName(), c.field, fd.Number(), fd.Kind(), c.want)
+		if fd.Number() != c.want || fd.Kind() != c.kind {
+			t.Errorf("%s.%s = #%d %v, want #%d %v", c.msg.FullName(), c.field, fd.Number(), fd.Kind(), c.want, c.kind)
 		}
+	}
+}
+
+// A multi-segment path param (a file path, a git ref) must survive the
+// wire: losing the flag would make the renderer escape its slashes.
+func TestParamMultiSegmentRoundTrip(t *testing.T) {
+	want := &contracts.Param{In: contracts.ParamIn_PARAM_IN_PATH, MultiSegment: true}
+	b, err := proto.Marshal(want)
+	if err != nil {
+		t.Fatalf("marshal: %v", err)
+	}
+	got := &contracts.Param{}
+	if err := proto.Unmarshal(b, got); err != nil {
+		t.Fatalf("unmarshal: %v", err)
+	}
+	if !proto.Equal(want, got) || !got.GetMultiSegment() {
+		t.Fatalf("round trip = %v, want %v", got, want)
 	}
 }
 

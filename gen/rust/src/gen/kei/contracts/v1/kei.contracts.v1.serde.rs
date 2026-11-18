@@ -1355,6 +1355,9 @@ impl serde::Serialize for Param {
         if !self.name.is_empty() {
             len += 1;
         }
+        if self.multi_segment {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("kei.contracts.v1.Param", len)?;
         if self.r#in != 0 {
             let v = ParamIn::try_from(self.r#in)
@@ -1363,6 +1366,9 @@ impl serde::Serialize for Param {
         }
         if !self.name.is_empty() {
             struct_ser.serialize_field("name", &self.name)?;
+        }
+        if self.multi_segment {
+            struct_ser.serialize_field("multiSegment", &self.multi_segment)?;
         }
         struct_ser.end()
     }
@@ -1376,12 +1382,15 @@ impl<'de> serde::Deserialize<'de> for Param {
         const FIELDS: &[&str] = &[
             "in",
             "name",
+            "multi_segment",
+            "multiSegment",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             In,
             Name,
+            MultiSegment,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -1406,6 +1415,7 @@ impl<'de> serde::Deserialize<'de> for Param {
                         match value {
                             "in" => Ok(GeneratedField::In),
                             "name" => Ok(GeneratedField::Name),
+                            "multiSegment" | "multi_segment" => Ok(GeneratedField::MultiSegment),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1427,6 +1437,7 @@ impl<'de> serde::Deserialize<'de> for Param {
             {
                 let mut r#in__ = None;
                 let mut name__ = None;
+                let mut multi_segment__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::In => {
@@ -1441,6 +1452,12 @@ impl<'de> serde::Deserialize<'de> for Param {
                             }
                             name__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::MultiSegment => {
+                            if multi_segment__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("multiSegment"));
+                            }
+                            multi_segment__ = Some(map_.next_value()?);
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -1449,6 +1466,7 @@ impl<'de> serde::Deserialize<'de> for Param {
                 Ok(Param {
                     r#in: r#in__.unwrap_or_default(),
                     name: name__.unwrap_or_default(),
+                    multi_segment: multi_segment__.unwrap_or_default(),
                 })
             }
         }
