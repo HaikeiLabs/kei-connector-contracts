@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "comment": {
+    "id": "00000000-0000-0000-0000-000000000301",
+    "body": "Synthetic comment"
+  },
+  "lastSyncedAt": null,
+  "user": {
+    "id": "00000000-0000-0000-0000-000000000302",
+    "name": "Synthetic User"
+  }
+}

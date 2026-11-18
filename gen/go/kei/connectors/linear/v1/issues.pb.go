@@ -44,6 +44,59 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// Label models the subset of the Linear label object the contract needs.
+type Label struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Label) Reset() {
+	*x = Label{}
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Label) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Label) ProtoMessage() {}
+
+func (x *Label) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Label.ProtoReflect.Descriptor instead.
+func (*Label) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *Label) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Label) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
 // Issue models the subset of the Linear issue object the contract needs.
 type Issue struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -54,13 +107,14 @@ type Issue struct {
 	Url           string                 `protobuf:"bytes,5,opt,name=url,proto3" json:"url,omitempty"`
 	CreatedAt     string                 `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	UpdatedAt     string                 `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Labels        []*Label               `protobuf:"bytes,8,rep,name=labels,proto3" json:"labels,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Issue) Reset() {
 	*x = Issue{}
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[0]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -72,7 +126,7 @@ func (x *Issue) String() string {
 func (*Issue) ProtoMessage() {}
 
 func (x *Issue) ProtoReflect() protoreflect.Message {
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[0]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -85,7 +139,7 @@ func (x *Issue) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Issue.ProtoReflect.Descriptor instead.
 func (*Issue) Descriptor() ([]byte, []int) {
-	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{0}
+	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Issue) GetId() string {
@@ -137,6 +191,13 @@ func (x *Issue) GetUpdatedAt() string {
 	return ""
 }
 
+func (x *Issue) GetLabels() []*Label {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
+}
+
 // GetIssueRequest reads a single Linear issue by id.
 type GetIssueRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -147,7 +208,7 @@ type GetIssueRequest struct {
 
 func (x *GetIssueRequest) Reset() {
 	*x = GetIssueRequest{}
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[1]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -159,7 +220,7 @@ func (x *GetIssueRequest) String() string {
 func (*GetIssueRequest) ProtoMessage() {}
 
 func (x *GetIssueRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[1]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -172,7 +233,7 @@ func (x *GetIssueRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIssueRequest.ProtoReflect.Descriptor instead.
 func (*GetIssueRequest) Descriptor() ([]byte, []int) {
-	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{1}
+	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *GetIssueRequest) GetId() string {
@@ -192,7 +253,7 @@ type GetIssueResponse struct {
 
 func (x *GetIssueResponse) Reset() {
 	*x = GetIssueResponse{}
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[2]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -204,7 +265,7 @@ func (x *GetIssueResponse) String() string {
 func (*GetIssueResponse) ProtoMessage() {}
 
 func (x *GetIssueResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[2]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -217,7 +278,7 @@ func (x *GetIssueResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetIssueResponse.ProtoReflect.Descriptor instead.
 func (*GetIssueResponse) Descriptor() ([]byte, []int) {
-	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{2}
+	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetIssueResponse) GetIssue() *Issue {
@@ -241,7 +302,7 @@ type CreateIssueRequest struct {
 
 func (x *CreateIssueRequest) Reset() {
 	*x = CreateIssueRequest{}
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[3]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -253,7 +314,7 @@ func (x *CreateIssueRequest) String() string {
 func (*CreateIssueRequest) ProtoMessage() {}
 
 func (x *CreateIssueRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[3]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -266,7 +327,7 @@ func (x *CreateIssueRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateIssueRequest.ProtoReflect.Descriptor instead.
 func (*CreateIssueRequest) Descriptor() ([]byte, []int) {
-	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{3}
+	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CreateIssueRequest) GetTitle() string {
@@ -309,7 +370,7 @@ type CreateIssueResponse struct {
 
 func (x *CreateIssueResponse) Reset() {
 	*x = CreateIssueResponse{}
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[4]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -321,7 +382,7 @@ func (x *CreateIssueResponse) String() string {
 func (*CreateIssueResponse) ProtoMessage() {}
 
 func (x *CreateIssueResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[4]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -334,7 +395,7 @@ func (x *CreateIssueResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateIssueResponse.ProtoReflect.Descriptor instead.
 func (*CreateIssueResponse) Descriptor() ([]byte, []int) {
-	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{4}
+	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *CreateIssueResponse) GetSuccess() bool {
@@ -363,7 +424,7 @@ type SearchIssuesRequest struct {
 
 func (x *SearchIssuesRequest) Reset() {
 	*x = SearchIssuesRequest{}
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[5]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -375,7 +436,7 @@ func (x *SearchIssuesRequest) String() string {
 func (*SearchIssuesRequest) ProtoMessage() {}
 
 func (x *SearchIssuesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[5]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -388,7 +449,7 @@ func (x *SearchIssuesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchIssuesRequest.ProtoReflect.Descriptor instead.
 func (*SearchIssuesRequest) Descriptor() ([]byte, []int) {
-	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{5}
+	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *SearchIssuesRequest) GetTerm() string {
@@ -423,7 +484,7 @@ type PageInfo struct {
 
 func (x *PageInfo) Reset() {
 	*x = PageInfo{}
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[6]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -435,7 +496,7 @@ func (x *PageInfo) String() string {
 func (*PageInfo) ProtoMessage() {}
 
 func (x *PageInfo) ProtoReflect() protoreflect.Message {
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[6]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -448,7 +509,7 @@ func (x *PageInfo) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PageInfo.ProtoReflect.Descriptor instead.
 func (*PageInfo) Descriptor() ([]byte, []int) {
-	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{6}
+	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *PageInfo) GetHasNextPage() bool {
@@ -476,7 +537,7 @@ type SearchIssuesResponse struct {
 
 func (x *SearchIssuesResponse) Reset() {
 	*x = SearchIssuesResponse{}
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[7]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -488,7 +549,7 @@ func (x *SearchIssuesResponse) String() string {
 func (*SearchIssuesResponse) ProtoMessage() {}
 
 func (x *SearchIssuesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[7]
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -501,7 +562,7 @@ func (x *SearchIssuesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SearchIssuesResponse.ProtoReflect.Descriptor instead.
 func (*SearchIssuesResponse) Descriptor() ([]byte, []int) {
-	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{7}
+	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *SearchIssuesResponse) GetNodes() []*Issue {
@@ -522,7 +583,10 @@ var File_kei_connectors_linear_v1_issues_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_linear_v1_issues_proto_rawDesc = "" +
 	"\n" +
-	"%kei/connectors/linear/v1/issues.proto\x12\x18kei.connectors.linear.v1\x1a\x1ekei/contracts/v1/options.proto\"\xd4\x01\n" +
+	"%kei/connectors/linear/v1/issues.proto\x12\x18kei.connectors.linear.v1\x1a\x1ekei/contracts/v1/options.proto\"+\n" +
+	"\x05Label\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\x8d\x02\n" +
 	"\x05Issue\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1e\n" +
 	"\n" +
@@ -534,7 +598,8 @@ const file_kei_connectors_linear_v1_issues_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x06 \x01(\tR\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_at\x18\a \x01(\tR\tupdatedAtB\x0e\n" +
+	"updated_at\x18\a \x01(\tR\tupdatedAt\x127\n" +
+	"\x06labels\x18\b \x03(\v2\x1f.kei.connectors.linear.v1.LabelR\x06labelsB\x0e\n" +
 	"\f_description\"\xad\x02\n" +
 	"\x0fGetIssueRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id:\x89\x02\x92\x82\x19\x84\x02\n" +
@@ -598,27 +663,29 @@ func file_kei_connectors_linear_v1_issues_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_linear_v1_issues_proto_rawDescData
 }
 
-var file_kei_connectors_linear_v1_issues_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_kei_connectors_linear_v1_issues_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_kei_connectors_linear_v1_issues_proto_goTypes = []any{
-	(*Issue)(nil),                // 0: kei.connectors.linear.v1.Issue
-	(*GetIssueRequest)(nil),      // 1: kei.connectors.linear.v1.GetIssueRequest
-	(*GetIssueResponse)(nil),     // 2: kei.connectors.linear.v1.GetIssueResponse
-	(*CreateIssueRequest)(nil),   // 3: kei.connectors.linear.v1.CreateIssueRequest
-	(*CreateIssueResponse)(nil),  // 4: kei.connectors.linear.v1.CreateIssueResponse
-	(*SearchIssuesRequest)(nil),  // 5: kei.connectors.linear.v1.SearchIssuesRequest
-	(*PageInfo)(nil),             // 6: kei.connectors.linear.v1.PageInfo
-	(*SearchIssuesResponse)(nil), // 7: kei.connectors.linear.v1.SearchIssuesResponse
+	(*Label)(nil),                // 0: kei.connectors.linear.v1.Label
+	(*Issue)(nil),                // 1: kei.connectors.linear.v1.Issue
+	(*GetIssueRequest)(nil),      // 2: kei.connectors.linear.v1.GetIssueRequest
+	(*GetIssueResponse)(nil),     // 3: kei.connectors.linear.v1.GetIssueResponse
+	(*CreateIssueRequest)(nil),   // 4: kei.connectors.linear.v1.CreateIssueRequest
+	(*CreateIssueResponse)(nil),  // 5: kei.connectors.linear.v1.CreateIssueResponse
+	(*SearchIssuesRequest)(nil),  // 6: kei.connectors.linear.v1.SearchIssuesRequest
+	(*PageInfo)(nil),             // 7: kei.connectors.linear.v1.PageInfo
+	(*SearchIssuesResponse)(nil), // 8: kei.connectors.linear.v1.SearchIssuesResponse
 }
 var file_kei_connectors_linear_v1_issues_proto_depIdxs = []int32{
-	0, // 0: kei.connectors.linear.v1.GetIssueResponse.issue:type_name -> kei.connectors.linear.v1.Issue
-	0, // 1: kei.connectors.linear.v1.CreateIssueResponse.issue:type_name -> kei.connectors.linear.v1.Issue
-	0, // 2: kei.connectors.linear.v1.SearchIssuesResponse.nodes:type_name -> kei.connectors.linear.v1.Issue
-	6, // 3: kei.connectors.linear.v1.SearchIssuesResponse.page_info:type_name -> kei.connectors.linear.v1.PageInfo
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	0, // 0: kei.connectors.linear.v1.Issue.labels:type_name -> kei.connectors.linear.v1.Label
+	1, // 1: kei.connectors.linear.v1.GetIssueResponse.issue:type_name -> kei.connectors.linear.v1.Issue
+	1, // 2: kei.connectors.linear.v1.CreateIssueResponse.issue:type_name -> kei.connectors.linear.v1.Issue
+	1, // 3: kei.connectors.linear.v1.SearchIssuesResponse.nodes:type_name -> kei.connectors.linear.v1.Issue
+	7, // 4: kei.connectors.linear.v1.SearchIssuesResponse.page_info:type_name -> kei.connectors.linear.v1.PageInfo
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_linear_v1_issues_proto_init() }
@@ -626,17 +693,17 @@ func file_kei_connectors_linear_v1_issues_proto_init() {
 	if File_kei_connectors_linear_v1_issues_proto != nil {
 		return
 	}
-	file_kei_connectors_linear_v1_issues_proto_msgTypes[0].OneofWrappers = []any{}
-	file_kei_connectors_linear_v1_issues_proto_msgTypes[3].OneofWrappers = []any{}
-	file_kei_connectors_linear_v1_issues_proto_msgTypes[5].OneofWrappers = []any{}
+	file_kei_connectors_linear_v1_issues_proto_msgTypes[1].OneofWrappers = []any{}
+	file_kei_connectors_linear_v1_issues_proto_msgTypes[4].OneofWrappers = []any{}
 	file_kei_connectors_linear_v1_issues_proto_msgTypes[6].OneofWrappers = []any{}
+	file_kei_connectors_linear_v1_issues_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_linear_v1_issues_proto_rawDesc), len(file_kei_connectors_linear_v1_issues_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -28,7 +28,8 @@ use haikeilabs_connector_contracts::kei::connectors::http_api::v1::{
     GetRecordResponse, ListRecordsResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::linear::v1::{
-    CreateIssueResponse, GetIssueResponse as LinearGetIssueResponse, SearchIssuesResponse,
+    CreateCommentResponse, CreateIssueResponse, GetIssueResponse as LinearGetIssueResponse,
+    GetTeamResponse, SearchIssuesResponse,
 };
 use pbjson_types::value::Kind;
 
@@ -79,14 +80,13 @@ fn fixtures_unmarshal() {
             .expect("github.pulls.get response unmarshals");
     assert_eq!(resp.number, 42);
 
-    // linear.issues.get — spot: issue.identifier.
+    // linear.issues.get — spot: issue.identifier and labels[0].name.
     let resp: LinearGetIssueResponse =
         serde_json::from_str(&fixture("linear", "issues.get.response.json"))
             .expect("linear.issues.get response unmarshals");
-    assert_eq!(
-        resp.issue.as_ref().expect("issue present").identifier,
-        "ENG-101"
-    );
+    let issue = resp.issue.as_ref().expect("issue present");
+    assert_eq!(issue.identifier, "ENG-101");
+    assert_eq!(issue.labels[0].name, "synthetic-label");
 
     // linear.issues.create — spot: success.
     let resp: CreateIssueResponse =
@@ -99,6 +99,22 @@ fn fixtures_unmarshal() {
         serde_json::from_str(&fixture("linear", "issues.search.response.json"))
             .expect("linear.issues.search response unmarshals");
     assert_eq!(resp.nodes.len(), 2);
+
+    // linear.teams.get — spot: team.key.
+    let resp: GetTeamResponse =
+        serde_json::from_str(&fixture("linear", "teams.get.response.json"))
+            .expect("linear.teams.get response unmarshals");
+    assert_eq!(resp.team.as_ref().expect("team present").key, "ENG");
+
+    // linear.comments.create — spot: success and the created comment body.
+    let resp: CreateCommentResponse =
+        serde_json::from_str(&fixture("linear", "comments.create.response.json"))
+            .expect("linear.comments.create response unmarshals");
+    assert!(resp.success);
+    assert_eq!(
+        resp.comment.as_ref().expect("comment present").body,
+        "Synthetic comment"
+    );
 
     // http_api.records.list — spot: two Struct records.
     let resp: ListRecordsResponse =

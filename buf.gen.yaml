@@ -40,3 +40,12 @@ plugins:
     opt:
       - paths=source_relative
       - lang=ts
+  # The connector manifest (proposal 0002, section 4.6). Bump
+  # contracts_version with each release tag. The legacy path is relative to
+  # tools/protoc-gen-kei, where go -C runs the plugin.
+  - local: ["go", "-C", "tools/protoc-gen-kei", "run", "./cmd/protoc-gen-kei-manifest"]
+    out: manifest
+    strategy: all
+    opt:
+      - contracts_version=v0.19.0
+      - legacy=../../proto/kei/contracts/v1/legacy_capabilities.yaml

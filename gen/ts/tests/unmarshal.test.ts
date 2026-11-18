@@ -6,6 +6,8 @@ import * as ghIssues from "../src/kei/connectors/github/v1/issues_pb.js";
 import * as ghContents from "../src/kei/connectors/github/v1/contents_pb.js";
 import * as ghPulls from "../src/kei/connectors/github/v1/pulls_pb.js";
 import * as linear from "../src/kei/connectors/linear/v1/issues_pb.js";
+import * as linearComments from "../src/kei/connectors/linear/v1/comments_pb.js";
+import * as linearTeams from "../src/kei/connectors/linear/v1/teams_pb.js";
 import * as http from "../src/kei/connectors/http_api/v1/records_pb.js";
 import * as db from "../src/kei/connectors/database/v1/query_pb.js";
 import * as mcp from "../src/kei/connectors/mcp/v1/tool_pb.js";
@@ -34,9 +36,11 @@ const ops = [
   ["github.issues.list", ghIssues.ListIssuesRequestSchema, ghIssues.ListIssuesResponseSchema, (r: any) => expect(r.issues).toHaveLength(2)],
   ["github.contents.put", ghContents.PutContentsRequestSchema, ghContents.PutContentsResponseSchema, (r: any) => expect(r.content.name).toBe("notes.txt")],
   ["github.pulls.get", ghPulls.GetPullRequestRequestSchema, ghPulls.GetPullRequestResponseSchema, (r: any) => expect(r.number).toBe(42n)],
-  ["linear.issues.get", linear.GetIssueRequestSchema, linear.GetIssueResponseSchema, (r: any) => expect(r.issue.identifier).toBe("ENG-101")],
+  ["linear.issues.get", linear.GetIssueRequestSchema, linear.GetIssueResponseSchema, (r: any) => { expect(r.issue.identifier).toBe("ENG-101"); expect(r.issue.labels[0].name).toBe("synthetic-label"); }],
   ["linear.issues.create", linear.CreateIssueRequestSchema, linear.CreateIssueResponseSchema, (r: any) => expect(r.success).toBe(true)],
   ["linear.issues.search", linear.SearchIssuesRequestSchema, linear.SearchIssuesResponseSchema, (r: any) => expect(r.nodes).toHaveLength(2)],
+  ["linear.teams.get", linearTeams.GetTeamRequestSchema, linearTeams.GetTeamResponseSchema, (r: any) => expect(r.team.key).toBe("ENG")],
+  ["linear.comments.create", linearComments.CreateCommentRequestSchema, linearComments.CreateCommentResponseSchema, (r: any) => { expect(r.success).toBe(true); expect(r.comment.body).toBe("Synthetic comment"); }],
   ["http_api.records.list", http.ListRecordsRequestSchema, http.ListRecordsResponseSchema, (r: any) => expect(r.records).toHaveLength(2)],
   ["http_api.records.get", http.GetRecordRequestSchema, http.GetRecordResponseSchema, (r: any) => expect(r.record.id).toBe("rec-1")],
   ["database.query.run", db.RunQueryRequestSchema, db.RunQueryResponseSchema, (r: any) => expect(r.columns[0].name).toBe("id")],

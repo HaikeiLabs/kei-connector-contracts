@@ -1,0 +1,361 @@
+{
+  "schema": "kei.connector-manifest/v1",
+  "contracts_version": "v0.19.0",
+  "connectors": [
+    {
+      "id": "database",
+      "connections": [
+        {
+          "name": "dsn",
+          "kind": "sql_dsn",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "dsn",
+              "type": "string",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "database.query.run",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "query:read"
+          ],
+          "connections": [
+            "dsn"
+          ],
+          "resource_template": "query",
+          "semantics": {
+            "action": "read",
+            "resource_type": "query",
+            "version": 1
+          },
+          "request": "kei.connectors.database.v1.RunQueryRequest",
+          "response": "kei.connectors.database.v1.RunQueryResponse"
+        }
+      ]
+    },
+    {
+      "id": "github",
+      "base_url": "https://api.github.com",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "sso_reuse",
+          "account_model": "per_user",
+          "scopes": [],
+          "setup_fields": []
+        },
+        {
+          "name": "pat",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "token",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "github.contents.put",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "contents:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "file",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.PutContentsRequest",
+          "response": "kei.connectors.github.v1.PutContentsResponse"
+        },
+        {
+          "id": "github.issues.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issues:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.GetIssueRequest",
+          "response": "kei.connectors.github.v1.GetIssueResponse"
+        },
+        {
+          "id": "github.issues.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issues:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.ListIssuesRequest",
+          "response": "kei.connectors.github.v1.ListIssuesResponse"
+        },
+        {
+          "id": "github.pulls.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pulls:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "pull_request",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.GetPullRequestRequest",
+          "response": "kei.connectors.github.v1.GetPullRequestResponse"
+        }
+      ]
+    },
+    {
+      "id": "http_api",
+      "connections": [
+        {
+          "name": "api_key",
+          "kind": "http_bearer",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "base_url_field": "base_url",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "base_url",
+              "type": "url",
+              "pattern": "^https://\\S+$",
+              "secret": false
+            },
+            {
+              "name": "api_key",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "http_api.records.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "records:read"
+          ],
+          "connections": [
+            "api_key"
+          ],
+          "resource_template": "collections/{collection}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "record",
+            "version": 1
+          },
+          "request": "kei.connectors.http_api.v1.GetRecordRequest",
+          "response": "kei.connectors.http_api.v1.GetRecordResponse"
+        },
+        {
+          "id": "http_api.records.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "records:read"
+          ],
+          "connections": [
+            "api_key"
+          ],
+          "resource_template": "collections/{collection}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "record",
+            "version": 1
+          },
+          "request": "kei.connectors.http_api.v1.ListRecordsRequest",
+          "response": "kei.connectors.http_api.v1.ListRecordsResponse"
+        }
+      ]
+    },
+    {
+      "id": "linear",
+      "base_url": "https://api.linear.app",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "scopes": [],
+          "setup_fields": []
+        },
+        {
+          "name": "api_key",
+          "kind": "http_header",
+          "auth_method": "secret_ref",
+          "account_model": "shared",
+          "header_name": "Authorization",
+          "scopes": [],
+          "setup_fields": [
+            {
+              "name": "api_key",
+              "type": "string",
+              "pattern": "^\\S+$",
+              "secret": true
+            }
+          ]
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "linear.issues.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issues:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_key"
+          ],
+          "resource_template": "teams/{team_id}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.linear.v1.CreateIssueRequest",
+          "response": "kei.connectors.linear.v1.CreateIssueResponse"
+        },
+        {
+          "id": "linear.issues.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issues:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_key"
+          ],
+          "resource_template": "issues/{id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.linear.v1.GetIssueRequest",
+          "response": "kei.connectors.linear.v1.GetIssueResponse"
+        },
+        {
+          "id": "linear.issues.search",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issues:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_key"
+          ],
+          "resource_template": "issues",
+          "semantics": {
+            "action": "read",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.linear.v1.SearchIssuesRequest",
+          "response": "kei.connectors.linear.v1.SearchIssuesResponse"
+        }
+      ]
+    }
+  ],
+  "legacy_capabilities": [
+    {
+      "connector": "github",
+      "capability": "issue.read",
+      "operations": [
+        "github.issues.get",
+        "github.issues.list"
+      ]
+    },
+    {
+      "connector": "linear",
+      "capability": "issue.create",
+      "operations": [
+        "linear.issues.create"
+      ]
+    },
+    {
+      "connector": "linear",
+      "capability": "issue.read",
+      "operations": [
+        "linear.issues.get",
+        "linear.issues.search"
+      ]
+    }
+  ]
+}
