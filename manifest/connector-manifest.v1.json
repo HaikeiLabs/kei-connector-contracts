@@ -1085,6 +1085,28 @@
       ],
       "capabilities": [
         {
+          "id": "linear.comments.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "comments:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_key"
+          ],
+          "resource_template": "issues/{issue_id}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "comment",
+            "version": 1
+          },
+          "request": "kei.connectors.linear.v1.CreateCommentRequest",
+          "response": "kei.connectors.linear.v1.CreateCommentResponse"
+        },
+        {
           "id": "linear.issues.create",
           "class": "write",
           "destructive": false,
@@ -1149,6 +1171,28 @@
           },
           "request": "kei.connectors.linear.v1.SearchIssuesRequest",
           "response": "kei.connectors.linear.v1.SearchIssuesResponse"
+        },
+        {
+          "id": "linear.teams.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "teams:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_key"
+          ],
+          "resource_template": "teams/{team_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "team",
+            "version": 1
+          },
+          "request": "kei.connectors.linear.v1.GetTeamRequest",
+          "response": "kei.connectors.linear.v1.GetTeamResponse"
         }
       ]
     },
@@ -1484,6 +1528,13 @@
     },
     {
       "connector": "linear",
+      "capability": "comment.create",
+      "operations": [
+        "linear.comments.create"
+      ]
+    },
+    {
+      "connector": "linear",
       "capability": "issue.create",
       "operations": [
         "linear.issues.create"
@@ -1495,6 +1546,13 @@
       "operations": [
         "linear.issues.get",
         "linear.issues.search"
+      ]
+    },
+    {
+      "connector": "linear",
+      "capability": "team.read",
+      "operations": [
+        "linear.teams.get"
       ]
     }
   ]
