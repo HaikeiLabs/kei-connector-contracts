@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from kei.contracts.v1 import options_pb2 as kei_dot_contracts_dot_v1_dot_options__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\'kei/connectors/github/v1/contents.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xcf\x03\n\x12PutContentsRequest\x12\x1c\n\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\x05owner\x12&\n\nrepository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\nrepository\x12\x1a\n\x04path\x18\x03 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\x04path\x12\x18\n\x07message\x18\x04 \x01(\tR\x07message\x12\x18\n\x07\x63ontent\x18\x05 \x01(\tR\x07\x63ontent\x12\x1b\n\x06\x62ranch\x18\x06 \x01(\tH\x00R\x06\x62ranch\x88\x01\x01\x12\x15\n\x03sha\x18\x07 \x01(\tH\x01R\x03sha\x88\x01\x01:\xdb\x01\x92\x82\x19\xd6\x01\n\x13github.contents.put\x12\x06github\x18\x02*\x03PUT2+/repos/{owner}/{repository}/contents/{path}:\x0e\x63ontents:write@\x01J\x0bPutContentsR\nuser_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x62\x05\x08\x99\x03\x10\x05\x62\x05\x08\xa6\x03\x10\x06\x8a\x01\n\x08\x03\x12\x04\x66ile\x18\x01\x42\t\n\x07_branchB\x06\n\x04_sha\"\x9b\x01\n\x0b\x43ontentFile\x12\x12\n\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n\x04path\x18\x02 \x01(\tR\x04path\x12\x10\n\x03sha\x18\x03 \x01(\tR\x03sha\x12\x19\n\x08html_url\x18\x04 \x01(\tR\x07htmlUrl\x12&\n\x0c\x64ownload_url\x18\x05 \x01(\tH\x00R\x0b\x64ownloadUrl\x88\x01\x01\x42\x0f\n\r_download_url\"<\n\rCommitSummary\x12\x10\n\x03sha\x18\x01 \x01(\tR\x03sha\x12\x19\n\x08html_url\x18\x02 \x01(\tR\x07htmlUrl\"\x97\x01\n\x13PutContentsResponse\x12?\n\x07\x63ontent\x18\x01 \x01(\x0b\x32%.kei.connectors.github.v1.ContentFileR\x07\x63ontent\x12?\n\x06\x63ommit\x18\x02 \x01(\x0b\x32\'.kei.connectors.github.v1.CommitSummaryR\x06\x63ommitBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\'kei/connectors/github/v1/contents.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xd1\x03\n\x12PutContentsRequest\x12\x1c\n\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\x05owner\x12&\n\nrepository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\x08\x01R\nrepository\x12\x1c\n\x04path\x18\x03 \x01(\tB\x08\xa2\x82\x19\x04\x08\x01\x18\x01R\x04path\x12\x18\n\x07message\x18\x04 \x01(\tR\x07message\x12\x18\n\x07\x63ontent\x18\x05 \x01(\tR\x07\x63ontent\x12\x1b\n\x06\x62ranch\x18\x06 \x01(\tH\x00R\x06\x62ranch\x88\x01\x01\x12\x15\n\x03sha\x18\x07 \x01(\tH\x01R\x03sha\x88\x01\x01:\xdb\x01\x92\x82\x19\xd6\x01\n\x13github.contents.put\x12\x06github\x18\x02*\x03PUT2+/repos/{owner}/{repository}/contents/{path}:\x0e\x63ontents:write@\x01J\x0bPutContentsR\nuser_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\x08\x91\x03\x10\x02\x62\x05\x08\x93\x03\x10\x03\x62\x05\x08\x94\x03\x10\x01\x62\x07\x08\xad\x03\x10\x04\x18\x01\x62\x05\x08\x99\x03\x10\x05\x62\x05\x08\xa6\x03\x10\x06\x8a\x01\n\x08\x03\x12\x04\x66ile\x18\x01\x42\t\n\x07_branchB\x06\n\x04_sha\"\x9b\x01\n\x0b\x43ontentFile\x12\x12\n\x04name\x18\x01 \x01(\tR\x04name\x12\x12\n\x04path\x18\x02 \x01(\tR\x04path\x12\x10\n\x03sha\x18\x03 \x01(\tR\x03sha\x12\x19\n\x08html_url\x18\x04 \x01(\tR\x07htmlUrl\x12&\n\x0c\x64ownload_url\x18\x05 \x01(\tH\x00R\x0b\x64ownloadUrl\x88\x01\x01\x42\x0f\n\r_download_url\"<\n\rCommitSummary\x12\x10\n\x03sha\x18\x01 \x01(\tR\x03sha\x12\x19\n\x08html_url\x18\x02 \x01(\tR\x07htmlUrl\"\x97\x01\n\x13PutContentsResponse\x12?\n\x07\x63ontent\x18\x01 \x01(\x0b\x32%.kei.connectors.github.v1.ContentFileR\x07\x63ontent\x12?\n\x06\x63ommit\x18\x02 \x01(\x0b\x32\'.kei.connectors.github.v1.CommitSummaryR\x06\x63ommitBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -38,15 +38,15 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_PUTCONTENTSREQUEST'].fields_by_name['repository']._loaded_options = None
   _globals['_PUTCONTENTSREQUEST'].fields_by_name['repository']._serialized_options = b'\242\202\031\002\010\001'
   _globals['_PUTCONTENTSREQUEST'].fields_by_name['path']._loaded_options = None
-  _globals['_PUTCONTENTSREQUEST'].fields_by_name['path']._serialized_options = b'\242\202\031\002\010\001'
+  _globals['_PUTCONTENTSREQUEST'].fields_by_name['path']._serialized_options = b'\242\202\031\004\010\001\030\001'
   _globals['_PUTCONTENTSREQUEST']._loaded_options = None
   _globals['_PUTCONTENTSREQUEST']._serialized_options = b'\222\202\031\326\001\n\023github.contents.put\022\006github\030\002*\003PUT2+/repos/{owner}/{repository}/contents/{path}:\016contents:write@\001J\013PutContentsR\nuser_oauthR\003patZ\032repos/{owner}/{repository}b\005\010\221\003\020\002b\005\010\223\003\020\003b\005\010\224\003\020\001b\007\010\255\003\020\004\030\001b\005\010\231\003\020\005b\005\010\246\003\020\006\212\001\n\010\003\022\004file\030\001'
   _globals['_PUTCONTENTSREQUEST']._serialized_start=102
-  _globals['_PUTCONTENTSREQUEST']._serialized_end=565
-  _globals['_CONTENTFILE']._serialized_start=568
-  _globals['_CONTENTFILE']._serialized_end=723
-  _globals['_COMMITSUMMARY']._serialized_start=725
-  _globals['_COMMITSUMMARY']._serialized_end=785
-  _globals['_PUTCONTENTSRESPONSE']._serialized_start=788
-  _globals['_PUTCONTENTSRESPONSE']._serialized_end=939
+  _globals['_PUTCONTENTSREQUEST']._serialized_end=567
+  _globals['_CONTENTFILE']._serialized_start=570
+  _globals['_CONTENTFILE']._serialized_end=725
+  _globals['_COMMITSUMMARY']._serialized_start=727
+  _globals['_COMMITSUMMARY']._serialized_end=787
+  _globals['_PUTCONTENTSRESPONSE']._serialized_start=790
+  _globals['_PUTCONTENTSRESPONSE']._serialized_end=941
 # @@protoc_insertion_point(module_scope)

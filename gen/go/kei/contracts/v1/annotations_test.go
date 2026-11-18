@@ -301,3 +301,101 @@ func TestDatabaseQueryHasNoHTTPTransport(t *testing.T) {
 		}
 	}
 }
+
+// multi_segment is only meaningful on a path param, and the GitHub contents
+// path (a file path such as docs/a.md) needs it: escaping its slashes would
+// address a different file.
+func TestMultiSegmentPathParams(t *testing.T) {
+	for _, a := range annotatedOps(t) {
+		fields := a.req.Fields()
+		for i := 0; i < fields.Len(); i++ {
+			fd := fields.Get(i)
+			p := paramOf(fd)
+			if p.GetMultiSegment() && p.GetIn() != contracts.ParamIn_PARAM_IN_PATH {
+				t.Errorf("%s: field %s is multi_segment but not a path param", a.op.GetId(), fd.Name())
+			}
+		}
+	}
+	for _, c := range []struct{ op, field string }{{"github.contents.put", "path"}} {
+		var found bool
+		for _, a := range annotatedOps(t) {
+			if a.op.GetId() != c.op {
+				continue
+			}
+			found = true
+			if fd := a.req.Fields().ByName(protoreflect.Name(c.field)); fd == nil || !paramOf(fd).GetMultiSegment() {
+				t.Errorf("%s: field %s must be multi_segment", c.op, c.field)
+			}
+		}
+		if !found {
+			t.Errorf("%s not found", c.op)
+		}
+	}
+}
+
+func paramOf(fd protoreflect.FieldDescriptor) *contracts.Param {
+	opts, ok := fd.Options().(*descriptorpb.FieldOptions)
+	if !ok || !proto.HasExtension(opts, contracts.E_Param) {
+		return nil
+	}
+	return proto.GetExtension(opts, contracts.E_Param).(*contracts.Param)
+}
+
+var (
+	graphqlOperation = regexp.MustCompile(`^(query|mutation)\s+[A-Za-z_][A-Za-z0-9_]*\s*(\(|\{)`)
+	graphqlVariable  = regexp.MustCompile(`\$([A-Za-z_][A-Za-z0-9_]*)`)
+)
+
+// Decision 4: every Linear operation sends one fixed document. A read sends
+// a query and a write a mutation, so a document can never write under a
+// read grant. Every variable is a request field (by its JSON name, which is
+// what the request serializes to), and every request field is a variable,
+// so no request value is silently dropped.
+func TestLinearOperationsHaveGraphQLDocument(t *testing.T) {
+	var n int
+	for _, a := range annotatedOps(t) {
+		if a.op.GetConnector() != "linear" {
+			if a.op.GetGraphqlDocument() != "" {
+				t.Errorf("%s: graphql_document on a non-GraphQL connector", a.op.GetId())
+			}
+			continue
+		}
+		n++
+		doc := strings.TrimSpace(a.op.GetGraphqlDocument())
+		m := graphqlOperation.FindStringSubmatch(doc)
+		if m == nil {
+			t.Errorf("%s: graphql_document %q does not start with a named query or mutation", a.op.GetId(), doc)
+			continue
+		}
+		wantKind := "query"
+		if a.op.GetClass() == contracts.OperationClass_OPERATION_CLASS_WRITE {
+			wantKind = "mutation"
+		}
+		if m[1] != wantKind {
+			t.Errorf("%s: %s document for class %v, want %s", a.op.GetId(), m[1], a.op.GetClass(), wantKind)
+		}
+		if strings.Count(doc, "{") != strings.Count(doc, "}") || strings.Count(doc, "(") != strings.Count(doc, ")") {
+			t.Errorf("%s: unbalanced braces or parentheses", a.op.GetId())
+		}
+		vars := map[string]bool{}
+		for _, v := range graphqlVariable.FindAllStringSubmatch(doc, -1) {
+			vars[v[1]] = true
+		}
+		jsonNames := map[string]bool{}
+		fields := a.req.Fields()
+		for i := 0; i < fields.Len(); i++ {
+			jsonNames[fields.Get(i).JSONName()] = true
+			if !vars[fields.Get(i).JSONName()] {
+				t.Errorf("%s: request field %s is not a document variable", a.op.GetId(), fields.Get(i).JSONName())
+			}
+		}
+		for v := range vars {
+			if !jsonNames[v] {
+				t.Errorf("%s: variable $%s is not a request field", a.op.GetId(), v)
+			}
+		}
+	}
+	if n == 0 {
+		t.Fatal("no Linear operations registered")
+	}
+}

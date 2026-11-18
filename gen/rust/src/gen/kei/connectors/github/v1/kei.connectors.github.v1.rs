@@ -9,6 +9,7 @@ pub struct PutContentsRequest {
     pub owner: ::prost::alloc::string::String,
     #[prost(string, tag="2")]
     pub repository: ::prost::alloc::string::String,
+    /// A file path such as docs/notes.md: its slashes are kept.
     #[prost(string, tag="3")]
     pub path: ::prost::alloc::string::String,
     #[prost(string, tag="4")]
