@@ -18,6 +18,10 @@
 //! are skipped). One spot assert per op proves a field survived with its
 //! synthetic value intact, and the >2^53 int64 id round-trips exactly.
 
+use haikeilabs_connector_contracts::kei::connectors::airtable::v1::{
+    GetRecordResponse as AirtableGetRecordResponse,
+    ListRecordsResponse as AirtableListRecordsResponse,
+};
 use haikeilabs_connector_contracts::kei::connectors::database::v1::{
     RunQueryRequest, RunQueryResponse,
 };
@@ -26,6 +30,9 @@ use haikeilabs_connector_contracts::kei::connectors::github::v1::{
 };
 use haikeilabs_connector_contracts::kei::connectors::http_api::v1::{
     GetRecordResponse, ListRecordsResponse,
+};
+use haikeilabs_connector_contracts::kei::connectors::hubspot::v1::{
+    GetContactResponse, ListContactsResponse, ListDealsResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::linear::v1::{
     CreateCommentResponse, CreateIssueResponse, GetIssueResponse as LinearGetIssueResponse,
@@ -115,6 +122,94 @@ fn fixtures_unmarshal() {
         resp.comment.as_ref().expect("comment present").body,
         "Synthetic comment"
     );
+
+    // airtable.records.get — spot: record id, the Name string, and the null
+    // Priority field.
+    let resp: AirtableGetRecordResponse =
+        serde_json::from_str(&fixture("airtable", "records.get.response.json"))
+            .expect("airtable.records.get response unmarshals");
+    assert_eq!(resp.id, "recSynthetic00003");
+    let fields = resp.fields.as_ref().expect("fields present");
+    match fields.fields.get("Name") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(name)),
+        }) => assert_eq!(name, "Synthetic third task"),
+        other => panic!("fields.Name must be a string, got {:?}", other),
+    }
+    match fields.fields.get("Priority") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("fields.Priority must be null, got {:?}", other),
+    }
+
+    // airtable.records.list — spot: two records, the offset cursor, and the
+    // null Priority field on the second record.
+    let resp: AirtableListRecordsResponse =
+        serde_json::from_str(&fixture("airtable", "records.list.response.json"))
+            .expect("airtable.records.list response unmarshals");
+    assert_eq!(resp.records.len(), 2);
+    assert_eq!(resp.offset.as_deref(), Some("synthetic-next-offset"));
+    let second = resp.records[1].fields.as_ref().expect("fields present");
+    match second.fields.get("Priority") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("records[1].fields.Priority must be null, got {:?}", other),
+    }
+
+    // hubspot.contacts.get — spot: contact id, the email string, and the null
+    // lastname property.
+    let resp: GetContactResponse =
+        serde_json::from_str(&fixture("hubspot", "contacts.get.response.json"))
+            .expect("hubspot.contacts.get response unmarshals");
+    assert_eq!(resp.id, "701");
+    let props = resp.properties.as_ref().expect("properties present");
+    match props.fields.get("email") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(email)),
+        }) => assert_eq!(email, "synthetic.contact@example.invalid"),
+        other => panic!("properties.email must be a string, got {:?}", other),
+    }
+    match props.fields.get("lastname") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("properties.lastname must be null, got {:?}", other),
+    }
+
+    // hubspot.contacts.list — spot: two results and the next cursor.
+    let resp: ListContactsResponse =
+        serde_json::from_str(&fixture("hubspot", "contacts.list.response.json"))
+            .expect("hubspot.contacts.list response unmarshals");
+    assert_eq!(resp.results.len(), 2);
+    assert_eq!(resp.next_after.as_deref(), Some("synthetic-next-cursor"));
+    let second = resp.results[1].properties.as_ref().expect("properties present");
+    match second.fields.get("lastname") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("results[1].properties.lastname must be null, got {:?}", other),
+    }
+
+    // hubspot.deals.list — spot: two results and the null description.
+    let resp: ListDealsResponse =
+        serde_json::from_str(&fixture("hubspot", "deals.list.response.json"))
+            .expect("hubspot.deals.list response unmarshals");
+    assert_eq!(resp.results.len(), 2);
+    let first = resp.results[0].properties.as_ref().expect("properties present");
+    match first.fields.get("dealname") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(name)),
+        }) => assert_eq!(name, "Synthetic first deal"),
+        other => panic!("properties.dealname must be a string, got {:?}", other),
+    }
+    match first.fields.get("description") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("properties.description must be null, got {:?}", other),
+    }
 
     // http_api.records.list — spot: two Struct records.
     let resp: ListRecordsResponse =

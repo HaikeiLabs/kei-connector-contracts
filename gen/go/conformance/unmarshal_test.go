@@ -34,9 +34,11 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
 
+	airtablev1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/airtable/v1"
 	databasev1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1"
 	githubv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1"
 	httpapiv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/http_api/v1"
+	hubspotv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/hubspot/v1"
 	linearv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/linear/v1"
 	contracts "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/contracts/v1"
 )
@@ -162,6 +164,96 @@ var fixtureCases = []fixtureCase{
 			}
 			if got := created.GetComment().GetId(); got == "" {
 				t.Errorf("comment.id is empty, want a synthetic id")
+			}
+		},
+	},
+	{
+		op:        "airtable.records.get",
+		connector: "airtable",
+		request:   func() proto.Message { return &airtablev1.GetRecordRequest{} },
+		response:  func() proto.Message { return &airtablev1.GetRecordResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			rec := resp.(*airtablev1.GetRecordResponse)
+			if rec.GetId() != "recSynthetic00003" {
+				t.Errorf("id = %q, want recSynthetic00003", rec.GetId())
+			}
+			if got := rec.GetFields().GetFields()["Name"].GetStringValue(); got != "Synthetic third task" {
+				t.Errorf("fields.Name = %q, want Synthetic third task", got)
+			}
+			if got := rec.GetFields().GetFields()["Priority"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("fields.Priority = %v, want null", got)
+			}
+		},
+	},
+	{
+		op:        "airtable.records.list",
+		connector: "airtable",
+		request:   func() proto.Message { return &airtablev1.ListRecordsRequest{} },
+		response:  func() proto.Message { return &airtablev1.ListRecordsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			list := resp.(*airtablev1.ListRecordsResponse)
+			if got := len(list.GetRecords()); got != 2 {
+				t.Errorf("len(records) = %d, want 2", got)
+			}
+			if list.GetOffset() != "synthetic-next-offset" {
+				t.Errorf("offset = %q, want synthetic-next-offset", list.GetOffset())
+			}
+			if got := list.GetRecords()[1].GetFields().GetFields()["Priority"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("records[1].fields.Priority = %v, want null", got)
+			}
+		},
+	},
+	{
+		op:        "hubspot.contacts.get",
+		connector: "hubspot",
+		request:   func() proto.Message { return &hubspotv1.GetContactRequest{} },
+		response:  func() proto.Message { return &hubspotv1.GetContactResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			contact := resp.(*hubspotv1.GetContactResponse)
+			if contact.GetId() != "701" {
+				t.Errorf("id = %q, want 701", contact.GetId())
+			}
+			if got := contact.GetProperties().GetFields()["email"].GetStringValue(); got != "synthetic.contact@example.invalid" {
+				t.Errorf("properties.email = %q, want the synthetic email", got)
+			}
+			if got := contact.GetProperties().GetFields()["lastname"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("properties.lastname = %v, want null", got)
+			}
+		},
+	},
+	{
+		op:        "hubspot.contacts.list",
+		connector: "hubspot",
+		request:   func() proto.Message { return &hubspotv1.ListContactsRequest{} },
+		response:  func() proto.Message { return &hubspotv1.ListContactsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			list := resp.(*hubspotv1.ListContactsResponse)
+			if got := len(list.GetResults()); got != 2 {
+				t.Errorf("len(results) = %d, want 2", got)
+			}
+			if list.GetNextAfter() != "synthetic-next-cursor" {
+				t.Errorf("next_after = %q, want synthetic-next-cursor", list.GetNextAfter())
+			}
+			if got := list.GetResults()[1].GetProperties().GetFields()["lastname"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("results[1].properties.lastname = %v, want null", got)
+			}
+		},
+	},
+	{
+		op:        "hubspot.deals.list",
+		connector: "hubspot",
+		request:   func() proto.Message { return &hubspotv1.ListDealsRequest{} },
+		response:  func() proto.Message { return &hubspotv1.ListDealsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			list := resp.(*hubspotv1.ListDealsResponse)
+			if got := len(list.GetResults()); got != 2 {
+				t.Errorf("len(results) = %d, want 2", got)
+			}
+			if got := list.GetResults()[0].GetProperties().GetFields()["dealname"].GetStringValue(); got != "Synthetic first deal" {
+				t.Errorf("results[0].properties.dealname = %q, want Synthetic first deal", got)
+			}
+			if got := list.GetResults()[0].GetProperties().GetFields()["description"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("results[0].properties.description = %v, want null", got)
 			}
 		},
 	},
