@@ -28,7 +28,7 @@ import type { JsonObject, Message } from "@bufbuild/protobuf";
  * Describes the file kei/connectors/airtable/v1/records.proto.
  */
 export const file_kei_connectors_airtable_v1_records: GenFile = /*@__PURE__*/
-  fileDesc("CihrZWkvY29ubmVjdG9ycy9haXJ0YWJsZS92MS9yZWNvcmRzLnByb3RvEhprZWkuY29ubmVjdG9ycy5haXJ0YWJsZS52MSLeAgoSTGlzdFJlY29yZHNSZXF1ZXN0EhcKB2Jhc2VfaWQYASABKAlCBqKCGQIIARIgChB0YWJsZV9pZF9vcl9uYW1lGAIgASgJQgaighkCCAESEwoGb2Zmc2V0GAMgASgJSACIAQESFgoJcGFnZV9zaXplGAQgASgFSAGIAQE6xgGSghnBAQoVYWlydGFibGUucmVjb3Jkcy5saXN0EghhaXJ0YWJsZRgBKgNHRVQyIC92MC97YmFzZV9pZH0ve3RhYmxlX2lkX29yX25hbWV9OhFkYXRhLnJlY29yZHM6cmVhZEABSgtMaXN0UmVjb3Jkc1IDcGF0Wg9iYXNlcy97YmFzZV9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQwIARIGcmVjb3JkGAGSAQZvZmZzZXSaAQZvZmZzZXRCCQoHX29mZnNldEIMCgpfcGFnZV9zaXplIloKDVJlY29yZFN1bW1hcnkSCgoCaWQYASABKAkSJwoGZmllbGRzGAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdBIUCgxjcmVhdGVkX3RpbWUYAyABKAkicQoTTGlzdFJlY29yZHNSZXNwb25zZRI6CgdyZWNvcmRzGAEgAygLMikua2VpLmNvbm5lY3RvcnMuYWlydGFibGUudjEuUmVjb3JkU3VtbWFyeRITCgZvZmZzZXQYAiABKAlIAIgBAUIJCgdfb2Zmc2V0IqgCChBHZXRSZWNvcmRSZXF1ZXN0EhcKB2Jhc2VfaWQYASABKAlCBqKCGQIIARIgChB0YWJsZV9pZF9vcl9uYW1lGAIgASgJQgaighkCCAESGQoJcmVjb3JkX2lkGAMgASgJQgaighkCCAE6vQGSghm4AQoUYWlydGFibGUucmVjb3Jkcy5nZXQSCGFpcnRhYmxlGAEqA0dFVDIsL3YwL3tiYXNlX2lkfS97dGFibGVfaWRfb3JfbmFtZX0ve3JlY29yZF9pZH06EWRhdGEucmVjb3JkczpyZWFkQAFKCUdldFJlY29yZFIDcGF0Wg9iYXNlcy97YmFzZV9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQwIARIGcmVjb3JkGAEiXgoRR2V0UmVjb3JkUmVzcG9uc2USCgoCaWQYASABKAkSJwoGZmllbGRzGAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdBIUCgxjcmVhdGVkX3RpbWUYAyABKAlCWlpYZ2l0aHViLmNvbS9IYWlrZWlMYWJzL2tlaS1jb25uZWN0b3ItY29udHJhY3RzL2dlbi9nby9rZWkvY29ubmVjdG9ycy9haXJ0YWJsZS92MTthaXJ0YWJsZWIGcHJvdG8z", [file_google_protobuf_struct, file_kei_contracts_v1_options]);
+  fileDesc("CihrZWkvY29ubmVjdG9ycy9haXJ0YWJsZS92MS9yZWNvcmRzLnByb3RvEhprZWkuY29ubmVjdG9ycy5haXJ0YWJsZS52MSLeAgoSTGlzdFJlY29yZHNSZXF1ZXN0EhcKB2Jhc2VfaWQYASABKAlCBqKCGQIIARIgChB0YWJsZV9pZF9vcl9uYW1lGAIgASgJQgaighkCCAESEwoGb2Zmc2V0GAMgASgJSACIAQESFgoJcGFnZV9zaXplGAQgASgFSAGIAQE6xgGSghnBAQoVYWlydGFibGUucmVjb3Jkcy5saXN0EghhaXJ0YWJsZRgBKgNHRVQyIC92MC97YmFzZV9pZH0ve3RhYmxlX2lkX29yX25hbWV9OhFkYXRhLnJlY29yZHM6cmVhZEABSgtMaXN0UmVjb3Jkc1IDcGF0Wg9iYXNlcy97YmFzZV9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQwIARIGcmVjb3JkGAGSAQZvZmZzZXSaAQZvZmZzZXRCCQoHX29mZnNldEIMCgpfcGFnZV9zaXplIloKDVJlY29yZFN1bW1hcnkSCgoCaWQYASABKAkSJwoGZmllbGRzGAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdBIUCgxjcmVhdGVkX3RpbWUYAyABKAkicQoTTGlzdFJlY29yZHNSZXNwb25zZRI6CgdyZWNvcmRzGAEgAygLMikua2VpLmNvbm5lY3RvcnMuYWlydGFibGUudjEuUmVjb3JkU3VtbWFyeRITCgZvZmZzZXQYAiABKAlIAIgBAUIJCgdfb2Zmc2V0IqgCChBHZXRSZWNvcmRSZXF1ZXN0EhcKB2Jhc2VfaWQYASABKAlCBqKCGQIIARIgChB0YWJsZV9pZF9vcl9uYW1lGAIgASgJQgaighkCCAESGQoJcmVjb3JkX2lkGAMgASgJQgaighkCCAE6vQGSghm4AQoUYWlydGFibGUucmVjb3Jkcy5nZXQSCGFpcnRhYmxlGAEqA0dFVDIsL3YwL3tiYXNlX2lkfS97dGFibGVfaWRfb3JfbmFtZX0ve3JlY29yZF9pZH06EWRhdGEucmVjb3JkczpyZWFkQAFKCUdldFJlY29yZFIDcGF0Wg9iYXNlcy97YmFzZV9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQwIARIGcmVjb3JkGAEiXgoRR2V0UmVjb3JkUmVzcG9uc2USCgoCaWQYASABKAkSJwoGZmllbGRzGAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdBIUCgxjcmVhdGVkX3RpbWUYAyABKAkivAIKE0NyZWF0ZVJlY29yZFJlcXVlc3QSFwoHYmFzZV9pZBgBIAEoCUIGooIZAggBEiAKEHRhYmxlX2lkX29yX25hbWUYAiABKAlCBqKCGQIIARInCgZmaWVsZHMYAyABKAsyFy5nb29nbGUucHJvdG9idWYuU3RydWN0OsABkoIZuwEKF2FpcnRhYmxlLnJlY29yZHMuY3JlYXRlEghhaXJ0YWJsZRgCKgRQT1NUMiAvdjAve2Jhc2VfaWR9L3t0YWJsZV9pZF9vcl9uYW1lfToSZGF0YS5yZWNvcmRzOndyaXRlQAFKDENyZWF0ZVJlY29yZFIDcGF0Wg9iYXNlcy97YmFzZV9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBQimAxAGYgcIrQMQBBgBigEMCAISBnJlY29yZBgBImEKFENyZWF0ZVJlY29yZFJlc3BvbnNlEgoKAmlkGAEgASgJEicKBmZpZWxkcxgCIAEoCzIXLmdvb2dsZS5wcm90b2J1Zi5TdHJ1Y3QSFAoMY3JlYXRlZF90aW1lGAMgASgJIuQCChNVcGRhdGVSZWNvcmRSZXF1ZXN0EhcKB2Jhc2VfaWQYASABKAlCBqKCGQIIARIgChB0YWJsZV9pZF9vcl9uYW1lGAIgASgJQgaighkCCAESGQoJcmVjb3JkX2lkGAMgASgJQgaighkCCAESJwoGZmllbGRzGAQgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdDrNAZKCGcgBChdhaXJ0YWJsZS5yZWNvcmRzLnVwZGF0ZRIIYWlydGFibGUYAioFUEFUQ0gyLC92MC97YmFzZV9pZH0ve3RhYmxlX2lkX29yX25hbWV9L3tyZWNvcmRfaWR9OhJkYXRhLnJlY29yZHM6d3JpdGVAAUoMVXBkYXRlUmVjb3JkUgNwYXRaD2Jhc2VzL3tiYXNlX2lkfWIFCJEDEAJiBQiTAxADYgUIlAMQAWIFCKYDEAZiBwitAxAEGAGKAQwIAxIGcmVjb3JkGAEiYQoUVXBkYXRlUmVjb3JkUmVzcG9uc2USCgoCaWQYASABKAkSJwoGZmllbGRzGAIgASgLMhcuZ29vZ2xlLnByb3RvYnVmLlN0cnVjdBIUCgxjcmVhdGVkX3RpbWUYAyABKAlCWlpYZ2l0aHViLmNvbS9IYWlrZWlMYWJzL2tlaS1jb25uZWN0b3ItY29udHJhY3RzL2dlbi9nby9rZWkvY29ubmVjdG9ycy9haXJ0YWJsZS92MTthaXJ0YWJsZWIGcHJvdG8z", [file_google_protobuf_struct, file_kei_contracts_v1_options]);
 
 /**
  * ListRecordsRequest lists the records of one Airtable table. offset carries
@@ -181,4 +181,132 @@ export type GetRecordResponse = Message<"kei.connectors.airtable.v1.GetRecordRes
  */
 export const GetRecordResponseSchema: GenMessage<GetRecordResponse> = /*@__PURE__*/
   messageDesc(file_kei_connectors_airtable_v1_records, 4);
+
+/**
+ * CreateRecordRequest creates a record in one Airtable table. fields carries
+ * the record's cell values keyed by field name, the exact body Airtable's
+ * create endpoint takes besides its typecast flag; the contract does not
+ * model typecast.
+ *
+ * @generated from message kei.connectors.airtable.v1.CreateRecordRequest
+ */
+export type CreateRecordRequest = Message<"kei.connectors.airtable.v1.CreateRecordRequest"> & {
+  /**
+   * @generated from field: string base_id = 1;
+   */
+  baseId: string;
+
+  /**
+   * @generated from field: string table_id_or_name = 2;
+   */
+  tableIdOrName: string;
+
+  /**
+   * @generated from field: google.protobuf.Struct fields = 3;
+   */
+  fields?: JsonObject | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.airtable.v1.CreateRecordRequest.
+ * Use `create(CreateRecordRequestSchema)` to create a new message.
+ */
+export const CreateRecordRequestSchema: GenMessage<CreateRecordRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_airtable_v1_records, 5);
+
+/**
+ * CreateRecordResponse models the same record subset the read returns. It is
+ * filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.airtable.v1.CreateRecordResponse
+ */
+export type CreateRecordResponse = Message<"kei.connectors.airtable.v1.CreateRecordResponse"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: google.protobuf.Struct fields = 2;
+   */
+  fields?: JsonObject | undefined;
+
+  /**
+   * @generated from field: string created_time = 3;
+   */
+  createdTime: string;
+};
+
+/**
+ * Describes the message kei.connectors.airtable.v1.CreateRecordResponse.
+ * Use `create(CreateRecordResponseSchema)` to create a new message.
+ */
+export const CreateRecordResponseSchema: GenMessage<CreateRecordResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_airtable_v1_records, 6);
+
+/**
+ * UpdateRecordRequest updates a record's fields. Airtable merges the field
+ * patch (fields left out keep their values), so this is not a wholesale
+ * overwrite and the operation is not destructive.
+ *
+ * @generated from message kei.connectors.airtable.v1.UpdateRecordRequest
+ */
+export type UpdateRecordRequest = Message<"kei.connectors.airtable.v1.UpdateRecordRequest"> & {
+  /**
+   * @generated from field: string base_id = 1;
+   */
+  baseId: string;
+
+  /**
+   * @generated from field: string table_id_or_name = 2;
+   */
+  tableIdOrName: string;
+
+  /**
+   * @generated from field: string record_id = 3;
+   */
+  recordId: string;
+
+  /**
+   * @generated from field: google.protobuf.Struct fields = 4;
+   */
+  fields?: JsonObject | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.airtable.v1.UpdateRecordRequest.
+ * Use `create(UpdateRecordRequestSchema)` to create a new message.
+ */
+export const UpdateRecordRequestSchema: GenMessage<UpdateRecordRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_airtable_v1_records, 7);
+
+/**
+ * UpdateRecordResponse models the same record subset the read returns. It is
+ * filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.airtable.v1.UpdateRecordResponse
+ */
+export type UpdateRecordResponse = Message<"kei.connectors.airtable.v1.UpdateRecordResponse"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: google.protobuf.Struct fields = 2;
+   */
+  fields?: JsonObject | undefined;
+
+  /**
+   * @generated from field: string created_time = 3;
+   */
+  createdTime: string;
+};
+
+/**
+ * Describes the message kei.connectors.airtable.v1.UpdateRecordResponse.
+ * Use `create(UpdateRecordResponseSchema)` to create a new message.
+ */
+export const UpdateRecordResponseSchema: GenMessage<UpdateRecordResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_airtable_v1_records, 8);
 

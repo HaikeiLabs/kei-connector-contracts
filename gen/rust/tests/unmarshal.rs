@@ -19,8 +19,10 @@
 //! synthetic value intact, and the >2^53 int64 id round-trips exactly.
 
 use haikeilabs_connector_contracts::kei::connectors::airtable::v1::{
+    CreateRecordResponse as AirtableCreateRecordResponse,
     GetRecordResponse as AirtableGetRecordResponse,
     ListRecordsResponse as AirtableListRecordsResponse,
+    UpdateRecordResponse as AirtableUpdateRecordResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::database::v1::{
     RunQueryRequest, RunQueryResponse,
@@ -32,7 +34,9 @@ use haikeilabs_connector_contracts::kei::connectors::http_api::v1::{
     GetRecordResponse, ListRecordsResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::hubspot::v1::{
-    GetContactResponse, ListContactsResponse, ListDealsResponse,
+    CreateContactResponse as HubspotCreateContactResponse, GetContactResponse,
+    ListContactsResponse, ListDealsResponse,
+    UpdateContactResponse as HubspotUpdateContactResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::linear::v1::{
     CreateCommentResponse, CreateIssueResponse, GetIssueResponse as LinearGetIssueResponse,
@@ -143,6 +147,39 @@ fn fixtures_unmarshal() {
         other => panic!("fields.Priority must be null, got {:?}", other),
     }
 
+    // airtable.records.create — spot: the created record id and the Status
+    // string.
+    let resp: AirtableCreateRecordResponse =
+        serde_json::from_str(&fixture("airtable", "records.create.response.json"))
+            .expect("airtable.records.create response unmarshals");
+    assert_eq!(resp.id, "recSynthetic00004");
+    let fields = resp.fields.as_ref().expect("fields present");
+    match fields.fields.get("Status") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(status)),
+        }) => assert_eq!(status, "Todo"),
+        other => panic!("fields.Status must be a string, got {:?}", other),
+    }
+
+    // airtable.records.update — spot: the merged Status string and the null
+    // Priority field.
+    let resp: AirtableUpdateRecordResponse =
+        serde_json::from_str(&fixture("airtable", "records.update.response.json"))
+            .expect("airtable.records.update response unmarshals");
+    let fields = resp.fields.as_ref().expect("fields present");
+    match fields.fields.get("Status") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(status)),
+        }) => assert_eq!(status, "Done"),
+        other => panic!("fields.Status must be a string, got {:?}", other),
+    }
+    match fields.fields.get("Priority") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("fields.Priority must be null, got {:?}", other),
+    }
+
     // airtable.records.list — spot: two records, the offset cursor, and the
     // null Priority field on the second record.
     let resp: AirtableListRecordsResponse =
@@ -176,6 +213,31 @@ fn fixtures_unmarshal() {
             kind: None | Some(Kind::NullValue(_)),
         }) => {}
         other => panic!("properties.lastname must be null, got {:?}", other),
+    }
+
+    // hubspot.contacts.create — spot: the created contact id and the email.
+    let resp: HubspotCreateContactResponse =
+        serde_json::from_str(&fixture("hubspot", "contacts.create.response.json"))
+            .expect("hubspot.contacts.create response unmarshals");
+    assert_eq!(resp.id, "701550001");
+    let props = resp.properties.as_ref().expect("properties present");
+    match props.fields.get("email") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(email)),
+        }) => assert_eq!(email, "synthetic.new@example.invalid"),
+        other => panic!("properties.email must be a string, got {:?}", other),
+    }
+
+    // hubspot.contacts.update — spot: the merged lifecyclestage property.
+    let resp: HubspotUpdateContactResponse =
+        serde_json::from_str(&fixture("hubspot", "contacts.update.response.json"))
+            .expect("hubspot.contacts.update response unmarshals");
+    let props = resp.properties.as_ref().expect("properties present");
+    match props.fields.get("lifecyclestage") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(stage)),
+        }) => assert_eq!(stage, "customer"),
+        other => panic!("properties.lifecyclestage must be a string, got {:?}", other),
     }
 
     // hubspot.contacts.list — spot: two results and the next cursor.

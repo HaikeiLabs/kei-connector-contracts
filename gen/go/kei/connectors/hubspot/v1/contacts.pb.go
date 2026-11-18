@@ -350,6 +350,265 @@ func (x *ListContactsResponse) GetNextAfter() string {
 	return ""
 }
 
+// CreateContactRequest creates a contact in HubSpot CRM. properties carries
+// the contact's property values (email, firstname, ...), which is the exact
+// body HubSpot's v3 create endpoint takes besides its associations array;
+// the contract does not model associations.
+type CreateContactRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Properties    *structpb.Struct       `protobuf:"bytes,1,opt,name=properties,proto3" json:"properties,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateContactRequest) Reset() {
+	*x = CreateContactRequest{}
+	mi := &file_kei_connectors_hubspot_v1_contacts_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateContactRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateContactRequest) ProtoMessage() {}
+
+func (x *CreateContactRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_hubspot_v1_contacts_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateContactRequest.ProtoReflect.Descriptor instead.
+func (*CreateContactRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_hubspot_v1_contacts_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CreateContactRequest) GetProperties() *structpb.Struct {
+	if x != nil {
+		return x.Properties
+	}
+	return nil
+}
+
+// CreateContactResponse models the same contact subset the read returns.
+// It is filled by JSON unmarshal of the provider response.
+type CreateContactResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Properties    *structpb.Struct       `protobuf:"bytes,2,opt,name=properties,proto3" json:"properties,omitempty"`
+	CreatedAt     string                 `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     string                 `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Archived      bool                   `protobuf:"varint,5,opt,name=archived,proto3" json:"archived,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateContactResponse) Reset() {
+	*x = CreateContactResponse{}
+	mi := &file_kei_connectors_hubspot_v1_contacts_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateContactResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateContactResponse) ProtoMessage() {}
+
+func (x *CreateContactResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_hubspot_v1_contacts_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateContactResponse.ProtoReflect.Descriptor instead.
+func (*CreateContactResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_hubspot_v1_contacts_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CreateContactResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CreateContactResponse) GetProperties() *structpb.Struct {
+	if x != nil {
+		return x.Properties
+	}
+	return nil
+}
+
+func (x *CreateContactResponse) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *CreateContactResponse) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
+func (x *CreateContactResponse) GetArchived() bool {
+	if x != nil {
+		return x.Archived
+	}
+	return false
+}
+
+// UpdateContactRequest updates a contact's properties. HubSpot merges the
+// property patch, so this is not a wholesale overwrite and the operation is
+// not destructive.
+type UpdateContactRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ContactId     string                 `protobuf:"bytes,1,opt,name=contact_id,json=contactId,proto3" json:"contact_id,omitempty"`
+	Properties    *structpb.Struct       `protobuf:"bytes,2,opt,name=properties,proto3" json:"properties,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateContactRequest) Reset() {
+	*x = UpdateContactRequest{}
+	mi := &file_kei_connectors_hubspot_v1_contacts_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateContactRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateContactRequest) ProtoMessage() {}
+
+func (x *UpdateContactRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_hubspot_v1_contacts_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateContactRequest.ProtoReflect.Descriptor instead.
+func (*UpdateContactRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_hubspot_v1_contacts_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateContactRequest) GetContactId() string {
+	if x != nil {
+		return x.ContactId
+	}
+	return ""
+}
+
+func (x *UpdateContactRequest) GetProperties() *structpb.Struct {
+	if x != nil {
+		return x.Properties
+	}
+	return nil
+}
+
+// UpdateContactResponse models the same contact subset the read returns.
+// It is filled by JSON unmarshal of the provider response.
+type UpdateContactResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Properties    *structpb.Struct       `protobuf:"bytes,2,opt,name=properties,proto3" json:"properties,omitempty"`
+	CreatedAt     string                 `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	UpdatedAt     string                 `protobuf:"bytes,4,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	Archived      bool                   `protobuf:"varint,5,opt,name=archived,proto3" json:"archived,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateContactResponse) Reset() {
+	*x = UpdateContactResponse{}
+	mi := &file_kei_connectors_hubspot_v1_contacts_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateContactResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateContactResponse) ProtoMessage() {}
+
+func (x *UpdateContactResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_hubspot_v1_contacts_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateContactResponse.ProtoReflect.Descriptor instead.
+func (*UpdateContactResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_hubspot_v1_contacts_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UpdateContactResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateContactResponse) GetProperties() *structpb.Struct {
+	if x != nil {
+		return x.Properties
+	}
+	return nil
+}
+
+func (x *UpdateContactResponse) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *UpdateContactResponse) GetUpdatedAt() string {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return ""
+}
+
+func (x *UpdateContactResponse) GetArchived() bool {
+	if x != nil {
+		return x.Archived
+	}
+	return false
+}
+
 var File_kei_connectors_hubspot_v1_contacts_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_hubspot_v1_contacts_proto_rawDesc = "" +
@@ -393,7 +652,41 @@ const file_kei_connectors_hubspot_v1_contacts_proto_rawDesc = "" +
 	"\aresults\x18\x01 \x03(\v2).kei.connectors.hubspot.v1.ContactSummaryR\aresults\x12\"\n" +
 	"\n" +
 	"next_after\x18\x02 \x01(\tH\x00R\tnextAfter\x88\x01\x01B\r\n" +
-	"\v_next_afterBXZVgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/hubspot/v1;hubspotb\x06proto3"
+	"\v_next_after\"\xa0\x02\n" +
+	"\x14CreateContactRequest\x127\n" +
+	"\n" +
+	"properties\x18\x01 \x01(\v2\x17.google.protobuf.StructR\n" +
+	"properties:\xce\x01\x92\x82\x19\xc9\x01\n" +
+	"\x17hubspot.contacts.create\x12\ahubspot\x18\x02*\x04POST2\x18/crm/v3/objects/contacts:\x1acrm.objects.contacts.write@\x01J\rCreateContactR\n" +
+	"user_oauthR\vprivate_appZ\bcontactsb\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x99\x03\x10\x05b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\r\b\x02\x12\acontact\x18\x01\"\xba\x01\n" +
+	"\x15CreateContactResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x127\n" +
+	"\n" +
+	"properties\x18\x02 \x01(\v2\x17.google.protobuf.StructR\n" +
+	"properties\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x03 \x01(\tR\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\x04 \x01(\tR\tupdatedAt\x12\x1a\n" +
+	"\barchived\x18\x05 \x01(\bR\barchived\"\xe2\x02\n" +
+	"\x14UpdateContactRequest\x12%\n" +
+	"\n" +
+	"contact_id\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\tcontactId\x127\n" +
+	"\n" +
+	"properties\x18\x02 \x01(\v2\x17.google.protobuf.StructR\n" +
+	"properties:\xe9\x01\x92\x82\x19\xe4\x01\n" +
+	"\x17hubspot.contacts.update\x12\ahubspot\x18\x02*\x05PATCH2%/crm/v3/objects/contacts/{contact_id}:\x1acrm.objects.contacts.write@\x01J\rUpdateContactR\n" +
+	"user_oauthR\vprivate_appZ\x15contacts/{contact_id}b\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\r\b\x03\x12\acontact\x18\x01\"\xba\x01\n" +
+	"\x15UpdateContactResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x127\n" +
+	"\n" +
+	"properties\x18\x02 \x01(\v2\x17.google.protobuf.StructR\n" +
+	"properties\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\x03 \x01(\tR\tcreatedAt\x12\x1d\n" +
+	"\n" +
+	"updated_at\x18\x04 \x01(\tR\tupdatedAt\x12\x1a\n" +
+	"\barchived\x18\x05 \x01(\bR\barchivedBXZVgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/hubspot/v1;hubspotb\x06proto3"
 
 var (
 	file_kei_connectors_hubspot_v1_contacts_proto_rawDescOnce sync.Once
@@ -407,24 +700,32 @@ func file_kei_connectors_hubspot_v1_contacts_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_hubspot_v1_contacts_proto_rawDescData
 }
 
-var file_kei_connectors_hubspot_v1_contacts_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_kei_connectors_hubspot_v1_contacts_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_kei_connectors_hubspot_v1_contacts_proto_goTypes = []any{
-	(*GetContactRequest)(nil),    // 0: kei.connectors.hubspot.v1.GetContactRequest
-	(*GetContactResponse)(nil),   // 1: kei.connectors.hubspot.v1.GetContactResponse
-	(*ListContactsRequest)(nil),  // 2: kei.connectors.hubspot.v1.ListContactsRequest
-	(*ContactSummary)(nil),       // 3: kei.connectors.hubspot.v1.ContactSummary
-	(*ListContactsResponse)(nil), // 4: kei.connectors.hubspot.v1.ListContactsResponse
-	(*structpb.Struct)(nil),      // 5: google.protobuf.Struct
+	(*GetContactRequest)(nil),     // 0: kei.connectors.hubspot.v1.GetContactRequest
+	(*GetContactResponse)(nil),    // 1: kei.connectors.hubspot.v1.GetContactResponse
+	(*ListContactsRequest)(nil),   // 2: kei.connectors.hubspot.v1.ListContactsRequest
+	(*ContactSummary)(nil),        // 3: kei.connectors.hubspot.v1.ContactSummary
+	(*ListContactsResponse)(nil),  // 4: kei.connectors.hubspot.v1.ListContactsResponse
+	(*CreateContactRequest)(nil),  // 5: kei.connectors.hubspot.v1.CreateContactRequest
+	(*CreateContactResponse)(nil), // 6: kei.connectors.hubspot.v1.CreateContactResponse
+	(*UpdateContactRequest)(nil),  // 7: kei.connectors.hubspot.v1.UpdateContactRequest
+	(*UpdateContactResponse)(nil), // 8: kei.connectors.hubspot.v1.UpdateContactResponse
+	(*structpb.Struct)(nil),       // 9: google.protobuf.Struct
 }
 var file_kei_connectors_hubspot_v1_contacts_proto_depIdxs = []int32{
-	5, // 0: kei.connectors.hubspot.v1.GetContactResponse.properties:type_name -> google.protobuf.Struct
-	5, // 1: kei.connectors.hubspot.v1.ContactSummary.properties:type_name -> google.protobuf.Struct
+	9, // 0: kei.connectors.hubspot.v1.GetContactResponse.properties:type_name -> google.protobuf.Struct
+	9, // 1: kei.connectors.hubspot.v1.ContactSummary.properties:type_name -> google.protobuf.Struct
 	3, // 2: kei.connectors.hubspot.v1.ListContactsResponse.results:type_name -> kei.connectors.hubspot.v1.ContactSummary
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	9, // 3: kei.connectors.hubspot.v1.CreateContactRequest.properties:type_name -> google.protobuf.Struct
+	9, // 4: kei.connectors.hubspot.v1.CreateContactResponse.properties:type_name -> google.protobuf.Struct
+	9, // 5: kei.connectors.hubspot.v1.UpdateContactRequest.properties:type_name -> google.protobuf.Struct
+	9, // 6: kei.connectors.hubspot.v1.UpdateContactResponse.properties:type_name -> google.protobuf.Struct
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_hubspot_v1_contacts_proto_init() }
@@ -440,7 +741,7 @@ func file_kei_connectors_hubspot_v1_contacts_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_hubspot_v1_contacts_proto_rawDesc), len(file_kei_connectors_hubspot_v1_contacts_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -57,3 +57,45 @@ class GetRecordResponse(_message.Message):
     fields: _struct_pb2.Struct
     created_time: str
     def __init__(self, id: _Optional[str] = ..., fields: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ..., created_time: _Optional[str] = ...) -> None: ...
+
+class CreateRecordRequest(_message.Message):
+    __slots__ = ("base_id", "table_id_or_name", "fields")
+    BASE_ID_FIELD_NUMBER: _ClassVar[int]
+    TABLE_ID_OR_NAME_FIELD_NUMBER: _ClassVar[int]
+    FIELDS_FIELD_NUMBER: _ClassVar[int]
+    base_id: str
+    table_id_or_name: str
+    fields: _struct_pb2.Struct
+    def __init__(self, base_id: _Optional[str] = ..., table_id_or_name: _Optional[str] = ..., fields: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ...) -> None: ...
+
+class CreateRecordResponse(_message.Message):
+    __slots__ = ("id", "fields", "created_time")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    FIELDS_FIELD_NUMBER: _ClassVar[int]
+    CREATED_TIME_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    fields: _struct_pb2.Struct
+    created_time: str
+    def __init__(self, id: _Optional[str] = ..., fields: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ..., created_time: _Optional[str] = ...) -> None: ...
+
+class UpdateRecordRequest(_message.Message):
+    __slots__ = ("base_id", "table_id_or_name", "record_id", "fields")
+    BASE_ID_FIELD_NUMBER: _ClassVar[int]
+    TABLE_ID_OR_NAME_FIELD_NUMBER: _ClassVar[int]
+    RECORD_ID_FIELD_NUMBER: _ClassVar[int]
+    FIELDS_FIELD_NUMBER: _ClassVar[int]
+    base_id: str
+    table_id_or_name: str
+    record_id: str
+    fields: _struct_pb2.Struct
+    def __init__(self, base_id: _Optional[str] = ..., table_id_or_name: _Optional[str] = ..., record_id: _Optional[str] = ..., fields: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ...) -> None: ...
+
+class UpdateRecordResponse(_message.Message):
+    __slots__ = ("id", "fields", "created_time")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    FIELDS_FIELD_NUMBER: _ClassVar[int]
+    CREATED_TIME_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    fields: _struct_pb2.Struct
+    created_time: str
+    def __init__(self, id: _Optional[str] = ..., fields: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ..., created_time: _Optional[str] = ...) -> None: ...

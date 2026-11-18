@@ -1,0 +1,10 @@
+{
+  "id": "recSynthetic00003",
+  "createdTime": "2026-01-25T14:00:00.000Z",
+  "fields": {
+    "Name": "Synthetic third task",
+    "Priority": null,
+    "Status": "Done"
+  },
+  "lastModifiedTime": "2026-02-11T11:00:00.000Z"
+}

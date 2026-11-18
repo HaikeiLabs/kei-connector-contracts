@@ -1,0 +1,8 @@
+{
+  "properties": {
+    "email": "synthetic.new@example.invalid",
+    "firstname": "Synthetic",
+    "lastname": "Contact",
+    "lifecyclestage": "lead"
+  }
+}

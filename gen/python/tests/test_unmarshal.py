@@ -95,6 +95,16 @@ def _spot_airtable_records_get(response):
     assert response.fields.fields["Priority"].WhichOneof("kind") == "null_value"
 
 
+def _spot_airtable_records_create(response):
+    assert response.id == "recSynthetic00004"
+    assert response.fields.fields["Status"].string_value == "Todo"
+
+
+def _spot_airtable_records_update(response):
+    assert response.fields.fields["Status"].string_value == "Done"
+    assert response.fields.fields["Priority"].WhichOneof("kind") == "null_value"
+
+
 def _spot_airtable_records_list(response):
     assert len(response.records) == 2
     assert response.offset == "synthetic-next-offset"
@@ -105,6 +115,15 @@ def _spot_hubspot_contacts_get(response):
     assert response.id == "701"
     assert response.properties.fields["email"].string_value == "synthetic.contact@example.invalid"
     assert response.properties.fields["lastname"].WhichOneof("kind") == "null_value"
+
+
+def _spot_hubspot_contacts_create(response):
+    assert response.id == "701550001"
+    assert response.properties.fields["email"].string_value == "synthetic.new@example.invalid"
+
+
+def _spot_hubspot_contacts_update(response):
+    assert response.properties.fields["lifecyclestage"].string_value == "customer"
 
 
 def _spot_hubspot_contacts_list(response):
@@ -166,8 +185,12 @@ OPS = [
     ("linear.teams.get", "linear", teams_pb2.GetTeamRequest, teams_pb2.GetTeamResponse, _spot_linear_teams_get),
     ("linear.comments.create", "linear", comments_pb2.CreateCommentRequest, comments_pb2.CreateCommentResponse, _spot_linear_comments_create),
     ("airtable.records.get", "airtable", airtable_records_pb2.GetRecordRequest, airtable_records_pb2.GetRecordResponse, _spot_airtable_records_get),
+    ("airtable.records.create", "airtable", airtable_records_pb2.CreateRecordRequest, airtable_records_pb2.CreateRecordResponse, _spot_airtable_records_create),
+    ("airtable.records.update", "airtable", airtable_records_pb2.UpdateRecordRequest, airtable_records_pb2.UpdateRecordResponse, _spot_airtable_records_update),
     ("airtable.records.list", "airtable", airtable_records_pb2.ListRecordsRequest, airtable_records_pb2.ListRecordsResponse, _spot_airtable_records_list),
     ("hubspot.contacts.get", "hubspot", contacts_pb2.GetContactRequest, contacts_pb2.GetContactResponse, _spot_hubspot_contacts_get),
+    ("hubspot.contacts.create", "hubspot", contacts_pb2.CreateContactRequest, contacts_pb2.CreateContactResponse, _spot_hubspot_contacts_create),
+    ("hubspot.contacts.update", "hubspot", contacts_pb2.UpdateContactRequest, contacts_pb2.UpdateContactResponse, _spot_hubspot_contacts_update),
     ("hubspot.contacts.list", "hubspot", contacts_pb2.ListContactsRequest, contacts_pb2.ListContactsResponse, _spot_hubspot_contacts_list),
     ("hubspot.deals.list", "hubspot", deals_pb2.ListDealsRequest, deals_pb2.ListDealsResponse, _spot_hubspot_deals_list),
     ("http_api.records.list", "http_api", records_pb2.ListRecordsRequest, records_pb2.ListRecordsResponse, _spot_http_api_records_list),

@@ -57,5 +57,54 @@ pub struct GetRecordResponse {
     #[prost(string, tag="3")]
     pub created_time: ::prost::alloc::string::String,
 }
+/// CreateRecordRequest creates a record in one Airtable table. fields carries
+/// the record's cell values keyed by field name, the exact body Airtable's
+/// create endpoint takes besides its typecast flag; the contract does not
+/// model typecast.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CreateRecordRequest {
+    #[prost(string, tag="1")]
+    pub base_id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub table_id_or_name: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="3")]
+    pub fields: ::core::option::Option<::pbjson_types::Struct>,
+}
+/// CreateRecordResponse models the same record subset the read returns. It is
+/// filled by JSON unmarshal of the provider response.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CreateRecordResponse {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="2")]
+    pub fields: ::core::option::Option<::pbjson_types::Struct>,
+    #[prost(string, tag="3")]
+    pub created_time: ::prost::alloc::string::String,
+}
+/// UpdateRecordRequest updates a record's fields. Airtable merges the field
+/// patch (fields left out keep their values), so this is not a wholesale
+/// overwrite and the operation is not destructive.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateRecordRequest {
+    #[prost(string, tag="1")]
+    pub base_id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub table_id_or_name: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub record_id: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="4")]
+    pub fields: ::core::option::Option<::pbjson_types::Struct>,
+}
+/// UpdateRecordResponse models the same record subset the read returns. It is
+/// filled by JSON unmarshal of the provider response.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateRecordResponse {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="2")]
+    pub fields: ::core::option::Option<::pbjson_types::Struct>,
+    #[prost(string, tag="3")]
+    pub created_time: ::prost::alloc::string::String,
+}
 include!("kei.connectors.airtable.v1.serde.rs");
 // @@protoc_insertion_point(module)

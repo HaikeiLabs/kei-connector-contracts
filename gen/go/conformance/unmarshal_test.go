@@ -204,6 +204,36 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "airtable.records.create",
+		connector: "airtable",
+		request:   func() proto.Message { return &airtablev1.CreateRecordRequest{} },
+		response:  func() proto.Message { return &airtablev1.CreateRecordResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			rec := resp.(*airtablev1.CreateRecordResponse)
+			if rec.GetId() != "recSynthetic00004" {
+				t.Errorf("id = %q, want recSynthetic00004", rec.GetId())
+			}
+			if got := rec.GetFields().GetFields()["Status"].GetStringValue(); got != "Todo" {
+				t.Errorf("fields.Status = %q, want Todo", got)
+			}
+		},
+	},
+	{
+		op:        "airtable.records.update",
+		connector: "airtable",
+		request:   func() proto.Message { return &airtablev1.UpdateRecordRequest{} },
+		response:  func() proto.Message { return &airtablev1.UpdateRecordResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			rec := resp.(*airtablev1.UpdateRecordResponse)
+			if got := rec.GetFields().GetFields()["Status"].GetStringValue(); got != "Done" {
+				t.Errorf("fields.Status = %q, want Done", got)
+			}
+			if got := rec.GetFields().GetFields()["Priority"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("fields.Priority = %v, want null", got)
+			}
+		},
+	},
+	{
 		op:        "hubspot.contacts.get",
 		connector: "hubspot",
 		request:   func() proto.Message { return &hubspotv1.GetContactRequest{} },
@@ -218,6 +248,33 @@ var fixtureCases = []fixtureCase{
 			}
 			if got := contact.GetProperties().GetFields()["lastname"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
 				t.Errorf("properties.lastname = %v, want null", got)
+			}
+		},
+	},
+	{
+		op:        "hubspot.contacts.create",
+		connector: "hubspot",
+		request:   func() proto.Message { return &hubspotv1.CreateContactRequest{} },
+		response:  func() proto.Message { return &hubspotv1.CreateContactResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			contact := resp.(*hubspotv1.CreateContactResponse)
+			if contact.GetId() != "701550001" {
+				t.Errorf("id = %q, want 701550001", contact.GetId())
+			}
+			if got := contact.GetProperties().GetFields()["email"].GetStringValue(); got != "synthetic.new@example.invalid" {
+				t.Errorf("properties.email = %q, want the synthetic email", got)
+			}
+		},
+	},
+	{
+		op:        "hubspot.contacts.update",
+		connector: "hubspot",
+		request:   func() proto.Message { return &hubspotv1.UpdateContactRequest{} },
+		response:  func() proto.Message { return &hubspotv1.UpdateContactResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			contact := resp.(*hubspotv1.UpdateContactResponse)
+			if got := contact.GetProperties().GetFields()["lifecyclestage"].GetStringValue(); got != "customer" {
+				t.Errorf("properties.lifecyclestage = %q, want customer", got)
 			}
 		},
 	},
