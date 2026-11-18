@@ -34,6 +34,12 @@ plugins:
     opt:
       - paths=source_relative
       - lang=go
+  - local: ["go", "-C", "tools/protoc-gen-kei", "run", "./cmd/protoc-gen-kei-ops"]
+    out: gen/ts/src
+    strategy: all
+    opt:
+      - paths=source_relative
+      - lang=ts
   # The connector manifest (proposal 0002, section 4.6). Bump
   # contracts_version with each release tag. The legacy path is relative to
   # tools/protoc-gen-kei, where go -C runs the plugin.
