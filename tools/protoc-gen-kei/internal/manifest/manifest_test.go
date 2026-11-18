@@ -299,14 +299,21 @@ func TestLegacyExports_Consistent(t *testing.T) {
 	for _, p := range access {
 		accessBy[p.Provider] = true
 	}
+	legacy := 0
 	for _, c := range loadSet(t).Connectors {
 		provider := manifest.LegacyProvider(c.ID)
-		fields, ok := setupBy[provider]
-		if !ok {
-			t.Errorf("connector %s: no %q entry in connector-setup.v1.json", c.ID, provider)
+		fields, inSetup := setupBy[provider]
+		// A connector added after the exports were frozen is in neither,
+		// and that is fine; one export without the other is not.
+		if !inSetup && !accessBy[provider] {
+			continue
+		}
+		legacy++
+		if !inSetup {
+			t.Errorf("connector %s: %q is in connector-access.v1.json but not connector-setup.v1.json", c.ID, provider)
 		}
 		if !accessBy[provider] {
-			t.Errorf("connector %s: no %q entry in connector-access.v1.json", c.ID, provider)
+			t.Errorf("connector %s: %q is in connector-setup.v1.json but not connector-access.v1.json", c.ID, provider)
 		}
 		for _, conn := range c.Opt.GetConnections() {
 			for _, sf := range conn.GetSetupFields() {
@@ -317,6 +324,10 @@ func TestLegacyExports_Consistent(t *testing.T) {
 				}
 			}
 		}
+	}
+	// The four connectors the exports already covered must all be found.
+	if legacy < 4 {
+		t.Errorf("only %d manifest connectors matched a legacy export entry, want at least github, linear, http_api and database", legacy)
 	}
 	if manifest.LegacyProvider("database") != "postgres" {
 		t.Fatalf("database must alias postgres")
