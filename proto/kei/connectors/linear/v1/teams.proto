@@ -1,0 +1,69 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Linear connector contract: teams.
+//
+// Linear is GraphQL over POST /graphql. Its schema uses camelCase keys;
+// every field declared here already unmarshals under protojson's lowerCamel
+// default, so no json_name is set anywhere in this file. The data envelope
+// GraphQL wraps responses in is unwrapped by the harness; the contract
+// models the payload object.
+syntax = "proto3";
+
+package kei.connectors.linear.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/linear/v1;linear";
+
+// Team models the subset of the Linear team object the contract needs.
+message Team {
+  string id = 1;
+  string key = 2;
+  string name = 3;
+}
+
+// GetTeamRequest reads a single Linear team by id.
+message GetTeamRequest {
+  string team_id = 1;
+
+  option (kei.contracts.v1.operation) = {
+    id: "linear.teams.get"
+    connector: "linear"
+    class: OPERATION_CLASS_READ
+    http_method: "POST"
+    path_template: "/graphql"
+    scopes: ["teams:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetTeam"
+    connections: ["user_oauth", "api_key"]
+    resource_template: "teams/{team_id}"
+    graphql_document:
+      "query Team($teamId: String!) {\n"
+      "  team(id: $teamId) { id key name }\n"
+      "}\n"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "team" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// GetTeamResponse wraps the team object the query returns.
+message GetTeamResponse {
+  Team team = 1;
+}

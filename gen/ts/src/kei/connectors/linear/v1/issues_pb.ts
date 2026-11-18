@@ -33,7 +33,31 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file kei/connectors/linear/v1/issues.proto.
  */
 export const file_kei_connectors_linear_v1_issues: GenFile = /*@__PURE__*/
-  fileDesc("CiVrZWkvY29ubmVjdG9ycy9saW5lYXIvdjEvaXNzdWVzLnByb3RvEhhrZWkuY29ubmVjdG9ycy5saW5lYXIudjEilQEKBUlzc3VlEgoKAmlkGAEgASgJEhIKCmlkZW50aWZpZXIYAiABKAkSDQoFdGl0bGUYAyABKAkSGAoLZGVzY3JpcHRpb24YBCABKAlIAIgBARILCgN1cmwYBSABKAkSEgoKY3JlYXRlZF9hdBgGIAEoCRISCgp1cGRhdGVkX2F0GAcgASgJQg4KDF9kZXNjcmlwdGlvbiKpAgoPR2V0SXNzdWVSZXF1ZXN0EgoKAmlkGAEgASgJOokCkoIZhAIKEWxpbmVhci5pc3N1ZXMuZ2V0EgZsaW5lYXIYASoEUE9TVDIIL2dyYXBocWw6C2lzc3VlczpyZWFkQAFKCEdldElzc3VlUgp1c2VyX29hdXRoUgdhcGlfa2V5Wgtpc3N1ZXMve2lkfWIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAXpucXVlcnkgR2V0SXNzdWUoJGlkOiBTdHJpbmchKSB7CiAgaXNzdWUoaWQ6ICRpZCkgeyBpZCBpZGVudGlmaWVyIHRpdGxlIGRlc2NyaXB0aW9uIHVybCBjcmVhdGVkQXQgdXBkYXRlZEF0IH0KfQqKAQsIARIFaXNzdWUYASJCChBHZXRJc3N1ZVJlc3BvbnNlEi4KBWlzc3VlGAEgASgLMh8ua2VpLmNvbm5lY3RvcnMubGluZWFyLnYxLklzc3VlIs0EChJDcmVhdGVJc3N1ZVJlcXVlc3QSDQoFdGl0bGUYASABKAkSDwoHdGVhbV9pZBgCIAEoCRIYCgtkZXNjcmlwdGlvbhgDIAEoCUgAiAEBEhUKCHByaW9yaXR5GAQgASgFSAGIAQE6yAOSghnDAwoUbGluZWFyLmlzc3Vlcy5jcmVhdGUSBmxpbmVhchgCKgRQT1NUMggvZ3JhcGhxbDoMaXNzdWVzOndyaXRlQAFKC0NyZWF0ZUlzc3VlUgp1c2VyX29hdXRoUgdhcGlfa2V5Wg90ZWFtcy97dGVhbV9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAF6oQJtdXRhdGlvbiBDcmVhdGVJc3N1ZSgkdGl0bGU6IFN0cmluZyEsICR0ZWFtSWQ6IFN0cmluZyEsICRkZXNjcmlwdGlvbjogU3RyaW5nLCAkcHJpb3JpdHk6IEludCkgewogIGlzc3VlQ3JlYXRlKGlucHV0OiB7dGl0bGU6ICR0aXRsZSwgdGVhbUlkOiAkdGVhbUlkLCBkZXNjcmlwdGlvbjogJGRlc2NyaXB0aW9uLCBwcmlvcml0eTogJHByaW9yaXR5fSkgewogICAgc3VjY2VzcwogICAgaXNzdWUgeyBpZCBpZGVudGlmaWVyIHRpdGxlIGRlc2NyaXB0aW9uIHVybCBjcmVhdGVkQXQgdXBkYXRlZEF0IH0KICB9Cn0KigELCAISBWlzc3VlGAFCDgoMX2Rlc2NyaXB0aW9uQgsKCV9wcmlvcml0eSJWChNDcmVhdGVJc3N1ZVJlc3BvbnNlEg8KB3N1Y2Nlc3MYASABKAgSLgoFaXNzdWUYAiABKAsyHy5rZWkuY29ubmVjdG9ycy5saW5lYXIudjEuSXNzdWUi8QMKE1NlYXJjaElzc3Vlc1JlcXVlc3QSDAoEdGVybRgBIAEoCRISCgVmaXJzdBgCIAEoBUgAiAEBEhIKBWFmdGVyGAMgASgJSAGIAQE6jwOSghmKAwoUbGluZWFyLmlzc3Vlcy5zZWFyY2gSBmxpbmVhchgBKgRQT1NUMggvZ3JhcGhxbDoLaXNzdWVzOnJlYWRAAUoMU2VhcmNoSXNzdWVzUgp1c2VyX29hdXRoUgdhcGlfa2V5WgZpc3N1ZXNiBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAF68QFxdWVyeSBTZWFyY2hJc3N1ZXMoJHRlcm06IFN0cmluZyEsICRmaXJzdDogSW50LCAkYWZ0ZXI6IFN0cmluZykgewogIHNlYXJjaElzc3Vlcyh0ZXJtOiAkdGVybSwgZmlyc3Q6ICRmaXJzdCwgYWZ0ZXI6ICRhZnRlcikgewogICAgbm9kZXMgeyBpZCBpZGVudGlmaWVyIHRpdGxlIGRlc2NyaXB0aW9uIHVybCBjcmVhdGVkQXQgdXBkYXRlZEF0IH0KICAgIHBhZ2VJbmZvIHsgaGFzTmV4dFBhZ2UgZW5kQ3Vyc29yIH0KICB9Cn0KigELCAESBWlzc3VlGAFCCAoGX2ZpcnN0QggKBl9hZnRlciJJCghQYWdlSW5mbxIVCg1oYXNfbmV4dF9wYWdlGAEgASgIEhcKCmVuZF9jdXJzb3IYAiABKAlIAIgBAUINCgtfZW5kX2N1cnNvciJ9ChRTZWFyY2hJc3N1ZXNSZXNwb25zZRIuCgVub2RlcxgBIAMoCzIfLmtlaS5jb25uZWN0b3JzLmxpbmVhci52MS5Jc3N1ZRI1CglwYWdlX2luZm8YAiABKAsyIi5rZWkuY29ubmVjdG9ycy5saW5lYXIudjEuUGFnZUluZm9CVlpUZ2l0aHViLmNvbS9IYWlrZWlMYWJzL2tlaS1jb25uZWN0b3ItY29udHJhY3RzL2dlbi9nby9rZWkvY29ubmVjdG9ycy9saW5lYXIvdjE7bGluZWFyYgZwcm90bzM", [file_kei_contracts_v1_options]);
+  fileDesc("CiVrZWkvY29ubmVjdG9ycy9saW5lYXIvdjEvaXNzdWVzLnByb3RvEhhrZWkuY29ubmVjdG9ycy5saW5lYXIudjEiIQoFTGFiZWwSCgoCaWQYASABKAkSDAoEbmFtZRgCIAEoCSLGAQoFSXNzdWUSCgoCaWQYASABKAkSEgoKaWRlbnRpZmllchgCIAEoCRINCgV0aXRsZRgDIAEoCRIYCgtkZXNjcmlwdGlvbhgEIAEoCUgAiAEBEgsKA3VybBgFIAEoCRISCgpjcmVhdGVkX2F0GAYgASgJEhIKCnVwZGF0ZWRfYXQYByABKAkSLwoGbGFiZWxzGAggAygLMh8ua2VpLmNvbm5lY3RvcnMubGluZWFyLnYxLkxhYmVsQg4KDF9kZXNjcmlwdGlvbiKpAgoPR2V0SXNzdWVSZXF1ZXN0EgoKAmlkGAEgASgJOokCkoIZhAIKEWxpbmVhci5pc3N1ZXMuZ2V0EgZsaW5lYXIYASoEUE9TVDIIL2dyYXBocWw6C2lzc3VlczpyZWFkQAFKCEdldElzc3VlUgp1c2VyX29hdXRoUgdhcGlfa2V5Wgtpc3N1ZXMve2lkfWIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAXpucXVlcnkgR2V0SXNzdWUoJGlkOiBTdHJpbmchKSB7CiAgaXNzdWUoaWQ6ICRpZCkgeyBpZCBpZGVudGlmaWVyIHRpdGxlIGRlc2NyaXB0aW9uIHVybCBjcmVhdGVkQXQgdXBkYXRlZEF0IH0KfQqKAQsIARIFaXNzdWUYASJCChBHZXRJc3N1ZVJlc3BvbnNlEi4KBWlzc3VlGAEgASgLMh8ua2VpLmNvbm5lY3RvcnMubGluZWFyLnYxLklzc3VlIs0EChJDcmVhdGVJc3N1ZVJlcXVlc3QSDQoFdGl0bGUYASABKAkSDwoHdGVhbV9pZBgCIAEoCRIYCgtkZXNjcmlwdGlvbhgDIAEoCUgAiAEBEhUKCHByaW9yaXR5GAQgASgFSAGIAQE6yAOSghnDAwoUbGluZWFyLmlzc3Vlcy5jcmVhdGUSBmxpbmVhchgCKgRQT1NUMggvZ3JhcGhxbDoMaXNzdWVzOndyaXRlQAFKC0NyZWF0ZUlzc3VlUgp1c2VyX29hdXRoUgdhcGlfa2V5Wg90ZWFtcy97dGVhbV9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAF6oQJtdXRhdGlvbiBDcmVhdGVJc3N1ZSgkdGl0bGU6IFN0cmluZyEsICR0ZWFtSWQ6IFN0cmluZyEsICRkZXNjcmlwdGlvbjogU3RyaW5nLCAkcHJpb3JpdHk6IEludCkgewogIGlzc3VlQ3JlYXRlKGlucHV0OiB7dGl0bGU6ICR0aXRsZSwgdGVhbUlkOiAkdGVhbUlkLCBkZXNjcmlwdGlvbjogJGRlc2NyaXB0aW9uLCBwcmlvcml0eTogJHByaW9yaXR5fSkgewogICAgc3VjY2VzcwogICAgaXNzdWUgeyBpZCBpZGVudGlmaWVyIHRpdGxlIGRlc2NyaXB0aW9uIHVybCBjcmVhdGVkQXQgdXBkYXRlZEF0IH0KICB9Cn0KigELCAISBWlzc3VlGAFCDgoMX2Rlc2NyaXB0aW9uQgsKCV9wcmlvcml0eSJWChNDcmVhdGVJc3N1ZVJlc3BvbnNlEg8KB3N1Y2Nlc3MYASABKAgSLgoFaXNzdWUYAiABKAsyHy5rZWkuY29ubmVjdG9ycy5saW5lYXIudjEuSXNzdWUi8QMKE1NlYXJjaElzc3Vlc1JlcXVlc3QSDAoEdGVybRgBIAEoCRISCgVmaXJzdBgCIAEoBUgAiAEBEhIKBWFmdGVyGAMgASgJSAGIAQE6jwOSghmKAwoUbGluZWFyLmlzc3Vlcy5zZWFyY2gSBmxpbmVhchgBKgRQT1NUMggvZ3JhcGhxbDoLaXNzdWVzOnJlYWRAAUoMU2VhcmNoSXNzdWVzUgp1c2VyX29hdXRoUgdhcGlfa2V5WgZpc3N1ZXNiBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAF68QFxdWVyeSBTZWFyY2hJc3N1ZXMoJHRlcm06IFN0cmluZyEsICRmaXJzdDogSW50LCAkYWZ0ZXI6IFN0cmluZykgewogIHNlYXJjaElzc3Vlcyh0ZXJtOiAkdGVybSwgZmlyc3Q6ICRmaXJzdCwgYWZ0ZXI6ICRhZnRlcikgewogICAgbm9kZXMgeyBpZCBpZGVudGlmaWVyIHRpdGxlIGRlc2NyaXB0aW9uIHVybCBjcmVhdGVkQXQgdXBkYXRlZEF0IH0KICAgIHBhZ2VJbmZvIHsgaGFzTmV4dFBhZ2UgZW5kQ3Vyc29yIH0KICB9Cn0KigELCAESBWlzc3VlGAFCCAoGX2ZpcnN0QggKBl9hZnRlciJJCghQYWdlSW5mbxIVCg1oYXNfbmV4dF9wYWdlGAEgASgIEhcKCmVuZF9jdXJzb3IYAiABKAlIAIgBAUINCgtfZW5kX2N1cnNvciJ9ChRTZWFyY2hJc3N1ZXNSZXNwb25zZRIuCgVub2RlcxgBIAMoCzIfLmtlaS5jb25uZWN0b3JzLmxpbmVhci52MS5Jc3N1ZRI1CglwYWdlX2luZm8YAiABKAsyIi5rZWkuY29ubmVjdG9ycy5saW5lYXIudjEuUGFnZUluZm9CVlpUZ2l0aHViLmNvbS9IYWlrZWlMYWJzL2tlaS1jb25uZWN0b3ItY29udHJhY3RzL2dlbi9nby9rZWkvY29ubmVjdG9ycy9saW5lYXIvdjE7bGluZWFyYgZwcm90bzM", [file_kei_contracts_v1_options]);
+
+/**
+ * Label models the subset of the Linear label object the contract needs.
+ *
+ * @generated from message kei.connectors.linear.v1.Label
+ */
+export type Label = Message<"kei.connectors.linear.v1.Label"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+};
+
+/**
+ * Describes the message kei.connectors.linear.v1.Label.
+ * Use `create(LabelSchema)` to create a new message.
+ */
+export const LabelSchema: GenMessage<Label> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_linear_v1_issues, 0);
 
 /**
  * Issue models the subset of the Linear issue object the contract needs.
@@ -75,6 +99,11 @@ export type Issue = Message<"kei.connectors.linear.v1.Issue"> & {
    * @generated from field: string updated_at = 7;
    */
   updatedAt: string;
+
+  /**
+   * @generated from field: repeated kei.connectors.linear.v1.Label labels = 8;
+   */
+  labels: Label[];
 };
 
 /**
@@ -82,7 +111,7 @@ export type Issue = Message<"kei.connectors.linear.v1.Issue"> & {
  * Use `create(IssueSchema)` to create a new message.
  */
 export const IssueSchema: GenMessage<Issue> = /*@__PURE__*/
-  messageDesc(file_kei_connectors_linear_v1_issues, 0);
+  messageDesc(file_kei_connectors_linear_v1_issues, 1);
 
 /**
  * GetIssueRequest reads a single Linear issue by id.
@@ -101,7 +130,7 @@ export type GetIssueRequest = Message<"kei.connectors.linear.v1.GetIssueRequest"
  * Use `create(GetIssueRequestSchema)` to create a new message.
  */
 export const GetIssueRequestSchema: GenMessage<GetIssueRequest> = /*@__PURE__*/
-  messageDesc(file_kei_connectors_linear_v1_issues, 1);
+  messageDesc(file_kei_connectors_linear_v1_issues, 2);
 
 /**
  * GetIssueResponse wraps the issue object the query returns.
@@ -120,7 +149,7 @@ export type GetIssueResponse = Message<"kei.connectors.linear.v1.GetIssueRespons
  * Use `create(GetIssueResponseSchema)` to create a new message.
  */
 export const GetIssueResponseSchema: GenMessage<GetIssueResponse> = /*@__PURE__*/
-  messageDesc(file_kei_connectors_linear_v1_issues, 2);
+  messageDesc(file_kei_connectors_linear_v1_issues, 3);
 
 /**
  * CreateIssueRequest creates a Linear issue. team_id is the GraphQL teamId
@@ -155,7 +184,7 @@ export type CreateIssueRequest = Message<"kei.connectors.linear.v1.CreateIssueRe
  * Use `create(CreateIssueRequestSchema)` to create a new message.
  */
 export const CreateIssueRequestSchema: GenMessage<CreateIssueRequest> = /*@__PURE__*/
-  messageDesc(file_kei_connectors_linear_v1_issues, 3);
+  messageDesc(file_kei_connectors_linear_v1_issues, 4);
 
 /**
  * CreateIssueResponse mirrors Linear's IssuePayload: success plus the created
@@ -180,7 +209,7 @@ export type CreateIssueResponse = Message<"kei.connectors.linear.v1.CreateIssueR
  * Use `create(CreateIssueResponseSchema)` to create a new message.
  */
 export const CreateIssueResponseSchema: GenMessage<CreateIssueResponse> = /*@__PURE__*/
-  messageDesc(file_kei_connectors_linear_v1_issues, 4);
+  messageDesc(file_kei_connectors_linear_v1_issues, 5);
 
 /**
  * SearchIssuesRequest searches Linear issues. after is the pagination cursor.
@@ -209,7 +238,7 @@ export type SearchIssuesRequest = Message<"kei.connectors.linear.v1.SearchIssues
  * Use `create(SearchIssuesRequestSchema)` to create a new message.
  */
 export const SearchIssuesRequestSchema: GenMessage<SearchIssuesRequest> = /*@__PURE__*/
-  messageDesc(file_kei_connectors_linear_v1_issues, 5);
+  messageDesc(file_kei_connectors_linear_v1_issues, 6);
 
 /**
  * PageInfo models Linear's pagination cursor.
@@ -233,7 +262,7 @@ export type PageInfo = Message<"kei.connectors.linear.v1.PageInfo"> & {
  * Use `create(PageInfoSchema)` to create a new message.
  */
 export const PageInfoSchema: GenMessage<PageInfo> = /*@__PURE__*/
-  messageDesc(file_kei_connectors_linear_v1_issues, 6);
+  messageDesc(file_kei_connectors_linear_v1_issues, 7);
 
 /**
  * SearchIssuesResponse models the issue connection the search returns.
@@ -257,5 +286,5 @@ export type SearchIssuesResponse = Message<"kei.connectors.linear.v1.SearchIssue
  * Use `create(SearchIssuesResponseSchema)` to create a new message.
  */
 export const SearchIssuesResponseSchema: GenMessage<SearchIssuesResponse> = /*@__PURE__*/
-  messageDesc(file_kei_connectors_linear_v1_issues, 7);
+  messageDesc(file_kei_connectors_linear_v1_issues, 8);
 

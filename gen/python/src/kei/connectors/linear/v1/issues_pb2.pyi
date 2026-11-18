@@ -7,8 +7,16 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class Label(_message.Message):
+    __slots__ = ("id", "name")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    name: str
+    def __init__(self, id: _Optional[str] = ..., name: _Optional[str] = ...) -> None: ...
+
 class Issue(_message.Message):
-    __slots__ = ("id", "identifier", "title", "description", "url", "created_at", "updated_at")
+    __slots__ = ("id", "identifier", "title", "description", "url", "created_at", "updated_at", "labels")
     ID_FIELD_NUMBER: _ClassVar[int]
     IDENTIFIER_FIELD_NUMBER: _ClassVar[int]
     TITLE_FIELD_NUMBER: _ClassVar[int]
@@ -16,6 +24,7 @@ class Issue(_message.Message):
     URL_FIELD_NUMBER: _ClassVar[int]
     CREATED_AT_FIELD_NUMBER: _ClassVar[int]
     UPDATED_AT_FIELD_NUMBER: _ClassVar[int]
+    LABELS_FIELD_NUMBER: _ClassVar[int]
     id: str
     identifier: str
     title: str
@@ -23,7 +32,8 @@ class Issue(_message.Message):
     url: str
     created_at: str
     updated_at: str
-    def __init__(self, id: _Optional[str] = ..., identifier: _Optional[str] = ..., title: _Optional[str] = ..., description: _Optional[str] = ..., url: _Optional[str] = ..., created_at: _Optional[str] = ..., updated_at: _Optional[str] = ...) -> None: ...
+    labels: _containers.RepeatedCompositeFieldContainer[Label]
+    def __init__(self, id: _Optional[str] = ..., identifier: _Optional[str] = ..., title: _Optional[str] = ..., description: _Optional[str] = ..., url: _Optional[str] = ..., created_at: _Optional[str] = ..., updated_at: _Optional[str] = ..., labels: _Optional[_Iterable[_Union[Label, _Mapping]]] = ...) -> None: ...
 
 class GetIssueRequest(_message.Message):
     __slots__ = ("id",)
