@@ -11,7 +11,15 @@
 
 use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
-use crate::kei::connectors::airtable::v1::{GetRecordRequest, GetRecordResponse, ListRecordsRequest, ListRecordsResponse};
+use crate::kei::connectors::airtable::v1::{CreateRecordRequest, CreateRecordResponse, GetRecordRequest, GetRecordResponse, ListRecordsRequest, ListRecordsResponse, UpdateRecordRequest, UpdateRecordResponse};
+
+/// Operation descriptor for airtable.records.create, for authorization and audit: the
+/// capability a policy grants is connector:airtable.records.create.
+pub const OP_CREATE_RECORD: Op = Op {
+    id: "airtable.records.create",
+    class: Class::Write,
+    destructive: false,
+};
 
 /// Operation descriptor for airtable.records.get, for authorization and audit: the
 /// capability a policy grants is connector:airtable.records.get.
@@ -28,6 +36,42 @@ pub const OP_LIST_RECORDS: Op = Op {
     class: Class::Read,
     destructive: false,
 };
+
+/// Operation descriptor for airtable.records.update, for authorization and audit: the
+/// capability a policy grants is connector:airtable.records.update.
+pub const OP_UPDATE_RECORD: Op = Op {
+    id: "airtable.records.update",
+    class: Class::Write,
+    destructive: false,
+};
+
+const ERRORS_CREATE_RECORD: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 404,
+        kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 422,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
 
 const ERRORS_GET_RECORD: &[ErrorMapping] = &[
     ErrorMapping {
@@ -75,14 +119,46 @@ const ERRORS_LIST_RECORDS: &[ErrorMapping] = &[
     },
 ];
 
+const ERRORS_UPDATE_RECORD: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 404,
+        kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 422,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
 // The generated queries run inside one caller's task, so the
 // async-fn-in-trait auto-trait bounds do not matter here.
 #[allow(async_fn_in_trait)]
 pub trait AirtableOperations {
+    /// create_record runs airtable.records.create (POST /v0/{base_id}/{table_id_or_name}).
+    async fn create_record(&self, req: CreateRecordRequest) -> Result<CreateRecordResponse, OperationError>;
     /// get_record runs airtable.records.get (GET /v0/{base_id}/{table_id_or_name}/{record_id}).
     async fn get_record(&self, req: GetRecordRequest) -> Result<GetRecordResponse, OperationError>;
     /// list_records runs airtable.records.list (GET /v0/{base_id}/{table_id_or_name}).
     async fn list_records(&self, req: ListRecordsRequest) -> Result<ListRecordsResponse, OperationError>;
+    /// update_record runs airtable.records.update (PATCH /v0/{base_id}/{table_id_or_name}/{record_id}).
+    async fn update_record(&self, req: UpdateRecordRequest) -> Result<UpdateRecordResponse, OperationError>;
 }
 
 pub struct AirtableQueries {
@@ -90,6 +166,31 @@ pub struct AirtableQueries {
 }
 
 impl AirtableOperations for AirtableQueries {
+    /// create_record runs airtable.records.create (POST /v0/{base_id}/{table_id_or_name}).
+    async fn create_record(&self, req: CreateRecordRequest) -> Result<CreateRecordResponse, OperationError> {
+        let mut path_values: Vec<(&str, &str)> = Vec::new();
+        path_values.push(("base_id", req.base_id.as_str()));
+        path_values.push(("table_id_or_name", req.table_id_or_name.as_str()));
+        let path = render_path(
+            "/v0/{base_id}/{table_id_or_name}",
+            &path_values,
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_CREATE_RECORD.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        if let Some(v0) = &req.fields { body.insert("fields".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_RECORD.id, e.to_string()))?); }
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_RECORD.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("POST", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_CREATE_RECORD.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_CREATE_RECORD, out.status, &ERRORS_CREATE_RECORD) {
+            return Err(err);
+        }
+        let resp: CreateRecordResponse = decode_response(OP_CREATE_RECORD.id, &out.body, None)?;
+        Ok(resp)
+    }
     /// get_record runs airtable.records.get (GET /v0/{base_id}/{table_id_or_name}/{record_id}).
     async fn get_record(&self, req: GetRecordRequest) -> Result<GetRecordResponse, OperationError> {
         let mut path_values: Vec<(&str, &str)> = Vec::new();
@@ -141,6 +242,32 @@ impl AirtableOperations for AirtableQueries {
                 resp.offset = Some(cursor);
             }
         }
+        Ok(resp)
+    }
+    /// update_record runs airtable.records.update (PATCH /v0/{base_id}/{table_id_or_name}/{record_id}).
+    async fn update_record(&self, req: UpdateRecordRequest) -> Result<UpdateRecordResponse, OperationError> {
+        let mut path_values: Vec<(&str, &str)> = Vec::new();
+        path_values.push(("base_id", req.base_id.as_str()));
+        path_values.push(("table_id_or_name", req.table_id_or_name.as_str()));
+        path_values.push(("record_id", req.record_id.as_str()));
+        let path = render_path(
+            "/v0/{base_id}/{table_id_or_name}/{record_id}",
+            &path_values,
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_UPDATE_RECORD.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        if let Some(v0) = &req.fields { body.insert("fields".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_UPDATE_RECORD.id, e.to_string()))?); }
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_UPDATE_RECORD.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("PATCH", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_UPDATE_RECORD.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_UPDATE_RECORD, out.status, &ERRORS_UPDATE_RECORD) {
+            return Err(err);
+        }
+        let resp: UpdateRecordResponse = decode_response(OP_UPDATE_RECORD.id, &out.body, None)?;
         Ok(resp)
     }
 }

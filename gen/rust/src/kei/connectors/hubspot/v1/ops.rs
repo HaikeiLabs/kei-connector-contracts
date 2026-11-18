@@ -11,7 +11,15 @@
 
 use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
-use crate::kei::connectors::hubspot::v1::{GetContactRequest, GetContactResponse, ListContactsRequest, ListContactsResponse, ListDealsRequest, ListDealsResponse};
+use crate::kei::connectors::hubspot::v1::{CreateContactRequest, CreateContactResponse, GetContactRequest, GetContactResponse, ListContactsRequest, ListContactsResponse, ListDealsRequest, ListDealsResponse, UpdateContactRequest, UpdateContactResponse};
+
+/// Operation descriptor for hubspot.contacts.create, for authorization and audit: the
+/// capability a policy grants is connector:hubspot.contacts.create.
+pub const OP_CREATE_CONTACT: Op = Op {
+    id: "hubspot.contacts.create",
+    class: Class::Write,
+    destructive: false,
+};
 
 /// Operation descriptor for hubspot.contacts.get, for authorization and audit: the
 /// capability a policy grants is connector:hubspot.contacts.get.
@@ -29,6 +37,14 @@ pub const OP_LIST_CONTACTS: Op = Op {
     destructive: false,
 };
 
+/// Operation descriptor for hubspot.contacts.update, for authorization and audit: the
+/// capability a policy grants is connector:hubspot.contacts.update.
+pub const OP_UPDATE_CONTACT: Op = Op {
+    id: "hubspot.contacts.update",
+    class: Class::Write,
+    destructive: false,
+};
+
 /// Operation descriptor for hubspot.deals.list, for authorization and audit: the
 /// capability a policy grants is connector:hubspot.deals.list.
 pub const OP_LIST_DEALS: Op = Op {
@@ -36,6 +52,34 @@ pub const OP_LIST_DEALS: Op = Op {
     class: Class::Read,
     destructive: false,
 };
+
+const ERRORS_CREATE_CONTACT: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 400,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 409,
+        kind: ErrorKind::Conflict as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
 
 const ERRORS_GET_CONTACT: &[ErrorMapping] = &[
     ErrorMapping {
@@ -61,6 +105,34 @@ const ERRORS_GET_CONTACT: &[ErrorMapping] = &[
 ];
 
 const ERRORS_LIST_CONTACTS: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 404,
+        kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
+const ERRORS_UPDATE_CONTACT: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 400,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
     ErrorMapping {
         status: 401,
         kind: ErrorKind::Unauthorized as i32,
@@ -110,10 +182,14 @@ const ERRORS_LIST_DEALS: &[ErrorMapping] = &[
 // async-fn-in-trait auto-trait bounds do not matter here.
 #[allow(async_fn_in_trait)]
 pub trait HubspotOperations {
+    /// create_contact runs hubspot.contacts.create (POST /crm/v3/objects/contacts).
+    async fn create_contact(&self, req: CreateContactRequest) -> Result<CreateContactResponse, OperationError>;
     /// get_contact runs hubspot.contacts.get (GET /crm/v3/objects/contacts/{contact_id}).
     async fn get_contact(&self, req: GetContactRequest) -> Result<GetContactResponse, OperationError>;
     /// list_contacts runs hubspot.contacts.list (GET /crm/v3/objects/contacts).
     async fn list_contacts(&self, req: ListContactsRequest) -> Result<ListContactsResponse, OperationError>;
+    /// update_contact runs hubspot.contacts.update (PATCH /crm/v3/objects/contacts/{contact_id}).
+    async fn update_contact(&self, req: UpdateContactRequest) -> Result<UpdateContactResponse, OperationError>;
     /// list_deals runs hubspot.deals.list (GET /crm/v3/objects/deals).
     async fn list_deals(&self, req: ListDealsRequest) -> Result<ListDealsResponse, OperationError>;
 }
@@ -123,6 +199,28 @@ pub struct HubspotQueries {
 }
 
 impl HubspotOperations for HubspotQueries {
+    /// create_contact runs hubspot.contacts.create (POST /crm/v3/objects/contacts).
+    async fn create_contact(&self, req: CreateContactRequest) -> Result<CreateContactResponse, OperationError> {
+        let path = render_path(
+            "/crm/v3/objects/contacts",
+            &[],
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_CREATE_CONTACT.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        if let Some(v0) = &req.properties { body.insert("properties".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_CONTACT.id, e.to_string()))?); }
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_CONTACT.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("POST", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_CREATE_CONTACT.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_CREATE_CONTACT, out.status, &ERRORS_CREATE_CONTACT) {
+            return Err(err);
+        }
+        let resp: CreateContactResponse = decode_response(OP_CREATE_CONTACT.id, &out.body, None)?;
+        Ok(resp)
+    }
     /// get_contact runs hubspot.contacts.get (GET /crm/v3/objects/contacts/{contact_id}).
     async fn get_contact(&self, req: GetContactRequest) -> Result<GetContactResponse, OperationError> {
         let mut path_values: Vec<(&str, &str)> = Vec::new();
@@ -169,6 +267,30 @@ impl HubspotOperations for HubspotQueries {
                 resp.next_after = Some(cursor);
             }
         }
+        Ok(resp)
+    }
+    /// update_contact runs hubspot.contacts.update (PATCH /crm/v3/objects/contacts/{contact_id}).
+    async fn update_contact(&self, req: UpdateContactRequest) -> Result<UpdateContactResponse, OperationError> {
+        let mut path_values: Vec<(&str, &str)> = Vec::new();
+        path_values.push(("contact_id", req.contact_id.as_str()));
+        let path = render_path(
+            "/crm/v3/objects/contacts/{contact_id}",
+            &path_values,
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_UPDATE_CONTACT.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        if let Some(v0) = &req.properties { body.insert("properties".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_UPDATE_CONTACT.id, e.to_string()))?); }
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_UPDATE_CONTACT.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("PATCH", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_UPDATE_CONTACT.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_UPDATE_CONTACT, out.status, &ERRORS_UPDATE_CONTACT) {
+            return Err(err);
+        }
+        let resp: UpdateContactResponse = decode_response(OP_UPDATE_CONTACT.id, &out.body, None)?;
         Ok(resp)
     }
     /// list_deals runs hubspot.deals.list (GET /crm/v3/objects/deals).
