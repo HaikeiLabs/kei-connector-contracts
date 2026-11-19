@@ -20,6 +20,7 @@ package main
 import (
 	"flag"
 	"log"
+	"net"
 	"net/http"
 
 	"github.com/HaikeiLabs/kei-connector-contracts/testenv/mockapi"
@@ -35,6 +36,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("mockapi: serving %d routes on %s", len(srv.Routes()), *addr)
-	log.Fatal(http.ListenAndServe(*addr, srv))
+	listener, err := net.Listen("tcp", *addr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// The actual bound address goes to stderr: -addr 127.0.0.1:0 picks a
+	// free port for the language smoke tests.
+	log.Printf("mockapi: serving %d routes on %s", len(srv.Routes()), listener.Addr())
+	log.Fatal(http.Serve(listener, srv))
 }
