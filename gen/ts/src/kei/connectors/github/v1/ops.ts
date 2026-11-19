@@ -2,12 +2,15 @@
 // source: kei/connectors/github/v1/connector.proto
 import { callHTTP, callSQL, type HTTP, type SQL } from "../../../connection/index.js";
 import { ListWorkflowRunsRequest, ListWorkflowRunsRequestSchema, ListWorkflowRunsResponse, ListWorkflowRunsResponseSchema } from "./actions_pb.js";
+import { ListCheckRunsRequest, ListCheckRunsRequestSchema, ListCheckRunsResponse, ListCheckRunsResponseSchema } from "./checks_pb.js";
 import { PutContentsRequest, PutContentsRequestSchema, PutContentsResponse, PutContentsResponseSchema } from "./contents_pb.js";
 import { CreateBlobRequest, CreateBlobRequestSchema, CreateBlobResponse, CreateBlobResponseSchema, CreateCommitRequest, CreateCommitRequestSchema, CreateCommitResponse, CreateCommitResponseSchema, CreateRefRequest, CreateRefRequestSchema, CreateRefResponse, CreateRefResponseSchema, CreateTreeRequest, CreateTreeRequestSchema, CreateTreeResponse, CreateTreeResponseSchema, GetRefRequest, GetRefRequestSchema, GetRefResponse, GetRefResponseSchema, UpdateRefRequest, UpdateRefRequestSchema, UpdateRefResponse, UpdateRefResponseSchema } from "./git_pb.js";
-import { CreateIssueCommentRequest, CreateIssueCommentRequestSchema, CreateIssueCommentResponse, CreateIssueCommentResponseSchema, CreateIssueRequest, CreateIssueRequestSchema, CreateIssueResponse, CreateIssueResponseSchema, GetIssueRequest, GetIssueRequestSchema, GetIssueResponse, GetIssueResponseSchema, ListIssuesRequest, ListIssuesRequestSchema, ListIssuesResponse, ListIssuesResponseSchema } from "./issues_pb.js";
+import { CreateIssueCommentRequest, CreateIssueCommentRequestSchema, CreateIssueCommentResponse, CreateIssueCommentResponseSchema, CreateIssueRequest, CreateIssueRequestSchema, CreateIssueResponse, CreateIssueResponseSchema, GetIssueRequest, GetIssueRequestSchema, GetIssueResponse, GetIssueResponseSchema, ListIssuesRequest, ListIssuesRequestSchema, ListIssuesResponse, ListIssuesResponseSchema, UpdateIssueRequest, UpdateIssueRequestSchema, UpdateIssueResponse, UpdateIssueResponseSchema } from "./issues_pb.js";
 import { CreatePullRequestRequest, CreatePullRequestRequestSchema, CreatePullRequestResponse, CreatePullRequestResponseSchema, CreatePullReviewRequest, CreatePullReviewRequestSchema, CreatePullReviewResponse, CreatePullReviewResponseSchema, GetPullRequestRequest, GetPullRequestRequestSchema, GetPullRequestResponse, GetPullRequestResponseSchema, ListPullReviewsRequest, ListPullReviewsRequestSchema, ListPullReviewsResponse, ListPullReviewsResponseSchema, ListPullsRequest, ListPullsRequestSchema, ListPullsResponse, ListPullsResponseSchema, UpdatePullRequestRequest, UpdatePullRequestRequestSchema, UpdatePullRequestResponse, UpdatePullRequestResponseSchema } from "./pulls_pb.js";
+import { GetRepositoryRequest, GetRepositoryRequestSchema, GetRepositoryResponse, GetRepositoryResponseSchema } from "./repos_pb.js";
 
 export const OP_LIST_WORKFLOW_RUNS = { id: "github.actions.runs.list", class: "read", destructive: false } as const;
+export const OP_LIST_CHECK_RUNS = { id: "github.checks.runs.list", class: "read", destructive: false } as const;
 export const OP_PUT_CONTENTS = { id: "github.contents.put", class: "write", destructive: false } as const;
 export const OP_CREATE_BLOB = { id: "github.git.blobs.create", class: "write", destructive: false } as const;
 export const OP_CREATE_COMMIT = { id: "github.git.commits.create", class: "write", destructive: false } as const;
@@ -19,15 +22,18 @@ export const OP_CREATE_ISSUE_COMMENT = { id: "github.issues.comments.create", cl
 export const OP_CREATE_ISSUE = { id: "github.issues.create", class: "write", destructive: false } as const;
 export const OP_GET_ISSUE = { id: "github.issues.get", class: "read", destructive: false } as const;
 export const OP_LIST_ISSUES = { id: "github.issues.list", class: "read", destructive: false } as const;
+export const OP_UPDATE_ISSUE = { id: "github.issues.update", class: "write", destructive: false } as const;
 export const OP_CREATE_PULL_REQUEST = { id: "github.pulls.create", class: "write", destructive: false } as const;
 export const OP_GET_PULL_REQUEST = { id: "github.pulls.get", class: "read", destructive: false } as const;
 export const OP_LIST_PULLS = { id: "github.pulls.list", class: "read", destructive: false } as const;
 export const OP_CREATE_REVIEW = { id: "github.pulls.reviews.create", class: "write", destructive: false } as const;
 export const OP_LIST_REVIEWS = { id: "github.pulls.reviews.list", class: "read", destructive: false } as const;
 export const OP_UPDATE_PULL_REQUEST = { id: "github.pulls.update", class: "write", destructive: false } as const;
+export const OP_GET_REPOSITORY = { id: "github.repos.get", class: "read", destructive: false } as const;
 
 export interface GithubOperations {
   listWorkflowRuns(req: ListWorkflowRunsRequest): Promise<ListWorkflowRunsResponse>;
+  listCheckRuns(req: ListCheckRunsRequest): Promise<ListCheckRunsResponse>;
   putContents(req: PutContentsRequest): Promise<PutContentsResponse>;
   createBlob(req: CreateBlobRequest): Promise<CreateBlobResponse>;
   createCommit(req: CreateCommitRequest): Promise<CreateCommitResponse>;
@@ -39,18 +45,23 @@ export interface GithubOperations {
   createIssue(req: CreateIssueRequest): Promise<CreateIssueResponse>;
   getIssue(req: GetIssueRequest): Promise<GetIssueResponse>;
   listIssues(req: ListIssuesRequest): Promise<ListIssuesResponse>;
+  updateIssue(req: UpdateIssueRequest): Promise<UpdateIssueResponse>;
   createPullRequest(req: CreatePullRequestRequest): Promise<CreatePullRequestResponse>;
   getPullRequest(req: GetPullRequestRequest): Promise<GetPullRequestResponse>;
   listPulls(req: ListPullsRequest): Promise<ListPullsResponse>;
   createReview(req: CreatePullReviewRequest): Promise<CreatePullReviewResponse>;
   listReviews(req: ListPullReviewsRequest): Promise<ListPullReviewsResponse>;
   updatePullRequest(req: UpdatePullRequestRequest): Promise<UpdatePullRequestResponse>;
+  getRepository(req: GetRepositoryRequest): Promise<GetRepositoryResponse>;
 }
 
 export class GithubQueries implements GithubOperations {
   constructor(private readonly conn: HTTP) {}
   listWorkflowRuns(req: ListWorkflowRunsRequest): Promise<ListWorkflowRunsResponse> {
     return callHTTP(this.conn, {"cursorField":"page","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"GET","nextCursorField":"next_page","op":{"class":"read","destructive":false,"id":"github.actions.runs.list"},"params":[{"field":"owner","in":"path","multiSegment":false,"wire":"owner"},{"field":"repository","in":"path","multiSegment":false,"wire":"repository"},{"field":"per_page","in":"query","multiSegment":false,"wire":"per_page"},{"field":"page","in":"query","multiSegment":false,"wire":"page"}],"pathTemplate":"/repos/{owner}/{repository}/actions/runs"}, req, ListWorkflowRunsRequestSchema, ListWorkflowRunsResponseSchema);
+  }
+  listCheckRuns(req: ListCheckRunsRequest): Promise<ListCheckRunsResponse> {
+    return callHTTP(this.conn, {"cursorField":"page","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"GET","nextCursorField":"next_page","op":{"class":"read","destructive":false,"id":"github.checks.runs.list"},"params":[{"field":"owner","in":"path","multiSegment":false,"wire":"owner"},{"field":"repository","in":"path","multiSegment":false,"wire":"repository"},{"field":"ref","in":"path","multiSegment":true,"wire":"ref"},{"field":"per_page","in":"query","multiSegment":false,"wire":"per_page"},{"field":"page","in":"query","multiSegment":false,"wire":"page"}],"pathTemplate":"/repos/{owner}/{repository}/commits/{ref}/check-runs"}, req, ListCheckRunsRequestSchema, ListCheckRunsResponseSchema);
   }
   putContents(req: PutContentsRequest): Promise<PutContentsResponse> {
     return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429},{"kind":"conflict","retryable":false,"status":409},{"kind":"invalid","retryable":false,"status":422}],"graphqlDocument":"","method":"PUT","nextCursorField":"","op":{"class":"write","destructive":false,"id":"github.contents.put"},"params":[{"field":"owner","in":"path","multiSegment":false,"wire":"owner"},{"field":"repository","in":"path","multiSegment":false,"wire":"repository"},{"field":"path","in":"path","multiSegment":true,"wire":"path"},{"field":"message","in":"body","multiSegment":false,"wire":"message"},{"field":"content","in":"body","multiSegment":false,"wire":"content"},{"field":"branch","in":"body","multiSegment":false,"wire":"branch"},{"field":"sha","in":"body","multiSegment":false,"wire":"sha"}],"pathTemplate":"/repos/{owner}/{repository}/contents/{path}"}, req, PutContentsRequestSchema, PutContentsResponseSchema);
@@ -85,6 +96,9 @@ export class GithubQueries implements GithubOperations {
   listIssues(req: ListIssuesRequest): Promise<ListIssuesResponse> {
     return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"GET","nextCursorField":"","op":{"class":"read","destructive":false,"id":"github.issues.list"},"params":[{"field":"owner","in":"path","multiSegment":false,"wire":"owner"},{"field":"repository","in":"path","multiSegment":false,"wire":"repository"},{"field":"state","in":"query","multiSegment":false,"wire":"state"},{"field":"per_page","in":"query","multiSegment":false,"wire":"per_page"}],"pathTemplate":"/repos/{owner}/{repository}/issues"}, req, ListIssuesRequestSchema, ListIssuesResponseSchema);
   }
+  updateIssue(req: UpdateIssueRequest): Promise<UpdateIssueResponse> {
+    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429},{"kind":"conflict","retryable":false,"status":409},{"kind":"invalid","retryable":false,"status":422}],"graphqlDocument":"","method":"PATCH","nextCursorField":"","op":{"class":"write","destructive":false,"id":"github.issues.update"},"params":[{"field":"owner","in":"path","multiSegment":false,"wire":"owner"},{"field":"repository","in":"path","multiSegment":false,"wire":"repository"},{"field":"issue_number","in":"path","multiSegment":false,"wire":"issue_number"},{"field":"title","in":"body","multiSegment":false,"wire":"title"},{"field":"body","in":"body","multiSegment":false,"wire":"body"},{"field":"state","in":"body","multiSegment":false,"wire":"state"}],"pathTemplate":"/repos/{owner}/{repository}/issues/{issue_number}"}, req, UpdateIssueRequestSchema, UpdateIssueResponseSchema);
+  }
   createPullRequest(req: CreatePullRequestRequest): Promise<CreatePullRequestResponse> {
     return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429},{"kind":"conflict","retryable":false,"status":409},{"kind":"invalid","retryable":false,"status":422}],"graphqlDocument":"","method":"POST","nextCursorField":"","op":{"class":"write","destructive":false,"id":"github.pulls.create"},"params":[{"field":"owner","in":"path","multiSegment":false,"wire":"owner"},{"field":"repository","in":"path","multiSegment":false,"wire":"repository"},{"field":"title","in":"body","multiSegment":false,"wire":"title"},{"field":"head","in":"body","multiSegment":false,"wire":"head"},{"field":"base","in":"body","multiSegment":false,"wire":"base"},{"field":"body","in":"body","multiSegment":false,"wire":"body"},{"field":"draft","in":"body","multiSegment":false,"wire":"draft"}],"pathTemplate":"/repos/{owner}/{repository}/pulls"}, req, CreatePullRequestRequestSchema, CreatePullRequestResponseSchema);
   }
@@ -102,5 +116,8 @@ export class GithubQueries implements GithubOperations {
   }
   updatePullRequest(req: UpdatePullRequestRequest): Promise<UpdatePullRequestResponse> {
     return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429},{"kind":"conflict","retryable":false,"status":409},{"kind":"invalid","retryable":false,"status":422}],"graphqlDocument":"","method":"PATCH","nextCursorField":"","op":{"class":"write","destructive":false,"id":"github.pulls.update"},"params":[{"field":"owner","in":"path","multiSegment":false,"wire":"owner"},{"field":"repository","in":"path","multiSegment":false,"wire":"repository"},{"field":"pull_number","in":"path","multiSegment":false,"wire":"pull_number"},{"field":"title","in":"body","multiSegment":false,"wire":"title"},{"field":"body","in":"body","multiSegment":false,"wire":"body"},{"field":"state","in":"body","multiSegment":false,"wire":"state"},{"field":"base","in":"body","multiSegment":false,"wire":"base"}],"pathTemplate":"/repos/{owner}/{repository}/pulls/{pull_number}"}, req, UpdatePullRequestRequestSchema, UpdatePullRequestResponseSchema);
+  }
+  getRepository(req: GetRepositoryRequest): Promise<GetRepositoryResponse> {
+    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"GET","nextCursorField":"","op":{"class":"read","destructive":false,"id":"github.repos.get"},"params":[{"field":"owner","in":"path","multiSegment":false,"wire":"owner"},{"field":"repository","in":"path","multiSegment":false,"wire":"repository"}],"pathTemplate":"/repos/{owner}/{repository}"}, req, GetRepositoryRequestSchema, GetRepositoryResponseSchema);
   }
 }

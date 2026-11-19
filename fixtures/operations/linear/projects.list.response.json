@@ -1,0 +1,15 @@
+{
+  "nodes": [
+    {
+      "id": "00000000-0000-0000-0000-000000000301",
+      "name": "Synthetic pilot project",
+      "description": null,
+      "url": "https://example.invalid/linear/project/pilot"
+    }
+  ],
+  "pageInfo": {
+    "hasNextPage": true,
+    "endCursor": "synthetic-cursor-1"
+  },
+  "lastSyncId": 12351
+}

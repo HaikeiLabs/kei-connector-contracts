@@ -23,8 +23,7 @@ const SAMPLE_JSON: &str = r#"{"id": 9007199254740993, "number": 7, "title": "t",
 
 #[test]
 fn sample_json_round_trips_int64_exactly() {
-    let msg: GetIssueResponse =
-        serde_json::from_str(SAMPLE_JSON).expect("deserialize sample JSON");
+    let msg: GetIssueResponse = serde_json::from_str(SAMPLE_JSON).expect("deserialize sample JSON");
 
     assert_eq!(msg.id, 9007199254740993);
     assert_eq!(msg.number, 7);

@@ -1,0 +1,8 @@
+{
+  "owner": "example-org",
+  "repository": "example-repo",
+  "issue_number": 42,
+  "title": "Synthetic updated issue",
+  "body": "Synthetic updated body",
+  "state": "closed"
+}

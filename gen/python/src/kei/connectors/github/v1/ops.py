@@ -6,7 +6,7 @@ from typing import Protocol
 
 from kei.connection import HttpConnection, Op, OpClass, call_http
 
-from kei.connectors.github.v1 import actions_pb2, contents_pb2, git_pb2, issues_pb2, pulls_pb2
+from kei.connectors.github.v1 import actions_pb2, checks_pb2, contents_pb2, git_pb2, issues_pb2, pulls_pb2, repos_pb2
 
 OP_LIST_WORKFLOW_RUNS = Op(id="github.actions.runs.list", op_class=OpClass.READ, destructive=False)
 _SPEC_LIST_WORKFLOW_RUNS = {
@@ -14,6 +14,17 @@ _SPEC_LIST_WORKFLOW_RUNS = {
     "method": "GET",
     "path_template": "/repos/{owner}/{repository}/actions/runs",
     "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "per_page", "in": "query", "multi_segment": False, "wire": "per_page"}, {"field": "page", "in": "query", "multi_segment": False, "wire": "page"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "page",
+    "next_cursor_field": "next_page",
+}
+OP_LIST_CHECK_RUNS = Op(id="github.checks.runs.list", op_class=OpClass.READ, destructive=False)
+_SPEC_LIST_CHECK_RUNS = {
+    "op": OP_LIST_CHECK_RUNS,
+    "method": "GET",
+    "path_template": "/repos/{owner}/{repository}/commits/{ref}/check-runs",
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "ref", "in": "path", "multi_segment": True, "wire": "ref"}, {"field": "per_page", "in": "query", "multi_segment": False, "wire": "per_page"}, {"field": "page", "in": "query", "multi_segment": False, "wire": "page"}],
     "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
     "graphql_document": "",
     "cursor_field": "page",
@@ -140,6 +151,17 @@ _SPEC_LIST_ISSUES = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
+OP_UPDATE_ISSUE = Op(id="github.issues.update", op_class=OpClass.WRITE, destructive=False)
+_SPEC_UPDATE_ISSUE = {
+    "op": OP_UPDATE_ISSUE,
+    "method": "PATCH",
+    "path_template": "/repos/{owner}/{repository}/issues/{issue_number}",
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "issue_number", "in": "path", "multi_segment": False, "wire": "issue_number"}, {"field": "title", "in": "body", "multi_segment": False, "wire": "title"}, {"field": "body", "in": "body", "multi_segment": False, "wire": "body"}, {"field": "state", "in": "body", "multi_segment": False, "wire": "state"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}, {"kind": "conflict", "retryable": False, "status": 409}, {"kind": "invalid", "retryable": False, "status": 422}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 OP_CREATE_PULL_REQUEST = Op(id="github.pulls.create", op_class=OpClass.WRITE, destructive=False)
 _SPEC_CREATE_PULL_REQUEST = {
     "op": OP_CREATE_PULL_REQUEST,
@@ -206,9 +228,22 @@ _SPEC_UPDATE_PULL_REQUEST = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
+OP_GET_REPOSITORY = Op(id="github.repos.get", op_class=OpClass.READ, destructive=False)
+_SPEC_GET_REPOSITORY = {
+    "op": OP_GET_REPOSITORY,
+    "method": "GET",
+    "path_template": "/repos/{owner}/{repository}",
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 
 class GithubOperations(Protocol):
     async def list_workflow_runs(self, req: actions_pb2.ListWorkflowRunsRequest) -> actions_pb2.ListWorkflowRunsResponse:
+        ...
+    async def list_check_runs(self, req: checks_pb2.ListCheckRunsRequest) -> checks_pb2.ListCheckRunsResponse:
         ...
     async def put_contents(self, req: contents_pb2.PutContentsRequest) -> contents_pb2.PutContentsResponse:
         ...
@@ -232,6 +267,8 @@ class GithubOperations(Protocol):
         ...
     async def list_issues(self, req: issues_pb2.ListIssuesRequest) -> issues_pb2.ListIssuesResponse:
         ...
+    async def update_issue(self, req: issues_pb2.UpdateIssueRequest) -> issues_pb2.UpdateIssueResponse:
+        ...
     async def create_pull_request(self, req: pulls_pb2.CreatePullRequestRequest) -> pulls_pb2.CreatePullRequestResponse:
         ...
     async def get_pull_request(self, req: pulls_pb2.GetPullRequestRequest) -> pulls_pb2.GetPullRequestResponse:
@@ -244,6 +281,8 @@ class GithubOperations(Protocol):
         ...
     async def update_pull_request(self, req: pulls_pb2.UpdatePullRequestRequest) -> pulls_pb2.UpdatePullRequestResponse:
         ...
+    async def get_repository(self, req: repos_pb2.GetRepositoryRequest) -> repos_pb2.GetRepositoryResponse:
+        ...
 
 class GithubQueries:
     """Generated Github operations over an authenticated connection."""
@@ -253,6 +292,9 @@ class GithubQueries:
 
     async def list_workflow_runs(self, req: actions_pb2.ListWorkflowRunsRequest) -> actions_pb2.ListWorkflowRunsResponse:
         return await call_http(self._conn, _SPEC_LIST_WORKFLOW_RUNS, req, actions_pb2.ListWorkflowRunsResponse)
+
+    async def list_check_runs(self, req: checks_pb2.ListCheckRunsRequest) -> checks_pb2.ListCheckRunsResponse:
+        return await call_http(self._conn, _SPEC_LIST_CHECK_RUNS, req, checks_pb2.ListCheckRunsResponse)
 
     async def put_contents(self, req: contents_pb2.PutContentsRequest) -> contents_pb2.PutContentsResponse:
         return await call_http(self._conn, _SPEC_PUT_CONTENTS, req, contents_pb2.PutContentsResponse)
@@ -287,6 +329,9 @@ class GithubQueries:
     async def list_issues(self, req: issues_pb2.ListIssuesRequest) -> issues_pb2.ListIssuesResponse:
         return await call_http(self._conn, _SPEC_LIST_ISSUES, req, issues_pb2.ListIssuesResponse)
 
+    async def update_issue(self, req: issues_pb2.UpdateIssueRequest) -> issues_pb2.UpdateIssueResponse:
+        return await call_http(self._conn, _SPEC_UPDATE_ISSUE, req, issues_pb2.UpdateIssueResponse)
+
     async def create_pull_request(self, req: pulls_pb2.CreatePullRequestRequest) -> pulls_pb2.CreatePullRequestResponse:
         return await call_http(self._conn, _SPEC_CREATE_PULL_REQUEST, req, pulls_pb2.CreatePullRequestResponse)
 
@@ -304,3 +349,6 @@ class GithubQueries:
 
     async def update_pull_request(self, req: pulls_pb2.UpdatePullRequestRequest) -> pulls_pb2.UpdatePullRequestResponse:
         return await call_http(self._conn, _SPEC_UPDATE_PULL_REQUEST, req, pulls_pb2.UpdatePullRequestResponse)
+
+    async def get_repository(self, req: repos_pb2.GetRepositoryRequest) -> repos_pb2.GetRepositoryResponse:
+        return await call_http(self._conn, _SPEC_GET_REPOSITORY, req, repos_pb2.GetRepositoryResponse)

@@ -92,3 +92,21 @@ class SearchIssuesResponse(_message.Message):
     nodes: _containers.RepeatedCompositeFieldContainer[Issue]
     page_info: PageInfo
     def __init__(self, nodes: _Optional[_Iterable[_Union[Issue, _Mapping]]] = ..., page_info: _Optional[_Union[PageInfo, _Mapping]] = ...) -> None: ...
+
+class UpdateIssueRequest(_message.Message):
+    __slots__ = ("id", "title", "description")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    TITLE_FIELD_NUMBER: _ClassVar[int]
+    DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    title: str
+    description: str
+    def __init__(self, id: _Optional[str] = ..., title: _Optional[str] = ..., description: _Optional[str] = ...) -> None: ...
+
+class UpdateIssueResponse(_message.Message):
+    __slots__ = ("success", "issue")
+    SUCCESS_FIELD_NUMBER: _ClassVar[int]
+    ISSUE_FIELD_NUMBER: _ClassVar[int]
+    success: bool
+    issue: Issue
+    def __init__(self, success: _Optional[bool] = ..., issue: _Optional[_Union[Issue, _Mapping]] = ...) -> None: ...

@@ -11,9 +11,13 @@ import * as ghContents from "../src/kei/connectors/github/v1/contents_pb.js";
 import * as ghPulls from "../src/kei/connectors/github/v1/pulls_pb.js";
 import * as ghActions from "../src/kei/connectors/github/v1/actions_pb.js";
 import * as ghGit from "../src/kei/connectors/github/v1/git_pb.js";
+import * as ghRepos from "../src/kei/connectors/github/v1/repos_pb.js";
+import * as ghChecks from "../src/kei/connectors/github/v1/checks_pb.js";
 import * as linear from "../src/kei/connectors/linear/v1/issues_pb.js";
 import * as linearComments from "../src/kei/connectors/linear/v1/comments_pb.js";
 import * as linearTeams from "../src/kei/connectors/linear/v1/teams_pb.js";
+import * as linearProjects from "../src/kei/connectors/linear/v1/projects_pb.js";
+import * as linearCycles from "../src/kei/connectors/linear/v1/cycles_pb.js";
 import * as airtableRecords from "../src/kei/connectors/airtable/v1/records_pb.js";
 import * as hubspotContacts from "../src/kei/connectors/hubspot/v1/contacts_pb.js";
 import * as hubspotDeals from "../src/kei/connectors/hubspot/v1/deals_pb.js";
@@ -63,6 +67,9 @@ const ops = [
   ["github.actions.runs.list", ghActions.ListWorkflowRunsRequestSchema, ghActions.ListWorkflowRunsResponseSchema, (r: any) => { expect(r.workflowRuns[0].headBranch).toBe("feature/x"); expect(r.workflowRuns[0].id).toBe(9007199254741001n); }],
   ["github.issues.create", ghIssues.CreateIssueRequestSchema, ghIssues.CreateIssueResponseSchema, (r: any) => { expect(r.number).toBe(42n); expect(r.author.login).toBe("example-user"); expect(r.labels[0].name).toBe("synthetic-label"); }],
   ["github.issues.comments.create", ghIssues.CreateIssueCommentRequestSchema, ghIssues.CreateIssueCommentResponseSchema, (r: any) => { expect(r.body).toBe("Synthetic comment"); expect(r.author.login).toBe("example-user"); }],
+  ["github.repos.get", ghRepos.GetRepositoryRequestSchema, ghRepos.GetRepositoryResponseSchema, (r: any) => { expect(r.id).toBe(9007199254741011n); expect(r.fullName).toBe("example-org/example-repo"); expect(r.owner.login).toBe("example-user"); }],
+  ["github.checks.runs.list", ghChecks.ListCheckRunsRequestSchema, ghChecks.ListCheckRunsResponseSchema, (r: any) => { expect(r.checkRuns[0].id).toBe(9007199254741012n); expect(r.checkRuns[0].conclusion).toBe("success"); expect(r.totalCount).toBe(2n); }],
+  ["github.issues.update", ghIssues.UpdateIssueRequestSchema, ghIssues.UpdateIssueResponseSchema, (r: any) => { expect(r.number).toBe(42n); expect(r.state).toBe("closed"); expect(r.author.login).toBe("example-user"); }],
   ["github.pulls.create", ghPulls.CreatePullRequestRequestSchema, ghPulls.CreatePullRequestResponseSchema, (r: any) => { expect(r.number).toBe(43n); expect(r.draft).toBe(true); expect(r.head.ref).toBe("feature/x"); }],
   ["github.pulls.update", ghPulls.UpdatePullRequestRequestSchema, ghPulls.UpdatePullRequestResponseSchema, (r: any) => { expect(r.title).toBe("Synthetic updated title"); expect(r.state).toBe("open"); }],
   ["github.pulls.reviews.list", ghPulls.ListPullReviewsRequestSchema, ghPulls.ListPullReviewsResponseSchema, (r: any) => { expect(r.reviews[0].state).toBe("APPROVED"); expect(r.reviews[0].author.login).toBe("example-reviewer"); }],
@@ -78,6 +85,9 @@ const ops = [
   ["linear.issues.search", linear.SearchIssuesRequestSchema, linear.SearchIssuesResponseSchema, (r: any) => expect(r.nodes).toHaveLength(2)],
   ["linear.teams.get", linearTeams.GetTeamRequestSchema, linearTeams.GetTeamResponseSchema, (r: any) => expect(r.team.key).toBe("ENG")],
   ["linear.comments.create", linearComments.CreateCommentRequestSchema, linearComments.CreateCommentResponseSchema, (r: any) => { expect(r.success).toBe(true); expect(r.comment.body).toBe("Synthetic comment"); }],
+  ["linear.projects.list", linearProjects.ListProjectsRequestSchema, linearProjects.ListProjectsResponseSchema, (r: any) => { expect(r.nodes[0].name).toBe("Synthetic pilot project"); expect(r.pageInfo.hasNextPage).toBe(true); expect(r.pageInfo.endCursor).toBe("synthetic-cursor-1"); }],
+  ["linear.cycles.list", linearCycles.ListCyclesRequestSchema, linearCycles.ListCyclesResponseSchema, (r: any) => { expect(r.nodes[0].number).toBe(7); expect(r.nodes[0].isActive).toBe(true); }],
+  ["linear.issues.update", linear.UpdateIssueRequestSchema, linear.UpdateIssueResponseSchema, (r: any) => { expect(r.success).toBe(true); expect(r.issue.title).toBe("Synthetic updated issue"); }],
   ["airtable.records.get", airtableRecords.GetRecordRequestSchema, airtableRecords.GetRecordResponseSchema, (r: any) => { expect(r.id).toBe("recSynthetic00003"); expect(r.fields["Name"]).toBe("Synthetic third task"); expect(r.fields["Priority"]).toBeNull(); }],
   ["airtable.records.list", airtableRecords.ListRecordsRequestSchema, airtableRecords.ListRecordsResponseSchema, (r: any) => { expect(r.records).toHaveLength(2); expect(r.offset).toBe("synthetic-next-offset"); expect(r.records[1].fields["Priority"]).toBeNull(); }],
   ["hubspot.contacts.get", hubspotContacts.GetContactRequestSchema, hubspotContacts.GetContactResponseSchema, (r: any) => { expect(r.id).toBe("701"); expect(r.properties.email).toBe("synthetic.contact@example.invalid"); expect(r.properties.lastname).toBeNull(); }],

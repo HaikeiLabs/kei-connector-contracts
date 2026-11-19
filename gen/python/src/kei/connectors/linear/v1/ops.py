@@ -6,7 +6,7 @@ from typing import Protocol
 
 from kei.connection import HttpConnection, Op, OpClass, call_http
 
-from kei.connectors.linear.v1 import comments_pb2, issues_pb2, teams_pb2
+from kei.connectors.linear.v1 import comments_pb2, cycles_pb2, issues_pb2, projects_pb2, teams_pb2
 
 OP_CREATE_COMMENT = Op(id="linear.comments.create", op_class=OpClass.WRITE, destructive=False)
 _SPEC_CREATE_COMMENT = {
@@ -16,6 +16,17 @@ _SPEC_CREATE_COMMENT = {
     "params": [{"field": "issue_id", "in": "body", "multi_segment": False, "wire": "issueId"}, {"field": "body", "in": "body", "multi_segment": False, "wire": "body"}],
     "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
     "graphql_document": "mutation CommentCreate($issueId: String!, $body: String!) {\n  commentCreate(input: {issueId: $issueId, body: $body}) {\n    success\n    comment { id body }\n  }\n}\n",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
+OP_LIST_CYCLES = Op(id="linear.cycles.list", op_class=OpClass.READ, destructive=False)
+_SPEC_LIST_CYCLES = {
+    "op": OP_LIST_CYCLES,
+    "method": "POST",
+    "path_template": "/graphql",
+    "params": [{"field": "team_id", "in": "body", "multi_segment": False, "wire": "teamId"}, {"field": "first", "in": "body", "multi_segment": False, "wire": "first"}, {"field": "after", "in": "body", "multi_segment": False, "wire": "after"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "query ListCycles($teamId: String!, $first: Int, $after: String) {\n  cycles(first: $first, after: $after, filter: {team: {id: {eq: $teamId}}}) {\n    nodes { id number startsAt endsAt isActive }\n    pageInfo { hasNextPage endCursor }\n  }\n}\n",
     "cursor_field": "",
     "next_cursor_field": "",
 }
@@ -52,6 +63,28 @@ _SPEC_SEARCH_ISSUES = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
+OP_UPDATE_ISSUE = Op(id="linear.issues.update", op_class=OpClass.WRITE, destructive=False)
+_SPEC_UPDATE_ISSUE = {
+    "op": OP_UPDATE_ISSUE,
+    "method": "POST",
+    "path_template": "/graphql",
+    "params": [{"field": "id", "in": "body", "multi_segment": False, "wire": "id"}, {"field": "title", "in": "body", "multi_segment": False, "wire": "title"}, {"field": "description", "in": "body", "multi_segment": False, "wire": "description"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "mutation UpdateIssue($id: String!, $title: String, $description: String) {\n  issueUpdate(id: $id, input: {title: $title, description: $description}) {\n    success\n    issue { id identifier title description url createdAt updatedAt }\n  }\n}\n",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
+OP_LIST_PROJECTS = Op(id="linear.projects.list", op_class=OpClass.READ, destructive=False)
+_SPEC_LIST_PROJECTS = {
+    "op": OP_LIST_PROJECTS,
+    "method": "POST",
+    "path_template": "/graphql",
+    "params": [{"field": "first", "in": "body", "multi_segment": False, "wire": "first"}, {"field": "after", "in": "body", "multi_segment": False, "wire": "after"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "query ListProjects($first: Int, $after: String) {\n  projects(first: $first, after: $after) {\n    nodes { id name description url }\n    pageInfo { hasNextPage endCursor }\n  }\n}\n",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 OP_GET_TEAM = Op(id="linear.teams.get", op_class=OpClass.READ, destructive=False)
 _SPEC_GET_TEAM = {
     "op": OP_GET_TEAM,
@@ -67,11 +100,17 @@ _SPEC_GET_TEAM = {
 class LinearOperations(Protocol):
     async def create_comment(self, req: comments_pb2.CreateCommentRequest) -> comments_pb2.CreateCommentResponse:
         ...
+    async def list_cycles(self, req: cycles_pb2.ListCyclesRequest) -> cycles_pb2.ListCyclesResponse:
+        ...
     async def create_issue(self, req: issues_pb2.CreateIssueRequest) -> issues_pb2.CreateIssueResponse:
         ...
     async def get_issue(self, req: issues_pb2.GetIssueRequest) -> issues_pb2.GetIssueResponse:
         ...
     async def search_issues(self, req: issues_pb2.SearchIssuesRequest) -> issues_pb2.SearchIssuesResponse:
+        ...
+    async def update_issue(self, req: issues_pb2.UpdateIssueRequest) -> issues_pb2.UpdateIssueResponse:
+        ...
+    async def list_projects(self, req: projects_pb2.ListProjectsRequest) -> projects_pb2.ListProjectsResponse:
         ...
     async def get_team(self, req: teams_pb2.GetTeamRequest) -> teams_pb2.GetTeamResponse:
         ...
@@ -85,6 +124,9 @@ class LinearQueries:
     async def create_comment(self, req: comments_pb2.CreateCommentRequest) -> comments_pb2.CreateCommentResponse:
         return await call_http(self._conn, _SPEC_CREATE_COMMENT, req, comments_pb2.CreateCommentResponse)
 
+    async def list_cycles(self, req: cycles_pb2.ListCyclesRequest) -> cycles_pb2.ListCyclesResponse:
+        return await call_http(self._conn, _SPEC_LIST_CYCLES, req, cycles_pb2.ListCyclesResponse)
+
     async def create_issue(self, req: issues_pb2.CreateIssueRequest) -> issues_pb2.CreateIssueResponse:
         return await call_http(self._conn, _SPEC_CREATE_ISSUE, req, issues_pb2.CreateIssueResponse)
 
@@ -93,6 +135,12 @@ class LinearQueries:
 
     async def search_issues(self, req: issues_pb2.SearchIssuesRequest) -> issues_pb2.SearchIssuesResponse:
         return await call_http(self._conn, _SPEC_SEARCH_ISSUES, req, issues_pb2.SearchIssuesResponse)
+
+    async def update_issue(self, req: issues_pb2.UpdateIssueRequest) -> issues_pb2.UpdateIssueResponse:
+        return await call_http(self._conn, _SPEC_UPDATE_ISSUE, req, issues_pb2.UpdateIssueResponse)
+
+    async def list_projects(self, req: projects_pb2.ListProjectsRequest) -> projects_pb2.ListProjectsResponse:
+        return await call_http(self._conn, _SPEC_LIST_PROJECTS, req, projects_pb2.ListProjectsResponse)
 
     async def get_team(self, req: teams_pb2.GetTeamRequest) -> teams_pb2.GetTeamResponse:
         return await call_http(self._conn, _SPEC_GET_TEAM, req, teams_pb2.GetTeamResponse)

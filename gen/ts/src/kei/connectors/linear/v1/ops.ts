@@ -2,20 +2,28 @@
 // source: kei/connectors/linear/v1/connector.proto
 import { callHTTP, callSQL, type HTTP, type SQL } from "../../../connection/index.js";
 import { CreateCommentRequest, CreateCommentRequestSchema, CreateCommentResponse, CreateCommentResponseSchema } from "./comments_pb.js";
-import { CreateIssueRequest, CreateIssueRequestSchema, CreateIssueResponse, CreateIssueResponseSchema, GetIssueRequest, GetIssueRequestSchema, GetIssueResponse, GetIssueResponseSchema, SearchIssuesRequest, SearchIssuesRequestSchema, SearchIssuesResponse, SearchIssuesResponseSchema } from "./issues_pb.js";
+import { ListCyclesRequest, ListCyclesRequestSchema, ListCyclesResponse, ListCyclesResponseSchema } from "./cycles_pb.js";
+import { CreateIssueRequest, CreateIssueRequestSchema, CreateIssueResponse, CreateIssueResponseSchema, GetIssueRequest, GetIssueRequestSchema, GetIssueResponse, GetIssueResponseSchema, SearchIssuesRequest, SearchIssuesRequestSchema, SearchIssuesResponse, SearchIssuesResponseSchema, UpdateIssueRequest, UpdateIssueRequestSchema, UpdateIssueResponse, UpdateIssueResponseSchema } from "./issues_pb.js";
+import { ListProjectsRequest, ListProjectsRequestSchema, ListProjectsResponse, ListProjectsResponseSchema } from "./projects_pb.js";
 import { GetTeamRequest, GetTeamRequestSchema, GetTeamResponse, GetTeamResponseSchema } from "./teams_pb.js";
 
 export const OP_CREATE_COMMENT = { id: "linear.comments.create", class: "write", destructive: false } as const;
+export const OP_LIST_CYCLES = { id: "linear.cycles.list", class: "read", destructive: false } as const;
 export const OP_CREATE_ISSUE = { id: "linear.issues.create", class: "write", destructive: false } as const;
 export const OP_GET_ISSUE = { id: "linear.issues.get", class: "read", destructive: false } as const;
 export const OP_SEARCH_ISSUES = { id: "linear.issues.search", class: "read", destructive: false } as const;
+export const OP_UPDATE_ISSUE = { id: "linear.issues.update", class: "write", destructive: false } as const;
+export const OP_LIST_PROJECTS = { id: "linear.projects.list", class: "read", destructive: false } as const;
 export const OP_GET_TEAM = { id: "linear.teams.get", class: "read", destructive: false } as const;
 
 export interface LinearOperations {
   createComment(req: CreateCommentRequest): Promise<CreateCommentResponse>;
+  listCycles(req: ListCyclesRequest): Promise<ListCyclesResponse>;
   createIssue(req: CreateIssueRequest): Promise<CreateIssueResponse>;
   getIssue(req: GetIssueRequest): Promise<GetIssueResponse>;
   searchIssues(req: SearchIssuesRequest): Promise<SearchIssuesResponse>;
+  updateIssue(req: UpdateIssueRequest): Promise<UpdateIssueResponse>;
+  listProjects(req: ListProjectsRequest): Promise<ListProjectsResponse>;
   getTeam(req: GetTeamRequest): Promise<GetTeamResponse>;
 }
 
@@ -23,6 +31,9 @@ export class LinearQueries implements LinearOperations {
   constructor(private readonly conn: HTTP) {}
   createComment(req: CreateCommentRequest): Promise<CreateCommentResponse> {
     return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"mutation CommentCreate($issueId: String!, $body: String!) {\n  commentCreate(input: {issueId: $issueId, body: $body}) {\n    success\n    comment { id body }\n  }\n}\n","method":"POST","nextCursorField":"","op":{"class":"write","destructive":false,"id":"linear.comments.create"},"params":[{"field":"issue_id","in":"body","multiSegment":false,"wire":"issueId"},{"field":"body","in":"body","multiSegment":false,"wire":"body"}],"pathTemplate":"/graphql"}, req, CreateCommentRequestSchema, CreateCommentResponseSchema);
+  }
+  listCycles(req: ListCyclesRequest): Promise<ListCyclesResponse> {
+    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"query ListCycles($teamId: String!, $first: Int, $after: String) {\n  cycles(first: $first, after: $after, filter: {team: {id: {eq: $teamId}}}) {\n    nodes { id number startsAt endsAt isActive }\n    pageInfo { hasNextPage endCursor }\n  }\n}\n","method":"POST","nextCursorField":"","op":{"class":"read","destructive":false,"id":"linear.cycles.list"},"params":[{"field":"team_id","in":"body","multiSegment":false,"wire":"teamId"},{"field":"first","in":"body","multiSegment":false,"wire":"first"},{"field":"after","in":"body","multiSegment":false,"wire":"after"}],"pathTemplate":"/graphql"}, req, ListCyclesRequestSchema, ListCyclesResponseSchema);
   }
   createIssue(req: CreateIssueRequest): Promise<CreateIssueResponse> {
     return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"mutation CreateIssue($title: String!, $teamId: String!, $description: String, $priority: Int) {\n  issueCreate(input: {title: $title, teamId: $teamId, description: $description, priority: $priority}) {\n    success\n    issue { id identifier title description url createdAt updatedAt }\n  }\n}\n","method":"POST","nextCursorField":"","op":{"class":"write","destructive":false,"id":"linear.issues.create"},"params":[{"field":"title","in":"body","multiSegment":false,"wire":"title"},{"field":"team_id","in":"body","multiSegment":false,"wire":"teamId"},{"field":"description","in":"body","multiSegment":false,"wire":"description"},{"field":"priority","in":"body","multiSegment":false,"wire":"priority"}],"pathTemplate":"/graphql"}, req, CreateIssueRequestSchema, CreateIssueResponseSchema);
@@ -32,6 +43,12 @@ export class LinearQueries implements LinearOperations {
   }
   searchIssues(req: SearchIssuesRequest): Promise<SearchIssuesResponse> {
     return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"query SearchIssues($term: String!, $first: Int, $after: String) {\n  searchIssues(term: $term, first: $first, after: $after) {\n    nodes { id identifier title description url createdAt updatedAt }\n    pageInfo { hasNextPage endCursor }\n  }\n}\n","method":"POST","nextCursorField":"","op":{"class":"read","destructive":false,"id":"linear.issues.search"},"params":[{"field":"term","in":"body","multiSegment":false,"wire":"term"},{"field":"first","in":"body","multiSegment":false,"wire":"first"},{"field":"after","in":"body","multiSegment":false,"wire":"after"}],"pathTemplate":"/graphql"}, req, SearchIssuesRequestSchema, SearchIssuesResponseSchema);
+  }
+  updateIssue(req: UpdateIssueRequest): Promise<UpdateIssueResponse> {
+    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"mutation UpdateIssue($id: String!, $title: String, $description: String) {\n  issueUpdate(id: $id, input: {title: $title, description: $description}) {\n    success\n    issue { id identifier title description url createdAt updatedAt }\n  }\n}\n","method":"POST","nextCursorField":"","op":{"class":"write","destructive":false,"id":"linear.issues.update"},"params":[{"field":"id","in":"body","multiSegment":false,"wire":"id"},{"field":"title","in":"body","multiSegment":false,"wire":"title"},{"field":"description","in":"body","multiSegment":false,"wire":"description"}],"pathTemplate":"/graphql"}, req, UpdateIssueRequestSchema, UpdateIssueResponseSchema);
+  }
+  listProjects(req: ListProjectsRequest): Promise<ListProjectsResponse> {
+    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"query ListProjects($first: Int, $after: String) {\n  projects(first: $first, after: $after) {\n    nodes { id name description url }\n    pageInfo { hasNextPage endCursor }\n  }\n}\n","method":"POST","nextCursorField":"","op":{"class":"read","destructive":false,"id":"linear.projects.list"},"params":[{"field":"first","in":"body","multiSegment":false,"wire":"first"},{"field":"after","in":"body","multiSegment":false,"wire":"after"}],"pathTemplate":"/graphql"}, req, ListProjectsRequestSchema, ListProjectsResponseSchema);
   }
   getTeam(req: GetTeamRequest): Promise<GetTeamResponse> {
     return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"query Team($teamId: String!) {\n  team(id: $teamId) { id key name }\n}\n","method":"POST","nextCursorField":"","op":{"class":"read","destructive":false,"id":"linear.teams.get"},"params":[{"field":"team_id","in":"body","multiSegment":false,"wire":"teamId"}],"pathTemplate":"/graphql"}, req, GetTeamRequestSchema, GetTeamResponseSchema);

@@ -16,7 +16,9 @@
 //! runtime's `TestRenderPath_EscapesSegments`, `TestRenderPath_MultiSegment`
 //! and `TestConnection_NoCredentialInErrors`.
 
-use haikeilabs_connector_contracts::connection::{map_error, render_path, Class, HttpConnection, Op};
+use haikeilabs_connector_contracts::connection::{
+    map_error, render_path, Class, HttpConnection, Op,
+};
 use haikeilabs_connector_contracts::kei::contracts::v1::{Connection, ConnectionKind};
 use wiremock::matchers::{any, header};
 use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -36,8 +38,8 @@ fn render_path_escapes_segments() {
     assert_eq!(got, "/repos/a%2Fb/x%20y");
 
     // Go's url.PathEscape is the reference: keep $ & + : = @, escape ! ' ( ) * , ;
-    let got = render_path("/x/{v}", &[("v", "a!b'c(d)e*f,g;h$i&j+k:l=m@n")], &[])
-        .expect("render_path");
+    let got =
+        render_path("/x/{v}", &[("v", "a!b'c(d)e*f,g;h$i&j+k:l=m@n")], &[]).expect("render_path");
     assert_eq!(got, "/x/a%21b%27c%28d%29e%2Af%2Cg%3Bh$i&j+k:l=m@n");
     let got = render_path("/x/{v}", &[("v", "d/a!b")], &["v"]).expect("render_path");
     assert_eq!(got, "/x/d/a%21b");
@@ -85,7 +87,11 @@ fn render_path_multi_segment() {
     // segment; other variables stay fully escaped.
     let got = render_path(
         TMPL,
-        &[("owner", "a/b"), ("repository", "w"), ("path", "docs/notes.txt")],
+        &[
+            ("owner", "a/b"),
+            ("repository", "w"),
+            ("path", "docs/notes.txt"),
+        ],
         &["path"],
     )
     .expect("render_path");
@@ -104,10 +110,16 @@ fn render_path_multi_segment() {
     assert_eq!(got, "/repos/a%2Fb/w/contents/a%20b/c%25d/e%3Ff%23g");
 
     // Empty, "." and ".." segments are errors.
-    for bad in ["a/../b", "a//b", "../x", "a/..", "./a", "a/./b", "/a", "a/", "", ".."] {
+    for bad in [
+        "a/../b", "a//b", "../x", "a/..", "./a", "a/./b", "/a", "a/", "", "..",
+    ] {
         assert!(
-            render_path(TMPL, &[("owner", "o"), ("repository", "r"), ("path", bad)], &["path"])
-                .is_err(),
+            render_path(
+                TMPL,
+                &[("owner", "o"), ("repository", "r"), ("path", bad)],
+                &["path"]
+            )
+            .is_err(),
             "RenderPath({bad:?}) should be an error"
         );
     }
@@ -115,7 +127,11 @@ fn render_path_multi_segment() {
     // A variable not named multi-segment still escapes "/".
     let got = render_path(
         TMPL,
-        &[("owner", "o"), ("repository", "r"), ("path", "docs/notes.txt")],
+        &[
+            ("owner", "o"),
+            ("repository", "r"),
+            ("path", "docs/notes.txt"),
+        ],
         &[],
     )
     .expect("render_path");
@@ -157,8 +173,15 @@ async fn connection_sends_auth_headers() {
             reqwest::Client::new(),
         )
         .expect("HttpConnection::new");
-        let resp = conn.do_request("GET", "/x", &[], None).await.expect("do_request");
-        assert_eq!(resp.status, 200, "kind {:?} did not send its auth header", kind);
+        let resp = conn
+            .do_request("GET", "/x", &[], None)
+            .await
+            .expect("do_request");
+        assert_eq!(
+            resp.status, 200,
+            "kind {:?} did not send its auth header",
+            kind
+        );
     }
     // Every mock was hit exactly once: the right header went out per kind.
     srv.verify().await;
@@ -168,9 +191,10 @@ async fn connection_sends_auth_headers() {
 async fn no_credential_in_errors() {
     // A hostile or careless provider echoes the credential back.
     let srv = MockServer::start().await;
-    srv.register(Mock::given(any())
-            .respond_with(ResponseTemplate::new(401).set_body_string(format!("bad token {SYNTHETIC_TOKEN}"))))
-            .await;
+    srv.register(Mock::given(any()).respond_with(
+        ResponseTemplate::new(401).set_body_string(format!("bad token {SYNTHETIC_TOKEN}")),
+    ))
+    .await;
 
     let conn = HttpConnection::new(
         &srv.uri(),
@@ -184,7 +208,10 @@ async fn no_credential_in_errors() {
     )
     .expect("HttpConnection::new");
 
-    let resp = conn.do_request("GET", "/x", &[], None).await.expect("do_request");
+    let resp = conn
+        .do_request("GET", "/x", &[], None)
+        .await
+        .expect("do_request");
     assert_eq!(resp.status, 401);
     let err = map_error(
         &Op {
@@ -197,10 +224,19 @@ async fn no_credential_in_errors() {
     )
     .expect("a 401 maps to an error");
     let shown = format!("{err} {err:?}");
-    assert!(!shown.contains(SYNTHETIC_TOKEN), "credential leaked: {shown}");
-    assert!(!shown.contains("bad token"), "response body leaked: {shown}");
+    assert!(
+        !shown.contains(SYNTHETIC_TOKEN),
+        "credential leaked: {shown}"
+    );
+    assert!(
+        !shown.contains("bad token"),
+        "response body leaked: {shown}"
+    );
 
     // The connection's own Display/Debug never carries the credential either.
     let shown = format!("{conn} {conn:?}");
-    assert!(!shown.contains(SYNTHETIC_TOKEN), "credential leaked: {shown}");
+    assert!(
+        !shown.contains(SYNTHETIC_TOKEN),
+        "credential leaked: {shown}"
+    );
 }

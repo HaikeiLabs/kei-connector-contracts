@@ -17,12 +17,18 @@ import (
 type Operations interface {
 	// CreateComment runs linear.comments.create (GraphQL POST /graphql).
 	CreateComment(ctx context.Context, req *linear.CreateCommentRequest) (*linear.CreateCommentResponse, error)
+	// ListCycles runs linear.cycles.list (GraphQL POST /graphql).
+	ListCycles(ctx context.Context, req *linear.ListCyclesRequest) (*linear.ListCyclesResponse, error)
 	// CreateIssue runs linear.issues.create (GraphQL POST /graphql).
 	CreateIssue(ctx context.Context, req *linear.CreateIssueRequest) (*linear.CreateIssueResponse, error)
 	// GetIssue runs linear.issues.get (GraphQL POST /graphql).
 	GetIssue(ctx context.Context, req *linear.GetIssueRequest) (*linear.GetIssueResponse, error)
 	// SearchIssues runs linear.issues.search (GraphQL POST /graphql).
 	SearchIssues(ctx context.Context, req *linear.SearchIssuesRequest) (*linear.SearchIssuesResponse, error)
+	// UpdateIssue runs linear.issues.update (GraphQL POST /graphql).
+	UpdateIssue(ctx context.Context, req *linear.UpdateIssueRequest) (*linear.UpdateIssueResponse, error)
+	// ListProjects runs linear.projects.list (GraphQL POST /graphql).
+	ListProjects(ctx context.Context, req *linear.ListProjectsRequest) (*linear.ListProjectsResponse, error)
 	// GetTeam runs linear.teams.get (GraphQL POST /graphql).
 	GetTeam(ctx context.Context, req *linear.GetTeamRequest) (*linear.GetTeamResponse, error)
 }
@@ -31,9 +37,12 @@ type Operations interface {
 // capability a policy grants: connector:<ID>.
 var (
 	OpCreateComment = connection.Op{ID: "linear.comments.create", Class: connection.Write}
+	OpListCycles    = connection.Op{ID: "linear.cycles.list", Class: connection.Read}
 	OpCreateIssue   = connection.Op{ID: "linear.issues.create", Class: connection.Write}
 	OpGetIssue      = connection.Op{ID: "linear.issues.get", Class: connection.Read}
 	OpSearchIssues  = connection.Op{ID: "linear.issues.search", Class: connection.Read}
+	OpUpdateIssue   = connection.Op{ID: "linear.issues.update", Class: connection.Write}
+	OpListProjects  = connection.Op{ID: "linear.projects.list", Class: connection.Read}
 	OpGetTeam       = connection.Op{ID: "linear.teams.get", Class: connection.Read}
 )
 
@@ -60,6 +69,24 @@ var specCreateComment = &connection.HTTPSpec{
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
 	GraphQLDocument: "mutation CommentCreate($issueId: String!, $body: String!) {\n  commentCreate(input: {issueId: $issueId, body: $body}) {\n    success\n    comment { id body }\n  }\n}\n",
+}
+
+var specListCycles = &connection.HTTPSpec{
+	Op:           OpListCycles,
+	Method:       "POST",
+	PathTemplate: "/graphql",
+	Params: []connection.Param{
+		{Field: "team_id", In: connection.InBody, Wire: "teamId"},
+		{Field: "first", In: connection.InBody, Wire: "first"},
+		{Field: "after", In: connection.InBody, Wire: "after"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+	GraphQLDocument: "query ListCycles($teamId: String!, $first: Int, $after: String) {\n  cycles(first: $first, after: $after, filter: {team: {id: {eq: $teamId}}}) {\n    nodes { id number startsAt endsAt isActive }\n    pageInfo { hasNextPage endCursor }\n  }\n}\n",
 }
 
 var specCreateIssue = &connection.HTTPSpec{
@@ -115,6 +142,41 @@ var specSearchIssues = &connection.HTTPSpec{
 	GraphQLDocument: "query SearchIssues($term: String!, $first: Int, $after: String) {\n  searchIssues(term: $term, first: $first, after: $after) {\n    nodes { id identifier title description url createdAt updatedAt }\n    pageInfo { hasNextPage endCursor }\n  }\n}\n",
 }
 
+var specUpdateIssue = &connection.HTTPSpec{
+	Op:           OpUpdateIssue,
+	Method:       "POST",
+	PathTemplate: "/graphql",
+	Params: []connection.Param{
+		{Field: "id", In: connection.InBody, Wire: "id"},
+		{Field: "title", In: connection.InBody, Wire: "title"},
+		{Field: "description", In: connection.InBody, Wire: "description"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+	GraphQLDocument: "mutation UpdateIssue($id: String!, $title: String, $description: String) {\n  issueUpdate(id: $id, input: {title: $title, description: $description}) {\n    success\n    issue { id identifier title description url createdAt updatedAt }\n  }\n}\n",
+}
+
+var specListProjects = &connection.HTTPSpec{
+	Op:           OpListProjects,
+	Method:       "POST",
+	PathTemplate: "/graphql",
+	Params: []connection.Param{
+		{Field: "first", In: connection.InBody, Wire: "first"},
+		{Field: "after", In: connection.InBody, Wire: "after"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+	GraphQLDocument: "query ListProjects($first: Int, $after: String) {\n  projects(first: $first, after: $after) {\n    nodes { id name description url }\n    pageInfo { hasNextPage endCursor }\n  }\n}\n",
+}
+
 var specGetTeam = &connection.HTTPSpec{
 	Op:           OpGetTeam,
 	Method:       "POST",
@@ -135,6 +197,15 @@ var specGetTeam = &connection.HTTPSpec{
 func (q *Queries) CreateComment(ctx context.Context, req *linear.CreateCommentRequest) (*linear.CreateCommentResponse, error) {
 	resp := &linear.CreateCommentResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specCreateComment, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// ListCycles runs linear.cycles.list.
+func (q *Queries) ListCycles(ctx context.Context, req *linear.ListCyclesRequest) (*linear.ListCyclesResponse, error) {
+	resp := &linear.ListCyclesResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specListCycles, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil
@@ -162,6 +233,24 @@ func (q *Queries) GetIssue(ctx context.Context, req *linear.GetIssueRequest) (*l
 func (q *Queries) SearchIssues(ctx context.Context, req *linear.SearchIssuesRequest) (*linear.SearchIssuesResponse, error) {
 	resp := &linear.SearchIssuesResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specSearchIssues, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// UpdateIssue runs linear.issues.update.
+func (q *Queries) UpdateIssue(ctx context.Context, req *linear.UpdateIssueRequest) (*linear.UpdateIssueResponse, error) {
+	resp := &linear.UpdateIssueResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specUpdateIssue, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// ListProjects runs linear.projects.list.
+func (q *Queries) ListProjects(ctx context.Context, req *linear.ListProjectsRequest) (*linear.ListProjectsResponse, error) {
+	resp := &linear.ListProjectsResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specListProjects, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil
