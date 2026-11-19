@@ -1,0 +1,31 @@
+# Nightly drift check: run the strict-unmarshal drift tool against
+# the connector sandboxes with repo secrets. Runs on schedule and on demand.
+#
+# NOTE: this file is committed by the owner (push-drift-ci.sh) on top of the
+# worker's pushed commit: workflow pushes need the owner's gh credential with
+# workflow scope.
+name: drift
+
+on:
+  schedule:
+    - cron: "23 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.27"
+      - name: Run drift check
+        working-directory: tools/drift
+        env:
+          KEI_SANDBOX_GITHUB_TOKEN: ${{ secrets.KEI_SANDBOX_GITHUB_TOKEN }}
+          KEI_SANDBOX_LINEAR_API_KEY: ${{ secrets.KEI_SANDBOX_LINEAR_API_KEY }}
+        run: |
+          go run ./cmd/drift \
+            -manifest ../../manifest/connector-manifest.v1.json \
+            -requests-dir ../../testenv/drift

@@ -1,0 +1,11 @@
+{
+  "requests": [
+    {
+      "op": "linear.issues.search",
+      "args": {
+        "term": "kei",
+        "first": 5
+      }
+    }
+  ]
+}
