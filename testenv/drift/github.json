@@ -1,0 +1,29 @@
+{
+  "requests": [
+    {
+      "op": "github.issues.list",
+      "args": {
+        "owner": "HaikeiLabs",
+        "repository": "kei-connector-contracts",
+        "state": "open",
+        "per_page": 5
+      }
+    },
+    {
+      "op": "github.pulls.list",
+      "args": {
+        "owner": "HaikeiLabs",
+        "repository": "kei-connector-contracts",
+        "per_page": 5
+      }
+    },
+    {
+      "op": "github.actions.runs.list",
+      "args": {
+        "owner": "HaikeiLabs",
+        "repository": "kei-connector-contracts",
+        "per_page": 5
+      }
+    }
+  ]
+}
