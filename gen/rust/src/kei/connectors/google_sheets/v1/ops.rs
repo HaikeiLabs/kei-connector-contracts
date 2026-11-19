@@ -189,7 +189,7 @@ impl GoogleSheetsOperations for GoogleSheetsQueries {
         .map_err(|e| OperationError::wrap(OP_UPDATE_VALUES.id, format!("render path: {e}")))?;
         let mut body = serde_json::Map::new();
         let mut values_json = Vec::with_capacity(req.values.len());
-        for v0 in &req.values { values_json.push(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_UPDATE_VALUES.id, e.to_string()))?); }
+        for v0 in &req.values { values_json.push(crate::connection::normalize_protojson_numbers(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_UPDATE_VALUES.id, e.to_string()))?)); }
         body.insert("values".to_string(), serde_json::Value::Array(values_json));
         let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_UPDATE_VALUES.id, e.to_string()))?;
         let out = self

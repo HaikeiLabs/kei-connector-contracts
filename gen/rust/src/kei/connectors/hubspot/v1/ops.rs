@@ -208,7 +208,7 @@ impl HubspotOperations for HubspotQueries {
         )
         .map_err(|e| OperationError::wrap(OP_CREATE_CONTACT.id, format!("render path: {e}")))?;
         let mut body = serde_json::Map::new();
-        if let Some(v0) = &req.properties { body.insert("properties".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_CONTACT.id, e.to_string()))?); }
+        if let Some(v0) = &req.properties { body.insert("properties".to_string(), crate::connection::normalize_protojson_numbers(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_CONTACT.id, e.to_string()))?)); }
         let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_CONTACT.id, e.to_string()))?;
         let out = self
             .conn
@@ -280,7 +280,7 @@ impl HubspotOperations for HubspotQueries {
         )
         .map_err(|e| OperationError::wrap(OP_UPDATE_CONTACT.id, format!("render path: {e}")))?;
         let mut body = serde_json::Map::new();
-        if let Some(v0) = &req.properties { body.insert("properties".to_string(), serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_UPDATE_CONTACT.id, e.to_string()))?); }
+        if let Some(v0) = &req.properties { body.insert("properties".to_string(), crate::connection::normalize_protojson_numbers(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_UPDATE_CONTACT.id, e.to_string()))?)); }
         let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_UPDATE_CONTACT.id, e.to_string()))?;
         let out = self
             .conn
