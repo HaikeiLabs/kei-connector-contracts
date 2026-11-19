@@ -200,7 +200,7 @@ func main() {
 
 Contract: `docs/connector-execution-contract.md` in `kei-connector-runtime`.
 
-## Discord and Grafana (HAI-309, unreleased)
+## Discord and Grafana (unreleased)
 
 Two read-only, shared-secret providers. Both use `credential_source`
 `opaque_ref` only (no OAuth, no account models), and every capability is
@@ -277,9 +277,9 @@ access to a repository's issues or pull requests.
   and blobs by object id, so one call reads one snapshot.
 
 `skills_repo` is in the access manifest with an `api` mode that reads
-`skills.list` and `skills.fetch`; kei-connector-runtime executes it (HAI-431).
+`skills.list` and `skills.fetch`; kei-connector-runtime executes it.
 
-## Postgres provider (HAI-493, unreleased)
+## Postgres provider (unreleased)
 
 `postgres` is read-only. Its one capability is `query.run` (`read`): the
 `database.query.run` operation in
@@ -291,7 +291,7 @@ Postgres, so it uses this provider with a Supabase connection string, and
 the query's `dialect` is `DIALECT_SUPABASE`. The provider id matches the
 policy catalog's `postgres` connector template.
 
-## Provider access modes (HAI-319, unreleased)
+## Provider access modes (unreleased)
 
 `access.Access()` lists how each provider can be reached. The JSON export is
 `schemas/connector-access.v1.json` and its JSON Schema is
@@ -308,7 +308,7 @@ Each provider has an `access` list. Each mode has:
   - `webhook`: given by `direction` (`inbound` or `outbound`) and the `secret_field` of the signing secret.
 - **`credentials`** (cli and mcp only): pairs of `env` and `field`. The env var
   holds the reference `kei://connectors/<connector_id>/<field>`, which
-  `kei-proxy run --` (HAI-305) resolves into the child process only (cli), or
+  `kei-proxy run --` resolves into the child process only (cli), or
   the runtime's MCP route attaches to upstream requests (mcp).
 - **`setup` and `verify`:** ordered steps.
 - **`reads` and `writes`:** the provider's read and write capabilities. Writes
@@ -316,14 +316,13 @@ Each provider has an `access` list. Each mode has:
 
 Today only `api` is populated. It is set for the providers with a runtime
 adapter: gmail, google_drive, linear, github, tito, notion, discord, grafana,
-http_api and skills_repo, plus postgres, whose runtime adapter is pending
-(HAI-493). Only linear and http_api list writes, because the
+http_api and skills_repo, plus postgres, whose runtime adapter is pending. Only linear and http_api list writes, because the
 runtime executes them: Linear `issue.create` and `comment.create`, and
 http_api `http.post` and `http.patch`. No provider has a cli, mcp or webhook
-mode yet. There is no dedicated CRM provider (HAI-384): a CRM API is an
+mode yet. There is no dedicated CRM provider: a CRM API is an
 http_api connector the admin names.
 
-## Canonical resource URIs (HAI-566, unreleased)
+## Canonical resource URIs (unreleased)
 
 `canonical.Resource` turns an MCP server URL into its canonical resource URI.
 It is the one implementation that the OIDC bridge, the policy catalog and the
@@ -345,7 +344,7 @@ Test against `canonicaltest.ResourceCases()`, or `resource.json` from another
 language, rather than a local table. The cases pin current results,
 including the odd ones marked with a `note`.
 
-## Shared policy model (HAI-606, unreleased)
+## Shared policy model (unreleased)
 
 `policy` is the one implementation of policy matching and decisions, shared by
 the catalog, the runtime and the CLI so they cannot drift apart. It replaces
@@ -404,7 +403,7 @@ the matcher copies those services each carried: principals (who), targets
 Conformance vectors live in `policy/testdata/vectors/` (`parse-principal`,
 `parse-target`, `match-principal`, `match-target`, `decide`, `render`).
 
-## Shared policy bundle (HAI-609, unreleased)
+## Shared policy bundle (unreleased)
 
 `bundle` is the shared implementation of the policy bundle contract: the
 document the policy catalog issues to an installation, the checks it has to
@@ -448,7 +447,7 @@ tables and connection details are available for
 [Omni](docs/connectors/omni.md), [Power BI](docs/connectors/power_bi.md), and
 [Sentry](docs/connectors/sentry.md).
 
-## Operation contracts (HAI-988)
+## Operation contracts
 
 The rules for operation contracts — the id grammar (`connector.resource.verb`,
 plus the `mcp.` and `builtin.` prefixes), the proto layout, `json_name`, the

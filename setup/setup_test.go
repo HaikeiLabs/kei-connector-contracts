@@ -242,7 +242,7 @@ func TestValidateMetadataRequiresExecutableCapabilities(t *testing.T) {
 	}
 }
 
-// TestCRMHasNoSetupSchema (HAI-384): there is no crm provider to set up; a
+// TestCRMHasNoSetupSchema: there is no crm provider to set up; a
 // CRM API is set up as an http_api connector.
 func TestCRMHasNoSetupSchema(t *testing.T) {
 	if _, ok := SetupSchemaFor("crm"); ok {
@@ -253,7 +253,7 @@ func TestCRMHasNoSetupSchema(t *testing.T) {
 	}
 }
 
-// HAI-309: Discord is set up with a bot token and nothing else; the guilds it
+// Discord is set up with a bot token and nothing else; the guilds it
 // can read are the ones the bot was invited to.
 func TestDiscordSetupIsOneBotToken(t *testing.T) {
 	s, ok := SetupSchemaFor(contract.ProviderDiscord)
@@ -278,7 +278,7 @@ func TestDiscordSetupIsOneBotToken(t *testing.T) {
 	}
 }
 
-// HAI-309: Grafana takes its instance URL (stored in Metadata.Grafana, never
+// Grafana takes its instance URL (stored in Metadata.Grafana, never
 // in config) and a service-account token behind the connector's opaque_ref.
 func TestGrafanaSetupIsBaseURLAndServiceAccountToken(t *testing.T) {
 	s, ok := SetupSchemaFor(contract.ProviderGrafana)

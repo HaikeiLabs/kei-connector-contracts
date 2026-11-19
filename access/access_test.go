@@ -37,7 +37,7 @@ var adapterProviders = []contract.Provider{
 	contract.ProviderHTTPAPI, contract.ProviderSkillsRepo, contract.ProviderPostgres,
 }
 
-// HAI-319 freeze: every adapter provider has exactly one api mode, and no
+// Access freeze: every adapter provider has exactly one api mode, and no
 // provider has a cli, mcp, or webhook mode until the owner decides one.
 func TestAccessFreezeIsAPIOnlyForAdapterProviders(t *testing.T) {
 	got := Access()
@@ -92,7 +92,7 @@ func TestAPIModeReadsAndWrites(t *testing.T) {
 		}
 	}
 	if _, ok := AccessFor("crm"); ok {
-		t.Error("crm has access modes; there is no crm provider (HAI-384)")
+		t.Error("crm has access modes; there is no crm provider")
 	}
 	linear, _ := AccessFor(contract.ProviderLinear)
 	if want := []string{"comment.create", "issue.create"}; !reflect.DeepEqual(sorted(linear.Access[0].Writes), want) {
@@ -213,7 +213,7 @@ func TestValidateRejectsMalformedModes(t *testing.T) {
 	}
 }
 
-// HAI-484: MCP connectors are remote only (streamable_http or sse over
+// MCP connectors are remote only (streamable_http or sse over
 // https). stdio is gone, and the url must be a clean https endpoint.
 func TestMCPModeIsRemoteOnly(t *testing.T) {
 	doc := func(m *MCPMode) ProviderAccess {

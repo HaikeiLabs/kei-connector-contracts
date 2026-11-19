@@ -125,7 +125,7 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 		}
 	}
 
-	// HAI-202: Gmail resources are gmail/messages (search) and
+	// Gmail resources are gmail/messages (search) and
 	// gmail/messages/<message_id> (get).
 	gmail := NewGmail(gmailStore())
 	gmm := metaFor(t, contract.ProviderGmail, []string{"gmail/messages"}, nil)
@@ -142,7 +142,7 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 		}
 	}
 
-	// HAI-203: Tito resources are tito/<account>/events and the event,
+	// Tito resources are tito/<account>/events and the event,
 	// releases, and ticket-summary resources beneath one event.
 	tito := NewTito(titoStore())
 	tm := metaFor(t, contract.ProviderTito, []string{"tito/acme/events"}, nil)
@@ -161,7 +161,7 @@ func TestConnectorContractFreezeResourceAndResultShapes(t *testing.T) {
 		}
 	}
 
-	// HAI-309: Discord and Grafana are contract-only; their resource grammar
+	// Discord and Grafana are contract-only; their resource grammar
 	// is what the runtime executes against.
 	for capability, resource := range map[string]string{
 		"guild.list":   "guilds",

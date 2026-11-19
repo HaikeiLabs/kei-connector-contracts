@@ -55,7 +55,7 @@ jobs:
           python-version: "3.13"
 
       - name: Python tests
-        # The generated python module (HAI-990) needs a protobuf runtime at
+        # The generated python module needs a protobuf runtime at
         # least as new as the generated code (gencode 7.36.2); pytest is the
         # runner. PYTHONPATH points at the generated package root.
         run: |
@@ -80,6 +80,9 @@ jobs:
         # third-party connector authors. A file that travels on its own should
         # carry its licence with it.
         run: bash scripts/license-header.sh --check
+
+      - name: No internal ticket ids
+        run: bash scripts/no-ticket-ids.sh
 
       - name: Contract stays dependency-light
         # ADR-017: this module must not acquire database, handler, credential, or

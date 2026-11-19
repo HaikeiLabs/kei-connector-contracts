@@ -22,7 +22,7 @@ func grafanaMetadata(baseURL string) Metadata {
 	return m
 }
 
-// HAI-309: Discord and Grafana are read-only shared-secret providers. A bot
+// Discord and Grafana are read-only shared-secret providers. A bot
 // token or service-account token sits behind an opaque_ref; neither has OAuth.
 func TestDiscordAndGrafanaAreReadOnlyWithOpaqueCredential(t *testing.T) {
 	for _, m := range []Metadata{frozenMetadata(ProviderDiscord, CapabilitiesFor(ProviderDiscord)), grafanaMetadata("https://grafana.example.com")} {

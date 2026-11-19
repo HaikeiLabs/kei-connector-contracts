@@ -296,7 +296,7 @@ func TestEvaluateV2PlanAcceptsSnapshotAndRefreshSubstitution(t *testing.T) {
 	v := v2ToolBundle(t, now, []any{v2Permit("p1", "pull_request.read"), v2Permit("p2", "check.read")})
 	subject := &SessionSubject{UserID: "user-alice", Source: "discord", ExternalID: "ext-alice", Status: SubjectLinked}
 	ops := v2TestPlanOps()
-	// HAI-452: snapshot is fresh for the bundle lifetime, so plan evaluation
+	// The snapshot is fresh for the bundle lifetime, so plan evaluation
 	// proceeds and all permits allow.
 	if d := v.EvaluateV2Plan("github.review_pr", "agent-a", subject, ops, now.Add(30*time.Second)); d.Outcome != "allow" {
 		t.Fatalf("fresh snapshot decision = %+v", d)

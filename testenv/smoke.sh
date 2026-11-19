@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Local-only smoke test for the kei-connector-contracts testenv stack (HAI-998).
+# Local-only smoke test for the kei-connector-contracts testenv stack.
 # NOT part of CI. Starts the stack, verifies the seed in every database,
 # and tears everything down (containers AND volumes) on exit.
 #

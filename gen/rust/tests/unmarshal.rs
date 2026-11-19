@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! HAI-990 gate: every pilot operation response fixture unmarshals into the
+//! Gate: every pilot operation response fixture unmarshals into the
 //! generated prost types (serde impls from prost-serde with
 //! ignore_unknown_fields, so the unknown extra fields each fixture carries
 //! are skipped). One spot assert per op proves a field survived with its

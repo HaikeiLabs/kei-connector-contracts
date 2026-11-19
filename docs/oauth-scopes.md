@@ -84,5 +84,5 @@ capability.
 
 Consent/connect and incremental re-consent remain blocked on integrating these
 helpers in the external connect flow and establishing an exact GitHub OAuth
-scope contract. HAI-398 should remain open until both are integrated and
+scope contract. This work should remain open until both are integrated and
 verified end to end.

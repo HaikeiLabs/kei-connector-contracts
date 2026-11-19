@@ -224,7 +224,7 @@ func TestToolDefinitionV1ProviderFileCount(t *testing.T) {
 	}
 }
 
-// HAI-723 (owner decision, option A, 2026-10-20): per ADR-039 the harness
+// Owner decision, option A, 2026-10-20: per ADR-039 the harness
 // builds the provider call itself, so tool_binding must carry non-secret
 // transport metadata: method, url_template, auth placement (no secret
 // values) and arg mapping (tool param -> {in, name}).
@@ -259,7 +259,7 @@ func schemaTransport(t *testing.T) document {
 	}
 	transport, ok := props["transport"].(map[string]any)
 	if !ok {
-		t.Fatal("$defs.tool_binding.properties.transport missing: harness cannot build provider calls (HAI-723)")
+		t.Fatal("$defs.tool_binding.properties.transport missing: harness cannot build provider calls")
 	}
 	return transport
 }
@@ -411,7 +411,7 @@ func TestConnectorDefinitionsHaveTransportForHTTPTools(t *testing.T) {
 		for _, tool := range tools {
 			isMCP := false
 			for _, tag := range tool.Tags {
-				// harness-action tools (HAI-856) run a bounded harness action,
+				// harness-action tools run a bounded harness action,
 				// not a single provider HTTP call, so they carry no transport.
 				if strings.EqualFold(tag, "mcp") || strings.EqualFold(tag, "harness-action") {
 					isMCP = true

@@ -1,7 +1,6 @@
 # Proposal 0001: Operation contracts
 
 **Status:** Accepted (2026-11-11).
-Tracking: HAI-915.
 
 Nothing in this document is decided, and nothing in it changes the repository
 today. It describes a possible direction, what it would take, and what would
@@ -22,7 +21,7 @@ Accepted with the following amendments:
   calls. The harness makes every call; kei-proxy stays decision-only
   (ADR-039).
 - The bake-off against a bespoke JSON Schema generator is dropped. The
-  approval gate is HAI-990: 10 pilot operations whose fixtures unmarshal in
+  approval gate: 10 pilot operations whose fixtures unmarshal in
   Go, Python and Rust.
 - Languages ship in lockstep from one tag: Go, Python, TS, Rust.
 

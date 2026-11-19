@@ -53,13 +53,13 @@ func TestConnectorContractFreezeProviderCatalog(t *testing.T) {
 		// has to justify letting an agent write to a ledger or a bank.
 		ProviderFreshBooks: {"invoice.read": ActionRead, "expense.read": ActionRead, "payment.read": ActionRead, "client.read": ActionRead},
 		ProviderMercury:    {"account.read": ActionRead, "transaction.read": ActionRead, "balance.read": ActionRead},
-		// HAI-202: Gmail is a deliberate, read-only addition to the freeze.
+		// Gmail is a deliberate, read-only addition to the freeze.
 		ProviderGmail: {"message.search": ActionRead, "message.get": ActionRead},
-		// HAI-384: the crm provider left the freeze; a CRM API is an
+		// The crm provider left the freeze; a CRM API is an
 		// http_api connector.
-		// HAI-203: Tito is a deliberate, read-only addition to the freeze.
+		// Tito is a deliberate, read-only addition to the freeze.
 		ProviderTito: {"event.list": ActionRead, "event.get": ActionRead, "release.list": ActionRead, "ticket.summary": ActionRead},
-		// HAI-309: Discord and Grafana enter the freeze read-only. Discord has
+		// Discord and Grafana enter the freeze read-only. Discord has
 		// no member.* capability: member lists are personal data.
 		ProviderDiscord: {
 			"guild.list": ActionRead, "guild.read": ActionRead,
@@ -80,7 +80,7 @@ func TestConnectorContractFreezeProviderCatalog(t *testing.T) {
 		},
 		// The skills repository enters the freeze read-only.
 		ProviderSkillsRepo: {"skills.list": ActionRead, "skills.fetch": ActionRead},
-		// HAI-493: Postgres (and Supabase, which is Postgres) enters the
+		// Postgres (and Supabase, which is Postgres) enters the
 		// freeze read-only: query.run is database.query.run, class READ.
 		ProviderPostgres: {"query.run": ActionRead},
 	}

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package conformance is the HAI-990 gate: every pilot operation registered
+// Package conformance is the gate: every pilot operation registered
 // in kei.contracts.v1 must have synthetic request and response fixtures, and
 // those fixtures must unmarshal into the generated Go types.
 //

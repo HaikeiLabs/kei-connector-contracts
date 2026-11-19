@@ -42,8 +42,8 @@ const (
 	// `kei-proxy connector invoke`. The runtime resolves the connector's
 	// credential_ref itself.
 	KindAPI Kind = "api"
-	// KindCLI: the provider's own CLI, run under `kei-proxy run --`
-	// (HAI-305), which injects credential references into the child only.
+	// KindCLI: the provider's own CLI, run under `kei-proxy run --`,
+	// which injects credential references into the child only.
 	KindCLI Kind = "cli"
 	// KindMCP: a remote MCP server, reached over https by the runtime's MCP
 	// route (streamable_http or sse).

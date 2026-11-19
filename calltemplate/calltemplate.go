@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package calltemplate validates tool call templates (HAI-856, ADR-039).
+// Package calltemplate validates tool call templates (ADR-039).
 //
 // A template is a kei.tool-definition/v1 entry (schemas/tool-definition.v1.schema.json)
 // read under a stricter profile: it must carry a closed parameter schema, and

@@ -20,7 +20,7 @@ import (
 )
 
 // The control plane authorizes on structure and on what the connector
-// declares; ABAC policy decides access (HAI-258). Whether the tenant runtime
+// declares; ABAC policy decides access. Whether the tenant runtime
 // has code for a capability is a separate, executable check (ValidateExecutable)
 // that the runtime runs through setup.ValidateMetadata.
 
@@ -116,7 +116,7 @@ func TestAuthorizeCallAllowsDeclaredCapability(t *testing.T) {
 	}
 }
 
-// TestAuthorizeCallDerivesHTTPRequestFromCapability (HAI-256): the tenant
+// TestAuthorizeCallDerivesHTTPRequestFromCapability: the tenant
 // runtime keeps the request local, so the control plane authorizes the method
 // the capability names (http.get -> GET) and the resource, which is the
 // request path, against the connector's configured methods and patterns.

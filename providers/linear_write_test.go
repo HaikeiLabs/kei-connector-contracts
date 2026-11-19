@@ -89,7 +89,7 @@ func TestLinearIssueCreateResolvesTeamKeyAndSendsClientID(t *testing.T) {
 	clientID := LinearWriteID(inv)
 	client, transport := linearWriteClient(map[string]json.RawMessage{
 		"TeamID":      json.RawMessage(`{"teams":{"nodes":[{"id":"` + teamUUIDFixture + `","key":"HAI"}]}}`),
-		"IssueCreate": json.RawMessage(`{"issueCreate":{"success":true,"issue":{"id":"` + clientID + `","identifier":"HAI-7","url":"https://linear.app/haikei/issue/HAI-7","team":{"key":"HAI"}}}}`),
+		"IssueCreate": json.RawMessage(`{"issueCreate":{"success":true,"issue":{"id":"` + clientID + `","identifier":"KEI-7","url":"https://linear.app/haikei/issue/KEI-7","team":{"key":"HAI"}}}}`),
 	})
 	priority := 2
 	payload := LinearIssueCreatePayload{TeamID: "HAI", Title: "Crash on login", Description: "private-issue-body", Priority: &priority}
@@ -99,7 +99,7 @@ func TestLinearIssueCreateResolvesTeamKeyAndSendsClientID(t *testing.T) {
 		t.Fatalf("Invoke: %v", err)
 	}
 	got := result.Data.(LinearIssueCreated)
-	if got != (LinearIssueCreated{ID: clientID, Identifier: "HAI-7", TeamKey: "HAI", URL: "https://linear.app/haikei/issue/HAI-7"}) {
+	if got != (LinearIssueCreated{ID: clientID, Identifier: "KEI-7", TeamKey: "HAI", URL: "https://linear.app/haikei/issue/KEI-7"}) {
 		t.Fatalf("result = %+v", got)
 	}
 	if ops := strings.Join(transport.operations(), ","); ops != "TeamID,IssueCreate" {
@@ -119,7 +119,7 @@ func TestLinearIssueCreateWithTeamUUIDSkipsLookup(t *testing.T) {
 	inv := linearWriteInvocation("issue.create", "linear/team/"+teamUUIDFixture)
 	clientID := LinearWriteID(inv)
 	client, transport := linearWriteClient(map[string]json.RawMessage{
-		"IssueCreate": json.RawMessage(`{"issueCreate":{"success":true,"issue":{"id":"` + clientID + `","identifier":"HAI-8","url":"u","team":{"key":"HAI"}}}}`),
+		"IssueCreate": json.RawMessage(`{"issueCreate":{"success":true,"issue":{"id":"` + clientID + `","identifier":"KEI-8","url":"u","team":{"key":"HAI"}}}}`),
 	})
 	if _, err := client.Invoke(context.Background(), linearWriteMeta(t), inv, LinearIssueCreatePayload{TeamID: teamUUIDFixture, Title: "t"}); err != nil {
 		t.Fatalf("Invoke: %v", err)
@@ -134,13 +134,13 @@ func TestLinearIssueCreateReplayReturnsExistingIssueWithoutRetry(t *testing.T) {
 	clientID := LinearWriteID(inv)
 	client, transport := linearWriteClient(map[string]json.RawMessage{
 		"TeamID":   json.RawMessage(`{"teams":{"nodes":[{"id":"` + teamUUIDFixture + `","key":"HAI"}]}}`),
-		"IssueRef": json.RawMessage(`{"issue":{"id":"` + clientID + `","identifier":"HAI-7","url":"u","team":{"key":"HAI"}}}`),
+		"IssueRef": json.RawMessage(`{"issue":{"id":"` + clientID + `","identifier":"KEI-7","url":"u","team":{"key":"HAI"}}}`),
 	})
 	result, err := client.Invoke(context.Background(), linearWriteMeta(t), inv, LinearIssueCreatePayload{TeamID: "HAI", Title: "t"})
 	if err != nil {
 		t.Fatalf("Invoke: %v", err)
 	}
-	if result.Data.(LinearIssueCreated).Identifier != "HAI-7" {
+	if result.Data.(LinearIssueCreated).Identifier != "KEI-7" {
 		t.Fatalf("result = %+v", result.Data)
 	}
 	if ops := strings.Join(transport.operations(), ","); ops != "TeamID,IssueCreate,IssueRef" {
@@ -176,12 +176,12 @@ func TestLinearIssueCreateRejectsAmbiguousTeam(t *testing.T) {
 }
 
 func TestLinearCommentCreateSendsClientID(t *testing.T) {
-	inv := linearWriteInvocation("comment.create", "linear/issue/HAI-7")
+	inv := linearWriteInvocation("comment.create", "linear/issue/KEI-7")
 	clientID := LinearWriteID(inv)
 	client, transport := linearWriteClient(map[string]json.RawMessage{
 		"CommentCreate": json.RawMessage(`{"commentCreate":{"success":true,"comment":{"id":"` + clientID + `","url":"https://linear.app/c","issue":{"id":"issue-uuid"}}}}`),
 	})
-	result, err := client.Invoke(context.Background(), linearWriteMeta(t), inv, LinearCommentCreatePayload{IssueID: "HAI-7", Body: "private-comment-body"})
+	result, err := client.Invoke(context.Background(), linearWriteMeta(t), inv, LinearCommentCreatePayload{IssueID: "KEI-7", Body: "private-comment-body"})
 	if err != nil {
 		t.Fatalf("Invoke: %v", err)
 	}
@@ -189,7 +189,7 @@ func TestLinearCommentCreateSendsClientID(t *testing.T) {
 		t.Fatalf("result = %+v", got)
 	}
 	input := transport.requests[0].vars["input"].(map[string]any)
-	if input["id"] != clientID || input["issueId"] != "HAI-7" || input["body"] != "private-comment-body" {
+	if input["id"] != clientID || input["issueId"] != "KEI-7" || input["body"] != "private-comment-body" {
 		t.Fatalf("commentCreate input = %#v", input)
 	}
 }
@@ -212,10 +212,10 @@ func TestLinearWritesFailClosedBeforeAnyNetworkCall(t *testing.T) {
 		"multi-line title":               {linearWriteInvocation("issue.create", "linear/team/HAI"), LinearIssueCreatePayload{TeamID: "HAI", Title: "a\nb"}},
 		"priority out of range":          {linearWriteInvocation("issue.create", "linear/team/HAI"), LinearIssueCreatePayload{TeamID: "HAI", Title: "t", Priority: &priority}},
 		"description too large":          {linearWriteInvocation("issue.create", "linear/team/HAI"), LinearIssueCreatePayload{TeamID: "HAI", Title: "t", Description: strings.Repeat("x", MaxLinearDescriptionBytes+1)}},
-		"issue_id differs":               {linearWriteInvocation("comment.create", "linear/issue/HAI-7"), LinearCommentCreatePayload{IssueID: "HAI-8", Body: "b"}},
+		"issue_id differs":               {linearWriteInvocation("comment.create", "linear/issue/KEI-7"), LinearCommentCreatePayload{IssueID: "KEI-8", Body: "b"}},
 		"team resource for comment":      {linearWriteInvocation("comment.create", "linear/team/HAI"), LinearCommentCreatePayload{IssueID: "HAI", Body: "b"}},
-		"empty body":                     {linearWriteInvocation("comment.create", "linear/issue/HAI-7"), LinearCommentCreatePayload{IssueID: "HAI-7", Body: ""}},
-		"payload for another capability": {linearWriteInvocation("comment.create", "linear/issue/HAI-7"), LinearIssueCreatePayload{TeamID: "HAI", Title: "t"}},
+		"empty body":                     {linearWriteInvocation("comment.create", "linear/issue/KEI-7"), LinearCommentCreatePayload{IssueID: "KEI-7", Body: ""}},
+		"payload for another capability": {linearWriteInvocation("comment.create", "linear/issue/KEI-7"), LinearIssueCreatePayload{TeamID: "HAI", Title: "t"}},
 	} {
 		t.Run(name, func(t *testing.T) {
 			client, transport := linearWriteClient(nil)

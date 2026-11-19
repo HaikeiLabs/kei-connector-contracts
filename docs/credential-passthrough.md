@@ -1,8 +1,8 @@
-# Credential pass-through over the Unix socket (HAI-722)
+# Credential pass-through over the Unix socket
 
 This contract describes how a harness obtains a connector credential from the
 `kei-proxy` runtime **at call time, after an allow decision**, over the
-owner-only local Unix socket. It is the owner decision of 2026-10-17 on HAI-722 /
+owner-only local Unix socket. It is the owner decision of 2026-10-17 on
 ADR-039: connector credentials live in the runtime's **session memory** (never
 a harness config file), the harness pulls one over the socket when it makes its
 provider call, and the runtime **flushes** them when the session ends.

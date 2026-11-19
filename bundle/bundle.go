@@ -165,10 +165,10 @@ type Payload struct {
 	// built-in kinds (harnessmatch.Kinds) are valid.
 	HarnessKinds          []HarnessKind `json:"harness_kinds,omitempty"`
 	HarnessMatchSemantics string        `json:"harness_match_semantics,omitempty"`
-	// Subject is the v2-only installation subject (HAI-433).
+	// Subject is the v2-only installation subject.
 	Subject *InstallationSubject `json:"subject,omitempty"`
 	// AgentModelProfiles is the v2-only effective model profile of each agent
-	// assigned to the installation (HAI-459). In v2 it is the model-call
+	// assigned to the installation. In v2 it is the model-call
 	// permission; see EvaluateV2Model.
 	AgentModelProfiles []AgentModelProfile `json:"agent_model_profiles,omitempty"`
 }
@@ -182,7 +182,7 @@ type AgentModelProfile struct {
 }
 
 // InstallationSubject is the installation's principal as the catalog resolved
-// it (HAI-433): the installation creator, their email, and their effective
+// it: the installation creator, their email, and their effective
 // group names. Only kei.policy-bundle/v2 carries it; harness renderers apply
 // user:, email: and group: harness_policies sources against it.
 type InstallationSubject struct {

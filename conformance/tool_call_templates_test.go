@@ -24,7 +24,7 @@ import (
 	"github.com/HaikeiLabs/kei-connector-contracts/calltemplate"
 )
 
-// HAI-856: every connector tool-definition file must pass the tool call
+// Every connector tool-definition file must pass the tool call
 // template profile (closed schema, placeholders only, no secrets), so a
 // harness importing a pinned version can trust what it reads.
 func TestConnectorToolDefinitionsAreValidCallTemplates(t *testing.T) {

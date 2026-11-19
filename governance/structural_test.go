@@ -20,7 +20,7 @@ import (
 	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
-// TestDecideHasNoCapabilityList (HAI-258): the control plane allows any
+// TestDecideHasNoCapabilityList: the control plane allows any
 // well-formed capability the connector declares, and the allow carries the
 // connector's declared capability, description included. Policy decides.
 func TestDecideHasNoCapabilityList(t *testing.T) {
@@ -43,7 +43,7 @@ func TestDecideHasNoCapabilityList(t *testing.T) {
 	}
 }
 
-// TestDecideAuthorizesHTTPAPIWithoutRequest (HAI-256): an http_api envelope
+// TestDecideAuthorizesHTTPAPIWithoutRequest: an http_api envelope
 // carries no request details; the method comes from the capability name.
 func TestDecideAuthorizesHTTPAPIWithoutRequest(t *testing.T) {
 	m := fixture()

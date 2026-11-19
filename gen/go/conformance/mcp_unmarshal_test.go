@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// MCP contract conformance (HAI-1001, plan task 2.3): the tool.call fixtures
+// MCP contract conformance: the tool.call fixtures
 // unmarshal into the generated Go types, JSON nulls inside the Struct fields
 // survive, and the unknown extra fields each fixture carries are detected by
 // strict unmarshal (the drift gate).
