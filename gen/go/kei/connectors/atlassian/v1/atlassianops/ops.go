@@ -34,13 +34,13 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpCreateConfluencePage = connection.Op{ID: "atlassian.confluence.pages.create", Class: connection.Write}
-	OpGetConfluencePage    = connection.Op{ID: "atlassian.confluence.pages.get", Class: connection.Read}
-	OpListConfluencePages  = connection.Op{ID: "atlassian.confluence.pages.list", Class: connection.Read}
-	OpCreateJiraComment    = connection.Op{ID: "atlassian.jira.issues.comments.create", Class: connection.Write}
-	OpCreateJiraIssue      = connection.Op{ID: "atlassian.jira.issues.create", Class: connection.Write}
-	OpGetJiraIssue         = connection.Op{ID: "atlassian.jira.issues.get", Class: connection.Read}
-	OpSearchJiraIssues     = connection.Op{ID: "atlassian.jira.issues.search", Class: connection.Read}
+	OpCreateConfluencePage = connection.Op{ID: "atlassian.confluence.pages.create", Class: connection.Write, ResourceTemplate: "confluence/pages", MethodName: "CreateConfluencePage", Connections: []string{"user_oauth", "api_token"}, Transport: connection.TransportHTTP}
+	OpGetConfluencePage    = connection.Op{ID: "atlassian.confluence.pages.get", Class: connection.Read, ResourceTemplate: "confluence/pages/{page_id}", MethodName: "GetConfluencePage", Connections: []string{"user_oauth", "api_token"}, Transport: connection.TransportHTTP}
+	OpListConfluencePages  = connection.Op{ID: "atlassian.confluence.pages.list", Class: connection.Read, ResourceTemplate: "confluence/pages", MethodName: "ListConfluencePages", Connections: []string{"user_oauth", "api_token"}, Transport: connection.TransportHTTP}
+	OpCreateJiraComment    = connection.Op{ID: "atlassian.jira.issues.comments.create", Class: connection.Write, ResourceTemplate: "jira/issues/{issue_key}", MethodName: "CreateJiraComment", Connections: []string{"user_oauth", "api_token"}, Transport: connection.TransportHTTP}
+	OpCreateJiraIssue      = connection.Op{ID: "atlassian.jira.issues.create", Class: connection.Write, ResourceTemplate: "jira/issues", MethodName: "CreateJiraIssue", Connections: []string{"user_oauth", "api_token"}, Transport: connection.TransportHTTP}
+	OpGetJiraIssue         = connection.Op{ID: "atlassian.jira.issues.get", Class: connection.Read, ResourceTemplate: "jira/issues/{issue_key}", MethodName: "GetJiraIssue", Connections: []string{"user_oauth", "api_token"}, Transport: connection.TransportHTTP}
+	OpSearchJiraIssues     = connection.Op{ID: "atlassian.jira.issues.search", Class: connection.Read, ResourceTemplate: "jira/issues", MethodName: "SearchJiraIssues", Connections: []string{"user_oauth", "api_token"}, Transport: connection.TransportHTTP}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.

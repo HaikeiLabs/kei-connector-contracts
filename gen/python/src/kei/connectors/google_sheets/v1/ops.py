@@ -4,11 +4,11 @@
 
 from typing import Protocol
 
-from kei.connection import HttpConnection, Op, OpClass, call_http
+from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
 from kei.connectors.google_sheets.v1 import spreadsheets_pb2
 
-OP_GET_SPREADSHEET = Op(id="google_sheets.spreadsheets.get", op_class=OpClass.READ, destructive=False)
+OP_GET_SPREADSHEET = Op(id="google_sheets.spreadsheets.get", op_class=OpClass.READ, destructive=False, resource_template="spreadsheets/{spreadsheet_id}", method_name="GetSpreadsheet", connections=("user_oauth", "domain_delegation"), transport=Transport.HTTP)
 _SPEC_GET_SPREADSHEET = {
     "op": OP_GET_SPREADSHEET,
     "method": "GET",
@@ -19,7 +19,7 @@ _SPEC_GET_SPREADSHEET = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_VALUES = Op(id="google_sheets.values.get", op_class=OpClass.READ, destructive=False)
+OP_GET_VALUES = Op(id="google_sheets.values.get", op_class=OpClass.READ, destructive=False, resource_template="spreadsheets/{spreadsheet_id}", method_name="GetValues", connections=("user_oauth", "domain_delegation"), transport=Transport.HTTP)
 _SPEC_GET_VALUES = {
     "op": OP_GET_VALUES,
     "method": "GET",
@@ -30,7 +30,7 @@ _SPEC_GET_VALUES = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_UPDATE_VALUES = Op(id="google_sheets.values.update", op_class=OpClass.WRITE, destructive=True)
+OP_UPDATE_VALUES = Op(id="google_sheets.values.update", op_class=OpClass.WRITE, destructive=True, resource_template="spreadsheets/{spreadsheet_id}", method_name="UpdateValues", connections=("user_oauth", "domain_delegation"), transport=Transport.HTTP)
 _SPEC_UPDATE_VALUES = {
     "op": OP_UPDATE_VALUES,
     "method": "PUT",

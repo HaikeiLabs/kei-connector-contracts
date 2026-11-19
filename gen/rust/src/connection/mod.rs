@@ -60,14 +60,41 @@ impl Class {
     }
 }
 
+/// Transport is how an operation reaches the provider: an HTTP call, a
+/// GraphQL document, a SQL statement, or an MCP tool invocation.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Transport {
+    Http,
+    GraphQL,
+    Sql,
+    Mcp,
+}
+
+impl Transport {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Transport::Http => "http",
+            Transport::GraphQL => "graphql",
+            Transport::Sql => "sql",
+            Transport::Mcp => "mcp",
+        }
+    }
+}
+
 /// Op describes one generated operation, for authorization and audit. ID is
 /// the operation id, which is also the capability and the policy target
-/// (connector:<ID>).
+/// (connector:<ID>). The remaining fields carry the operation's metadata:
+/// the resource template it acts on, the generated method name, the
+/// connection kinds that may run it, and how it reaches the provider.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Op {
     pub id: &'static str,
     pub class: Class,
     pub destructive: bool,
+    pub resource_template: &'static str,
+    pub method_name: &'static str,
+    pub connections: &'static [&'static str],
+    pub transport: Transport,
 }
 
 /// Http is the transport generated HTTP operations run on: one authenticated

@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::atlassian::v1::{CreateConfluencePageRequest, CreateConfluencePageResponse, CreateJiraCommentRequest, CreateJiraCommentResponse, CreateJiraIssueRequest, CreateJiraIssueResponse, GetConfluencePageRequest, GetConfluencePageResponse, GetJiraIssueRequest, GetJiraIssueResponse, ListConfluencePagesRequest, ListConfluencePagesResponse, SearchJiraIssuesRequest, SearchJiraIssuesResponse};
 
@@ -19,6 +19,10 @@ pub const OP_CREATE_CONFLUENCE_PAGE: Op = Op {
     id: "atlassian.confluence.pages.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "confluence/pages",
+    method_name: "CreateConfluencePage",
+    connections: &["user_oauth", "api_token"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for atlassian.confluence.pages.get, for authorization and audit: the
@@ -27,6 +31,10 @@ pub const OP_GET_CONFLUENCE_PAGE: Op = Op {
     id: "atlassian.confluence.pages.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "confluence/pages/{page_id}",
+    method_name: "GetConfluencePage",
+    connections: &["user_oauth", "api_token"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for atlassian.confluence.pages.list, for authorization and audit: the
@@ -35,6 +43,10 @@ pub const OP_LIST_CONFLUENCE_PAGES: Op = Op {
     id: "atlassian.confluence.pages.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "confluence/pages",
+    method_name: "ListConfluencePages",
+    connections: &["user_oauth", "api_token"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for atlassian.jira.issues.comments.create, for authorization and audit: the
@@ -43,6 +55,10 @@ pub const OP_CREATE_JIRA_COMMENT: Op = Op {
     id: "atlassian.jira.issues.comments.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "jira/issues/{issue_key}",
+    method_name: "CreateJiraComment",
+    connections: &["user_oauth", "api_token"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for atlassian.jira.issues.create, for authorization and audit: the
@@ -51,6 +67,10 @@ pub const OP_CREATE_JIRA_ISSUE: Op = Op {
     id: "atlassian.jira.issues.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "jira/issues",
+    method_name: "CreateJiraIssue",
+    connections: &["user_oauth", "api_token"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for atlassian.jira.issues.get, for authorization and audit: the
@@ -59,6 +79,10 @@ pub const OP_GET_JIRA_ISSUE: Op = Op {
     id: "atlassian.jira.issues.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "jira/issues/{issue_key}",
+    method_name: "GetJiraIssue",
+    connections: &["user_oauth", "api_token"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for atlassian.jira.issues.search, for authorization and audit: the
@@ -67,6 +91,10 @@ pub const OP_SEARCH_JIRA_ISSUES: Op = Op {
     id: "atlassian.jira.issues.search",
     class: Class::Read,
     destructive: false,
+    resource_template: "jira/issues",
+    method_name: "SearchJiraIssues",
+    connections: &["user_oauth", "api_token"],
+    transport: Transport::Http,
 };
 
 const ERRORS_CREATE_CONFLUENCE_PAGE: &[ErrorMapping] = &[

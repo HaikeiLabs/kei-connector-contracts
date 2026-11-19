@@ -35,12 +35,12 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpGetFile      = connection.Op{ID: "testconn.files.get", Class: connection.Read}
-	OpCreateThing  = connection.Op{ID: "testconn.things.create", Class: connection.Write}
-	OpGetThing     = connection.Op{ID: "testconn.things.get", Class: connection.Read}
-	OpListThings   = connection.Op{ID: "testconn.things.list", Class: connection.Read}
-	OpRemoveThing  = connection.Op{ID: "testconn.things.remove", Class: connection.Write, Destructive: true}
-	OpSearchThings = connection.Op{ID: "testconn.things.search", Class: connection.Read}
+	OpGetFile      = connection.Op{ID: "testconn.files.get", Class: connection.Read, ResourceTemplate: "spaces/{space}", MethodName: "GetFile", Connections: []string{"user_oauth"}, Transport: connection.TransportHTTP}
+	OpCreateThing  = connection.Op{ID: "testconn.things.create", Class: connection.Write, ResourceTemplate: "spaces/{space}", MethodName: "CreateThing", Connections: []string{"user_oauth"}, Transport: connection.TransportHTTP}
+	OpGetThing     = connection.Op{ID: "testconn.things.get", Class: connection.Read, ResourceTemplate: "spaces/{space}", MethodName: "GetThing", Connections: []string{"user_oauth", "api_key"}, Transport: connection.TransportHTTP}
+	OpListThings   = connection.Op{ID: "testconn.things.list", Class: connection.Read, ResourceTemplate: "spaces/{space}", MethodName: "ListThings", Connections: []string{"user_oauth", "api_key"}, Transport: connection.TransportHTTP}
+	OpRemoveThing  = connection.Op{ID: "testconn.things.remove", Class: connection.Write, Destructive: true, ResourceTemplate: "spaces/{space}", MethodName: "RemoveThing", Connections: []string{"user_oauth"}, Transport: connection.TransportHTTP}
+	OpSearchThings = connection.Op{ID: "testconn.things.search", Class: connection.Read, ResourceTemplate: "things", MethodName: "SearchThings", Connections: []string{"user_oauth", "api_key"}, Transport: connection.TransportGraphQL}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.

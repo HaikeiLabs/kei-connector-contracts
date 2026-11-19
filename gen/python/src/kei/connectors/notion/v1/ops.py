@@ -4,11 +4,11 @@
 
 from typing import Protocol
 
-from kei.connection import HttpConnection, Op, OpClass, call_http
+from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
 from kei.connectors.notion.v1 import databases_pb2, pages_pb2
 
-OP_QUERY_DATABASE = Op(id="notion.databases.query", op_class=OpClass.READ, destructive=False)
+OP_QUERY_DATABASE = Op(id="notion.databases.query", op_class=OpClass.READ, destructive=False, resource_template="databases/{database_id}", method_name="QueryDatabase", connections=("user_oauth", "integration_token"), transport=Transport.HTTP)
 _SPEC_QUERY_DATABASE = {
     "op": OP_QUERY_DATABASE,
     "method": "POST",
@@ -19,7 +19,7 @@ _SPEC_QUERY_DATABASE = {
     "cursor_field": "start_cursor",
     "next_cursor_field": "next_cursor",
 }
-OP_CREATE_PAGE = Op(id="notion.pages.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_PAGE = Op(id="notion.pages.create", op_class=OpClass.WRITE, destructive=False, resource_template="pages", method_name="CreatePage", connections=("user_oauth", "integration_token"), transport=Transport.HTTP)
 _SPEC_CREATE_PAGE = {
     "op": OP_CREATE_PAGE,
     "method": "POST",
@@ -30,7 +30,7 @@ _SPEC_CREATE_PAGE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_PAGE = Op(id="notion.pages.get", op_class=OpClass.READ, destructive=False)
+OP_GET_PAGE = Op(id="notion.pages.get", op_class=OpClass.READ, destructive=False, resource_template="pages/{page_id}", method_name="GetPage", connections=("user_oauth", "integration_token"), transport=Transport.HTTP)
 _SPEC_GET_PAGE = {
     "op": OP_GET_PAGE,
     "method": "GET",
@@ -41,7 +41,7 @@ _SPEC_GET_PAGE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_UPDATE_PAGE = Op(id="notion.pages.update", op_class=OpClass.WRITE, destructive=False)
+OP_UPDATE_PAGE = Op(id="notion.pages.update", op_class=OpClass.WRITE, destructive=False, resource_template="pages/{page_id}", method_name="UpdatePage", connections=("user_oauth", "integration_token"), transport=Transport.HTTP)
 _SPEC_UPDATE_PAGE = {
     "op": OP_UPDATE_PAGE,
     "method": "PATCH",

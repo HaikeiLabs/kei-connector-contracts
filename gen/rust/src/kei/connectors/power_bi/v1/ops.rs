@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::power_bi::v1::{ExecuteQueriesRequest, ExecuteQueriesResponse, ListDatasetsRequest, ListDatasetsResponse};
 
@@ -19,6 +19,10 @@ pub const OP_EXECUTE_QUERIES: Op = Op {
     id: "power_bi.datasets.execute_queries",
     class: Class::Read,
     destructive: false,
+    resource_template: "groups/{group_id}/datasets/{dataset_id}",
+    method_name: "ExecuteQueries",
+    connections: &["user_obo"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for power_bi.datasets.list, for authorization and audit: the
@@ -27,6 +31,10 @@ pub const OP_LIST_DATASETS: Op = Op {
     id: "power_bi.datasets.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "groups/{group_id}",
+    method_name: "ListDatasets",
+    connections: &["user_obo"],
+    transport: Transport::Http,
 };
 
 const ERRORS_EXECUTE_QUERIES: &[ErrorMapping] = &[

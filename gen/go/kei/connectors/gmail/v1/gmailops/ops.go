@@ -26,9 +26,9 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpCreateDraft  = connection.Op{ID: "gmail.drafts.create", Class: connection.Write}
-	OpGetMessage   = connection.Op{ID: "gmail.messages.get", Class: connection.Read}
-	OpListMessages = connection.Op{ID: "gmail.messages.list", Class: connection.Read}
+	OpCreateDraft  = connection.Op{ID: "gmail.drafts.create", Class: connection.Write, ResourceTemplate: "users/{user_id}", MethodName: "CreateDraft", Connections: []string{"user_oauth", "domain_delegation"}, Transport: connection.TransportHTTP}
+	OpGetMessage   = connection.Op{ID: "gmail.messages.get", Class: connection.Read, ResourceTemplate: "users/{user_id}", MethodName: "GetMessage", Connections: []string{"user_oauth", "domain_delegation"}, Transport: connection.TransportHTTP}
+	OpListMessages = connection.Op{ID: "gmail.messages.list", Class: connection.Read, ResourceTemplate: "users/{user_id}", MethodName: "ListMessages", Connections: []string{"user_oauth", "domain_delegation"}, Transport: connection.TransportHTTP}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.

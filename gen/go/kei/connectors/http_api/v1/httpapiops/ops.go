@@ -24,8 +24,8 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpGetRecord   = connection.Op{ID: "http_api.records.get", Class: connection.Read}
-	OpListRecords = connection.Op{ID: "http_api.records.list", Class: connection.Read}
+	OpGetRecord   = connection.Op{ID: "http_api.records.get", Class: connection.Read, ResourceTemplate: "collections/{collection}", MethodName: "GetRecord", Connections: []string{"api_key"}, Transport: connection.TransportHTTP}
+	OpListRecords = connection.Op{ID: "http_api.records.list", Class: connection.Read, ResourceTemplate: "collections/{collection}", MethodName: "ListRecords", Connections: []string{"api_key"}, Transport: connection.TransportHTTP}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.

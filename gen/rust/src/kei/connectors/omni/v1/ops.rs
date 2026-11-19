@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::omni::v1::{ListDocumentsRequest, ListDocumentsResponse, RunQueryRequest, RunQueryResponse};
 
@@ -19,6 +19,10 @@ pub const OP_LIST_DOCUMENTS: Op = Op {
     id: "omni.documents.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "documents",
+    method_name: "ListDocuments",
+    connections: &["api_key"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for omni.queries.run, for authorization and audit: the
@@ -27,6 +31,10 @@ pub const OP_RUN_QUERY: Op = Op {
     id: "omni.queries.run",
     class: Class::Read,
     destructive: false,
+    resource_template: "models/{model_id}",
+    method_name: "RunQuery",
+    connections: &["api_key"],
+    transport: Transport::Http,
 };
 
 const ERRORS_LIST_DOCUMENTS: &[ErrorMapping] = &[

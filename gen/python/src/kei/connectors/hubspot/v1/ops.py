@@ -4,11 +4,11 @@
 
 from typing import Protocol
 
-from kei.connection import HttpConnection, Op, OpClass, call_http
+from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
 from kei.connectors.hubspot.v1 import contacts_pb2, deals_pb2
 
-OP_CREATE_CONTACT = Op(id="hubspot.contacts.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_CONTACT = Op(id="hubspot.contacts.create", op_class=OpClass.WRITE, destructive=False, resource_template="contacts", method_name="CreateContact", connections=("user_oauth", "private_app"), transport=Transport.HTTP)
 _SPEC_CREATE_CONTACT = {
     "op": OP_CREATE_CONTACT,
     "method": "POST",
@@ -19,7 +19,7 @@ _SPEC_CREATE_CONTACT = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_CONTACT = Op(id="hubspot.contacts.get", op_class=OpClass.READ, destructive=False)
+OP_GET_CONTACT = Op(id="hubspot.contacts.get", op_class=OpClass.READ, destructive=False, resource_template="contacts/{contact_id}", method_name="GetContact", connections=("user_oauth", "private_app"), transport=Transport.HTTP)
 _SPEC_GET_CONTACT = {
     "op": OP_GET_CONTACT,
     "method": "GET",
@@ -30,7 +30,7 @@ _SPEC_GET_CONTACT = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_CONTACTS = Op(id="hubspot.contacts.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_CONTACTS = Op(id="hubspot.contacts.list", op_class=OpClass.READ, destructive=False, resource_template="contacts", method_name="ListContacts", connections=("user_oauth", "private_app"), transport=Transport.HTTP)
 _SPEC_LIST_CONTACTS = {
     "op": OP_LIST_CONTACTS,
     "method": "GET",
@@ -41,7 +41,7 @@ _SPEC_LIST_CONTACTS = {
     "cursor_field": "after",
     "next_cursor_field": "next_after",
 }
-OP_UPDATE_CONTACT = Op(id="hubspot.contacts.update", op_class=OpClass.WRITE, destructive=False)
+OP_UPDATE_CONTACT = Op(id="hubspot.contacts.update", op_class=OpClass.WRITE, destructive=False, resource_template="contacts/{contact_id}", method_name="UpdateContact", connections=("user_oauth", "private_app"), transport=Transport.HTTP)
 _SPEC_UPDATE_CONTACT = {
     "op": OP_UPDATE_CONTACT,
     "method": "PATCH",
@@ -52,7 +52,7 @@ _SPEC_UPDATE_CONTACT = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_DEALS = Op(id="hubspot.deals.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_DEALS = Op(id="hubspot.deals.list", op_class=OpClass.READ, destructive=False, resource_template="deals", method_name="ListDeals", connections=("user_oauth", "private_app"), transport=Transport.HTTP)
 _SPEC_LIST_DEALS = {
     "op": OP_LIST_DEALS,
     "method": "GET",

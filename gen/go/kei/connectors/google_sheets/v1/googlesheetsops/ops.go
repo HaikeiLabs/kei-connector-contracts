@@ -26,9 +26,9 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpGetSpreadsheet = connection.Op{ID: "google_sheets.spreadsheets.get", Class: connection.Read}
-	OpGetValues      = connection.Op{ID: "google_sheets.values.get", Class: connection.Read}
-	OpUpdateValues   = connection.Op{ID: "google_sheets.values.update", Class: connection.Write, Destructive: true}
+	OpGetSpreadsheet = connection.Op{ID: "google_sheets.spreadsheets.get", Class: connection.Read, ResourceTemplate: "spreadsheets/{spreadsheet_id}", MethodName: "GetSpreadsheet", Connections: []string{"user_oauth", "domain_delegation"}, Transport: connection.TransportHTTP}
+	OpGetValues      = connection.Op{ID: "google_sheets.values.get", Class: connection.Read, ResourceTemplate: "spreadsheets/{spreadsheet_id}", MethodName: "GetValues", Connections: []string{"user_oauth", "domain_delegation"}, Transport: connection.TransportHTTP}
+	OpUpdateValues   = connection.Op{ID: "google_sheets.values.update", Class: connection.Write, Destructive: true, ResourceTemplate: "spreadsheets/{spreadsheet_id}", MethodName: "UpdateValues", Connections: []string{"user_oauth", "domain_delegation"}, Transport: connection.TransportHTTP}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.

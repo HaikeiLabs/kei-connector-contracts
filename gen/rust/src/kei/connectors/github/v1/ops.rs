@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::github::v1::{CreateBlobRequest, CreateBlobResponse, CreateCommitRequest, CreateCommitResponse, CreateIssueCommentRequest, CreateIssueCommentResponse, CreateIssueRequest, CreateIssueResponse, CreatePullRequestRequest, CreatePullRequestResponse, CreatePullReviewRequest, CreatePullReviewResponse, CreateRefRequest, CreateRefResponse, CreateTreeRequest, CreateTreeResponse, GetIssueRequest, GetIssueResponse, GetPullRequestRequest, GetPullRequestResponse, GetRefRequest, GetRefResponse, GetRepositoryRequest, GetRepositoryResponse, ListCheckRunsRequest, ListCheckRunsResponse, ListIssuesRequest, ListIssuesResponse, ListPullReviewsRequest, ListPullReviewsResponse, ListPullsRequest, ListPullsResponse, ListWorkflowRunsRequest, ListWorkflowRunsResponse, PutContentsRequest, PutContentsResponse, UpdateIssueRequest, UpdateIssueResponse, UpdatePullRequestRequest, UpdatePullRequestResponse, UpdateRefRequest, UpdateRefResponse};
 
@@ -19,6 +19,10 @@ pub const OP_LIST_WORKFLOW_RUNS: Op = Op {
     id: "github.actions.runs.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "ListWorkflowRuns",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.checks.runs.list, for authorization and audit: the
@@ -27,6 +31,10 @@ pub const OP_LIST_CHECK_RUNS: Op = Op {
     id: "github.checks.runs.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "ListCheckRuns",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.contents.put, for authorization and audit: the
@@ -35,6 +43,10 @@ pub const OP_PUT_CONTENTS: Op = Op {
     id: "github.contents.put",
     class: Class::Write,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "PutContents",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.git.blobs.create, for authorization and audit: the
@@ -43,6 +55,10 @@ pub const OP_CREATE_BLOB: Op = Op {
     id: "github.git.blobs.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "CreateBlob",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.git.commits.create, for authorization and audit: the
@@ -51,6 +67,10 @@ pub const OP_CREATE_COMMIT: Op = Op {
     id: "github.git.commits.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "CreateCommit",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.git.refs.create, for authorization and audit: the
@@ -59,6 +79,10 @@ pub const OP_CREATE_REF: Op = Op {
     id: "github.git.refs.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "CreateRef",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.git.refs.get, for authorization and audit: the
@@ -67,6 +91,10 @@ pub const OP_GET_REF: Op = Op {
     id: "github.git.refs.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "GetRef",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.git.refs.update, for authorization and audit: the
@@ -75,6 +103,10 @@ pub const OP_UPDATE_REF: Op = Op {
     id: "github.git.refs.update",
     class: Class::Write,
     destructive: true,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "UpdateRef",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.git.trees.create, for authorization and audit: the
@@ -83,6 +115,10 @@ pub const OP_CREATE_TREE: Op = Op {
     id: "github.git.trees.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "CreateTree",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.issues.comments.create, for authorization and audit: the
@@ -91,6 +127,10 @@ pub const OP_CREATE_ISSUE_COMMENT: Op = Op {
     id: "github.issues.comments.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "CreateIssueComment",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.issues.create, for authorization and audit: the
@@ -99,6 +139,10 @@ pub const OP_CREATE_ISSUE: Op = Op {
     id: "github.issues.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "CreateIssue",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.issues.get, for authorization and audit: the
@@ -107,6 +151,10 @@ pub const OP_GET_ISSUE: Op = Op {
     id: "github.issues.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "GetIssue",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.issues.list, for authorization and audit: the
@@ -115,6 +163,10 @@ pub const OP_LIST_ISSUES: Op = Op {
     id: "github.issues.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "ListIssues",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.issues.update, for authorization and audit: the
@@ -123,6 +175,10 @@ pub const OP_UPDATE_ISSUE: Op = Op {
     id: "github.issues.update",
     class: Class::Write,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "UpdateIssue",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.pulls.create, for authorization and audit: the
@@ -131,6 +187,10 @@ pub const OP_CREATE_PULL_REQUEST: Op = Op {
     id: "github.pulls.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "CreatePullRequest",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.pulls.get, for authorization and audit: the
@@ -139,6 +199,10 @@ pub const OP_GET_PULL_REQUEST: Op = Op {
     id: "github.pulls.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "GetPullRequest",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.pulls.list, for authorization and audit: the
@@ -147,6 +211,10 @@ pub const OP_LIST_PULLS: Op = Op {
     id: "github.pulls.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "ListPulls",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.pulls.reviews.create, for authorization and audit: the
@@ -155,6 +223,10 @@ pub const OP_CREATE_REVIEW: Op = Op {
     id: "github.pulls.reviews.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "CreateReview",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.pulls.reviews.list, for authorization and audit: the
@@ -163,6 +235,10 @@ pub const OP_LIST_REVIEWS: Op = Op {
     id: "github.pulls.reviews.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "ListReviews",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.pulls.update, for authorization and audit: the
@@ -171,6 +247,10 @@ pub const OP_UPDATE_PULL_REQUEST: Op = Op {
     id: "github.pulls.update",
     class: Class::Write,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "UpdatePullRequest",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for github.repos.get, for authorization and audit: the
@@ -179,6 +259,10 @@ pub const OP_GET_REPOSITORY: Op = Op {
     id: "github.repos.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "GetRepository",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
 };
 
 const ERRORS_LIST_WORKFLOW_RUNS: &[ErrorMapping] = &[

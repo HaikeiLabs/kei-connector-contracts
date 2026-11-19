@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::gmail::v1::{CreateDraftRequest, CreateDraftResponse, GetMessageRequest, GetMessageResponse, ListMessagesRequest, ListMessagesResponse};
 
@@ -19,6 +19,10 @@ pub const OP_CREATE_DRAFT: Op = Op {
     id: "gmail.drafts.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "users/{user_id}",
+    method_name: "CreateDraft",
+    connections: &["user_oauth", "domain_delegation"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for gmail.messages.get, for authorization and audit: the
@@ -27,6 +31,10 @@ pub const OP_GET_MESSAGE: Op = Op {
     id: "gmail.messages.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "users/{user_id}",
+    method_name: "GetMessage",
+    connections: &["user_oauth", "domain_delegation"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for gmail.messages.list, for authorization and audit: the
@@ -35,6 +43,10 @@ pub const OP_LIST_MESSAGES: Op = Op {
     id: "gmail.messages.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "users/{user_id}",
+    method_name: "ListMessages",
+    connections: &["user_oauth", "domain_delegation"],
+    transport: Transport::Http,
 };
 
 const ERRORS_CREATE_DRAFT: &[ErrorMapping] = &[

@@ -4,11 +4,11 @@
 
 from typing import Protocol
 
-from kei.connection import HttpConnection, Op, OpClass, call_http
+from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
 from kei.connectors.linear.v1 import comments_pb2, cycles_pb2, issues_pb2, projects_pb2, teams_pb2
 
-OP_CREATE_COMMENT = Op(id="linear.comments.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_COMMENT = Op(id="linear.comments.create", op_class=OpClass.WRITE, destructive=False, resource_template="issues/{issue_id}", method_name="CreateComment", connections=("user_oauth", "api_key"), transport=Transport.GRAPHQL)
 _SPEC_CREATE_COMMENT = {
     "op": OP_CREATE_COMMENT,
     "method": "POST",
@@ -19,7 +19,7 @@ _SPEC_CREATE_COMMENT = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_CYCLES = Op(id="linear.cycles.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_CYCLES = Op(id="linear.cycles.list", op_class=OpClass.READ, destructive=False, resource_template="teams/{team_id}", method_name="ListCycles", connections=("user_oauth", "api_key"), transport=Transport.GRAPHQL)
 _SPEC_LIST_CYCLES = {
     "op": OP_LIST_CYCLES,
     "method": "POST",
@@ -30,7 +30,7 @@ _SPEC_LIST_CYCLES = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_CREATE_ISSUE = Op(id="linear.issues.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_ISSUE = Op(id="linear.issues.create", op_class=OpClass.WRITE, destructive=False, resource_template="teams/{team_id}", method_name="CreateIssue", connections=("user_oauth", "api_key"), transport=Transport.GRAPHQL)
 _SPEC_CREATE_ISSUE = {
     "op": OP_CREATE_ISSUE,
     "method": "POST",
@@ -41,7 +41,7 @@ _SPEC_CREATE_ISSUE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_ISSUE = Op(id="linear.issues.get", op_class=OpClass.READ, destructive=False)
+OP_GET_ISSUE = Op(id="linear.issues.get", op_class=OpClass.READ, destructive=False, resource_template="issues/{id}", method_name="GetIssue", connections=("user_oauth", "api_key"), transport=Transport.GRAPHQL)
 _SPEC_GET_ISSUE = {
     "op": OP_GET_ISSUE,
     "method": "POST",
@@ -52,7 +52,7 @@ _SPEC_GET_ISSUE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_SEARCH_ISSUES = Op(id="linear.issues.search", op_class=OpClass.READ, destructive=False)
+OP_SEARCH_ISSUES = Op(id="linear.issues.search", op_class=OpClass.READ, destructive=False, resource_template="issues", method_name="SearchIssues", connections=("user_oauth", "api_key"), transport=Transport.GRAPHQL)
 _SPEC_SEARCH_ISSUES = {
     "op": OP_SEARCH_ISSUES,
     "method": "POST",
@@ -63,7 +63,7 @@ _SPEC_SEARCH_ISSUES = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_UPDATE_ISSUE = Op(id="linear.issues.update", op_class=OpClass.WRITE, destructive=False)
+OP_UPDATE_ISSUE = Op(id="linear.issues.update", op_class=OpClass.WRITE, destructive=False, resource_template="issues/{id}", method_name="UpdateIssue", connections=("user_oauth", "api_key"), transport=Transport.GRAPHQL)
 _SPEC_UPDATE_ISSUE = {
     "op": OP_UPDATE_ISSUE,
     "method": "POST",
@@ -74,7 +74,7 @@ _SPEC_UPDATE_ISSUE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_PROJECTS = Op(id="linear.projects.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_PROJECTS = Op(id="linear.projects.list", op_class=OpClass.READ, destructive=False, resource_template="projects", method_name="ListProjects", connections=("user_oauth", "api_key"), transport=Transport.GRAPHQL)
 _SPEC_LIST_PROJECTS = {
     "op": OP_LIST_PROJECTS,
     "method": "POST",
@@ -85,7 +85,7 @@ _SPEC_LIST_PROJECTS = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_TEAM = Op(id="linear.teams.get", op_class=OpClass.READ, destructive=False)
+OP_GET_TEAM = Op(id="linear.teams.get", op_class=OpClass.READ, destructive=False, resource_template="teams/{team_id}", method_name="GetTeam", connections=("user_oauth", "api_key"), transport=Transport.GRAPHQL)
 _SPEC_GET_TEAM = {
     "op": OP_GET_TEAM,
     "method": "POST",

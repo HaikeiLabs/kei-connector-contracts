@@ -51,22 +51,21 @@ use haikeilabs_connector_contracts::kei::connectors::http_api::v1::{
 };
 use haikeilabs_connector_contracts::kei::connectors::hubspot::v1::{
     CreateContactResponse as HubspotCreateContactResponse, GetContactResponse,
-    ListContactsResponse, ListDealsResponse,
-    UpdateContactResponse as HubspotUpdateContactResponse,
+    ListContactsResponse, ListDealsResponse, UpdateContactResponse as HubspotUpdateContactResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::linear::v1::{
     CreateCommentResponse, CreateIssueResponse, GetIssueResponse as LinearGetIssueResponse,
     GetTeamResponse, ListCyclesResponse, ListProjectsResponse, SearchIssuesResponse,
     UpdateIssueResponse as LinearUpdateIssueResponse,
 };
+use haikeilabs_connector_contracts::kei::connectors::notion::v1::{
+    CreatePageResponse, GetPageResponse, QueryDatabaseResponse, UpdatePageResponse,
+};
 use haikeilabs_connector_contracts::kei::connectors::omni::v1::{
     ListDocumentsResponse, RunQueryResponse as OmniRunQueryResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::power_bi::v1::{
     ExecuteQueriesResponse, ListDatasetsResponse,
-};
-use haikeilabs_connector_contracts::kei::connectors::notion::v1::{
-    CreatePageResponse, GetPageResponse, QueryDatabaseResponse, UpdatePageResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::sentry::v1::{
     GetIssueResponse as SentryGetIssueResponse, ListIssuesResponse as SentryListIssuesResponse,
@@ -421,9 +420,11 @@ fn fixtures_unmarshal() {
 
     // atlassian.jira.issues.comments.create — spot: the comment id, its ADF
     // body and the created timestamp.
-    let resp: CreateJiraCommentResponse =
-        serde_json::from_str(&fixture("atlassian", "jira.issues.comments.create.response.json"))
-            .expect("atlassian.jira.issues.comments.create response unmarshals");
+    let resp: CreateJiraCommentResponse = serde_json::from_str(&fixture(
+        "atlassian",
+        "jira.issues.comments.create.response.json",
+    ))
+    .expect("atlassian.jira.issues.comments.create response unmarshals");
     assert_eq!(resp.id, "40001");
     let comment_body = resp.body.as_ref().expect("body present");
     match comment_body.fields.get("type") {
@@ -458,9 +459,11 @@ fn fixtures_unmarshal() {
 
     // atlassian.confluence.pages.create — spot: the created page's id and
     // title, and the null parent_id of a root page.
-    let resp: CreateConfluencePageResponse =
-        serde_json::from_str(&fixture("atlassian", "confluence.pages.create.response.json"))
-            .expect("atlassian.confluence.pages.create response unmarshals");
+    let resp: CreateConfluencePageResponse = serde_json::from_str(&fixture(
+        "atlassian",
+        "confluence.pages.create.response.json",
+    ))
+    .expect("atlassian.confluence.pages.create response unmarshals");
     assert_eq!(resp.id, 78643205);
     assert_eq!(resp.title, "Synthetic created page");
     assert!(resp.parent_id.is_none(), "parent_id must be null");
@@ -582,7 +585,10 @@ fn fixtures_unmarshal() {
         Some(pbjson_types::Value {
             kind: Some(Kind::StringValue(stage)),
         }) => assert_eq!(stage, "customer"),
-        other => panic!("properties.lifecyclestage must be a string, got {:?}", other),
+        other => panic!(
+            "properties.lifecyclestage must be a string, got {:?}",
+            other
+        ),
     }
 
     // hubspot.contacts.list — spot: two results and the next cursor.
@@ -847,11 +853,36 @@ fn database_dialect_fixture_rows() {
             dialect: Dialect::Postgres as i32,
             col2_type: "timestamptz",
             checks: &[
-                DialectCell { row: 0, col: 0, want: "9007199254740993", is_null: false },
-                DialectCell { row: 0, col: 1, want: "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}", is_null: false },
-                DialectCell { row: 0, col: 2, want: "2026-01-15T10:30:00.123456+00:00", is_null: false },
-                DialectCell { row: 0, col: 3, want: "12345678901234567890.123456789012345678", is_null: false },
-                DialectCell { row: 1, col: 1, want: "", is_null: true },
+                DialectCell {
+                    row: 0,
+                    col: 0,
+                    want: "9007199254740993",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 1,
+                    want: "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 2,
+                    want: "2026-01-15T10:30:00.123456+00:00",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 3,
+                    want: "12345678901234567890.123456789012345678",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 1,
+                    col: 1,
+                    want: "",
+                    is_null: true,
+                },
             ],
         },
         DialectCase {
@@ -859,11 +890,36 @@ fn database_dialect_fixture_rows() {
             dialect: Dialect::Mysql as i32,
             col2_type: "datetime(6)",
             checks: &[
-                DialectCell { row: 0, col: 0, want: "18446744073709551615", is_null: false },
-                DialectCell { row: 0, col: 1, want: "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}", is_null: false },
-                DialectCell { row: 0, col: 2, want: "2026-01-15 10:30:00.123456", is_null: false },
-                DialectCell { row: 0, col: 3, want: "12345678901234567890.123456", is_null: false },
-                DialectCell { row: 1, col: 1, want: "", is_null: true },
+                DialectCell {
+                    row: 0,
+                    col: 0,
+                    want: "18446744073709551615",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 1,
+                    want: "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 2,
+                    want: "2026-01-15 10:30:00.123456",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 3,
+                    want: "12345678901234567890.123456",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 1,
+                    col: 1,
+                    want: "",
+                    is_null: true,
+                },
             ],
         },
         DialectCase {
@@ -871,11 +927,36 @@ fn database_dialect_fixture_rows() {
             dialect: Dialect::Mssql as i32,
             col2_type: "datetimeoffset",
             checks: &[
-                DialectCell { row: 0, col: 0, want: "9007199254740993", is_null: false },
-                DialectCell { row: 0, col: 1, want: "München — ünïcodé ✓", is_null: false },
-                DialectCell { row: 0, col: 2, want: "2026-01-15T10:30:00.1234567+02:00", is_null: false },
-                DialectCell { row: 0, col: 3, want: "12345678901234567890.1234567890", is_null: false },
-                DialectCell { row: 1, col: 2, want: "", is_null: true },
+                DialectCell {
+                    row: 0,
+                    col: 0,
+                    want: "9007199254740993",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 1,
+                    want: "München — ünïcodé ✓",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 2,
+                    want: "2026-01-15T10:30:00.1234567+02:00",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 3,
+                    want: "12345678901234567890.1234567890",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 1,
+                    col: 2,
+                    want: "",
+                    is_null: true,
+                },
             ],
         },
         DialectCase {
@@ -883,11 +964,36 @@ fn database_dialect_fixture_rows() {
             dialect: Dialect::Snowflake as i32,
             col2_type: "NUMBER(38,18)",
             checks: &[
-                DialectCell { row: 0, col: 0, want: "99999999999999999999999999999999999999", is_null: false },
-                DialectCell { row: 0, col: 1, want: "Big-ID Account — ünïcodé ✓", is_null: false },
-                DialectCell { row: 0, col: 2, want: "12345678901234567890.123456789012345678", is_null: false },
-                DialectCell { row: 0, col: 3, want: "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}", is_null: false },
-                DialectCell { row: 1, col: 3, want: "", is_null: true },
+                DialectCell {
+                    row: 0,
+                    col: 0,
+                    want: "99999999999999999999999999999999999999",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 1,
+                    want: "Big-ID Account — ünïcodé ✓",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 2,
+                    want: "12345678901234567890.123456789012345678",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 3,
+                    want: "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 1,
+                    col: 3,
+                    want: "",
+                    is_null: true,
+                },
             ],
         },
         DialectCase {
@@ -895,11 +1001,36 @@ fn database_dialect_fixture_rows() {
             dialect: Dialect::Supabase as i32,
             col2_type: "timestamptz",
             checks: &[
-                DialectCell { row: 0, col: 0, want: "6f9619ff-8b86-d011-b42d-00c04fc964ff", is_null: false },
-                DialectCell { row: 0, col: 1, want: "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}", is_null: false },
-                DialectCell { row: 0, col: 2, want: "2026-01-15T10:30:00.123456+00:00", is_null: false },
-                DialectCell { row: 0, col: 3, want: "12345678901234567890.123456789012345678", is_null: false },
-                DialectCell { row: 1, col: 1, want: "", is_null: true },
+                DialectCell {
+                    row: 0,
+                    col: 0,
+                    want: "6f9619ff-8b86-d011-b42d-00c04fc964ff",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 1,
+                    want: "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 2,
+                    want: "2026-01-15T10:30:00.123456+00:00",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 0,
+                    col: 3,
+                    want: "12345678901234567890.123456789012345678",
+                    is_null: false,
+                },
+                DialectCell {
+                    row: 1,
+                    col: 1,
+                    want: "",
+                    is_null: true,
+                },
             ],
         },
     ];
@@ -918,14 +1049,21 @@ fn database_dialect_fixture_rows() {
         ))
         .unwrap_or_else(|err| panic!("query.run.{} response unmarshals: {err}", tc.name));
         assert_eq!(resp.columns.len(), 4, "query.run.{} columns", tc.name);
-        assert_eq!(resp.columns[2].r#type, tc.col2_type, "query.run.{} columns[2].type", tc.name);
+        assert_eq!(
+            resp.columns[2].r#type, tc.col2_type,
+            "query.run.{} columns[2].type",
+            tc.name
+        );
         assert_eq!(resp.rows.len(), 2, "query.run.{} rows", tc.name);
         for cell in tc.checks {
             let value = &resp.rows[cell.row].values[cell.col];
             if cell.is_null {
                 match value.kind.as_ref() {
                     None | Some(Kind::NullValue(_)) => {}
-                    other => panic!("query.run.{} rows[{}][{}] must be null, got {:?}", tc.name, cell.row, cell.col, other),
+                    other => panic!(
+                        "query.run.{} rows[{}][{}] must be null, got {:?}",
+                        tc.name, cell.row, cell.col, other
+                    ),
                 }
             } else {
                 match value.kind.as_ref() {
@@ -934,7 +1072,10 @@ fn database_dialect_fixture_rows() {
                         "query.run.{} rows[{}][{}] keeps its synthetic value",
                         tc.name, cell.row, cell.col
                     ),
-                    other => panic!("query.run.{} rows[{}][{}] must be a string, got {:?}", tc.name, cell.row, cell.col, other),
+                    other => panic!(
+                        "query.run.{} rows[{}][{}] must be a string, got {:?}",
+                        tc.name, cell.row, cell.col, other
+                    ),
                 }
             }
         }

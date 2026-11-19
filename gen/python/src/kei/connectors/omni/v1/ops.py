@@ -4,11 +4,11 @@
 
 from typing import Protocol
 
-from kei.connection import HttpConnection, Op, OpClass, call_http
+from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
 from kei.connectors.omni.v1 import documents_pb2, queries_pb2
 
-OP_LIST_DOCUMENTS = Op(id="omni.documents.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_DOCUMENTS = Op(id="omni.documents.list", op_class=OpClass.READ, destructive=False, resource_template="documents", method_name="ListDocuments", connections=("api_key",), transport=Transport.HTTP)
 _SPEC_LIST_DOCUMENTS = {
     "op": OP_LIST_DOCUMENTS,
     "method": "GET",
@@ -19,7 +19,7 @@ _SPEC_LIST_DOCUMENTS = {
     "cursor_field": "cursor",
     "next_cursor_field": "next_cursor",
 }
-OP_RUN_QUERY = Op(id="omni.queries.run", op_class=OpClass.READ, destructive=False)
+OP_RUN_QUERY = Op(id="omni.queries.run", op_class=OpClass.READ, destructive=False, resource_template="models/{model_id}", method_name="RunQuery", connections=("api_key",), transport=Transport.HTTP)
 _SPEC_RUN_QUERY = {
     "op": OP_RUN_QUERY,
     "method": "POST",

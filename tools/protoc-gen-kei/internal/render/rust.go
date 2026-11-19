@@ -124,6 +124,35 @@ func isIntKind(k protoreflect.Kind) bool {
 }
 
 // rustQuote renders a Rust string literal (ASCII text only).
+// rustConnections renders the connector's connection names as a static
+// slice; empty stays an empty slice.
+func rustConnections(names []string) string {
+	var b strings.Builder
+	b.WriteString("&[")
+	for i, n := range names {
+		if i > 0 {
+			b.WriteString(", ")
+		}
+		b.WriteString(rustQuote(n))
+	}
+	b.WriteString("]")
+	return b.String()
+}
+
+// rustTransport maps a model transport to the generated Rust enum variant.
+func rustTransport(t model.Transport) string {
+	switch t {
+	case model.GraphQL:
+		return "GraphQL"
+	case model.SQL:
+		return "Sql"
+	case model.MCP:
+		return "Mcp"
+	default:
+		return "Http"
+	}
+}
+
 func rustQuote(s string) string {
 	var out strings.Builder
 	out.WriteByte('"')
@@ -176,9 +205,9 @@ func renderRust(gen *protogen.Plugin, c *model.Connector, opts Options) error {
 	}
 	var conn []string
 	if d.SQL {
-		conn = []string{"Class", "Op", "OperationError", "Sql", "call_sql"}
+		conn = []string{"Class", "Op", "OperationError", "Sql", "Transport", "call_sql"}
 	} else {
-		conn = []string{"Class", "HttpConnection", "Op", "OperationError", "map_error", "render_path"}
+		conn = []string{"Class", "HttpConnection", "Op", "OperationError", "Transport", "map_error", "render_path"}
 		if hasHTTP {
 			conn = append(conn, "decode_response")
 		}
@@ -277,8 +306,12 @@ pub const %s: Op = Op {
     id: %s,
     class: Class::%s,
     destructive: %t,
+    resource_template: %s,
+    method_name: %s,
+    connections: %s,
+    transport: Transport::%s,
 };
-`, op.ID, op.ID, "OP_"+rustSnake(op.MethodName), rustQuote(op.ID), class, op.Opt.GetDestructive())
+`, op.ID, op.ID, "OP_"+rustSnake(op.MethodName), rustQuote(op.ID), class, op.Opt.GetDestructive(), rustQuote(op.Opt.GetResourceTemplate()), rustQuote(op.MethodName), rustConnections(op.Opt.GetConnections()), rustTransport(op.Transport))
 	if len(op.Opt.GetErrors()) > 0 {
 		var entries []string
 		for _, e := range op.Opt.GetErrors() {

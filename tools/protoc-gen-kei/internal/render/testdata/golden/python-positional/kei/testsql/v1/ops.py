@@ -4,13 +4,13 @@
 
 from typing import Protocol
 
-from kei.connection import Op, OpClass, SqlConnection, call_sql
+from kei.connection import Op, OpClass, SqlConnection, Transport, call_sql
 
 from google.protobuf import struct_pb2
 
 from kei.testsql.v1 import connector_pb2
 
-OP_RUN_QUERY = Op(id="testsql.query.run", op_class=OpClass.READ, destructive=False)
+OP_RUN_QUERY = Op(id="testsql.query.run", op_class=OpClass.READ, destructive=False, resource_template="query", method_name="RunQuery", connections=("dsn",), transport=Transport.SQL)
 _SPEC_RUN_QUERY = {
     "op": OP_RUN_QUERY,
     "method": "",

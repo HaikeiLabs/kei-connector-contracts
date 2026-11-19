@@ -36,14 +36,14 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpCreateComment = connection.Op{ID: "linear.comments.create", Class: connection.Write}
-	OpListCycles    = connection.Op{ID: "linear.cycles.list", Class: connection.Read}
-	OpCreateIssue   = connection.Op{ID: "linear.issues.create", Class: connection.Write}
-	OpGetIssue      = connection.Op{ID: "linear.issues.get", Class: connection.Read}
-	OpSearchIssues  = connection.Op{ID: "linear.issues.search", Class: connection.Read}
-	OpUpdateIssue   = connection.Op{ID: "linear.issues.update", Class: connection.Write}
-	OpListProjects  = connection.Op{ID: "linear.projects.list", Class: connection.Read}
-	OpGetTeam       = connection.Op{ID: "linear.teams.get", Class: connection.Read}
+	OpCreateComment = connection.Op{ID: "linear.comments.create", Class: connection.Write, ResourceTemplate: "issues/{issue_id}", MethodName: "CreateComment", Connections: []string{"user_oauth", "api_key"}, Transport: connection.TransportGraphQL}
+	OpListCycles    = connection.Op{ID: "linear.cycles.list", Class: connection.Read, ResourceTemplate: "teams/{team_id}", MethodName: "ListCycles", Connections: []string{"user_oauth", "api_key"}, Transport: connection.TransportGraphQL}
+	OpCreateIssue   = connection.Op{ID: "linear.issues.create", Class: connection.Write, ResourceTemplate: "teams/{team_id}", MethodName: "CreateIssue", Connections: []string{"user_oauth", "api_key"}, Transport: connection.TransportGraphQL}
+	OpGetIssue      = connection.Op{ID: "linear.issues.get", Class: connection.Read, ResourceTemplate: "issues/{id}", MethodName: "GetIssue", Connections: []string{"user_oauth", "api_key"}, Transport: connection.TransportGraphQL}
+	OpSearchIssues  = connection.Op{ID: "linear.issues.search", Class: connection.Read, ResourceTemplate: "issues", MethodName: "SearchIssues", Connections: []string{"user_oauth", "api_key"}, Transport: connection.TransportGraphQL}
+	OpUpdateIssue   = connection.Op{ID: "linear.issues.update", Class: connection.Write, ResourceTemplate: "issues/{id}", MethodName: "UpdateIssue", Connections: []string{"user_oauth", "api_key"}, Transport: connection.TransportGraphQL}
+	OpListProjects  = connection.Op{ID: "linear.projects.list", Class: connection.Read, ResourceTemplate: "projects", MethodName: "ListProjects", Connections: []string{"user_oauth", "api_key"}, Transport: connection.TransportGraphQL}
+	OpGetTeam       = connection.Op{ID: "linear.teams.get", Class: connection.Read, ResourceTemplate: "teams/{team_id}", MethodName: "GetTeam", Connections: []string{"user_oauth", "api_key"}, Transport: connection.TransportGraphQL}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.

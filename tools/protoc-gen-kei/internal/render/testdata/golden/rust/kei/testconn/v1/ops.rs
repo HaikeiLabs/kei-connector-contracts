@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, decode_graphql_response, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_graphql_response, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::testconn::v1::{CreateThingRequest, CreateThingResponse, GetFileRequest, GetFileResponse, GetThingRequest, GetThingResponse, ListThingsRequest, ListThingsResponse, RemoveThingRequest, RemoveThingResponse, SearchThingsRequest, SearchThingsResponse};
 
@@ -19,6 +19,10 @@ pub const OP_GET_FILE: Op = Op {
     id: "testconn.files.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "spaces/{space}",
+    method_name: "GetFile",
+    connections: &["user_oauth"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for testconn.things.create, for authorization and audit: the
@@ -27,6 +31,10 @@ pub const OP_CREATE_THING: Op = Op {
     id: "testconn.things.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "spaces/{space}",
+    method_name: "CreateThing",
+    connections: &["user_oauth"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for testconn.things.get, for authorization and audit: the
@@ -35,6 +43,10 @@ pub const OP_GET_THING: Op = Op {
     id: "testconn.things.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "spaces/{space}",
+    method_name: "GetThing",
+    connections: &["user_oauth", "api_key"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for testconn.things.list, for authorization and audit: the
@@ -43,6 +55,10 @@ pub const OP_LIST_THINGS: Op = Op {
     id: "testconn.things.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "spaces/{space}",
+    method_name: "ListThings",
+    connections: &["user_oauth", "api_key"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for testconn.things.remove, for authorization and audit: the
@@ -51,6 +67,10 @@ pub const OP_REMOVE_THING: Op = Op {
     id: "testconn.things.remove",
     class: Class::Write,
     destructive: true,
+    resource_template: "spaces/{space}",
+    method_name: "RemoveThing",
+    connections: &["user_oauth"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for testconn.things.search, for authorization and audit: the
@@ -59,6 +79,10 @@ pub const OP_SEARCH_THINGS: Op = Op {
     id: "testconn.things.search",
     class: Class::Read,
     destructive: false,
+    resource_template: "things",
+    method_name: "SearchThings",
+    connections: &["user_oauth", "api_key"],
+    transport: Transport::GraphQL,
 };
 
 const ERRORS_CREATE_THING: &[ErrorMapping] = &[

@@ -4,13 +4,13 @@
 
 from typing import Protocol
 
-from kei.connection import HttpConnection, Op, OpClass, call_http
+from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
 from google.protobuf import struct_pb2
 
 from kei.testconn.v1 import things_pb2
 
-OP_GET_FILE = Op(id="testconn.files.get", op_class=OpClass.READ, destructive=False)
+OP_GET_FILE = Op(id="testconn.files.get", op_class=OpClass.READ, destructive=False, resource_template="spaces/{space}", method_name="GetFile", connections=("user_oauth",), transport=Transport.HTTP)
 _SPEC_GET_FILE = {
     "op": OP_GET_FILE,
     "method": "GET",
@@ -21,7 +21,7 @@ _SPEC_GET_FILE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_CREATE_THING = Op(id="testconn.things.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_THING = Op(id="testconn.things.create", op_class=OpClass.WRITE, destructive=False, resource_template="spaces/{space}", method_name="CreateThing", connections=("user_oauth",), transport=Transport.HTTP)
 _SPEC_CREATE_THING = {
     "op": OP_CREATE_THING,
     "method": "POST",
@@ -32,7 +32,7 @@ _SPEC_CREATE_THING = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_THING = Op(id="testconn.things.get", op_class=OpClass.READ, destructive=False)
+OP_GET_THING = Op(id="testconn.things.get", op_class=OpClass.READ, destructive=False, resource_template="spaces/{space}", method_name="GetThing", connections=("user_oauth", "api_key"), transport=Transport.HTTP)
 _SPEC_GET_THING = {
     "op": OP_GET_THING,
     "method": "GET",
@@ -43,7 +43,7 @@ _SPEC_GET_THING = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_THINGS = Op(id="testconn.things.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_THINGS = Op(id="testconn.things.list", op_class=OpClass.READ, destructive=False, resource_template="spaces/{space}", method_name="ListThings", connections=("user_oauth", "api_key"), transport=Transport.HTTP)
 _SPEC_LIST_THINGS = {
     "op": OP_LIST_THINGS,
     "method": "GET",
@@ -54,7 +54,7 @@ _SPEC_LIST_THINGS = {
     "cursor_field": "page",
     "next_cursor_field": "next_page",
 }
-OP_REMOVE_THING = Op(id="testconn.things.remove", op_class=OpClass.WRITE, destructive=True)
+OP_REMOVE_THING = Op(id="testconn.things.remove", op_class=OpClass.WRITE, destructive=True, resource_template="spaces/{space}", method_name="RemoveThing", connections=("user_oauth",), transport=Transport.HTTP)
 _SPEC_REMOVE_THING = {
     "op": OP_REMOVE_THING,
     "method": "DELETE",
@@ -65,7 +65,7 @@ _SPEC_REMOVE_THING = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_SEARCH_THINGS = Op(id="testconn.things.search", op_class=OpClass.READ, destructive=False)
+OP_SEARCH_THINGS = Op(id="testconn.things.search", op_class=OpClass.READ, destructive=False, resource_template="things", method_name="SearchThings", connections=("user_oauth", "api_key"), transport=Transport.GRAPHQL)
 _SPEC_SEARCH_THINGS = {
     "op": OP_SEARCH_THINGS,
     "method": "POST",

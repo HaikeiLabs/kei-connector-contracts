@@ -4,11 +4,11 @@
 
 from typing import Protocol
 
-from kei.connection import HttpConnection, Op, OpClass, call_http
+from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
 from kei.connectors.sentry.v1 import issues_pb2
 
-OP_GET_ISSUE = Op(id="sentry.issues.get", op_class=OpClass.READ, destructive=False)
+OP_GET_ISSUE = Op(id="sentry.issues.get", op_class=OpClass.READ, destructive=False, resource_template="organizations/{organization_slug}", method_name="GetIssue", connections=("auth_token",), transport=Transport.HTTP)
 _SPEC_GET_ISSUE = {
     "op": OP_GET_ISSUE,
     "method": "GET",
@@ -19,7 +19,7 @@ _SPEC_GET_ISSUE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_ISSUES = Op(id="sentry.issues.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_ISSUES = Op(id="sentry.issues.list", op_class=OpClass.READ, destructive=False, resource_template="organizations/{organization_slug}", method_name="ListIssues", connections=("auth_token",), transport=Transport.HTTP)
 _SPEC_LIST_ISSUES = {
     "op": OP_LIST_ISSUES,
     "method": "GET",
@@ -30,7 +30,7 @@ _SPEC_LIST_ISSUES = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_UPDATE_ISSUE = Op(id="sentry.issues.update", op_class=OpClass.WRITE, destructive=False)
+OP_UPDATE_ISSUE = Op(id="sentry.issues.update", op_class=OpClass.WRITE, destructive=False, resource_template="organizations/{organization_slug}", method_name="UpdateIssue", connections=("auth_token",), transport=Transport.HTTP)
 _SPEC_UPDATE_ISSUE = {
     "op": OP_UPDATE_ISSUE,
     "method": "PUT",

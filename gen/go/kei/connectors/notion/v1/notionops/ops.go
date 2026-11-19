@@ -28,10 +28,10 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpQueryDatabase = connection.Op{ID: "notion.databases.query", Class: connection.Read}
-	OpCreatePage    = connection.Op{ID: "notion.pages.create", Class: connection.Write}
-	OpGetPage       = connection.Op{ID: "notion.pages.get", Class: connection.Read}
-	OpUpdatePage    = connection.Op{ID: "notion.pages.update", Class: connection.Write}
+	OpQueryDatabase = connection.Op{ID: "notion.databases.query", Class: connection.Read, ResourceTemplate: "databases/{database_id}", MethodName: "QueryDatabase", Connections: []string{"user_oauth", "integration_token"}, Transport: connection.TransportHTTP}
+	OpCreatePage    = connection.Op{ID: "notion.pages.create", Class: connection.Write, ResourceTemplate: "pages", MethodName: "CreatePage", Connections: []string{"user_oauth", "integration_token"}, Transport: connection.TransportHTTP}
+	OpGetPage       = connection.Op{ID: "notion.pages.get", Class: connection.Read, ResourceTemplate: "pages/{page_id}", MethodName: "GetPage", Connections: []string{"user_oauth", "integration_token"}, Transport: connection.TransportHTTP}
+	OpUpdatePage    = connection.Op{ID: "notion.pages.update", Class: connection.Write, ResourceTemplate: "pages/{page_id}", MethodName: "UpdatePage", Connections: []string{"user_oauth", "integration_token"}, Transport: connection.TransportHTTP}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.

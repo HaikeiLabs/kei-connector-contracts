@@ -41,6 +41,8 @@ type pyOperation struct {
 	Const, ID, Class, Destructive, Snake, Method string
 	MethodJSON, PathJSON, Params, Errors         string
 	GraphQL, CursorField, NextCursorField        string
+	ResourceTemplate, MethodName, Connections    string
+	Transport                                    string
 	Req, Resp, PosArgs, PosBuild                 string
 	SQL, Helper                                  bool
 }
@@ -65,6 +67,38 @@ var pythonKeywords = map[string]bool{
 // pyStr renders a python string literal. Like the runtime's encoder it does
 // not escape HTML characters, so the golden output matches what the runtime
 // produces on the wire.
+// pyConnections renders the connector's connection names as a tuple
+// literal; empty stays an empty tuple.
+func pyConnections(names []string) string {
+	var b strings.Builder
+	b.WriteString("(")
+	for i, n := range names {
+		if i > 0 {
+			b.WriteString(", ")
+		}
+		b.WriteString(pyStr(n))
+	}
+	if len(names) == 1 {
+		b.WriteString(",")
+	}
+	b.WriteString(")")
+	return b.String()
+}
+
+// pyTransport maps a model transport to the generated Python enum member.
+func pyTransport(t model.Transport) string {
+	switch t {
+	case model.GraphQL:
+		return "Transport.GRAPHQL"
+	case model.SQL:
+		return "Transport.SQL"
+	case model.MCP:
+		return "Transport.MCP"
+	default:
+		return "Transport.HTTP"
+	}
+}
+
 func pyStr(s string) string {
 	var b bytes.Buffer
 	enc := json.NewEncoder(&b)
@@ -190,7 +224,7 @@ func pySnakeMethod(name string) string {
 func renderPython(gen *protogen.Plugin, c *model.Connector, opts Options) error {
 	dir := path.Dir(c.File.Desc.Path())
 	d := pyFile{Source: c.File.Desc.Path(), Name: tsPascal(c.ID), SQL: c.IsSQL(), Positional: opts.positional()}
-	rt := map[string]bool{"Op": true, "OpClass": true}
+	rt := map[string]bool{"Op": true, "OpClass": true, "Transport": true}
 	if d.SQL {
 		rt["SqlConnection"] = true
 		rt["call_sql"] = true
@@ -226,6 +260,10 @@ func renderPython(gen *protogen.Plugin, c *model.Connector, opts Options) error 
 		if op.Opt.GetDestructive() {
 			o.Destructive = "True"
 		}
+		o.ResourceTemplate = pyStr(op.Opt.GetResourceTemplate())
+		o.MethodName = pyStr(op.MethodName)
+		o.Connections = pyConnections(op.Opt.GetConnections())
+		o.Transport = pyTransport(op.Transport)
 		o.Snake = strings.TrimPrefix(o.Const, "OP_")
 		addModule(op.Request)
 		addModule(op.Response)

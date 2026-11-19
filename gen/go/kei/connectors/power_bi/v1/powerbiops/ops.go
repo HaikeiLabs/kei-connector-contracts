@@ -24,8 +24,8 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpExecuteQueries = connection.Op{ID: "power_bi.datasets.execute_queries", Class: connection.Read}
-	OpListDatasets   = connection.Op{ID: "power_bi.datasets.list", Class: connection.Read}
+	OpExecuteQueries = connection.Op{ID: "power_bi.datasets.execute_queries", Class: connection.Read, ResourceTemplate: "groups/{group_id}/datasets/{dataset_id}", MethodName: "ExecuteQueries", Connections: []string{"user_obo"}, Transport: connection.TransportHTTP}
+	OpListDatasets   = connection.Op{ID: "power_bi.datasets.list", Class: connection.Read, ResourceTemplate: "groups/{group_id}", MethodName: "ListDatasets", Connections: []string{"user_obo"}, Transport: connection.TransportHTTP}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.

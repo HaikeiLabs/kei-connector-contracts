@@ -4,8 +4,8 @@ import { callHTTP, callSQL, type HTTP, type SQL } from "../../../connection/inde
 import { ListDocumentsRequest, ListDocumentsRequestSchema, ListDocumentsResponse, ListDocumentsResponseSchema } from "./documents_pb.js";
 import { RunQueryRequest, RunQueryRequestSchema, RunQueryResponse, RunQueryResponseSchema } from "./queries_pb.js";
 
-export const OP_LIST_DOCUMENTS = { id: "omni.documents.list", class: "read", destructive: false } as const;
-export const OP_RUN_QUERY = { id: "omni.queries.run", class: "read", destructive: false } as const;
+export const OP_LIST_DOCUMENTS = { id: "omni.documents.list", class: "read", destructive: false, resourceTemplate: "documents", methodName: "ListDocuments", connections: ["api_key"], transport: "http" } as const;
+export const OP_RUN_QUERY = { id: "omni.queries.run", class: "read", destructive: false, resourceTemplate: "models/{model_id}", methodName: "RunQuery", connections: ["api_key"], transport: "http" } as const;
 
 export interface OmniOperations {
   listDocuments(req: ListDocumentsRequest): Promise<ListDocumentsResponse>;
@@ -15,9 +15,9 @@ export interface OmniOperations {
 export class OmniQueries implements OmniOperations {
   constructor(private readonly conn: HTTP) {}
   listDocuments(req: ListDocumentsRequest): Promise<ListDocumentsResponse> {
-    return callHTTP(this.conn, {"cursorField":"cursor","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"GET","nextCursorField":"next_cursor","op":{"class":"read","destructive":false,"id":"omni.documents.list"},"params":[{"field":"cursor","in":"query","multiSegment":false,"wire":"cursor"}],"pathTemplate":"/api/v1/documents"}, req, ListDocumentsRequestSchema, ListDocumentsResponseSchema);
+    return callHTTP(this.conn, {"cursorField":"cursor","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"GET","nextCursorField":"next_cursor","op":{"class":"read","connections":["api_key"],"destructive":false,"id":"omni.documents.list","methodName":"ListDocuments","resourceTemplate":"documents","transport":"http"},"params":[{"field":"cursor","in":"query","multiSegment":false,"wire":"cursor"}],"pathTemplate":"/api/v1/documents"}, req, ListDocumentsRequestSchema, ListDocumentsResponseSchema);
   }
   runQuery(req: RunQueryRequest): Promise<RunQueryResponse> {
-    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"POST","nextCursorField":"","op":{"class":"read","destructive":false,"id":"omni.queries.run"},"params":[{"field":"model_id","in":"body","multiSegment":false,"wire":"model_id"},{"field":"limit","in":"body","multiSegment":false,"wire":"limit"}],"pathTemplate":"/api/v1/query/run"}, req, RunQueryRequestSchema, RunQueryResponseSchema);
+    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"POST","nextCursorField":"","op":{"class":"read","connections":["api_key"],"destructive":false,"id":"omni.queries.run","methodName":"RunQuery","resourceTemplate":"models/{model_id}","transport":"http"},"params":[{"field":"model_id","in":"body","multiSegment":false,"wire":"model_id"},{"field":"limit","in":"body","multiSegment":false,"wire":"limit"}],"pathTemplate":"/api/v1/query/run"}, req, RunQueryRequestSchema, RunQueryResponseSchema);
   }
 }

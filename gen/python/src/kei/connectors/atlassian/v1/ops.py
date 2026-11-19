@@ -4,11 +4,11 @@
 
 from typing import Protocol
 
-from kei.connection import HttpConnection, Op, OpClass, call_http
+from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
 from kei.connectors.atlassian.v1 import confluence_pb2, jira_pb2
 
-OP_CREATE_CONFLUENCE_PAGE = Op(id="atlassian.confluence.pages.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_CONFLUENCE_PAGE = Op(id="atlassian.confluence.pages.create", op_class=OpClass.WRITE, destructive=False, resource_template="confluence/pages", method_name="CreateConfluencePage", connections=("user_oauth", "api_token"), transport=Transport.HTTP)
 _SPEC_CREATE_CONFLUENCE_PAGE = {
     "op": OP_CREATE_CONFLUENCE_PAGE,
     "method": "POST",
@@ -19,7 +19,7 @@ _SPEC_CREATE_CONFLUENCE_PAGE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_CONFLUENCE_PAGE = Op(id="atlassian.confluence.pages.get", op_class=OpClass.READ, destructive=False)
+OP_GET_CONFLUENCE_PAGE = Op(id="atlassian.confluence.pages.get", op_class=OpClass.READ, destructive=False, resource_template="confluence/pages/{page_id}", method_name="GetConfluencePage", connections=("user_oauth", "api_token"), transport=Transport.HTTP)
 _SPEC_GET_CONFLUENCE_PAGE = {
     "op": OP_GET_CONFLUENCE_PAGE,
     "method": "GET",
@@ -30,7 +30,7 @@ _SPEC_GET_CONFLUENCE_PAGE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_CONFLUENCE_PAGES = Op(id="atlassian.confluence.pages.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_CONFLUENCE_PAGES = Op(id="atlassian.confluence.pages.list", op_class=OpClass.READ, destructive=False, resource_template="confluence/pages", method_name="ListConfluencePages", connections=("user_oauth", "api_token"), transport=Transport.HTTP)
 _SPEC_LIST_CONFLUENCE_PAGES = {
     "op": OP_LIST_CONFLUENCE_PAGES,
     "method": "GET",
@@ -41,7 +41,7 @@ _SPEC_LIST_CONFLUENCE_PAGES = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_CREATE_JIRA_COMMENT = Op(id="atlassian.jira.issues.comments.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_JIRA_COMMENT = Op(id="atlassian.jira.issues.comments.create", op_class=OpClass.WRITE, destructive=False, resource_template="jira/issues/{issue_key}", method_name="CreateJiraComment", connections=("user_oauth", "api_token"), transport=Transport.HTTP)
 _SPEC_CREATE_JIRA_COMMENT = {
     "op": OP_CREATE_JIRA_COMMENT,
     "method": "POST",
@@ -52,7 +52,7 @@ _SPEC_CREATE_JIRA_COMMENT = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_CREATE_JIRA_ISSUE = Op(id="atlassian.jira.issues.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_JIRA_ISSUE = Op(id="atlassian.jira.issues.create", op_class=OpClass.WRITE, destructive=False, resource_template="jira/issues", method_name="CreateJiraIssue", connections=("user_oauth", "api_token"), transport=Transport.HTTP)
 _SPEC_CREATE_JIRA_ISSUE = {
     "op": OP_CREATE_JIRA_ISSUE,
     "method": "POST",
@@ -63,7 +63,7 @@ _SPEC_CREATE_JIRA_ISSUE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_JIRA_ISSUE = Op(id="atlassian.jira.issues.get", op_class=OpClass.READ, destructive=False)
+OP_GET_JIRA_ISSUE = Op(id="atlassian.jira.issues.get", op_class=OpClass.READ, destructive=False, resource_template="jira/issues/{issue_key}", method_name="GetJiraIssue", connections=("user_oauth", "api_token"), transport=Transport.HTTP)
 _SPEC_GET_JIRA_ISSUE = {
     "op": OP_GET_JIRA_ISSUE,
     "method": "GET",
@@ -74,7 +74,7 @@ _SPEC_GET_JIRA_ISSUE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_SEARCH_JIRA_ISSUES = Op(id="atlassian.jira.issues.search", op_class=OpClass.READ, destructive=False)
+OP_SEARCH_JIRA_ISSUES = Op(id="atlassian.jira.issues.search", op_class=OpClass.READ, destructive=False, resource_template="jira/issues", method_name="SearchJiraIssues", connections=("user_oauth", "api_token"), transport=Transport.HTTP)
 _SPEC_SEARCH_JIRA_ISSUES = {
     "op": OP_SEARCH_JIRA_ISSUES,
     "method": "POST",

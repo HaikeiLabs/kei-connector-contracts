@@ -3,8 +3,8 @@
 import { callHTTP, callSQL, type HTTP, type SQL } from "../../../connection/index.js";
 import { GetRecordRequest, GetRecordRequestSchema, GetRecordResponse, GetRecordResponseSchema, ListRecordsRequest, ListRecordsRequestSchema, ListRecordsResponse, ListRecordsResponseSchema } from "./records_pb.js";
 
-export const OP_GET_RECORD = { id: "http_api.records.get", class: "read", destructive: false } as const;
-export const OP_LIST_RECORDS = { id: "http_api.records.list", class: "read", destructive: false } as const;
+export const OP_GET_RECORD = { id: "http_api.records.get", class: "read", destructive: false, resourceTemplate: "collections/{collection}", methodName: "GetRecord", connections: ["api_key"], transport: "http" } as const;
+export const OP_LIST_RECORDS = { id: "http_api.records.list", class: "read", destructive: false, resourceTemplate: "collections/{collection}", methodName: "ListRecords", connections: ["api_key"], transport: "http" } as const;
 
 export interface HttpApiOperations {
   getRecord(req: GetRecordRequest): Promise<GetRecordResponse>;
@@ -14,9 +14,9 @@ export interface HttpApiOperations {
 export class HttpApiQueries implements HttpApiOperations {
   constructor(private readonly conn: HTTP) {}
   getRecord(req: GetRecordRequest): Promise<GetRecordResponse> {
-    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"GET","nextCursorField":"","op":{"class":"read","destructive":false,"id":"http_api.records.get"},"params":[{"field":"collection","in":"path","multiSegment":false,"wire":"collection"},{"field":"record_id","in":"path","multiSegment":false,"wire":"record_id"}],"pathTemplate":"/{collection}/{record_id}"}, req, GetRecordRequestSchema, GetRecordResponseSchema);
+    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"GET","nextCursorField":"","op":{"class":"read","connections":["api_key"],"destructive":false,"id":"http_api.records.get","methodName":"GetRecord","resourceTemplate":"collections/{collection}","transport":"http"},"params":[{"field":"collection","in":"path","multiSegment":false,"wire":"collection"},{"field":"record_id","in":"path","multiSegment":false,"wire":"record_id"}],"pathTemplate":"/{collection}/{record_id}"}, req, GetRecordRequestSchema, GetRecordResponseSchema);
   }
   listRecords(req: ListRecordsRequest): Promise<ListRecordsResponse> {
-    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"GET","nextCursorField":"","op":{"class":"read","destructive":false,"id":"http_api.records.list"},"params":[{"field":"collection","in":"path","multiSegment":false,"wire":"collection"},{"field":"limit","in":"query","multiSegment":false,"wire":"limit"},{"field":"cursor","in":"query","multiSegment":false,"wire":"cursor"}],"pathTemplate":"/{collection}"}, req, ListRecordsRequestSchema, ListRecordsResponseSchema);
+    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"GET","nextCursorField":"","op":{"class":"read","connections":["api_key"],"destructive":false,"id":"http_api.records.list","methodName":"ListRecords","resourceTemplate":"collections/{collection}","transport":"http"},"params":[{"field":"collection","in":"path","multiSegment":false,"wire":"collection"},{"field":"limit","in":"query","multiSegment":false,"wire":"limit"},{"field":"cursor","in":"query","multiSegment":false,"wire":"cursor"}],"pathTemplate":"/{collection}"}, req, ListRecordsRequestSchema, ListRecordsResponseSchema);
   }
 }

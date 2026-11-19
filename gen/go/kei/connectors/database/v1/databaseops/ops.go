@@ -21,7 +21,7 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpRunQuery = connection.Op{ID: "database.query.run", Class: connection.Read}
+	OpRunQuery = connection.Op{ID: "database.query.run", Class: connection.Read, ResourceTemplate: "query", MethodName: "RunQuery", Connections: []string{"dsn", "snowflake_key_pair"}, Transport: connection.TransportSQL}
 )
 
 // Queries implements Operations over an authenticated SQL connection.

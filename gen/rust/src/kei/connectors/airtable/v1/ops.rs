@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::airtable::v1::{CreateRecordRequest, CreateRecordResponse, GetRecordRequest, GetRecordResponse, ListRecordsRequest, ListRecordsResponse, UpdateRecordRequest, UpdateRecordResponse};
 
@@ -19,6 +19,10 @@ pub const OP_CREATE_RECORD: Op = Op {
     id: "airtable.records.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "bases/{base_id}",
+    method_name: "CreateRecord",
+    connections: &["pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for airtable.records.get, for authorization and audit: the
@@ -27,6 +31,10 @@ pub const OP_GET_RECORD: Op = Op {
     id: "airtable.records.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "bases/{base_id}",
+    method_name: "GetRecord",
+    connections: &["pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for airtable.records.list, for authorization and audit: the
@@ -35,6 +43,10 @@ pub const OP_LIST_RECORDS: Op = Op {
     id: "airtable.records.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "bases/{base_id}",
+    method_name: "ListRecords",
+    connections: &["pat"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for airtable.records.update, for authorization and audit: the
@@ -43,6 +55,10 @@ pub const OP_UPDATE_RECORD: Op = Op {
     id: "airtable.records.update",
     class: Class::Write,
     destructive: false,
+    resource_template: "bases/{base_id}",
+    method_name: "UpdateRecord",
+    connections: &["pat"],
+    transport: Transport::Http,
 };
 
 const ERRORS_CREATE_RECORD: &[ErrorMapping] = &[

@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::google_sheets::v1::{GetSpreadsheetRequest, GetSpreadsheetResponse, GetValuesRequest, GetValuesResponse, UpdateValuesRequest, UpdateValuesResponse};
 
@@ -19,6 +19,10 @@ pub const OP_GET_SPREADSHEET: Op = Op {
     id: "google_sheets.spreadsheets.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "spreadsheets/{spreadsheet_id}",
+    method_name: "GetSpreadsheet",
+    connections: &["user_oauth", "domain_delegation"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for google_sheets.values.get, for authorization and audit: the
@@ -27,6 +31,10 @@ pub const OP_GET_VALUES: Op = Op {
     id: "google_sheets.values.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "spreadsheets/{spreadsheet_id}",
+    method_name: "GetValues",
+    connections: &["user_oauth", "domain_delegation"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for google_sheets.values.update, for authorization and audit: the
@@ -35,6 +43,10 @@ pub const OP_UPDATE_VALUES: Op = Op {
     id: "google_sheets.values.update",
     class: Class::Write,
     destructive: true,
+    resource_template: "spreadsheets/{spreadsheet_id}",
+    method_name: "UpdateValues",
+    connections: &["user_oauth", "domain_delegation"],
+    transport: Transport::Http,
 };
 
 const ERRORS_GET_SPREADSHEET: &[ErrorMapping] = &[

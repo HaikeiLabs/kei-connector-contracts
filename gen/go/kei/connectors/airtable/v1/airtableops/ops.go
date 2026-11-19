@@ -28,10 +28,10 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpCreateRecord = connection.Op{ID: "airtable.records.create", Class: connection.Write}
-	OpGetRecord    = connection.Op{ID: "airtable.records.get", Class: connection.Read}
-	OpListRecords  = connection.Op{ID: "airtable.records.list", Class: connection.Read}
-	OpUpdateRecord = connection.Op{ID: "airtable.records.update", Class: connection.Write}
+	OpCreateRecord = connection.Op{ID: "airtable.records.create", Class: connection.Write, ResourceTemplate: "bases/{base_id}", MethodName: "CreateRecord", Connections: []string{"pat"}, Transport: connection.TransportHTTP}
+	OpGetRecord    = connection.Op{ID: "airtable.records.get", Class: connection.Read, ResourceTemplate: "bases/{base_id}", MethodName: "GetRecord", Connections: []string{"pat"}, Transport: connection.TransportHTTP}
+	OpListRecords  = connection.Op{ID: "airtable.records.list", Class: connection.Read, ResourceTemplate: "bases/{base_id}", MethodName: "ListRecords", Connections: []string{"pat"}, Transport: connection.TransportHTTP}
+	OpUpdateRecord = connection.Op{ID: "airtable.records.update", Class: connection.Write, ResourceTemplate: "bases/{base_id}", MethodName: "UpdateRecord", Connections: []string{"pat"}, Transport: connection.TransportHTTP}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.

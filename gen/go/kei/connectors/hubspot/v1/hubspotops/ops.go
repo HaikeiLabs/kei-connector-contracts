@@ -30,11 +30,11 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpCreateContact = connection.Op{ID: "hubspot.contacts.create", Class: connection.Write}
-	OpGetContact    = connection.Op{ID: "hubspot.contacts.get", Class: connection.Read}
-	OpListContacts  = connection.Op{ID: "hubspot.contacts.list", Class: connection.Read}
-	OpUpdateContact = connection.Op{ID: "hubspot.contacts.update", Class: connection.Write}
-	OpListDeals     = connection.Op{ID: "hubspot.deals.list", Class: connection.Read}
+	OpCreateContact = connection.Op{ID: "hubspot.contacts.create", Class: connection.Write, ResourceTemplate: "contacts", MethodName: "CreateContact", Connections: []string{"user_oauth", "private_app"}, Transport: connection.TransportHTTP}
+	OpGetContact    = connection.Op{ID: "hubspot.contacts.get", Class: connection.Read, ResourceTemplate: "contacts/{contact_id}", MethodName: "GetContact", Connections: []string{"user_oauth", "private_app"}, Transport: connection.TransportHTTP}
+	OpListContacts  = connection.Op{ID: "hubspot.contacts.list", Class: connection.Read, ResourceTemplate: "contacts", MethodName: "ListContacts", Connections: []string{"user_oauth", "private_app"}, Transport: connection.TransportHTTP}
+	OpUpdateContact = connection.Op{ID: "hubspot.contacts.update", Class: connection.Write, ResourceTemplate: "contacts/{contact_id}", MethodName: "UpdateContact", Connections: []string{"user_oauth", "private_app"}, Transport: connection.TransportHTTP}
+	OpListDeals     = connection.Op{ID: "hubspot.deals.list", Class: connection.Read, ResourceTemplate: "deals", MethodName: "ListDeals", Connections: []string{"user_oauth", "private_app"}, Transport: connection.TransportHTTP}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.
