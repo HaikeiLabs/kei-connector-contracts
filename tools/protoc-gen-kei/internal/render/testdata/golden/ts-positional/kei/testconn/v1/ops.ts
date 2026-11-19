@@ -13,7 +13,7 @@ export const OP_SEARCH_THINGS = { id: "testconn.things.search", class: "read", d
 
 export interface TestconnOperations {
   getFile(space: GetFileRequest["space"], path: GetFileRequest["path"]): Promise<GetFileResponse>;
-  createThing(space: CreateThingRequest["space"], name: CreateThingRequest["name"], note: CreateThingRequest["note"]): Promise<CreateThingResponse>;
+  createThing(space: CreateThingRequest["space"], name: CreateThingRequest["name"], note: CreateThingRequest["note"], metadata: CreateThingRequest["metadata"], rows: CreateThingRequest["rows"]): Promise<CreateThingResponse>;
   getThing(space: GetThingRequest["space"], thingId: GetThingRequest["thingId"]): Promise<GetThingResponse>;
   listThings(space: ListThingsRequest["space"], limit: ListThingsRequest["limit"], page: ListThingsRequest["page"], tags: ListThingsRequest["tags"]): Promise<ListThingsResponse>;
   removeThing(space: RemoveThingRequest["space"], thingId: RemoveThingRequest["thingId"]): Promise<RemoveThingResponse>;
@@ -26,9 +26,9 @@ export class TestconnQueries implements TestconnOperations {
     const req = create(GetFileRequestSchema, { "space": space, "path": path });
     return callHTTP(this.conn, {"cursorField":"","errors":[],"graphqlDocument":"","method":"GET","nextCursorField":"","op":{"class":"read","destructive":false,"id":"testconn.files.get"},"params":[{"field":"space","in":"path","multiSegment":false,"wire":"space"},{"field":"path","in":"path","multiSegment":true,"wire":"path"}],"pathTemplate":"/spaces/{space}/files/{path}"}, req, GetFileRequestSchema, GetFileResponseSchema);
   }
-  createThing(space: CreateThingRequest["space"], name: CreateThingRequest["name"], note: CreateThingRequest["note"]): Promise<CreateThingResponse> {
-    const req = create(CreateThingRequestSchema, { "space": space, "name": name, "note": note });
-    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"conflict","retryable":false,"status":409}],"graphqlDocument":"","method":"POST","nextCursorField":"","op":{"class":"write","destructive":false,"id":"testconn.things.create"},"params":[{"field":"space","in":"path","multiSegment":false,"wire":"space"},{"field":"name","in":"body","multiSegment":false,"wire":"name"},{"field":"note","in":"body","multiSegment":false,"wire":"description"}],"pathTemplate":"/spaces/{space}/things"}, req, CreateThingRequestSchema, CreateThingResponseSchema);
+  createThing(space: CreateThingRequest["space"], name: CreateThingRequest["name"], note: CreateThingRequest["note"], metadata: CreateThingRequest["metadata"], rows: CreateThingRequest["rows"]): Promise<CreateThingResponse> {
+    const req = create(CreateThingRequestSchema, { "space": space, "name": name, "note": note, "metadata": metadata, "rows": rows });
+    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"conflict","retryable":false,"status":409}],"graphqlDocument":"","method":"POST","nextCursorField":"","op":{"class":"write","destructive":false,"id":"testconn.things.create"},"params":[{"field":"space","in":"path","multiSegment":false,"wire":"space"},{"field":"name","in":"body","multiSegment":false,"wire":"name"},{"field":"note","in":"body","multiSegment":false,"wire":"description"},{"field":"metadata","in":"body","multiSegment":false,"wire":"metadata"},{"field":"rows","in":"body","multiSegment":false,"wire":"rows"}],"pathTemplate":"/spaces/{space}/things"}, req, CreateThingRequestSchema, CreateThingResponseSchema);
   }
   getThing(space: GetThingRequest["space"], thingId: GetThingRequest["thingId"]): Promise<GetThingResponse> {
     const req = create(GetThingRequestSchema, { "space": space, "thingId": thingId });

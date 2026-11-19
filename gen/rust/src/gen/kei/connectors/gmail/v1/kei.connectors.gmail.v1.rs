@@ -55,5 +55,36 @@ pub struct GetMessageResponse {
     #[prost(int64, optional, tag="4")]
     pub internal_date: ::core::option::Option<i64>,
 }
+/// CreateDraftRequest creates a draft in one Gmail user's mailbox. message
+/// carries the draft's message body in Gmail's JSON shape (typically
+/// {"raw": base64url}, or structured fields), which stays a
+/// google.protobuf.Struct. This creates a draft only — it never sends mail;
+/// the contract does not model the send or sendAs operations.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CreateDraftRequest {
+    #[prost(string, tag="1")]
+    pub user_id: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="2")]
+    pub message: ::core::option::Option<::pbjson_types::Struct>,
+}
+/// DraftMessage models the subset of the created draft's message entry the
+/// contract needs.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DraftMessage {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub thread_id: ::prost::alloc::string::String,
+}
+/// CreateDraftResponse models the subset of Gmail's draft response the
+/// contract needs: the draft id and its message entry. It is filled by JSON
+/// unmarshal of the provider response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CreateDraftResponse {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="2")]
+    pub message: ::core::option::Option<DraftMessage>,
+}
 include!("kei.connectors.gmail.v1.serde.rs");
 // @@protoc_insertion_point(module)

@@ -27,7 +27,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file kei/connectors/sentry/v1/issues.proto.
  */
 export const file_kei_connectors_sentry_v1_issues: GenFile = /*@__PURE__*/
-  fileDesc("CiVrZWkvY29ubmVjdG9ycy9zZW50cnkvdjEvaXNzdWVzLnByb3RvEhhrZWkuY29ubmVjdG9ycy5zZW50cnkudjEiygIKEUxpc3RJc3N1ZXNSZXF1ZXN0EiEKEW9yZ2FuaXphdGlvbl9zbHVnGAEgASgJQgaighkCCAESEgoFcXVlcnkYAiABKAlIAIgBARIVCghwZXJfcGFnZRgDIAEoBUgBiAEBOs8BkoIZygEKEnNlbnRyeS5pc3N1ZXMubGlzdBIGc2VudHJ5GAEqA0dFVDIwL2FwaS8wL29yZ2FuaXphdGlvbnMve29yZ2FuaXphdGlvbl9zbHVnfS9pc3N1ZXMvOgppc3N1ZTpyZWFkQAFKCkxpc3RJc3N1ZXNSCmF1dGhfdG9rZW5aIW9yZ2FuaXphdGlvbnMve29yZ2FuaXphdGlvbl9zbHVnfWIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAYoBCwgBEgVpc3N1ZRgBQggKBl9xdWVyeUILCglfcGVyX3BhZ2UikQEKDElzc3VlU3VtbWFyeRIKCgJpZBgBIAEoCRIQCghzaG9ydF9pZBgCIAEoCRINCgV0aXRsZRgDIAEoCRIOCgZzdGF0dXMYBCABKAkSDQoFbGV2ZWwYBSABKAkSFQoIc2hhcmVfaWQYBiABKAlIAIgBARIRCglwZXJtYWxpbmsYByABKAlCCwoJX3NoYXJlX2lkIkwKEkxpc3RJc3N1ZXNSZXNwb25zZRI2CgZpc3N1ZXMYASADKAsyJi5rZWkuY29ubmVjdG9ycy5zZW50cnkudjEuSXNzdWVTdW1tYXJ5IqgCCg9HZXRJc3N1ZVJlcXVlc3QSIQoRb3JnYW5pemF0aW9uX3NsdWcYASABKAlCBqKCGQIIARIYCghpc3N1ZV9pZBgCIAEoCUIGooIZAggBOtcBkoIZ0gEKEXNlbnRyeS5pc3N1ZXMuZ2V0EgZzZW50cnkYASoDR0VUMjsvYXBpLzAvb3JnYW5pemF0aW9ucy97b3JnYW5pemF0aW9uX3NsdWd9L2lzc3Vlcy97aXNzdWVfaWR9LzoKaXNzdWU6cmVhZEABSghHZXRJc3N1ZVIKYXV0aF90b2tlblohb3JnYW5pemF0aW9ucy97b3JnYW5pemF0aW9uX3NsdWd9YgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBigELCAESBWlzc3VlGAEilQEKEEdldElzc3VlUmVzcG9uc2USCgoCaWQYASABKAkSEAoIc2hvcnRfaWQYAiABKAkSDQoFdGl0bGUYAyABKAkSDgoGc3RhdHVzGAQgASgJEg0KBWxldmVsGAUgASgJEhUKCHNoYXJlX2lkGAYgASgJSACIAQESEQoJcGVybWFsaW5rGAcgASgJQgsKCV9zaGFyZV9pZEJWWlRnaXRodWIuY29tL0hhaWtlaUxhYnMva2VpLWNvbm5lY3Rvci1jb250cmFjdHMvZ2VuL2dvL2tlaS9jb25uZWN0b3JzL3NlbnRyeS92MTtzZW50cnliBnByb3RvMw", [file_kei_contracts_v1_options]);
+  fileDesc("CiVrZWkvY29ubmVjdG9ycy9zZW50cnkvdjEvaXNzdWVzLnByb3RvEhhrZWkuY29ubmVjdG9ycy5zZW50cnkudjEiygIKEUxpc3RJc3N1ZXNSZXF1ZXN0EiEKEW9yZ2FuaXphdGlvbl9zbHVnGAEgASgJQgaighkCCAESEgoFcXVlcnkYAiABKAlIAIgBARIVCghwZXJfcGFnZRgDIAEoBUgBiAEBOs8BkoIZygEKEnNlbnRyeS5pc3N1ZXMubGlzdBIGc2VudHJ5GAEqA0dFVDIwL2FwaS8wL29yZ2FuaXphdGlvbnMve29yZ2FuaXphdGlvbl9zbHVnfS9pc3N1ZXMvOgppc3N1ZTpyZWFkQAFKCkxpc3RJc3N1ZXNSCmF1dGhfdG9rZW5aIW9yZ2FuaXphdGlvbnMve29yZ2FuaXphdGlvbl9zbHVnfWIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAYoBCwgBEgVpc3N1ZRgBQggKBl9xdWVyeUILCglfcGVyX3BhZ2UikQEKDElzc3VlU3VtbWFyeRIKCgJpZBgBIAEoCRIQCghzaG9ydF9pZBgCIAEoCRINCgV0aXRsZRgDIAEoCRIOCgZzdGF0dXMYBCABKAkSDQoFbGV2ZWwYBSABKAkSFQoIc2hhcmVfaWQYBiABKAlIAIgBARIRCglwZXJtYWxpbmsYByABKAlCCwoJX3NoYXJlX2lkIkwKEkxpc3RJc3N1ZXNSZXNwb25zZRI2CgZpc3N1ZXMYASADKAsyJi5rZWkuY29ubmVjdG9ycy5zZW50cnkudjEuSXNzdWVTdW1tYXJ5IqgCCg9HZXRJc3N1ZVJlcXVlc3QSIQoRb3JnYW5pemF0aW9uX3NsdWcYASABKAlCBqKCGQIIARIYCghpc3N1ZV9pZBgCIAEoCUIGooIZAggBOtcBkoIZ0gEKEXNlbnRyeS5pc3N1ZXMuZ2V0EgZzZW50cnkYASoDR0VUMjsvYXBpLzAvb3JnYW5pemF0aW9ucy97b3JnYW5pemF0aW9uX3NsdWd9L2lzc3Vlcy97aXNzdWVfaWR9LzoKaXNzdWU6cmVhZEABSghHZXRJc3N1ZVIKYXV0aF90b2tlblohb3JnYW5pemF0aW9ucy97b3JnYW5pemF0aW9uX3NsdWd9YgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBigELCAESBWlzc3VlGAEilQEKEEdldElzc3VlUmVzcG9uc2USCgoCaWQYASABKAkSEAoIc2hvcnRfaWQYAiABKAkSDQoFdGl0bGUYAyABKAkSDgoGc3RhdHVzGAQgASgJEg0KBWxldmVsGAUgASgJEhUKCHNoYXJlX2lkGAYgASgJSACIAQESEQoJcGVybWFsaW5rGAcgASgJQgsKCV9zaGFyZV9pZCLVAwoSVXBkYXRlSXNzdWVSZXF1ZXN0EiEKEW9yZ2FuaXphdGlvbl9zbHVnGAEgASgJQgaighkCCAESGAoIaXNzdWVfaWQYAiABKAlCBqKCGQIIARITCgZzdGF0dXMYAyABKAlIAIgBARIYCgthc3NpZ25lZF90bxgEIAEoCUgBiAEBEhUKCGhhc19zZWVuGAUgASgISAKIAQESGgoNaXNfYm9va21hcmtlZBgGIAEoCEgDiAEBOuUBkoIZ4AEKFHNlbnRyeS5pc3N1ZXMudXBkYXRlEgZzZW50cnkYAioDUFVUMjsvYXBpLzAvb3JnYW5pemF0aW9ucy97b3JnYW5pemF0aW9uX3NsdWd9L2lzc3Vlcy97aXNzdWVfaWR9LzoLaXNzdWU6d3JpdGVAAUoLVXBkYXRlSXNzdWVSCmF1dGhfdG9rZW5aIW9yZ2FuaXphdGlvbnMve29yZ2FuaXphdGlvbl9zbHVnfWIFCJADEAZiBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQsIAxIFaXNzdWUYAUIJCgdfc3RhdHVzQg4KDF9hc3NpZ25lZF90b0ILCglfaGFzX3NlZW5CEAoOX2lzX2Jvb2ttYXJrZWQimAEKE1VwZGF0ZUlzc3VlUmVzcG9uc2USCgoCaWQYASABKAkSEAoIc2hvcnRfaWQYAiABKAkSDQoFdGl0bGUYAyABKAkSDgoGc3RhdHVzGAQgASgJEg0KBWxldmVsGAUgASgJEhUKCHNoYXJlX2lkGAYgASgJSACIAQESEQoJcGVybWFsaW5rGAcgASgJQgsKCV9zaGFyZV9pZEJWWlRnaXRodWIuY29tL0hhaWtlaUxhYnMva2VpLWNvbm5lY3Rvci1jb250cmFjdHMvZ2VuL2dvL2tlaS9jb25uZWN0b3JzL3NlbnRyeS92MTtzZW50cnliBnByb3RvMw", [file_kei_contracts_v1_options]);
 
 /**
  * ListIssuesRequest lists the issues of a Sentry organization. The contract
@@ -206,4 +206,102 @@ export type GetIssueResponse = Message<"kei.connectors.sentry.v1.GetIssueRespons
  */
 export const GetIssueResponseSchema: GenMessage<GetIssueResponse> = /*@__PURE__*/
   messageDesc(file_kei_connectors_sentry_v1_issues, 4);
+
+/**
+ * UpdateIssueRequest updates a Sentry issue's triage state: status
+ * (resolved, unresolved, ignored, ...), assignee, seen and bookmark flags.
+ * Sentry's JSON keys are camelCase (assignedTo, hasSeen, isBookmarked);
+ * the fields' lowerCamel JSON names already match, so no json_name is set.
+ *
+ * @generated from message kei.connectors.sentry.v1.UpdateIssueRequest
+ */
+export type UpdateIssueRequest = Message<"kei.connectors.sentry.v1.UpdateIssueRequest"> & {
+  /**
+   * @generated from field: string organization_slug = 1;
+   */
+  organizationSlug: string;
+
+  /**
+   * @generated from field: string issue_id = 2;
+   */
+  issueId: string;
+
+  /**
+   * @generated from field: optional string status = 3;
+   */
+  status?: string | undefined;
+
+  /**
+   * @generated from field: optional string assigned_to = 4;
+   */
+  assignedTo?: string | undefined;
+
+  /**
+   * @generated from field: optional bool has_seen = 5;
+   */
+  hasSeen?: boolean | undefined;
+
+  /**
+   * @generated from field: optional bool is_bookmarked = 6;
+   */
+  isBookmarked?: boolean | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.sentry.v1.UpdateIssueRequest.
+ * Use `create(UpdateIssueRequestSchema)` to create a new message.
+ */
+export const UpdateIssueRequestSchema: GenMessage<UpdateIssueRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_sentry_v1_issues, 5);
+
+/**
+ * UpdateIssueResponse models the same issue subset the read returns; Sentry
+ * echoes the updated issue. It is filled by JSON unmarshal of the provider
+ * response.
+ *
+ * @generated from message kei.connectors.sentry.v1.UpdateIssueResponse
+ */
+export type UpdateIssueResponse = Message<"kei.connectors.sentry.v1.UpdateIssueResponse"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: string short_id = 2;
+   */
+  shortId: string;
+
+  /**
+   * @generated from field: string title = 3;
+   */
+  title: string;
+
+  /**
+   * @generated from field: string status = 4;
+   */
+  status: string;
+
+  /**
+   * @generated from field: string level = 5;
+   */
+  level: string;
+
+  /**
+   * @generated from field: optional string share_id = 6;
+   */
+  shareId?: string | undefined;
+
+  /**
+   * @generated from field: string permalink = 7;
+   */
+  permalink: string;
+};
+
+/**
+ * Describes the message kei.connectors.sentry.v1.UpdateIssueResponse.
+ * Use `create(UpdateIssueResponseSchema)` to create a new message.
+ */
+export const UpdateIssueResponseSchema: GenMessage<UpdateIssueResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_sentry_v1_issues, 6);
 

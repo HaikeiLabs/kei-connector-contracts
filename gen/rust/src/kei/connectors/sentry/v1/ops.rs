@@ -11,7 +11,7 @@
 
 use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
-use crate::kei::connectors::sentry::v1::{GetIssueRequest, GetIssueResponse, ListIssuesRequest, ListIssuesResponse};
+use crate::kei::connectors::sentry::v1::{GetIssueRequest, GetIssueResponse, ListIssuesRequest, ListIssuesResponse, UpdateIssueRequest, UpdateIssueResponse};
 
 /// Operation descriptor for sentry.issues.get, for authorization and audit: the
 /// capability a policy grants is connector:sentry.issues.get.
@@ -26,6 +26,14 @@ pub const OP_GET_ISSUE: Op = Op {
 pub const OP_LIST_ISSUES: Op = Op {
     id: "sentry.issues.list",
     class: Class::Read,
+    destructive: false,
+};
+
+/// Operation descriptor for sentry.issues.update, for authorization and audit: the
+/// capability a policy grants is connector:sentry.issues.update.
+pub const OP_UPDATE_ISSUE: Op = Op {
+    id: "sentry.issues.update",
+    class: Class::Write,
     destructive: false,
 };
 
@@ -75,6 +83,34 @@ const ERRORS_LIST_ISSUES: &[ErrorMapping] = &[
     },
 ];
 
+const ERRORS_UPDATE_ISSUE: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 400,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 404,
+        kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
 // The generated queries run inside one caller's task, so the
 // async-fn-in-trait auto-trait bounds do not matter here.
 #[allow(async_fn_in_trait)]
@@ -83,6 +119,8 @@ pub trait SentryOperations {
     async fn get_issue(&self, req: GetIssueRequest) -> Result<GetIssueResponse, OperationError>;
     /// list_issues runs sentry.issues.list (GET /api/0/organizations/{organization_slug}/issues/).
     async fn list_issues(&self, req: ListIssuesRequest) -> Result<ListIssuesResponse, OperationError>;
+    /// update_issue runs sentry.issues.update (PUT /api/0/organizations/{organization_slug}/issues/{issue_id}/).
+    async fn update_issue(&self, req: UpdateIssueRequest) -> Result<UpdateIssueResponse, OperationError>;
 }
 
 pub struct SentryQueries {
@@ -134,6 +172,34 @@ impl SentryOperations for SentryQueries {
             return Err(err);
         }
         let resp: ListIssuesResponse = decode_response(OP_LIST_ISSUES.id, &out.body, Some("issues"))?;
+        Ok(resp)
+    }
+    /// update_issue runs sentry.issues.update (PUT /api/0/organizations/{organization_slug}/issues/{issue_id}/).
+    async fn update_issue(&self, req: UpdateIssueRequest) -> Result<UpdateIssueResponse, OperationError> {
+        let mut path_values: Vec<(&str, &str)> = Vec::new();
+        path_values.push(("organization_slug", req.organization_slug.as_str()));
+        path_values.push(("issue_id", req.issue_id.as_str()));
+        let path = render_path(
+            "/api/0/organizations/{organization_slug}/issues/{issue_id}/",
+            &path_values,
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_UPDATE_ISSUE.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        if let Some(v) = &req.status { body.insert("status".to_string(), serde_json::Value::String(v.clone())); }
+        if let Some(v) = &req.assigned_to { body.insert("assigned_to".to_string(), serde_json::Value::String(v.clone())); }
+        if let Some(v) = req.has_seen { body.insert("has_seen".to_string(), serde_json::Value::Bool(v)); }
+        if let Some(v) = req.is_bookmarked { body.insert("is_bookmarked".to_string(), serde_json::Value::Bool(v)); }
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_UPDATE_ISSUE.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("PUT", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_UPDATE_ISSUE.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_UPDATE_ISSUE, out.status, &ERRORS_UPDATE_ISSUE) {
+            return Err(err);
+        }
+        let resp: UpdateIssueResponse = decode_response(OP_UPDATE_ISSUE.id, &out.body, None)?;
         Ok(resp)
     }
 }

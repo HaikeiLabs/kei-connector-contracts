@@ -108,3 +108,51 @@ message GetIssueResponse {
   optional string share_id = 6;
   string permalink = 7;
 }
+
+// UpdateIssueRequest updates a Sentry issue's triage state: status
+// (resolved, unresolved, ignored, ...), assignee, seen and bookmark flags.
+// Sentry's JSON keys are camelCase (assignedTo, hasSeen, isBookmarked);
+// the fields' lowerCamel JSON names already match, so no json_name is set.
+message UpdateIssueRequest {
+  string organization_slug = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string issue_id = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional string status = 3;
+  optional string assigned_to = 4;
+  optional bool has_seen = 5;
+  optional bool is_bookmarked = 6;
+
+  option (kei.contracts.v1.operation) = {
+    id: "sentry.issues.update"
+    connector: "sentry"
+    class: OPERATION_CLASS_WRITE
+    destructive: false
+    http_method: "PUT"
+    path_template: "/api/0/organizations/{organization_slug}/issues/{issue_id}/"
+    scopes: ["issue:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "UpdateIssue"
+    connections: ["auth_token"]
+    resource_template: "organizations/{organization_slug}"
+    semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "issue" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// UpdateIssueResponse models the same issue subset the read returns; Sentry
+// echoes the updated issue. It is filled by JSON unmarshal of the provider
+// response.
+message UpdateIssueResponse {
+  string id = 1;
+  string short_id = 2;
+  string title = 3;
+  string status = 4;
+  string level = 5;
+  optional string share_id = 6;
+  string permalink = 7;
+}

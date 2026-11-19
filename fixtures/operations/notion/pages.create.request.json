@@ -1,0 +1,11 @@
+{
+  "parent": {"type": "database_id", "database_id": "a1c2d3e4-0000-4000-8000-000000000002"},
+  "properties": {"Name": {"title": [{"text": {"content": "Synthetic created page"}}]}},
+  "children": [
+    {
+      "object": "block",
+      "type": "paragraph",
+      "paragraph": {"rich_text": [{"text": {"content": "Synthetic body block"}}]}
+    }
+  ]
+}

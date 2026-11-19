@@ -1,3 +1,4 @@
+from google.protobuf import struct_pb2 as _struct_pb2
 from kei.contracts.v1 import options_pb2 as _options_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
@@ -58,3 +59,37 @@ class SearchJiraIssuesResponse(_message.Message):
     issues: _containers.RepeatedCompositeFieldContainer[JiraIssueSummary]
     next_page_token: str
     def __init__(self, issues: _Optional[_Iterable[_Union[JiraIssueSummary, _Mapping]]] = ..., next_page_token: _Optional[str] = ...) -> None: ...
+
+class CreateJiraIssueRequest(_message.Message):
+    __slots__ = ("fields",)
+    FIELDS_FIELD_NUMBER: _ClassVar[int]
+    fields: _struct_pb2.Struct
+    def __init__(self, fields: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ...) -> None: ...
+
+class CreateJiraIssueResponse(_message.Message):
+    __slots__ = ("id", "key")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    KEY_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    key: str
+    def __init__(self, id: _Optional[str] = ..., key: _Optional[str] = ...) -> None: ...
+
+class CreateJiraCommentRequest(_message.Message):
+    __slots__ = ("issue_key", "body")
+    ISSUE_KEY_FIELD_NUMBER: _ClassVar[int]
+    BODY_FIELD_NUMBER: _ClassVar[int]
+    issue_key: str
+    body: _struct_pb2.Struct
+    def __init__(self, issue_key: _Optional[str] = ..., body: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ...) -> None: ...
+
+class CreateJiraCommentResponse(_message.Message):
+    __slots__ = ("id", "body", "created", "updated")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    BODY_FIELD_NUMBER: _ClassVar[int]
+    CREATED_FIELD_NUMBER: _ClassVar[int]
+    UPDATED_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    body: _struct_pb2.Struct
+    created: str
+    updated: str
+    def __init__(self, id: _Optional[str] = ..., body: _Optional[_Union[_struct_pb2.Struct, _Mapping]] = ..., created: _Optional[str] = ..., updated: _Optional[str] = ...) -> None: ...

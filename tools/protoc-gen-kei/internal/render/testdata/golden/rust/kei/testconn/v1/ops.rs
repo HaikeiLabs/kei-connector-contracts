@@ -143,6 +143,10 @@ impl TestconnOperations for TestconnQueries {
         let mut body = serde_json::Map::new();
         body.insert("name".to_string(), serde_json::Value::String(req.name.clone()));
         if let Some(v) = &req.note { body.insert("description".to_string(), serde_json::Value::String(v.clone())); }
+        if let Some(v0) = &req.metadata { body.insert("metadata".to_string(), crate::connection::normalize_protojson_numbers(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_THING.id, e.to_string()))?)); }
+        let mut rows_json = Vec::with_capacity(req.rows.len());
+        for v0 in &req.rows { rows_json.push(crate::connection::normalize_protojson_numbers(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_CREATE_THING.id, e.to_string()))?)); }
+        body.insert("rows".to_string(), serde_json::Value::Array(rows_json));
         let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_THING.id, e.to_string()))?;
         let out = self
             .conn

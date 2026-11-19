@@ -20,6 +20,35 @@ pub struct GetConfluencePageResponse {
     #[prost(string, optional, tag="4")]
     pub parent_id: ::core::option::Option<::prost::alloc::string::String>,
 }
+/// CreateConfluencePageRequest creates a page in a Confluence space. body
+/// carries the page content in Confluence's {representation, value} shape and
+/// stays a google.protobuf.Struct; the contract does not model the full
+/// version, label or ownership fields the v2 endpoint also accepts.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CreateConfluencePageRequest {
+    #[prost(string, tag="1")]
+    pub space_id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub title: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="3")]
+    pub parent_id: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(message, optional, tag="4")]
+    pub body: ::core::option::Option<::pbjson_types::Struct>,
+}
+/// CreateConfluencePageResponse models the same page subset the read returns.
+/// parent_id is null on the wire for root pages. It is filled by JSON
+/// unmarshal of the provider response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CreateConfluencePageResponse {
+    #[prost(int64, tag="1")]
+    pub id: i64,
+    #[prost(string, tag="2")]
+    pub title: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub space_id: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="4")]
+    pub parent_id: ::core::option::Option<::prost::alloc::string::String>,
+}
 /// ListConfluencePagesRequest lists the pages of a Confluence space. The
 /// contract models only the page size of the query parameters.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
@@ -109,6 +138,50 @@ pub struct SearchJiraIssuesResponse {
     pub issues: ::prost::alloc::vec::Vec<JiraIssueSummary>,
     #[prost(string, optional, tag="2")]
     pub next_page_token: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// CreateJiraIssueRequest creates a Jira issue. fields carries the create
+/// payload's fields object (project, issuetype, summary, an ADF description,
+/// ...), which is heterogeneous in Jira's API and stays a
+/// google.protobuf.Struct; the contract does not model the updateHistory or
+/// notifyUsers query flags.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CreateJiraIssueRequest {
+    #[prost(message, optional, tag="1")]
+    pub fields: ::core::option::Option<::pbjson_types::Struct>,
+}
+/// CreateJiraIssueResponse models the subset of Jira's create response the
+/// contract needs: the new issue's numeric id and key. It is filled by JSON
+/// unmarshal of the provider response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CreateJiraIssueResponse {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub key: ::prost::alloc::string::String,
+}
+/// CreateJiraCommentRequest adds a comment to a Jira issue. body carries the
+/// comment text as an Atlassian Document Format document, which stays a
+/// google.protobuf.Struct.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CreateJiraCommentRequest {
+    #[prost(string, tag="1")]
+    pub issue_key: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="2")]
+    pub body: ::core::option::Option<::pbjson_types::Struct>,
+}
+/// CreateJiraCommentResponse models the subset of Jira's comment response the
+/// contract needs: the comment id, its ADF body and the created/updated
+/// timestamps. It is filled by JSON unmarshal of the provider response.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CreateJiraCommentResponse {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="2")]
+    pub body: ::core::option::Option<::pbjson_types::Struct>,
+    #[prost(string, tag="3")]
+    pub created: ::prost::alloc::string::String,
+    #[prost(string, tag="4")]
+    pub updated: ::prost::alloc::string::String,
 }
 include!("kei.connectors.atlassian.v1.serde.rs");
 // @@protoc_insertion_point(module)

@@ -43,3 +43,27 @@ class GetSpreadsheetResponse(_message.Message):
     spreadsheet_id: str
     properties: SpreadsheetProperties
     def __init__(self, spreadsheet_id: _Optional[str] = ..., properties: _Optional[_Union[SpreadsheetProperties, _Mapping]] = ...) -> None: ...
+
+class UpdateValuesRequest(_message.Message):
+    __slots__ = ("spreadsheet_id", "range", "values")
+    SPREADSHEET_ID_FIELD_NUMBER: _ClassVar[int]
+    RANGE_FIELD_NUMBER: _ClassVar[int]
+    VALUES_FIELD_NUMBER: _ClassVar[int]
+    spreadsheet_id: str
+    range: str
+    values: _containers.RepeatedCompositeFieldContainer[_struct_pb2.ListValue]
+    def __init__(self, spreadsheet_id: _Optional[str] = ..., range: _Optional[str] = ..., values: _Optional[_Iterable[_Union[_struct_pb2.ListValue, _Mapping]]] = ...) -> None: ...
+
+class UpdateValuesResponse(_message.Message):
+    __slots__ = ("spreadsheet_id", "updated_range", "updated_rows", "updated_columns", "updated_cells")
+    SPREADSHEET_ID_FIELD_NUMBER: _ClassVar[int]
+    UPDATED_RANGE_FIELD_NUMBER: _ClassVar[int]
+    UPDATED_ROWS_FIELD_NUMBER: _ClassVar[int]
+    UPDATED_COLUMNS_FIELD_NUMBER: _ClassVar[int]
+    UPDATED_CELLS_FIELD_NUMBER: _ClassVar[int]
+    spreadsheet_id: str
+    updated_range: str
+    updated_rows: int
+    updated_columns: int
+    updated_cells: int
+    def __init__(self, spreadsheet_id: _Optional[str] = ..., updated_range: _Optional[str] = ..., updated_rows: _Optional[int] = ..., updated_columns: _Optional[int] = ..., updated_cells: _Optional[int] = ...) -> None: ...

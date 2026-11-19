@@ -11,7 +11,7 @@
 
 use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
-use crate::kei::connectors::google_sheets::v1::{GetSpreadsheetRequest, GetSpreadsheetResponse, GetValuesRequest, GetValuesResponse};
+use crate::kei::connectors::google_sheets::v1::{GetSpreadsheetRequest, GetSpreadsheetResponse, GetValuesRequest, GetValuesResponse, UpdateValuesRequest, UpdateValuesResponse};
 
 /// Operation descriptor for google_sheets.spreadsheets.get, for authorization and audit: the
 /// capability a policy grants is connector:google_sheets.spreadsheets.get.
@@ -27,6 +27,14 @@ pub const OP_GET_VALUES: Op = Op {
     id: "google_sheets.values.get",
     class: Class::Read,
     destructive: false,
+};
+
+/// Operation descriptor for google_sheets.values.update, for authorization and audit: the
+/// capability a policy grants is connector:google_sheets.values.update.
+pub const OP_UPDATE_VALUES: Op = Op {
+    id: "google_sheets.values.update",
+    class: Class::Write,
+    destructive: true,
 };
 
 const ERRORS_GET_SPREADSHEET: &[ErrorMapping] = &[
@@ -80,6 +88,34 @@ const ERRORS_GET_VALUES: &[ErrorMapping] = &[
     },
 ];
 
+const ERRORS_UPDATE_VALUES: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 400,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 404,
+        kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
 // The generated queries run inside one caller's task, so the
 // async-fn-in-trait auto-trait bounds do not matter here.
 #[allow(async_fn_in_trait)]
@@ -88,6 +124,8 @@ pub trait GoogleSheetsOperations {
     async fn get_spreadsheet(&self, req: GetSpreadsheetRequest) -> Result<GetSpreadsheetResponse, OperationError>;
     /// get_values runs google_sheets.values.get (GET /v4/spreadsheets/{spreadsheet_id}/values/{range}).
     async fn get_values(&self, req: GetValuesRequest) -> Result<GetValuesResponse, OperationError>;
+    /// update_values runs google_sheets.values.update (PUT /v4/spreadsheets/{spreadsheet_id}/values/{range}).
+    async fn update_values(&self, req: UpdateValuesRequest) -> Result<UpdateValuesResponse, OperationError>;
 }
 
 pub struct GoogleSheetsQueries {
@@ -136,6 +174,33 @@ impl GoogleSheetsOperations for GoogleSheetsQueries {
             return Err(err);
         }
         let resp: GetValuesResponse = decode_response(OP_GET_VALUES.id, &out.body, Some("values"))?;
+        Ok(resp)
+    }
+    /// update_values runs google_sheets.values.update (PUT /v4/spreadsheets/{spreadsheet_id}/values/{range}).
+    async fn update_values(&self, req: UpdateValuesRequest) -> Result<UpdateValuesResponse, OperationError> {
+        let mut path_values: Vec<(&str, &str)> = Vec::new();
+        path_values.push(("spreadsheet_id", req.spreadsheet_id.as_str()));
+        path_values.push(("range", req.range.as_str()));
+        let path = render_path(
+            "/v4/spreadsheets/{spreadsheet_id}/values/{range}",
+            &path_values,
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_UPDATE_VALUES.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        let mut values_json = Vec::with_capacity(req.values.len());
+        for v0 in &req.values { values_json.push(crate::connection::normalize_protojson_numbers(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_UPDATE_VALUES.id, e.to_string()))?)); }
+        body.insert("values".to_string(), serde_json::Value::Array(values_json));
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_UPDATE_VALUES.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("PUT", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_UPDATE_VALUES.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_UPDATE_VALUES, out.status, &ERRORS_UPDATE_VALUES) {
+            return Err(err);
+        }
+        let resp: UpdateValuesResponse = decode_response(OP_UPDATE_VALUES.id, &out.body, None)?;
         Ok(resp)
     }
 }

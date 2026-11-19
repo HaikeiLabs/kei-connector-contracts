@@ -8,22 +8,20 @@ correctly for that engine. The general rules are in
 
 Source: `proto/kei/connectors/database/v1/query.proto`.
 
+## Connections
 
-## Operations
+Source: [`connector.proto`](../../proto/kei/connectors/database/v1/connector.proto).
 
-| Operation id | Method | Path | Class | Connections |
+| Name | Kind | Auth method | Account model | Setup fields |
 | --- | --- | --- | --- | --- |
-| `database.query.run` | — | — | `read` | `dsn` |
+| `dsn` | `CONNECTION_KIND_SQL_DSN` | `secret_ref` | `ACCOUNT_MODEL_SHARED` | `dsn` (string, secret) |
+| `snowflake_key_pair` | `CONNECTION_KIND_KEY_PAIR_JWT` | `service_principal_key` | `ACCOUNT_MODEL_SHARED` | `account` (string), `user` (string), `role` (string), `warehouse` (string), `database` (string), `private_key_pem` (string, secret) |
 
 ## Operations
 
-| Id | Class | HTTP method | Path template | Scopes | Credential placement |
-| --- | --- | --- | --- | --- | --- |
-| `database.query.run` | read | `POST` | `/query` | `query:read` | none |
-
-The credential placement is `CREDENTIAL_PLACEMENT_NONE`: the connection is
-not an HTTP request with a header credential. No connection string or
-password is ever part of the contract or a fixture.
+| Id | Method | Path or GraphQL | Class | Destructive | Connections | Resource template |
+| --- | --- | --- | --- | --- | --- | --- |
+| `database.query.run` | — | — | `read` | false | `dsn`, `snowflake_key_pair` | `query` |
 
 ## Messages
 

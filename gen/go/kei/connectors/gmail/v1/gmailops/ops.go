@@ -15,6 +15,8 @@ import (
 
 // Operations is the gmail connector. Callers depend on it; tests use Mock.
 type Operations interface {
+	// CreateDraft runs gmail.drafts.create (POST /gmail/v1/users/{user_id}/drafts).
+	CreateDraft(ctx context.Context, req *gmail.CreateDraftRequest) (*gmail.CreateDraftResponse, error)
 	// GetMessage runs gmail.messages.get (GET /gmail/v1/users/{user_id}/messages/{message_id}).
 	GetMessage(ctx context.Context, req *gmail.GetMessageRequest) (*gmail.GetMessageResponse, error)
 	// ListMessages runs gmail.messages.list (GET /gmail/v1/users/{user_id}/messages).
@@ -24,6 +26,7 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
+	OpCreateDraft  = connection.Op{ID: "gmail.drafts.create", Class: connection.Write}
 	OpGetMessage   = connection.Op{ID: "gmail.messages.get", Class: connection.Read}
 	OpListMessages = connection.Op{ID: "gmail.messages.list", Class: connection.Read}
 )
@@ -35,6 +38,22 @@ type Queries struct{ conn connection.HTTP }
 func New(conn connection.HTTP) *Queries { return &Queries{conn: conn} }
 
 var _ Operations = (*Queries)(nil)
+
+var specCreateDraft = &connection.HTTPSpec{
+	Op:           OpCreateDraft,
+	Method:       "POST",
+	PathTemplate: "/gmail/v1/users/{user_id}/drafts",
+	Params: []connection.Param{
+		{Field: "user_id", In: connection.InPath, Wire: "user_id"},
+		{Field: "message", In: connection.InBody, Wire: "message"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 400, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
 
 var specGetMessage = &connection.HTTPSpec{
 	Op:           OpGetMessage,
@@ -70,6 +89,15 @@ var specListMessages = &connection.HTTPSpec{
 	},
 	CursorField:     "page_token",
 	NextCursorField: "next_page_token",
+}
+
+// CreateDraft runs gmail.drafts.create.
+func (q *Queries) CreateDraft(ctx context.Context, req *gmail.CreateDraftRequest) (*gmail.CreateDraftResponse, error) {
+	resp := &gmail.CreateDraftResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specCreateDraft, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 // GetMessage runs gmail.messages.get.

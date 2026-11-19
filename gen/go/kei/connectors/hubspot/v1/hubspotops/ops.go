@@ -15,10 +15,14 @@ import (
 
 // Operations is the hubspot connector. Callers depend on it; tests use Mock.
 type Operations interface {
+	// CreateContact runs hubspot.contacts.create (POST /crm/v3/objects/contacts).
+	CreateContact(ctx context.Context, req *hubspot.CreateContactRequest) (*hubspot.CreateContactResponse, error)
 	// GetContact runs hubspot.contacts.get (GET /crm/v3/objects/contacts/{contact_id}).
 	GetContact(ctx context.Context, req *hubspot.GetContactRequest) (*hubspot.GetContactResponse, error)
 	// ListContacts runs hubspot.contacts.list (GET /crm/v3/objects/contacts).
 	ListContacts(ctx context.Context, req *hubspot.ListContactsRequest) (*hubspot.ListContactsResponse, error)
+	// UpdateContact runs hubspot.contacts.update (PATCH /crm/v3/objects/contacts/{contact_id}).
+	UpdateContact(ctx context.Context, req *hubspot.UpdateContactRequest) (*hubspot.UpdateContactResponse, error)
 	// ListDeals runs hubspot.deals.list (GET /crm/v3/objects/deals).
 	ListDeals(ctx context.Context, req *hubspot.ListDealsRequest) (*hubspot.ListDealsResponse, error)
 }
@@ -26,9 +30,11 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpGetContact   = connection.Op{ID: "hubspot.contacts.get", Class: connection.Read}
-	OpListContacts = connection.Op{ID: "hubspot.contacts.list", Class: connection.Read}
-	OpListDeals    = connection.Op{ID: "hubspot.deals.list", Class: connection.Read}
+	OpCreateContact = connection.Op{ID: "hubspot.contacts.create", Class: connection.Write}
+	OpGetContact    = connection.Op{ID: "hubspot.contacts.get", Class: connection.Read}
+	OpListContacts  = connection.Op{ID: "hubspot.contacts.list", Class: connection.Read}
+	OpUpdateContact = connection.Op{ID: "hubspot.contacts.update", Class: connection.Write}
+	OpListDeals     = connection.Op{ID: "hubspot.deals.list", Class: connection.Read}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.
@@ -38,6 +44,22 @@ type Queries struct{ conn connection.HTTP }
 func New(conn connection.HTTP) *Queries { return &Queries{conn: conn} }
 
 var _ Operations = (*Queries)(nil)
+
+var specCreateContact = &connection.HTTPSpec{
+	Op:           OpCreateContact,
+	Method:       "POST",
+	PathTemplate: "/crm/v3/objects/contacts",
+	Params: []connection.Param{
+		{Field: "properties", In: connection.InBody, Wire: "properties"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 400, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
 
 var specGetContact = &connection.HTTPSpec{
 	Op:           OpGetContact,
@@ -72,6 +94,23 @@ var specListContacts = &connection.HTTPSpec{
 	NextCursorField: "next_after",
 }
 
+var specUpdateContact = &connection.HTTPSpec{
+	Op:           OpUpdateContact,
+	Method:       "PATCH",
+	PathTemplate: "/crm/v3/objects/contacts/{contact_id}",
+	Params: []connection.Param{
+		{Field: "contact_id", In: connection.InPath, Wire: "contact_id"},
+		{Field: "properties", In: connection.InBody, Wire: "properties"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 400, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
 var specListDeals = &connection.HTTPSpec{
 	Op:           OpListDeals,
 	Method:       "GET",
@@ -90,6 +129,15 @@ var specListDeals = &connection.HTTPSpec{
 	NextCursorField: "next_after",
 }
 
+// CreateContact runs hubspot.contacts.create.
+func (q *Queries) CreateContact(ctx context.Context, req *hubspot.CreateContactRequest) (*hubspot.CreateContactResponse, error) {
+	resp := &hubspot.CreateContactResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specCreateContact, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
 // GetContact runs hubspot.contacts.get.
 func (q *Queries) GetContact(ctx context.Context, req *hubspot.GetContactRequest) (*hubspot.GetContactResponse, error) {
 	resp := &hubspot.GetContactResponse{}
@@ -103,6 +151,15 @@ func (q *Queries) GetContact(ctx context.Context, req *hubspot.GetContactRequest
 func (q *Queries) ListContacts(ctx context.Context, req *hubspot.ListContactsRequest) (*hubspot.ListContactsResponse, error) {
 	resp := &hubspot.ListContactsResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specListContacts, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// UpdateContact runs hubspot.contacts.update.
+func (q *Queries) UpdateContact(ctx context.Context, req *hubspot.UpdateContactRequest) (*hubspot.UpdateContactResponse, error) {
+	resp := &hubspot.UpdateContactResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specUpdateContact, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

@@ -354,3 +354,45 @@ fn trim(body: &[u8]) -> &[u8] {
         None => &[],
     }
 }
+
+/// Render integral protobuf JSON numbers without a fractional suffix, as Go's
+/// JSON encoder does. Restrict conversion to exactly representable integers;
+/// preserve negative zero and all fractional values.
+pub fn normalize_protojson_numbers(value: Value) -> Value {
+    match value {
+        Value::Array(items) => {
+            Value::Array(items.into_iter().map(normalize_protojson_numbers).collect())
+        }
+        Value::Object(items) => Value::Object(
+            items
+                .into_iter()
+                .map(|(k, v)| (k, normalize_protojson_numbers(v)))
+                .collect(),
+        ),
+        Value::Number(ref number) if number.is_f64() => {
+            let n = number.as_f64().expect("JSON number is finite");
+            if n.fract() == 0.0
+                && n.abs() <= 9_007_199_254_740_992.0
+                && !(n == 0.0 && n.is_sign_negative())
+            {
+                Value::Number((n as i64).into())
+            } else {
+                value
+            }
+        }
+        _ => value,
+    }
+}
+
+#[cfg(test)]
+mod protojson_number_tests {
+    #[test]
+    fn normalizes_integral_numbers_inside_structs_and_lists() {
+        let input = serde_json::json!({"body": {"version": 1.0, "items": [2.0, 1.5, null, {}]}});
+        let got = super::normalize_protojson_numbers(input);
+        assert_eq!(
+            serde_json::to_string(&got).unwrap(),
+            r#"{"body":{"items":[2,1.5,null,{}],"version":1}}"#
+        );
+    }
+}

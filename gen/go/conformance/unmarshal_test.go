@@ -499,6 +499,36 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "atlassian.jira.issues.create",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.CreateJiraIssueRequest{} },
+		response:  func() proto.Message { return &atlassianv1.CreateJiraIssueResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.CreateJiraIssueResponse)
+			if got.GetId() != "30001" {
+				t.Errorf("id = %q, want 30001", got.GetId())
+			}
+			if got.GetKey() != "SYN-301" {
+				t.Errorf("key = %q, want SYN-301", got.GetKey())
+			}
+		},
+	},
+	{
+		op:        "atlassian.jira.issues.comments.create",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.CreateJiraCommentRequest{} },
+		response:  func() proto.Message { return &atlassianv1.CreateJiraCommentResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.CreateJiraCommentResponse)
+			if got.GetId() != "40001" {
+				t.Errorf("id = %q, want 40001", got.GetId())
+			}
+			if got.GetBody() == nil || got.GetBody().GetFields()["type"].GetStringValue() != "doc" {
+				t.Errorf("body.type = %v, want doc", got.GetBody())
+			}
+		},
+	},
+	{
 		op:        "atlassian.jira.issues.search",
 		connector: "atlassian",
 		request:   func() proto.Message { return &atlassianv1.SearchJiraIssuesRequest{} },
@@ -528,6 +558,24 @@ var fixtureCases = []fixtureCase{
 			}
 			if got.GetTitle() != "Synthetic Confluence page" {
 				t.Errorf("title = %q, want Synthetic Confluence page", got.GetTitle())
+			}
+			if got.ParentId != nil {
+				t.Errorf("parent_id = %v, want nil (provider null)", got.ParentId)
+			}
+		},
+	},
+	{
+		op:        "atlassian.confluence.pages.create",
+		connector: "atlassian",
+		request:   func() proto.Message { return &atlassianv1.CreateConfluencePageRequest{} },
+		response:  func() proto.Message { return &atlassianv1.CreateConfluencePageResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*atlassianv1.CreateConfluencePageResponse)
+			if got.GetId() != 78643205 {
+				t.Errorf("id = %d, want 78643205", got.GetId())
+			}
+			if got.GetTitle() != "Synthetic created page" {
+				t.Errorf("title = %q, want Synthetic created page", got.GetTitle())
 			}
 			if got.ParentId != nil {
 				t.Errorf("parent_id = %v, want nil (provider null)", got.ParentId)
@@ -586,6 +634,36 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "airtable.records.create",
+		connector: "airtable",
+		request:   func() proto.Message { return &airtablev1.CreateRecordRequest{} },
+		response:  func() proto.Message { return &airtablev1.CreateRecordResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			rec := resp.(*airtablev1.CreateRecordResponse)
+			if rec.GetId() != "recSynthetic00004" {
+				t.Errorf("id = %q, want recSynthetic00004", rec.GetId())
+			}
+			if got := rec.GetFields().GetFields()["Status"].GetStringValue(); got != "Todo" {
+				t.Errorf("fields.Status = %q, want Todo", got)
+			}
+		},
+	},
+	{
+		op:        "airtable.records.update",
+		connector: "airtable",
+		request:   func() proto.Message { return &airtablev1.UpdateRecordRequest{} },
+		response:  func() proto.Message { return &airtablev1.UpdateRecordResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			rec := resp.(*airtablev1.UpdateRecordResponse)
+			if got := rec.GetFields().GetFields()["Status"].GetStringValue(); got != "Done" {
+				t.Errorf("fields.Status = %q, want Done", got)
+			}
+			if got := rec.GetFields().GetFields()["Priority"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("fields.Priority = %v, want null", got)
+			}
+		},
+	},
+	{
 		op:        "hubspot.contacts.get",
 		connector: "hubspot",
 		request:   func() proto.Message { return &hubspotv1.GetContactRequest{} },
@@ -600,6 +678,33 @@ var fixtureCases = []fixtureCase{
 			}
 			if got := contact.GetProperties().GetFields()["lastname"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
 				t.Errorf("properties.lastname = %v, want null", got)
+			}
+		},
+	},
+	{
+		op:        "hubspot.contacts.create",
+		connector: "hubspot",
+		request:   func() proto.Message { return &hubspotv1.CreateContactRequest{} },
+		response:  func() proto.Message { return &hubspotv1.CreateContactResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			contact := resp.(*hubspotv1.CreateContactResponse)
+			if contact.GetId() != "701550001" {
+				t.Errorf("id = %q, want 701550001", contact.GetId())
+			}
+			if got := contact.GetProperties().GetFields()["email"].GetStringValue(); got != "synthetic.new@example.invalid" {
+				t.Errorf("properties.email = %q, want the synthetic email", got)
+			}
+		},
+	},
+	{
+		op:        "hubspot.contacts.update",
+		connector: "hubspot",
+		request:   func() proto.Message { return &hubspotv1.UpdateContactRequest{} },
+		response:  func() proto.Message { return &hubspotv1.UpdateContactResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			contact := resp.(*hubspotv1.UpdateContactResponse)
+			if got := contact.GetProperties().GetFields()["lifecyclestage"].GetStringValue(); got != "customer" {
+				t.Errorf("properties.lifecyclestage = %q, want customer", got)
 			}
 		},
 	},
@@ -655,6 +760,36 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "notion.pages.create",
+		connector: "notion",
+		request:   func() proto.Message { return &notionv1.CreatePageRequest{} },
+		response:  func() proto.Message { return &notionv1.CreatePageResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			page := resp.(*notionv1.CreatePageResponse)
+			if page.GetId() != "d4e5f6a7-0000-4000-8000-000000000005" {
+				t.Errorf("id = %q, want the synthetic created page id", page.GetId())
+			}
+			if page.PublicUrl != nil {
+				t.Error("public_url is set, want nil (null in the fixture)")
+			}
+		},
+	},
+	{
+		op:        "notion.pages.update",
+		connector: "notion",
+		request:   func() proto.Message { return &notionv1.UpdatePageRequest{} },
+		response:  func() proto.Message { return &notionv1.UpdatePageResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			page := resp.(*notionv1.UpdatePageResponse)
+			if page.GetLastEditedTime() != "2026-02-11T09:45:00.000Z" {
+				t.Errorf("last_edited_time = %q, want the synthetic edit time", page.GetLastEditedTime())
+			}
+			if page.GetArchived() {
+				t.Error("archived = true, want false")
+			}
+		},
+	},
+	{
 		op:        "notion.databases.query",
 		connector: "notion",
 		request:   func() proto.Message { return &notionv1.QueryDatabaseRequest{} },
@@ -702,6 +837,21 @@ var fixtureCases = []fixtureCase{
 			}
 			if issues[1].ShareId == nil || issues[1].GetShareId() != "synthetic-share-id-2" {
 				t.Errorf("issues[1].share_id = %v, want synthetic-share-id-2", issues[1].ShareId)
+			}
+		},
+	},
+	{
+		op:        "sentry.issues.update",
+		connector: "sentry",
+		request:   func() proto.Message { return &sentryv1.UpdateIssueRequest{} },
+		response:  func() proto.Message { return &sentryv1.UpdateIssueResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			issue := resp.(*sentryv1.UpdateIssueResponse)
+			if issue.GetStatus() != "resolved" {
+				t.Errorf("status = %q, want resolved", issue.GetStatus())
+			}
+			if issue.ShareId != nil {
+				t.Error("share_id is set, want nil (null in the fixture)")
 			}
 		},
 	},
@@ -807,6 +957,24 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "gmail.drafts.create",
+		connector: "gmail",
+		request:   func() proto.Message { return &gmailv1.CreateDraftRequest{} },
+		response:  func() proto.Message { return &gmailv1.CreateDraftResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*gmailv1.CreateDraftResponse)
+			if got.GetId() != "draft-3001" {
+				t.Errorf("id = %q, want draft-3001", got.GetId())
+			}
+			if got.GetMessage().GetId() != "msg-1002" {
+				t.Errorf("message.id = %q, want msg-1002", got.GetMessage().GetId())
+			}
+			if got.GetMessage().GetThreadId() != "thr-2002" {
+				t.Errorf("message.thread_id = %q, want thr-2002", got.GetMessage().GetThreadId())
+			}
+		},
+	},
+	{
 		op:        "google_sheets.values.get",
 		connector: "google_sheets",
 		request:   func() proto.Message { return &googlesheetsv1.GetValuesRequest{} },
@@ -821,6 +989,21 @@ var fixtureCases = []fixtureCase{
 			}
 			if got.GetValues()[0].GetValues()[1].GetNullValue() != structpb.NullValue_NULL_VALUE {
 				t.Errorf("values[0][1] = %v, want null (provider null)", got.GetValues()[0].GetValues()[1])
+			}
+		},
+	},
+	{
+		op:        "google_sheets.values.update",
+		connector: "google_sheets",
+		request:   func() proto.Message { return &googlesheetsv1.UpdateValuesRequest{} },
+		response:  func() proto.Message { return &googlesheetsv1.UpdateValuesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*googlesheetsv1.UpdateValuesResponse)
+			if got.GetUpdatedRange() != "Sheet1!A1:B2" {
+				t.Errorf("updated_range = %q, want Sheet1!A1:B2", got.GetUpdatedRange())
+			}
+			if got.GetUpdatedCells() != 4 {
+				t.Errorf("updated_cells = %d, want 4", got.GetUpdatedCells())
 			}
 		},
 	},
@@ -995,6 +1178,131 @@ func TestDatabaseQueryRunRequestFixture(t *testing.T) {
 	}
 	if got := req.GetMaxRows(); got != 100 {
 		t.Errorf("max_rows = %d, want 100", got)
+	}
+}
+
+// TestDatabaseDialectFixtureRows covers the per-dialect query.run fixtures:
+// each engine's dialect enum on the request, one engine-specific typed value
+// per dialect (jsonb/timestamptz, bigint unsigned/datetime(6), nvarchar
+// unicode/datetimeoffset, NUMBER(38) and VARIANT as strings, uuid), the NULL
+// cell, and the drift gate: strict unmarshal must fail because every fixture
+// carries one unknown extra field.
+func TestDatabaseDialectFixtureRows(t *testing.T) {
+	type dialectCellCheck struct {
+		row, col int
+		want     string
+		null     bool
+	}
+	for _, tc := range []struct {
+		name     string
+		dialect  databasev1.Dialect
+		col2Type string
+		checks   []dialectCellCheck
+	}{
+		{
+			name:     "postgres",
+			dialect:  databasev1.Dialect_DIALECT_POSTGRES,
+			col2Type: "timestamptz",
+			checks: []dialectCellCheck{
+				{row: 0, col: 0, want: "9007199254740993"},
+				{row: 0, col: 1, want: `{"owner": "synthetic", "tags": ["ops"]}`},
+				{row: 0, col: 2, want: "2026-01-15T10:30:00.123456+00:00"},
+				{row: 0, col: 3, want: "12345678901234567890.123456789012345678"},
+				{row: 1, col: 1, null: true},
+			},
+		},
+		{
+			name:     "mysql",
+			dialect:  databasev1.Dialect_DIALECT_MYSQL,
+			col2Type: "datetime(6)",
+			checks: []dialectCellCheck{
+				{row: 0, col: 0, want: "18446744073709551615"},
+				{row: 0, col: 1, want: `{"owner": "synthetic", "tags": ["ops"]}`},
+				{row: 0, col: 2, want: "2026-01-15 10:30:00.123456"},
+				{row: 0, col: 3, want: "12345678901234567890.123456"},
+				{row: 1, col: 1, null: true},
+			},
+		},
+		{
+			name:     "mssql",
+			dialect:  databasev1.Dialect_DIALECT_MSSQL,
+			col2Type: "datetimeoffset",
+			checks: []dialectCellCheck{
+				{row: 0, col: 0, want: "9007199254740993"},
+				{row: 0, col: 1, want: "München — ünïcodé ✓"},
+				{row: 0, col: 2, want: "2026-01-15T10:30:00.1234567+02:00"},
+				{row: 0, col: 3, want: "12345678901234567890.1234567890"},
+				{row: 1, col: 2, null: true},
+			},
+		},
+		{
+			name:     "snowflake",
+			dialect:  databasev1.Dialect_DIALECT_SNOWFLAKE,
+			col2Type: "NUMBER(38,18)",
+			checks: []dialectCellCheck{
+				{row: 0, col: 0, want: "99999999999999999999999999999999999999"},
+				{row: 0, col: 1, want: "Big-ID Account — ünïcodé ✓"},
+				{row: 0, col: 2, want: "12345678901234567890.123456789012345678"},
+				{row: 0, col: 3, want: `{"owner": "synthetic", "tags": ["ops"]}`},
+				{row: 1, col: 3, null: true},
+			},
+		},
+		{
+			name:     "supabase",
+			dialect:  databasev1.Dialect_DIALECT_SUPABASE,
+			col2Type: "timestamptz",
+			checks: []dialectCellCheck{
+				{row: 0, col: 0, want: "6f9619ff-8b86-d011-b42d-00c04fc964ff"},
+				{row: 0, col: 1, want: `{"owner": "synthetic", "tags": ["ops"]}`},
+				{row: 0, col: 2, want: "2026-01-15T10:30:00.123456+00:00"},
+				{row: 0, col: 3, want: "12345678901234567890.123456789012345678"},
+				{row: 1, col: 1, null: true},
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			reqData := readFixture(t, "database", "query.run."+tc.name+".request.json")
+			var req databasev1.RunQueryRequest
+			if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(reqData, &req); err != nil {
+				t.Fatalf("request fixture did not unmarshal: %v", err)
+			}
+			if got := req.GetDialect(); got != tc.dialect {
+				t.Errorf("dialect = %v, want %v", got, tc.dialect)
+			}
+
+			respData := readFixture(t, "database", "query.run."+tc.name+".response.json")
+			resp := &databasev1.RunQueryResponse{}
+			if err := (protojson.UnmarshalOptions{DiscardUnknown: true}).Unmarshal(respData, resp); err != nil {
+				t.Fatalf("response fixture did not unmarshal: %v", err)
+			}
+			if got := len(resp.GetColumns()); got != 4 {
+				t.Fatalf("len(columns) = %d, want 4", got)
+			}
+			if got := resp.GetColumns()[2].GetType(); got != tc.col2Type {
+				t.Errorf("columns[2].type = %q, want %q", got, tc.col2Type)
+			}
+			if got := len(resp.GetRows()); got != 2 {
+				t.Fatalf("len(rows) = %d, want 2", got)
+			}
+			for _, c := range tc.checks {
+				value := resp.GetRows()[c.row].GetValues()[c.col]
+				if c.null {
+					if got := value.GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+						t.Errorf("rows[%d][%d] = %v, want null", c.row, c.col, value)
+					}
+					continue
+				}
+				if got := value.GetStringValue(); got != c.want {
+					t.Errorf("rows[%d][%d] = %q, want %q", c.row, c.col, got, c.want)
+				}
+			}
+			if resp.GetTruncated() {
+				t.Error("truncated = true, want false")
+			}
+			if err := (protojson.UnmarshalOptions{}).Unmarshal(respData, &databasev1.RunQueryResponse{}); err == nil {
+				t.Errorf("strict unmarshal of query.run.%s.response.json succeeded; every per-dialect response fixture must carry one unknown extra field so the drift gate detects provider additions", tc.name)
+			}
+		})
 	}
 }
 

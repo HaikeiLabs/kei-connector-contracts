@@ -53,11 +53,16 @@ function fixture(op: string, kind: string): JsonValue {
 const ops = [
   ["gmail.messages.list", gmailMessages.ListMessagesRequestSchema, gmailMessages.ListMessagesResponseSchema, (r: any) => { expect(r.messages).toHaveLength(2); expect(r.nextPageToken).toBe("synthetic-next-token"); }],
   ["gmail.messages.get", gmailMessages.GetMessageRequestSchema, gmailMessages.GetMessageResponseSchema, (r: any) => { expect(r.id).toBe("msg-1001"); expect(r.snippet).toBe("Synthetic message preview text"); expect(r.internalDate).toBeUndefined(); }],
+  ["gmail.drafts.create", gmailMessages.CreateDraftRequestSchema, gmailMessages.CreateDraftResponseSchema, (r: any) => { expect(r.id).toBe("draft-3001"); expect(r.message.id).toBe("msg-1002"); expect(r.message.threadId).toBe("thr-2002"); }],
   ["google_sheets.values.get", googleSheets.GetValuesRequestSchema, googleSheets.GetValuesResponseSchema, (r: any) => { expect(r.range).toBe("Sheet1!A1:B2"); expect(r.values).toHaveLength(2); expect(r.values[0].values[1].kind.case).toBe("nullValue"); }],
   ["google_sheets.spreadsheets.get", googleSheets.GetSpreadsheetRequestSchema, googleSheets.GetSpreadsheetResponseSchema, (r: any) => { expect(r.spreadsheetId).toBe("synthetic-sheet-1"); expect(r.properties.title).toBe("Synthetic sheet"); }],
+  ["google_sheets.values.update", googleSheets.UpdateValuesRequestSchema, googleSheets.UpdateValuesResponseSchema, (r: any) => { expect(r.updatedRange).toBe("Sheet1!A1:B2"); expect(r.updatedCells).toBe(4); }],
   ["atlassian.jira.issues.get", atlassianJira.GetJiraIssueRequestSchema, atlassianJira.GetJiraIssueResponseSchema, (r: any) => { expect(r.key).toBe("SYN-101"); expect(r.fields.summary).toBe("Synthetic Jira issue"); expect(r.fields.description).toBeUndefined(); }],
+  ["atlassian.jira.issues.create", atlassianJira.CreateJiraIssueRequestSchema, atlassianJira.CreateJiraIssueResponseSchema, (r: any) => { expect(r.id).toBe("30001"); expect(r.key).toBe("SYN-301"); }],
+  ["atlassian.jira.issues.comments.create", atlassianJira.CreateJiraCommentRequestSchema, atlassianJira.CreateJiraCommentResponseSchema, (r: any) => { expect(r.id).toBe("40001"); expect(r.body["type"]).toBe("doc"); expect(r.created).toBe("2026-02-11T12:00:00.000Z"); }],
   ["atlassian.jira.issues.search", atlassianJira.SearchJiraIssuesRequestSchema, atlassianJira.SearchJiraIssuesResponseSchema, (r: any) => { expect(r.issues).toHaveLength(2); expect(r.nextPageToken).toBe("synthetic-next-token"); expect(r.issues[1].fields.description).toBeUndefined(); }],
   ["atlassian.confluence.pages.get", atlassianConfluence.GetConfluencePageRequestSchema, atlassianConfluence.GetConfluencePageResponseSchema, (r: any) => { expect(r.id).toBe(78643201n); expect(r.title).toBe("Synthetic Confluence page"); expect(r.parentId).toBeUndefined(); }],
+  ["atlassian.confluence.pages.create", atlassianConfluence.CreateConfluencePageRequestSchema, atlassianConfluence.CreateConfluencePageResponseSchema, (r: any) => { expect(r.id).toBe(78643205n); expect(r.title).toBe("Synthetic created page"); expect(r.parentId).toBeUndefined(); }],
   ["atlassian.confluence.pages.list", atlassianConfluence.ListConfluencePagesRequestSchema, atlassianConfluence.ListConfluencePagesResponseSchema, (r: any) => { expect(r.results).toHaveLength(2); expect(r.results[0].title).toBe("Synthetic first page"); }],
   ["github.issues.get", ghIssues.GetIssueRequestSchema, ghIssues.GetIssueResponseSchema, (r: any) => { expect(r.id).toBe(9007199254740993n); expect(r.number).toBe(1347n); }],
   ["github.issues.list", ghIssues.ListIssuesRequestSchema, ghIssues.ListIssuesResponseSchema, (r: any) => expect(r.issues).toHaveLength(2)],
@@ -89,13 +94,20 @@ const ops = [
   ["linear.cycles.list", linearCycles.ListCyclesRequestSchema, linearCycles.ListCyclesResponseSchema, (r: any) => { expect(r.nodes[0].number).toBe(7); expect(r.nodes[0].isActive).toBe(true); }],
   ["linear.issues.update", linear.UpdateIssueRequestSchema, linear.UpdateIssueResponseSchema, (r: any) => { expect(r.success).toBe(true); expect(r.issue.title).toBe("Synthetic updated issue"); }],
   ["airtable.records.get", airtableRecords.GetRecordRequestSchema, airtableRecords.GetRecordResponseSchema, (r: any) => { expect(r.id).toBe("recSynthetic00003"); expect(r.fields["Name"]).toBe("Synthetic third task"); expect(r.fields["Priority"]).toBeNull(); }],
+  ["airtable.records.create", airtableRecords.CreateRecordRequestSchema, airtableRecords.CreateRecordResponseSchema, (r: any) => { expect(r.id).toBe("recSynthetic00004"); expect(r.fields["Status"]).toBe("Todo"); }],
+  ["airtable.records.update", airtableRecords.UpdateRecordRequestSchema, airtableRecords.UpdateRecordResponseSchema, (r: any) => { expect(r.fields["Status"]).toBe("Done"); expect(r.fields["Priority"]).toBeNull(); }],
   ["airtable.records.list", airtableRecords.ListRecordsRequestSchema, airtableRecords.ListRecordsResponseSchema, (r: any) => { expect(r.records).toHaveLength(2); expect(r.offset).toBe("synthetic-next-offset"); expect(r.records[1].fields["Priority"]).toBeNull(); }],
   ["hubspot.contacts.get", hubspotContacts.GetContactRequestSchema, hubspotContacts.GetContactResponseSchema, (r: any) => { expect(r.id).toBe("701"); expect(r.properties.email).toBe("synthetic.contact@example.invalid"); expect(r.properties.lastname).toBeNull(); }],
+  ["hubspot.contacts.create", hubspotContacts.CreateContactRequestSchema, hubspotContacts.CreateContactResponseSchema, (r: any) => { expect(r.id).toBe("701550001"); expect(r.properties.email).toBe("synthetic.new@example.invalid"); }],
+  ["hubspot.contacts.update", hubspotContacts.UpdateContactRequestSchema, hubspotContacts.UpdateContactResponseSchema, (r: any) => { expect(r.properties.lifecyclestage).toBe("customer"); }],
   ["hubspot.contacts.list", hubspotContacts.ListContactsRequestSchema, hubspotContacts.ListContactsResponseSchema, (r: any) => { expect(r.results).toHaveLength(2); expect(r.nextAfter).toBe("synthetic-next-cursor"); }],
   ["hubspot.deals.list", hubspotDeals.ListDealsRequestSchema, hubspotDeals.ListDealsResponseSchema, (r: any) => { expect(r.results).toHaveLength(2); expect(r.results[0].properties.dealname).toBe("Synthetic first deal"); }],
   ["notion.pages.get", notionPages.GetPageRequestSchema, notionPages.GetPageResponseSchema, (r: any) => { expect(r.id).toBe("5f8b7e4a-0000-4000-8000-000000000001"); expect(r.publicUrl).toBeUndefined(); }],
+  ["notion.pages.create", notionPages.CreatePageRequestSchema, notionPages.CreatePageResponseSchema, (r: any) => { expect(r.id).toBe("d4e5f6a7-0000-4000-8000-000000000005"); expect(r.publicUrl).toBeUndefined(); }],
+  ["notion.pages.update", notionPages.UpdatePageRequestSchema, notionPages.UpdatePageResponseSchema, (r: any) => { expect(r.lastEditedTime).toBe("2026-02-11T09:45:00.000Z"); expect(r.archived).toBe(false); }],
   ["notion.databases.query", notionDatabases.QueryDatabaseRequestSchema, notionDatabases.QueryDatabaseResponseSchema, (r: any) => { expect(r.results).toHaveLength(2); expect(r.nextCursor).toBe("synthetic-next-cursor"); expect(r.results[1].publicUrl).toBeUndefined(); }],
   ["sentry.issues.get", sentry.GetIssueRequestSchema, sentry.GetIssueResponseSchema, (r: any) => { expect(r.shortId).toBe("PROJ-103"); expect(r.shareId).toBeUndefined(); }],
+  ["sentry.issues.update", sentry.UpdateIssueRequestSchema, sentry.UpdateIssueResponseSchema, (r: any) => { expect(r.status).toBe("resolved"); expect(r.shortId).toBe("PROJ-103"); expect(r.shareId).toBeUndefined(); }],
   ["sentry.issues.list", sentry.ListIssuesRequestSchema, sentry.ListIssuesResponseSchema, (r: any) => { expect(r.issues).toHaveLength(2); expect(r.issues[1].shareId).toBe("synthetic-share-id-2"); }],
   ["http_api.records.list", http.ListRecordsRequestSchema, http.ListRecordsResponseSchema, (r: any) => expect(r.records).toHaveLength(2)],
   ["http_api.records.get", http.GetRecordRequestSchema, http.GetRecordResponseSchema, (r: any) => expect(r.record.id).toBe("rec-1")],
@@ -121,4 +133,98 @@ it("shows JSON.parse loses precision for the provider issue id", () => {
   const raw = JSON.parse(fixtureText("github.issues.get", "response"));
   expect(BigInt(raw.id)).toBe(9007199254740992n);
   expect(BigInt(raw.id)).not.toBe(9007199254740993n);
+});
+
+// Per-dialect query.run fixtures: each engine's dialect enum, one
+// engine-specific typed value (jsonb/timestamptz, bigint unsigned/datetime(6),
+// nvarchar unicode/datetimeoffset, NUMBER(38) and VARIANT as strings, uuid),
+// and the NULL cell. The >2^53 integers and precision-critical decimals travel
+// as strings; NULL travels as the protobuf null kind.
+const databaseDialects = [
+  {
+    name: "postgres",
+    dialect: db.Dialect.POSTGRES,
+    col2Type: "timestamptz",
+    checks: [
+      { row: 0, col: 0, want: "9007199254740993" },
+      { row: 0, col: 1, want: '{"owner": "synthetic", "tags": ["ops"]}' },
+      { row: 0, col: 2, want: "2026-01-15T10:30:00.123456+00:00" },
+      { row: 0, col: 3, want: "12345678901234567890.123456789012345678" },
+      { row: 1, col: 1, want: null },
+    ],
+  },
+  {
+    name: "mysql",
+    dialect: db.Dialect.MYSQL,
+    col2Type: "datetime(6)",
+    checks: [
+      { row: 0, col: 0, want: "18446744073709551615" },
+      { row: 0, col: 1, want: '{"owner": "synthetic", "tags": ["ops"]}' },
+      { row: 0, col: 2, want: "2026-01-15 10:30:00.123456" },
+      { row: 0, col: 3, want: "12345678901234567890.123456" },
+      { row: 1, col: 1, want: null },
+    ],
+  },
+  {
+    name: "mssql",
+    dialect: db.Dialect.MSSQL,
+    col2Type: "datetimeoffset",
+    checks: [
+      { row: 0, col: 0, want: "9007199254740993" },
+      { row: 0, col: 1, want: "München — ünïcodé ✓" },
+      { row: 0, col: 2, want: "2026-01-15T10:30:00.1234567+02:00" },
+      { row: 0, col: 3, want: "12345678901234567890.1234567890" },
+      { row: 1, col: 2, want: null },
+    ],
+  },
+  {
+    name: "snowflake",
+    dialect: db.Dialect.SNOWFLAKE,
+    col2Type: "NUMBER(38,18)",
+    checks: [
+      { row: 0, col: 0, want: "99999999999999999999999999999999999999" },
+      { row: 0, col: 1, want: "Big-ID Account — ünïcodé ✓" },
+      { row: 0, col: 2, want: "12345678901234567890.123456789012345678" },
+      { row: 0, col: 3, want: '{"owner": "synthetic", "tags": ["ops"]}' },
+      { row: 1, col: 3, want: null },
+    ],
+  },
+  {
+    name: "supabase",
+    dialect: db.Dialect.SUPABASE,
+    col2Type: "timestamptz",
+    checks: [
+      { row: 0, col: 0, want: "6f9619ff-8b86-d011-b42d-00c04fc964ff" },
+      { row: 0, col: 1, want: '{"owner": "synthetic", "tags": ["ops"]}' },
+      { row: 0, col: 2, want: "2026-01-15T10:30:00.123456+00:00" },
+      { row: 0, col: 3, want: "12345678901234567890.123456789012345678" },
+      { row: 1, col: 1, want: null },
+    ],
+  },
+] as const;
+
+describe.each(databaseDialects)("database.query.run.$name", (tc) => {
+  it("parses the request with the right dialect enum", () => {
+    const req = fromJson(db.RunQueryRequestSchema, fixture(`database.query.run.${tc.name}`, "request"), { ignoreUnknownFields: true });
+    expect(req.dialect).toBe(tc.dialect);
+  });
+  it("unmarshals one typed value per engine", () => {
+    const resp = fromJson(db.RunQueryResponseSchema, fixture(`database.query.run.${tc.name}`, "response"), { ignoreUnknownFields: true });
+    expect(resp.columns).toHaveLength(4);
+    expect(resp.columns[2].type).toBe(tc.col2Type);
+    expect(resp.rows).toHaveLength(2);
+    for (const c of tc.checks) {
+      const value = resp.rows[c.row].values[c.col];
+      if (c.want === null) {
+        expect(value.kind.case).toBe("nullValue");
+      } else {
+        expect(value.kind.case).toBe("stringValue");
+        if (value.kind.case === "stringValue") expect(value.kind.value).toBe(c.want);
+      }
+    }
+    expect(resp.truncated).toBe(false);
+  });
+  it("rejects the unknown extra field in strict mode", () => {
+    expect(() => fromJson(db.RunQueryResponseSchema, fixture(`database.query.run.${tc.name}`, "response"))).toThrow();
+  });
 });

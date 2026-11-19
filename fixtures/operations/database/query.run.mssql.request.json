@@ -1,0 +1,6 @@
+{
+  "dialect": "DIALECT_MSSQL",
+  "sql": "SELECT id, account, updated_at, balance FROM synthetic_documents WHERE id >= @p1 ORDER BY id",
+  "params": ["9007199254740993"],
+  "max_rows": 100
+}

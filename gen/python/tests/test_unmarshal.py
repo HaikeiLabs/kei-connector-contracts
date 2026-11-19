@@ -227,10 +227,21 @@ def _spot_gmail_messages_get(response):
     assert not response.HasField("internal_date")
 
 
+def _spot_gmail_drafts_create(response):
+    assert response.id == "draft-3001"
+    assert response.message.id == "msg-1002"
+    assert response.message.thread_id == "thr-2002"
+
+
 def _spot_google_sheets_values_get(response):
     assert response.range == "Sheet1!A1:B2"
     assert len(response.values) == 2
     assert response.values[0].values[1].WhichOneof("kind") == "null_value"
+
+
+def _spot_google_sheets_values_update(response):
+    assert response.updated_range == "Sheet1!A1:B2"
+    assert response.updated_cells == 4
 
 
 def _spot_google_sheets_spreadsheets_get(response):
@@ -242,6 +253,17 @@ def _spot_atlassian_jira_issues_get(response):
     assert response.key == "SYN-101"
     assert response.fields.summary == "Synthetic Jira issue"
     assert not response.fields.HasField("description")
+
+
+def _spot_atlassian_jira_issues_create(response):
+    assert response.id == "30001"
+    assert response.key == "SYN-301"
+
+
+def _spot_atlassian_jira_comments_create(response):
+    assert response.id == "40001"
+    assert response.body.fields["type"].string_value == "doc"
+    assert response.created == "2026-02-11T12:00:00.000Z"
 
 
 def _spot_atlassian_jira_issues_search(response):
@@ -256,6 +278,12 @@ def _spot_atlassian_confluence_pages_get(response):
     assert not response.HasField("parent_id")
 
 
+def _spot_atlassian_confluence_pages_create(response):
+    assert response.id == 78643205
+    assert response.title == "Synthetic created page"
+    assert not response.HasField("parent_id")
+
+
 def _spot_atlassian_confluence_pages_list(response):
     assert len(response.results) == 2
     assert response.results[0].title == "Synthetic first page"
@@ -264,6 +292,16 @@ def _spot_atlassian_confluence_pages_list(response):
 def _spot_airtable_records_get(response):
     assert response.id == "recSynthetic00003"
     assert response.fields.fields["Name"].string_value == "Synthetic third task"
+    assert response.fields.fields["Priority"].WhichOneof("kind") == "null_value"
+
+
+def _spot_airtable_records_create(response):
+    assert response.id == "recSynthetic00004"
+    assert response.fields.fields["Status"].string_value == "Todo"
+
+
+def _spot_airtable_records_update(response):
+    assert response.fields.fields["Status"].string_value == "Done"
     assert response.fields.fields["Priority"].WhichOneof("kind") == "null_value"
 
 
@@ -277,6 +315,15 @@ def _spot_hubspot_contacts_get(response):
     assert response.id == "701"
     assert response.properties.fields["email"].string_value == "synthetic.contact@example.invalid"
     assert response.properties.fields["lastname"].WhichOneof("kind") == "null_value"
+
+
+def _spot_hubspot_contacts_create(response):
+    assert response.id == "701550001"
+    assert response.properties.fields["email"].string_value == "synthetic.new@example.invalid"
+
+
+def _spot_hubspot_contacts_update(response):
+    assert response.properties.fields["lifecyclestage"].string_value == "customer"
 
 
 def _spot_hubspot_contacts_list(response):
@@ -296,6 +343,16 @@ def _spot_notion_pages_get(response):
     assert not response.HasField("public_url")
 
 
+def _spot_notion_pages_create(response):
+    assert response.id == "d4e5f6a7-0000-4000-8000-000000000005"
+    assert not response.HasField("public_url")
+
+
+def _spot_notion_pages_update(response):
+    assert response.last_edited_time == "2026-02-11T09:45:00.000Z"
+    assert response.archived is False
+
+
 def _spot_notion_databases_query(response):
     assert len(response.results) == 2
     assert response.next_cursor == "synthetic-next-cursor"
@@ -304,6 +361,12 @@ def _spot_notion_databases_query(response):
 
 
 def _spot_sentry_issues_get(response):
+    assert response.short_id == "PROJ-103"
+    assert not response.HasField("share_id")
+
+
+def _spot_sentry_issues_update(response):
+    assert response.status == "resolved"
     assert response.short_id == "PROJ-103"
     assert not response.HasField("share_id")
 
@@ -380,6 +443,115 @@ def _check_database_query_run_request(request):
     assert request.max_rows == 100
 
 
+# Per-dialect query.run fixtures: each engine's dialect enum, one
+# engine-specific typed value (jsonb/timestamptz, bigint unsigned/datetime(6),
+# nvarchar unicode/datetimeoffset, NUMBER(38) and VARIANT as strings, uuid),
+# and the NULL cell. The >2^53 integers and precision-critical decimals travel
+# as strings; NULL travels as the protobuf null value.
+DATABASE_DIALECT_CASES = [
+    (
+        "postgres",
+        query_pb2.DIALECT_POSTGRES,
+        "timestamptz",
+        [
+            (0, 0, "9007199254740993", False),
+            (0, 1, '{"owner": "synthetic", "tags": ["ops"]}', False),
+            (0, 2, "2026-01-15T10:30:00.123456+00:00", False),
+            (0, 3, "12345678901234567890.123456789012345678", False),
+            (1, 1, None, True),
+        ],
+    ),
+    (
+        "mysql",
+        query_pb2.DIALECT_MYSQL,
+        "datetime(6)",
+        [
+            (0, 0, "18446744073709551615", False),
+            (0, 1, '{"owner": "synthetic", "tags": ["ops"]}', False),
+            (0, 2, "2026-01-15 10:30:00.123456", False),
+            (0, 3, "12345678901234567890.123456", False),
+            (1, 1, None, True),
+        ],
+    ),
+    (
+        "mssql",
+        query_pb2.DIALECT_MSSQL,
+        "datetimeoffset",
+        [
+            (0, 0, "9007199254740993", False),
+            (0, 1, "München — ünïcodé ✓", False),
+            (0, 2, "2026-01-15T10:30:00.1234567+02:00", False),
+            (0, 3, "12345678901234567890.1234567890", False),
+            (1, 2, None, True),
+        ],
+    ),
+    (
+        "snowflake",
+        query_pb2.DIALECT_SNOWFLAKE,
+        "NUMBER(38,18)",
+        [
+            (0, 0, "99999999999999999999999999999999999999", False),
+            (0, 1, "Big-ID Account — ünïcodé ✓", False),
+            (0, 2, "12345678901234567890.123456789012345678", False),
+            (0, 3, '{"owner": "synthetic", "tags": ["ops"]}', False),
+            (1, 3, None, True),
+        ],
+    ),
+    (
+        "supabase",
+        query_pb2.DIALECT_SUPABASE,
+        "timestamptz",
+        [
+            (0, 0, "6f9619ff-8b86-d011-b42d-00c04fc964ff", False),
+            (0, 1, '{"owner": "synthetic", "tags": ["ops"]}', False),
+            (0, 2, "2026-01-15T10:30:00.123456+00:00", False),
+            (0, 3, "12345678901234567890.123456789012345678", False),
+            (1, 1, None, True),
+        ],
+    ),
+]
+
+
+@pytest.mark.parametrize(
+    "name,dialect,col2_type,checks",
+    DATABASE_DIALECT_CASES,
+    ids=[case[0] for case in DATABASE_DIALECT_CASES],
+)
+def test_database_dialect_fixture_rows(name, dialect, col2_type, checks):
+    request = json_format.Parse(
+        _fixture("database", "query.run.%s.request.json" % name),
+        query_pb2.RunQueryRequest(),
+        ignore_unknown_fields=True,
+    )
+    assert request.dialect == dialect
+
+    response_file = "query.run.%s.response.json" % name
+    response = json_format.Parse(
+        _fixture("database", response_file),
+        query_pb2.RunQueryResponse(),
+        ignore_unknown_fields=True,
+    )
+    assert len(response.columns) == 4
+    assert response.columns[2].type == col2_type
+    assert len(response.rows) == 2
+    for row, col, want, is_null in checks:
+        value = response.rows[row].values[col]
+        if is_null:
+            assert value.WhichOneof("kind") == "null_value"
+        else:
+            assert value.string_value == want
+    assert response.truncated is False
+
+    # Drift gate: strict parsing must reject the unknown extra field each
+    # per-dialect response fixture carries.
+    with pytest.raises(json_format.ParseError):
+        json_format.Parse(
+            _fixture("database", response_file),
+            query_pb2.RunQueryResponse(),
+            ignore_unknown_fields=False,
+        )
+
+
 OPS = [
     ("github.issues.get", "github", issues_pb2.GetIssueRequest, issues_pb2.GetIssueResponse, _spot_github_issues_get),
     ("github.issues.list", "github", issues_pb2.ListIssuesRequest, issues_pb2.ListIssuesResponse, _spot_github_issues_list),
@@ -412,20 +584,32 @@ OPS = [
     ("linear.issues.update", "linear", linear_issues_pb2.UpdateIssueRequest, linear_issues_pb2.UpdateIssueResponse, _spot_linear_issues_update),
     ("gmail.messages.list", "gmail", messages_pb2.ListMessagesRequest, messages_pb2.ListMessagesResponse, _spot_gmail_messages_list),
     ("gmail.messages.get", "gmail", messages_pb2.GetMessageRequest, messages_pb2.GetMessageResponse, _spot_gmail_messages_get),
+    ("gmail.drafts.create", "gmail", messages_pb2.CreateDraftRequest, messages_pb2.CreateDraftResponse, _spot_gmail_drafts_create),
     ("google_sheets.values.get", "google_sheets", spreadsheets_pb2.GetValuesRequest, spreadsheets_pb2.GetValuesResponse, _spot_google_sheets_values_get),
+    ("google_sheets.values.update", "google_sheets", spreadsheets_pb2.UpdateValuesRequest, spreadsheets_pb2.UpdateValuesResponse, _spot_google_sheets_values_update),
     ("google_sheets.spreadsheets.get", "google_sheets", spreadsheets_pb2.GetSpreadsheetRequest, spreadsheets_pb2.GetSpreadsheetResponse, _spot_google_sheets_spreadsheets_get),
     ("atlassian.jira.issues.get", "atlassian", jira_pb2.GetJiraIssueRequest, jira_pb2.GetJiraIssueResponse, _spot_atlassian_jira_issues_get),
+    ("atlassian.jira.issues.create", "atlassian", jira_pb2.CreateJiraIssueRequest, jira_pb2.CreateJiraIssueResponse, _spot_atlassian_jira_issues_create),
+    ("atlassian.jira.issues.comments.create", "atlassian", jira_pb2.CreateJiraCommentRequest, jira_pb2.CreateJiraCommentResponse, _spot_atlassian_jira_comments_create),
     ("atlassian.jira.issues.search", "atlassian", jira_pb2.SearchJiraIssuesRequest, jira_pb2.SearchJiraIssuesResponse, _spot_atlassian_jira_issues_search),
     ("atlassian.confluence.pages.get", "atlassian", confluence_pb2.GetConfluencePageRequest, confluence_pb2.GetConfluencePageResponse, _spot_atlassian_confluence_pages_get),
+    ("atlassian.confluence.pages.create", "atlassian", confluence_pb2.CreateConfluencePageRequest, confluence_pb2.CreateConfluencePageResponse, _spot_atlassian_confluence_pages_create),
     ("atlassian.confluence.pages.list", "atlassian", confluence_pb2.ListConfluencePagesRequest, confluence_pb2.ListConfluencePagesResponse, _spot_atlassian_confluence_pages_list),
     ("airtable.records.get", "airtable", airtable_records_pb2.GetRecordRequest, airtable_records_pb2.GetRecordResponse, _spot_airtable_records_get),
+    ("airtable.records.create", "airtable", airtable_records_pb2.CreateRecordRequest, airtable_records_pb2.CreateRecordResponse, _spot_airtable_records_create),
+    ("airtable.records.update", "airtable", airtable_records_pb2.UpdateRecordRequest, airtable_records_pb2.UpdateRecordResponse, _spot_airtable_records_update),
     ("airtable.records.list", "airtable", airtable_records_pb2.ListRecordsRequest, airtable_records_pb2.ListRecordsResponse, _spot_airtable_records_list),
     ("hubspot.contacts.get", "hubspot", contacts_pb2.GetContactRequest, contacts_pb2.GetContactResponse, _spot_hubspot_contacts_get),
+    ("hubspot.contacts.create", "hubspot", contacts_pb2.CreateContactRequest, contacts_pb2.CreateContactResponse, _spot_hubspot_contacts_create),
+    ("hubspot.contacts.update", "hubspot", contacts_pb2.UpdateContactRequest, contacts_pb2.UpdateContactResponse, _spot_hubspot_contacts_update),
     ("hubspot.contacts.list", "hubspot", contacts_pb2.ListContactsRequest, contacts_pb2.ListContactsResponse, _spot_hubspot_contacts_list),
     ("hubspot.deals.list", "hubspot", deals_pb2.ListDealsRequest, deals_pb2.ListDealsResponse, _spot_hubspot_deals_list),
     ("notion.pages.get", "notion", pages_pb2.GetPageRequest, pages_pb2.GetPageResponse, _spot_notion_pages_get),
+    ("notion.pages.create", "notion", pages_pb2.CreatePageRequest, pages_pb2.CreatePageResponse, _spot_notion_pages_create),
+    ("notion.pages.update", "notion", pages_pb2.UpdatePageRequest, pages_pb2.UpdatePageResponse, _spot_notion_pages_update),
     ("notion.databases.query", "notion", databases_pb2.QueryDatabaseRequest, databases_pb2.QueryDatabaseResponse, _spot_notion_databases_query),
     ("sentry.issues.get", "sentry", sentry_issues_pb2.GetIssueRequest, sentry_issues_pb2.GetIssueResponse, _spot_sentry_issues_get),
+    ("sentry.issues.update", "sentry", sentry_issues_pb2.UpdateIssueRequest, sentry_issues_pb2.UpdateIssueResponse, _spot_sentry_issues_update),
     ("sentry.issues.list", "sentry", sentry_issues_pb2.ListIssuesRequest, sentry_issues_pb2.ListIssuesResponse, _spot_sentry_issues_list),
     ("http_api.records.list", "http_api", records_pb2.ListRecordsRequest, records_pb2.ListRecordsResponse, _spot_http_api_records_list),
     ("http_api.records.get", "http_api", records_pb2.GetRecordRequest, records_pb2.GetRecordResponse, _spot_http_api_records_get),

@@ -104,3 +104,83 @@ message ListContactsResponse {
   repeated ContactSummary results = 1;
   optional string next_after = 2;
 }
+
+// CreateContactRequest creates a contact in HubSpot CRM. properties carries
+// the contact's property values (email, firstname, ...), which is the exact
+// body HubSpot's v3 create endpoint takes besides its associations array;
+// the contract does not model associations.
+message CreateContactRequest {
+  google.protobuf.Struct properties = 1;
+
+  option (kei.contracts.v1.operation) = {
+    id: "hubspot.contacts.create"
+    connector: "hubspot"
+    class: OPERATION_CLASS_WRITE
+    destructive: false
+    http_method: "POST"
+    path_template: "/crm/v3/objects/contacts"
+    scopes: ["crm.objects.contacts.write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateContact"
+    connections: ["user_oauth", "private_app"]
+    resource_template: "contacts"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "contact" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 409 kind: ERROR_KIND_CONFLICT},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// CreateContactResponse models the same contact subset the read returns.
+// It is filled by JSON unmarshal of the provider response.
+message CreateContactResponse {
+  string id = 1;
+  google.protobuf.Struct properties = 2;
+  string created_at = 3;
+  string updated_at = 4;
+  bool archived = 5;
+}
+
+// UpdateContactRequest updates a contact's properties. HubSpot merges the
+// property patch, so this is not a wholesale overwrite and the operation is
+// not destructive.
+message UpdateContactRequest {
+  string contact_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  google.protobuf.Struct properties = 2;
+
+  option (kei.contracts.v1.operation) = {
+    id: "hubspot.contacts.update"
+    connector: "hubspot"
+    class: OPERATION_CLASS_WRITE
+    destructive: false
+    http_method: "PATCH"
+    path_template: "/crm/v3/objects/contacts/{contact_id}"
+    scopes: ["crm.objects.contacts.write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "UpdateContact"
+    connections: ["user_oauth", "private_app"]
+    resource_template: "contacts/{contact_id}"
+    semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "contact" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// UpdateContactResponse models the same contact subset the read returns.
+// It is filled by JSON unmarshal of the provider response.
+message UpdateContactResponse {
+  string id = 1;
+  google.protobuf.Struct properties = 2;
+  string created_at = 3;
+  string updated_at = 4;
+  bool archived = 5;
+}

@@ -2,11 +2,12 @@
   "columns": [
     {"name": "ID", "type": "NUMBER(38,0)"},
     {"name": "NAME", "type": "VARCHAR"},
-    {"name": "BALANCE", "type": "NUMBER(38,18)"}
+    {"name": "BALANCE", "type": "NUMBER(38,18)"},
+    {"name": "PAYLOAD", "type": "VARIANT"}
   ],
   "rows": [
-    ["99999999999999999999999999999999999999", "Big-ID Account — ünïcodé ✓", "12345678901234567890.123456789012345678"],
-    ["1", "Synthetic One", "0.000000000000000001"]
+    ["99999999999999999999999999999999999999", "Big-ID Account — ünïcodé ✓", "12345678901234567890.123456789012345678", "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}"],
+    ["1", "Synthetic One", "0.000000000000000001", null]
   ],
   "truncated": false,
   "request_id": "synthetic-snowflake-request-id"

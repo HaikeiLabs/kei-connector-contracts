@@ -6,6 +6,8 @@ from typing import Protocol
 
 from kei.connection import HttpConnection, Op, OpClass, call_http
 
+from google.protobuf import struct_pb2
+
 from kei.testconn.v1 import things_pb2
 
 OP_GET_FILE = Op(id="testconn.files.get", op_class=OpClass.READ, destructive=False)
@@ -24,7 +26,7 @@ _SPEC_CREATE_THING = {
     "op": OP_CREATE_THING,
     "method": "POST",
     "path_template": "/spaces/{space}/things",
-    "params": [{"field": "space", "in": "path", "multi_segment": False, "wire": "space"}, {"field": "name", "in": "body", "multi_segment": False, "wire": "name"}, {"field": "note", "in": "body", "multi_segment": False, "wire": "description"}],
+    "params": [{"field": "space", "in": "path", "multi_segment": False, "wire": "space"}, {"field": "name", "in": "body", "multi_segment": False, "wire": "name"}, {"field": "note", "in": "body", "multi_segment": False, "wire": "description"}, {"field": "metadata", "in": "body", "multi_segment": False, "wire": "metadata"}, {"field": "rows", "in": "body", "multi_segment": False, "wire": "rows"}],
     "errors": [{"kind": "conflict", "retryable": False, "status": 409}],
     "graphql_document": "",
     "cursor_field": "",
@@ -78,7 +80,7 @@ _SPEC_SEARCH_THINGS = {
 class TestconnOperations(Protocol):
     async def get_file(self, space: str, path: str) -> things_pb2.GetFileResponse:
         ...
-    async def create_thing(self, space: str, name: str, note: str) -> things_pb2.CreateThingResponse:
+    async def create_thing(self, space: str, name: str, note: str, metadata: struct_pb2.Struct, rows: list[struct_pb2.ListValue]) -> things_pb2.CreateThingResponse:
         ...
     async def get_thing(self, space: str, thing_id: int) -> things_pb2.GetThingResponse:
         ...
@@ -99,8 +101,8 @@ class TestconnQueries:
         req = things_pb2.GetFileRequest(space=space, path=path)
         return await call_http(self._conn, _SPEC_GET_FILE, req, things_pb2.GetFileResponse)
 
-    async def create_thing(self, space: str, name: str, note: str) -> things_pb2.CreateThingResponse:
-        req = things_pb2.CreateThingRequest(space=space, name=name, note=note)
+    async def create_thing(self, space: str, name: str, note: str, metadata: struct_pb2.Struct, rows: list[struct_pb2.ListValue]) -> things_pb2.CreateThingResponse:
+        req = things_pb2.CreateThingRequest(space=space, name=name, note=note, metadata=metadata, rows=rows)
         return await call_http(self._conn, _SPEC_CREATE_THING, req, things_pb2.CreateThingResponse)
 
     async def get_thing(self, space: str, thing_id: int) -> things_pb2.GetThingResponse:

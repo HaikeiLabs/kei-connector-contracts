@@ -351,6 +351,265 @@ func (x *GetRecordResponse) GetCreatedTime() string {
 	return ""
 }
 
+// CreateRecordRequest creates a record in one Airtable table. fields carries
+// the record's cell values keyed by field name, the exact body Airtable's
+// create endpoint takes besides its typecast flag; the contract does not
+// model typecast.
+type CreateRecordRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BaseId        string                 `protobuf:"bytes,1,opt,name=base_id,json=baseId,proto3" json:"base_id,omitempty"`
+	TableIdOrName string                 `protobuf:"bytes,2,opt,name=table_id_or_name,json=tableIdOrName,proto3" json:"table_id_or_name,omitempty"`
+	Fields        *structpb.Struct       `protobuf:"bytes,3,opt,name=fields,proto3" json:"fields,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateRecordRequest) Reset() {
+	*x = CreateRecordRequest{}
+	mi := &file_kei_connectors_airtable_v1_records_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateRecordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateRecordRequest) ProtoMessage() {}
+
+func (x *CreateRecordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_airtable_v1_records_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateRecordRequest.ProtoReflect.Descriptor instead.
+func (*CreateRecordRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_airtable_v1_records_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *CreateRecordRequest) GetBaseId() string {
+	if x != nil {
+		return x.BaseId
+	}
+	return ""
+}
+
+func (x *CreateRecordRequest) GetTableIdOrName() string {
+	if x != nil {
+		return x.TableIdOrName
+	}
+	return ""
+}
+
+func (x *CreateRecordRequest) GetFields() *structpb.Struct {
+	if x != nil {
+		return x.Fields
+	}
+	return nil
+}
+
+// CreateRecordResponse models the same record subset the read returns. It is
+// filled by JSON unmarshal of the provider response.
+type CreateRecordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Fields        *structpb.Struct       `protobuf:"bytes,2,opt,name=fields,proto3" json:"fields,omitempty"`
+	CreatedTime   string                 `protobuf:"bytes,3,opt,name=created_time,json=createdTime,proto3" json:"created_time,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateRecordResponse) Reset() {
+	*x = CreateRecordResponse{}
+	mi := &file_kei_connectors_airtable_v1_records_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateRecordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateRecordResponse) ProtoMessage() {}
+
+func (x *CreateRecordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_airtable_v1_records_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateRecordResponse.ProtoReflect.Descriptor instead.
+func (*CreateRecordResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_airtable_v1_records_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *CreateRecordResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *CreateRecordResponse) GetFields() *structpb.Struct {
+	if x != nil {
+		return x.Fields
+	}
+	return nil
+}
+
+func (x *CreateRecordResponse) GetCreatedTime() string {
+	if x != nil {
+		return x.CreatedTime
+	}
+	return ""
+}
+
+// UpdateRecordRequest updates a record's fields. Airtable merges the field
+// patch (fields left out keep their values), so this is not a wholesale
+// overwrite and the operation is not destructive.
+type UpdateRecordRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	BaseId        string                 `protobuf:"bytes,1,opt,name=base_id,json=baseId,proto3" json:"base_id,omitempty"`
+	TableIdOrName string                 `protobuf:"bytes,2,opt,name=table_id_or_name,json=tableIdOrName,proto3" json:"table_id_or_name,omitempty"`
+	RecordId      string                 `protobuf:"bytes,3,opt,name=record_id,json=recordId,proto3" json:"record_id,omitempty"`
+	Fields        *structpb.Struct       `protobuf:"bytes,4,opt,name=fields,proto3" json:"fields,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateRecordRequest) Reset() {
+	*x = UpdateRecordRequest{}
+	mi := &file_kei_connectors_airtable_v1_records_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateRecordRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateRecordRequest) ProtoMessage() {}
+
+func (x *UpdateRecordRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_airtable_v1_records_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateRecordRequest.ProtoReflect.Descriptor instead.
+func (*UpdateRecordRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_airtable_v1_records_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *UpdateRecordRequest) GetBaseId() string {
+	if x != nil {
+		return x.BaseId
+	}
+	return ""
+}
+
+func (x *UpdateRecordRequest) GetTableIdOrName() string {
+	if x != nil {
+		return x.TableIdOrName
+	}
+	return ""
+}
+
+func (x *UpdateRecordRequest) GetRecordId() string {
+	if x != nil {
+		return x.RecordId
+	}
+	return ""
+}
+
+func (x *UpdateRecordRequest) GetFields() *structpb.Struct {
+	if x != nil {
+		return x.Fields
+	}
+	return nil
+}
+
+// UpdateRecordResponse models the same record subset the read returns. It is
+// filled by JSON unmarshal of the provider response.
+type UpdateRecordResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Fields        *structpb.Struct       `protobuf:"bytes,2,opt,name=fields,proto3" json:"fields,omitempty"`
+	CreatedTime   string                 `protobuf:"bytes,3,opt,name=created_time,json=createdTime,proto3" json:"created_time,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateRecordResponse) Reset() {
+	*x = UpdateRecordResponse{}
+	mi := &file_kei_connectors_airtable_v1_records_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateRecordResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateRecordResponse) ProtoMessage() {}
+
+func (x *UpdateRecordResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_airtable_v1_records_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateRecordResponse.ProtoReflect.Descriptor instead.
+func (*UpdateRecordResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_airtable_v1_records_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UpdateRecordResponse) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateRecordResponse) GetFields() *structpb.Struct {
+	if x != nil {
+		return x.Fields
+	}
+	return nil
+}
+
+func (x *UpdateRecordResponse) GetCreatedTime() string {
+	if x != nil {
+		return x.CreatedTime
+	}
+	return ""
+}
+
 var File_kei_connectors_airtable_v1_records_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_airtable_v1_records_proto_rawDesc = "" +
@@ -381,6 +640,25 @@ const file_kei_connectors_airtable_v1_records_proto_rawDesc = "" +
 	"\x11GetRecordResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12/\n" +
 	"\x06fields\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x06fields\x12!\n" +
+	"\fcreated_time\x18\x03 \x01(\tR\vcreatedTime\"\xdb\x02\n" +
+	"\x13CreateRecordRequest\x12\x1f\n" +
+	"\abase_id\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x06baseId\x12/\n" +
+	"\x10table_id_or_name\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\rtableIdOrName\x12/\n" +
+	"\x06fields\x18\x03 \x01(\v2\x17.google.protobuf.StructR\x06fields:\xc0\x01\x92\x82\x19\xbb\x01\n" +
+	"\x17airtable.records.create\x12\bairtable\x18\x02*\x04POST2 /v0/{base_id}/{table_id_or_name}:\x12data.records:write@\x01J\fCreateRecordR\x03patZ\x0fbases/{base_id}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\x05\b\xa6\x03\x10\x06b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\f\b\x02\x12\x06record\x18\x01\"z\n" +
+	"\x14CreateRecordResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12/\n" +
+	"\x06fields\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x06fields\x12!\n" +
+	"\fcreated_time\x18\x03 \x01(\tR\vcreatedTime\"\x8d\x03\n" +
+	"\x13UpdateRecordRequest\x12\x1f\n" +
+	"\abase_id\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x06baseId\x12/\n" +
+	"\x10table_id_or_name\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\rtableIdOrName\x12#\n" +
+	"\trecord_id\x18\x03 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\brecordId\x12/\n" +
+	"\x06fields\x18\x04 \x01(\v2\x17.google.protobuf.StructR\x06fields:\xcd\x01\x92\x82\x19\xc8\x01\n" +
+	"\x17airtable.records.update\x12\bairtable\x18\x02*\x05PATCH2,/v0/{base_id}/{table_id_or_name}/{record_id}:\x12data.records:write@\x01J\fUpdateRecordR\x03patZ\x0fbases/{base_id}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\x05\b\xa6\x03\x10\x06b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\f\b\x03\x12\x06record\x18\x01\"z\n" +
+	"\x14UpdateRecordResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12/\n" +
+	"\x06fields\x18\x02 \x01(\v2\x17.google.protobuf.StructR\x06fields\x12!\n" +
 	"\fcreated_time\x18\x03 \x01(\tR\vcreatedTimeBZZXgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/airtable/v1;airtableb\x06proto3"
 
 var (
@@ -395,24 +673,32 @@ func file_kei_connectors_airtable_v1_records_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_airtable_v1_records_proto_rawDescData
 }
 
-var file_kei_connectors_airtable_v1_records_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_kei_connectors_airtable_v1_records_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_kei_connectors_airtable_v1_records_proto_goTypes = []any{
-	(*ListRecordsRequest)(nil),  // 0: kei.connectors.airtable.v1.ListRecordsRequest
-	(*RecordSummary)(nil),       // 1: kei.connectors.airtable.v1.RecordSummary
-	(*ListRecordsResponse)(nil), // 2: kei.connectors.airtable.v1.ListRecordsResponse
-	(*GetRecordRequest)(nil),    // 3: kei.connectors.airtable.v1.GetRecordRequest
-	(*GetRecordResponse)(nil),   // 4: kei.connectors.airtable.v1.GetRecordResponse
-	(*structpb.Struct)(nil),     // 5: google.protobuf.Struct
+	(*ListRecordsRequest)(nil),   // 0: kei.connectors.airtable.v1.ListRecordsRequest
+	(*RecordSummary)(nil),        // 1: kei.connectors.airtable.v1.RecordSummary
+	(*ListRecordsResponse)(nil),  // 2: kei.connectors.airtable.v1.ListRecordsResponse
+	(*GetRecordRequest)(nil),     // 3: kei.connectors.airtable.v1.GetRecordRequest
+	(*GetRecordResponse)(nil),    // 4: kei.connectors.airtable.v1.GetRecordResponse
+	(*CreateRecordRequest)(nil),  // 5: kei.connectors.airtable.v1.CreateRecordRequest
+	(*CreateRecordResponse)(nil), // 6: kei.connectors.airtable.v1.CreateRecordResponse
+	(*UpdateRecordRequest)(nil),  // 7: kei.connectors.airtable.v1.UpdateRecordRequest
+	(*UpdateRecordResponse)(nil), // 8: kei.connectors.airtable.v1.UpdateRecordResponse
+	(*structpb.Struct)(nil),      // 9: google.protobuf.Struct
 }
 var file_kei_connectors_airtable_v1_records_proto_depIdxs = []int32{
-	5, // 0: kei.connectors.airtable.v1.RecordSummary.fields:type_name -> google.protobuf.Struct
+	9, // 0: kei.connectors.airtable.v1.RecordSummary.fields:type_name -> google.protobuf.Struct
 	1, // 1: kei.connectors.airtable.v1.ListRecordsResponse.records:type_name -> kei.connectors.airtable.v1.RecordSummary
-	5, // 2: kei.connectors.airtable.v1.GetRecordResponse.fields:type_name -> google.protobuf.Struct
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	9, // 2: kei.connectors.airtable.v1.GetRecordResponse.fields:type_name -> google.protobuf.Struct
+	9, // 3: kei.connectors.airtable.v1.CreateRecordRequest.fields:type_name -> google.protobuf.Struct
+	9, // 4: kei.connectors.airtable.v1.CreateRecordResponse.fields:type_name -> google.protobuf.Struct
+	9, // 5: kei.connectors.airtable.v1.UpdateRecordRequest.fields:type_name -> google.protobuf.Struct
+	9, // 6: kei.connectors.airtable.v1.UpdateRecordResponse.fields:type_name -> google.protobuf.Struct
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_airtable_v1_records_proto_init() }
@@ -428,7 +714,7 @@ func file_kei_connectors_airtable_v1_records_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_airtable_v1_records_proto_rawDesc), len(file_kei_connectors_airtable_v1_records_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

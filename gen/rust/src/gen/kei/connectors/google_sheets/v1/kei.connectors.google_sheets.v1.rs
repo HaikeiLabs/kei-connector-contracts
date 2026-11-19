@@ -46,5 +46,33 @@ pub struct GetSpreadsheetResponse {
     #[prost(message, optional, tag="2")]
     pub properties: ::core::option::Option<SpreadsheetProperties>,
 }
+/// UpdateValuesRequest writes cell values into one A1-notation range. The
+/// range is a single path segment like the read's; values carries the rows to
+/// write in the same positional ListValue shape the read returns. Google
+/// overwrites every cell in the range, so this operation is destructive.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateValuesRequest {
+    #[prost(string, tag="1")]
+    pub spreadsheet_id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub range: ::prost::alloc::string::String,
+    #[prost(message, repeated, tag="3")]
+    pub values: ::prost::alloc::vec::Vec<::pbjson_types::ListValue>,
+}
+/// UpdateValuesResponse models the subset of the Sheets update response the
+/// contract needs. It is filled by JSON unmarshal of the provider response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct UpdateValuesResponse {
+    #[prost(string, tag="1")]
+    pub spreadsheet_id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub updated_range: ::prost::alloc::string::String,
+    #[prost(int32, optional, tag="3")]
+    pub updated_rows: ::core::option::Option<i32>,
+    #[prost(int32, optional, tag="4")]
+    pub updated_columns: ::core::option::Option<i32>,
+    #[prost(int32, optional, tag="5")]
+    pub updated_cells: ::core::option::Option<i32>,
+}
 include!("kei.connectors.google_sheets.v1.serde.rs");
 // @@protoc_insertion_point(module)

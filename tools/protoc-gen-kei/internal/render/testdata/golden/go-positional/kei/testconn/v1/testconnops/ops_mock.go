@@ -7,13 +7,14 @@ import (
 	"context"
 	"errors"
 	testconn "example.test/gen/go/kei/testconn/v1"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 // Mock implements Operations with one function field per operation, for
 // tests. Calling an operation whose field is nil returns an error.
 type Mock struct {
 	GetFileFunc      func(ctx context.Context, space string, path string) (*testconn.GetFileResponse, error)
-	CreateThingFunc  func(ctx context.Context, space string, name string, note *string) (*testconn.CreateThingResponse, error)
+	CreateThingFunc  func(ctx context.Context, space string, name string, note *string, metadata *structpb.Struct, rows []*structpb.ListValue) (*testconn.CreateThingResponse, error)
 	GetThingFunc     func(ctx context.Context, space string, thingId int64) (*testconn.GetThingResponse, error)
 	ListThingsFunc   func(ctx context.Context, space string, limit *int32, page *int32, tags []string) (*testconn.ListThingsResponse, error)
 	RemoveThingFunc  func(ctx context.Context, space string, thingId int64) (*testconn.RemoveThingResponse, error)
@@ -31,11 +32,11 @@ func (m *Mock) GetFile(ctx context.Context, space string, path string) (*testcon
 }
 
 // CreateThing calls m.CreateThingFunc.
-func (m *Mock) CreateThing(ctx context.Context, space string, name string, note *string) (*testconn.CreateThingResponse, error) {
+func (m *Mock) CreateThing(ctx context.Context, space string, name string, note *string, metadata *structpb.Struct, rows []*structpb.ListValue) (*testconn.CreateThingResponse, error) {
 	if m.CreateThingFunc == nil {
 		return nil, errors.New("testconnops.Mock: CreateThingFunc is not set")
 	}
-	return m.CreateThingFunc(ctx, space, name, note)
+	return m.CreateThingFunc(ctx, space, name, note, metadata, rows)
 }
 
 // GetThing calls m.GetThingFunc.

@@ -1,0 +1,14 @@
+{
+  "columns": [
+    {"name": "id", "type": "bigint unsigned"},
+    {"name": "payload", "type": "json"},
+    {"name": "updated_at", "type": "datetime(6)"},
+    {"name": "balance", "type": "decimal(38,6)"}
+  ],
+  "rows": [
+    ["18446744073709551615", "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}", "2026-01-15 10:30:00.123456", "12345678901234567890.123456"],
+    ["1", null, "2026-01-16 08:00:00.000000", "0.000001"]
+  ],
+  "truncated": false,
+  "warning_count": 0
+}

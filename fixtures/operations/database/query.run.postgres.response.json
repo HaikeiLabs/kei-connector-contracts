@@ -1,0 +1,14 @@
+{
+  "columns": [
+    {"name": "id", "type": "int8"},
+    {"name": "payload", "type": "jsonb"},
+    {"name": "updated_at", "type": "timestamptz"},
+    {"name": "balance", "type": "numeric"}
+  ],
+  "rows": [
+    ["9007199254740993", "{\"owner\": \"synthetic\", \"tags\": [\"ops\"]}", "2026-01-15T10:30:00.123456+00:00", "12345678901234567890.123456789012345678"],
+    ["1", null, "2026-01-16T08:00:00+00:00", "0.000000000000000001"]
+  ],
+  "truncated": false,
+  "execution_time_ms": 12
+}

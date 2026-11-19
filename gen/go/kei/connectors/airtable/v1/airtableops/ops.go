@@ -15,17 +15,23 @@ import (
 
 // Operations is the airtable connector. Callers depend on it; tests use Mock.
 type Operations interface {
+	// CreateRecord runs airtable.records.create (POST /v0/{base_id}/{table_id_or_name}).
+	CreateRecord(ctx context.Context, req *airtable.CreateRecordRequest) (*airtable.CreateRecordResponse, error)
 	// GetRecord runs airtable.records.get (GET /v0/{base_id}/{table_id_or_name}/{record_id}).
 	GetRecord(ctx context.Context, req *airtable.GetRecordRequest) (*airtable.GetRecordResponse, error)
 	// ListRecords runs airtable.records.list (GET /v0/{base_id}/{table_id_or_name}).
 	ListRecords(ctx context.Context, req *airtable.ListRecordsRequest) (*airtable.ListRecordsResponse, error)
+	// UpdateRecord runs airtable.records.update (PATCH /v0/{base_id}/{table_id_or_name}/{record_id}).
+	UpdateRecord(ctx context.Context, req *airtable.UpdateRecordRequest) (*airtable.UpdateRecordResponse, error)
 }
 
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpGetRecord   = connection.Op{ID: "airtable.records.get", Class: connection.Read}
-	OpListRecords = connection.Op{ID: "airtable.records.list", Class: connection.Read}
+	OpCreateRecord = connection.Op{ID: "airtable.records.create", Class: connection.Write}
+	OpGetRecord    = connection.Op{ID: "airtable.records.get", Class: connection.Read}
+	OpListRecords  = connection.Op{ID: "airtable.records.list", Class: connection.Read}
+	OpUpdateRecord = connection.Op{ID: "airtable.records.update", Class: connection.Write}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.
@@ -35,6 +41,24 @@ type Queries struct{ conn connection.HTTP }
 func New(conn connection.HTTP) *Queries { return &Queries{conn: conn} }
 
 var _ Operations = (*Queries)(nil)
+
+var specCreateRecord = &connection.HTTPSpec{
+	Op:           OpCreateRecord,
+	Method:       "POST",
+	PathTemplate: "/v0/{base_id}/{table_id_or_name}",
+	Params: []connection.Param{
+		{Field: "base_id", In: connection.InPath, Wire: "base_id"},
+		{Field: "table_id_or_name", In: connection.InPath, Wire: "table_id_or_name"},
+		{Field: "fields", In: connection.InBody, Wire: "fields"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
 
 var specGetRecord = &connection.HTTPSpec{
 	Op:           OpGetRecord,
@@ -73,6 +97,34 @@ var specListRecords = &connection.HTTPSpec{
 	NextCursorField: "offset",
 }
 
+var specUpdateRecord = &connection.HTTPSpec{
+	Op:           OpUpdateRecord,
+	Method:       "PATCH",
+	PathTemplate: "/v0/{base_id}/{table_id_or_name}/{record_id}",
+	Params: []connection.Param{
+		{Field: "base_id", In: connection.InPath, Wire: "base_id"},
+		{Field: "table_id_or_name", In: connection.InPath, Wire: "table_id_or_name"},
+		{Field: "record_id", In: connection.InPath, Wire: "record_id"},
+		{Field: "fields", In: connection.InBody, Wire: "fields"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
+// CreateRecord runs airtable.records.create.
+func (q *Queries) CreateRecord(ctx context.Context, req *airtable.CreateRecordRequest) (*airtable.CreateRecordResponse, error) {
+	resp := &airtable.CreateRecordResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specCreateRecord, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
 // GetRecord runs airtable.records.get.
 func (q *Queries) GetRecord(ctx context.Context, req *airtable.GetRecordRequest) (*airtable.GetRecordResponse, error) {
 	resp := &airtable.GetRecordResponse{}
@@ -86,6 +138,15 @@ func (q *Queries) GetRecord(ctx context.Context, req *airtable.GetRecordRequest)
 func (q *Queries) ListRecords(ctx context.Context, req *airtable.ListRecordsRequest) (*airtable.ListRecordsResponse, error) {
 	resp := &airtable.ListRecordsResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specListRecords, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// UpdateRecord runs airtable.records.update.
+func (q *Queries) UpdateRecord(ctx context.Context, req *airtable.UpdateRecordRequest) (*airtable.UpdateRecordResponse, error) {
+	resp := &airtable.UpdateRecordResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specUpdateRecord, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

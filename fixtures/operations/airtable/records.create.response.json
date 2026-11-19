@@ -1,0 +1,9 @@
+{
+  "id": "recSynthetic00004",
+  "createdTime": "2026-02-10T15:00:00.000Z",
+  "fields": {
+    "Name": "Synthetic fourth task",
+    "Status": "Todo"
+  },
+  "lastModifiedTime": "2026-02-10T15:00:00.000Z"
+}

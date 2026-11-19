@@ -24,6 +24,27 @@
       ],
       "capabilities": [
         {
+          "id": "airtable.records.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "data.records:write"
+          ],
+          "connections": [
+            "pat"
+          ],
+          "resource_template": "bases/{base_id}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "record",
+            "version": 1
+          },
+          "request": "kei.connectors.airtable.v1.CreateRecordRequest",
+          "response": "kei.connectors.airtable.v1.CreateRecordResponse"
+        },
+        {
           "id": "airtable.records.get",
           "class": "read",
           "destructive": false,
@@ -64,6 +85,27 @@
           },
           "request": "kei.connectors.airtable.v1.ListRecordsRequest",
           "response": "kei.connectors.airtable.v1.ListRecordsResponse"
+        },
+        {
+          "id": "airtable.records.update",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "data.records:write"
+          ],
+          "connections": [
+            "pat"
+          ],
+          "resource_template": "bases/{base_id}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "record",
+            "version": 1
+          },
+          "request": "kei.connectors.airtable.v1.UpdateRecordRequest",
+          "response": "kei.connectors.airtable.v1.UpdateRecordResponse"
         }
       ]
     },
@@ -117,6 +159,28 @@
       ],
       "capabilities": [
         {
+          "id": "atlassian.confluence.pages.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "write:page:confluence"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "confluence/pages",
+          "semantics": {
+            "action": "create",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.CreateConfluencePageRequest",
+          "response": "kei.connectors.atlassian.v1.CreateConfluencePageResponse"
+        },
+        {
           "id": "atlassian.confluence.pages.get",
           "class": "read",
           "destructive": false,
@@ -159,6 +223,50 @@
           },
           "request": "kei.connectors.atlassian.v1.ListConfluencePagesRequest",
           "response": "kei.connectors.atlassian.v1.ListConfluencePagesResponse"
+        },
+        {
+          "id": "atlassian.jira.issues.comments.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "write:jira-work"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "jira/issues/{issue_key}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "comment",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.CreateJiraCommentRequest",
+          "response": "kei.connectors.atlassian.v1.CreateJiraCommentResponse"
+        },
+        {
+          "id": "atlassian.jira.issues.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "write:jira-work"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_token"
+          ],
+          "resource_template": "jira/issues",
+          "semantics": {
+            "action": "create",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.atlassian.v1.CreateJiraIssueRequest",
+          "response": "kei.connectors.atlassian.v1.CreateJiraIssueResponse"
         },
         {
           "id": "atlassian.jira.issues.get",
@@ -822,6 +930,28 @@
       ],
       "capabilities": [
         {
+          "id": "gmail.drafts.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/gmail.compose"
+          ],
+          "connections": [
+            "user_oauth",
+            "domain_delegation"
+          ],
+          "resource_template": "users/{user_id}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "draft",
+            "version": 1
+          },
+          "request": "kei.connectors.gmail.v1.CreateDraftRequest",
+          "response": "kei.connectors.gmail.v1.CreateDraftResponse"
+        },
+        {
           "id": "gmail.messages.get",
           "class": "read",
           "destructive": false,
@@ -949,6 +1079,28 @@
           },
           "request": "kei.connectors.google_sheets.v1.GetValuesRequest",
           "response": "kei.connectors.google_sheets.v1.GetValuesResponse"
+        },
+        {
+          "id": "google_sheets.values.update",
+          "class": "write",
+          "destructive": true,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/spreadsheets"
+          ],
+          "connections": [
+            "user_oauth",
+            "domain_delegation"
+          ],
+          "resource_template": "spreadsheets/{spreadsheet_id}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "spreadsheet",
+            "version": 1
+          },
+          "request": "kei.connectors.google_sheets.v1.UpdateValuesRequest",
+          "response": "kei.connectors.google_sheets.v1.UpdateValuesResponse"
         }
       ]
     },
@@ -1053,6 +1205,28 @@
       ],
       "capabilities": [
         {
+          "id": "hubspot.contacts.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "crm.objects.contacts.write"
+          ],
+          "connections": [
+            "user_oauth",
+            "private_app"
+          ],
+          "resource_template": "contacts",
+          "semantics": {
+            "action": "create",
+            "resource_type": "contact",
+            "version": 1
+          },
+          "request": "kei.connectors.hubspot.v1.CreateContactRequest",
+          "response": "kei.connectors.hubspot.v1.CreateContactResponse"
+        },
+        {
           "id": "hubspot.contacts.get",
           "class": "read",
           "destructive": false,
@@ -1095,6 +1269,28 @@
           },
           "request": "kei.connectors.hubspot.v1.ListContactsRequest",
           "response": "kei.connectors.hubspot.v1.ListContactsResponse"
+        },
+        {
+          "id": "hubspot.contacts.update",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "crm.objects.contacts.write"
+          ],
+          "connections": [
+            "user_oauth",
+            "private_app"
+          ],
+          "resource_template": "contacts/{contact_id}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "contact",
+            "version": 1
+          },
+          "request": "kei.connectors.hubspot.v1.UpdateContactRequest",
+          "response": "kei.connectors.hubspot.v1.UpdateContactResponse"
         },
         {
           "id": "hubspot.deals.list",
@@ -1380,6 +1576,28 @@
           "response": "kei.connectors.notion.v1.QueryDatabaseResponse"
         },
         {
+          "id": "notion.pages.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pages:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "integration_token"
+          ],
+          "resource_template": "pages",
+          "semantics": {
+            "action": "create",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.notion.v1.CreatePageRequest",
+          "response": "kei.connectors.notion.v1.CreatePageResponse"
+        },
+        {
           "id": "notion.pages.get",
           "class": "read",
           "destructive": false,
@@ -1400,6 +1618,28 @@
           },
           "request": "kei.connectors.notion.v1.GetPageRequest",
           "response": "kei.connectors.notion.v1.GetPageResponse"
+        },
+        {
+          "id": "notion.pages.update",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pages:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "integration_token"
+          ],
+          "resource_template": "pages/{page_id}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.notion.v1.UpdatePageRequest",
+          "response": "kei.connectors.notion.v1.UpdatePageResponse"
         }
       ]
     },
@@ -1601,6 +1841,27 @@
           },
           "request": "kei.connectors.sentry.v1.ListIssuesRequest",
           "response": "kei.connectors.sentry.v1.ListIssuesResponse"
+        },
+        {
+          "id": "sentry.issues.update",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issue:write"
+          ],
+          "connections": [
+            "auth_token"
+          ],
+          "resource_template": "organizations/{organization_slug}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.sentry.v1.UpdateIssueRequest",
+          "response": "kei.connectors.sentry.v1.UpdateIssueResponse"
         }
       ]
     }

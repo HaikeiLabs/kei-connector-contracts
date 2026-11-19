@@ -133,6 +133,772 @@ impl<'de> serde::Deserialize<'de> for ConfluencePageSummary {
         deserializer.deserialize_struct("kei.connectors.atlassian.v1.ConfluencePageSummary", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for CreateConfluencePageRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.space_id.is_empty() {
+            len += 1;
+        }
+        if !self.title.is_empty() {
+            len += 1;
+        }
+        if self.parent_id.is_some() {
+            len += 1;
+        }
+        if self.body.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.atlassian.v1.CreateConfluencePageRequest", len)?;
+        if !self.space_id.is_empty() {
+            struct_ser.serialize_field("spaceId", &self.space_id)?;
+        }
+        if !self.title.is_empty() {
+            struct_ser.serialize_field("title", &self.title)?;
+        }
+        if let Some(v) = self.parent_id.as_ref() {
+            struct_ser.serialize_field("parentId", v)?;
+        }
+        if let Some(v) = self.body.as_ref() {
+            struct_ser.serialize_field("body", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for CreateConfluencePageRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "space_id",
+            "spaceId",
+            "title",
+            "parent_id",
+            "parentId",
+            "body",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            SpaceId,
+            Title,
+            ParentId,
+            Body,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "spaceId" | "space_id" => Ok(GeneratedField::SpaceId),
+                            "title" => Ok(GeneratedField::Title),
+                            "parentId" | "parent_id" => Ok(GeneratedField::ParentId),
+                            "body" => Ok(GeneratedField::Body),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = CreateConfluencePageRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.atlassian.v1.CreateConfluencePageRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateConfluencePageRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut space_id__ = None;
+                let mut title__ = None;
+                let mut parent_id__ = None;
+                let mut body__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::SpaceId => {
+                            if space_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("spaceId"));
+                            }
+                            space_id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Title => {
+                            if title__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("title"));
+                            }
+                            title__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::ParentId => {
+                            if parent_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("parentId"));
+                            }
+                            parent_id__ = map_.next_value()?;
+                        }
+                        GeneratedField::Body => {
+                            if body__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("body"));
+                            }
+                            body__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(CreateConfluencePageRequest {
+                    space_id: space_id__.unwrap_or_default(),
+                    title: title__.unwrap_or_default(),
+                    parent_id: parent_id__,
+                    body: body__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.atlassian.v1.CreateConfluencePageRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for CreateConfluencePageResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.id != 0 {
+            len += 1;
+        }
+        if !self.title.is_empty() {
+            len += 1;
+        }
+        if !self.space_id.is_empty() {
+            len += 1;
+        }
+        if self.parent_id.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.atlassian.v1.CreateConfluencePageResponse", len)?;
+        if self.id != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("id", ToString::to_string(&self.id).as_str())?;
+        }
+        if !self.title.is_empty() {
+            struct_ser.serialize_field("title", &self.title)?;
+        }
+        if !self.space_id.is_empty() {
+            struct_ser.serialize_field("spaceId", &self.space_id)?;
+        }
+        if let Some(v) = self.parent_id.as_ref() {
+            struct_ser.serialize_field("parentId", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for CreateConfluencePageResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "id",
+            "title",
+            "space_id",
+            "spaceId",
+            "parent_id",
+            "parentId",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            Title,
+            SpaceId,
+            ParentId,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "title" => Ok(GeneratedField::Title),
+                            "spaceId" | "space_id" => Ok(GeneratedField::SpaceId),
+                            "parentId" | "parent_id" => Ok(GeneratedField::ParentId),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = CreateConfluencePageResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.atlassian.v1.CreateConfluencePageResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateConfluencePageResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut title__ = None;
+                let mut space_id__ = None;
+                let mut parent_id__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::Title => {
+                            if title__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("title"));
+                            }
+                            title__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::SpaceId => {
+                            if space_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("spaceId"));
+                            }
+                            space_id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::ParentId => {
+                            if parent_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("parentId"));
+                            }
+                            parent_id__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(CreateConfluencePageResponse {
+                    id: id__.unwrap_or_default(),
+                    title: title__.unwrap_or_default(),
+                    space_id: space_id__.unwrap_or_default(),
+                    parent_id: parent_id__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.atlassian.v1.CreateConfluencePageResponse", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for CreateJiraCommentRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.issue_key.is_empty() {
+            len += 1;
+        }
+        if self.body.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.atlassian.v1.CreateJiraCommentRequest", len)?;
+        if !self.issue_key.is_empty() {
+            struct_ser.serialize_field("issueKey", &self.issue_key)?;
+        }
+        if let Some(v) = self.body.as_ref() {
+            struct_ser.serialize_field("body", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for CreateJiraCommentRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "issue_key",
+            "issueKey",
+            "body",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            IssueKey,
+            Body,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "issueKey" | "issue_key" => Ok(GeneratedField::IssueKey),
+                            "body" => Ok(GeneratedField::Body),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = CreateJiraCommentRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.atlassian.v1.CreateJiraCommentRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateJiraCommentRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut issue_key__ = None;
+                let mut body__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::IssueKey => {
+                            if issue_key__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("issueKey"));
+                            }
+                            issue_key__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Body => {
+                            if body__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("body"));
+                            }
+                            body__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(CreateJiraCommentRequest {
+                    issue_key: issue_key__.unwrap_or_default(),
+                    body: body__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.atlassian.v1.CreateJiraCommentRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for CreateJiraCommentResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.id.is_empty() {
+            len += 1;
+        }
+        if self.body.is_some() {
+            len += 1;
+        }
+        if !self.created.is_empty() {
+            len += 1;
+        }
+        if !self.updated.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.atlassian.v1.CreateJiraCommentResponse", len)?;
+        if !self.id.is_empty() {
+            struct_ser.serialize_field("id", &self.id)?;
+        }
+        if let Some(v) = self.body.as_ref() {
+            struct_ser.serialize_field("body", v)?;
+        }
+        if !self.created.is_empty() {
+            struct_ser.serialize_field("created", &self.created)?;
+        }
+        if !self.updated.is_empty() {
+            struct_ser.serialize_field("updated", &self.updated)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for CreateJiraCommentResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "id",
+            "body",
+            "created",
+            "updated",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            Body,
+            Created,
+            Updated,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "body" => Ok(GeneratedField::Body),
+                            "created" => Ok(GeneratedField::Created),
+                            "updated" => Ok(GeneratedField::Updated),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = CreateJiraCommentResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.atlassian.v1.CreateJiraCommentResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateJiraCommentResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut body__ = None;
+                let mut created__ = None;
+                let mut updated__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Body => {
+                            if body__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("body"));
+                            }
+                            body__ = map_.next_value()?;
+                        }
+                        GeneratedField::Created => {
+                            if created__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("created"));
+                            }
+                            created__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Updated => {
+                            if updated__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("updated"));
+                            }
+                            updated__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(CreateJiraCommentResponse {
+                    id: id__.unwrap_or_default(),
+                    body: body__,
+                    created: created__.unwrap_or_default(),
+                    updated: updated__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.atlassian.v1.CreateJiraCommentResponse", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for CreateJiraIssueRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.fields.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.atlassian.v1.CreateJiraIssueRequest", len)?;
+        if let Some(v) = self.fields.as_ref() {
+            struct_ser.serialize_field("fields", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for CreateJiraIssueRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "fields",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Fields,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "fields" => Ok(GeneratedField::Fields),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = CreateJiraIssueRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.atlassian.v1.CreateJiraIssueRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateJiraIssueRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut fields__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Fields => {
+                            if fields__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("fields"));
+                            }
+                            fields__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(CreateJiraIssueRequest {
+                    fields: fields__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.atlassian.v1.CreateJiraIssueRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for CreateJiraIssueResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.id.is_empty() {
+            len += 1;
+        }
+        if !self.key.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.atlassian.v1.CreateJiraIssueResponse", len)?;
+        if !self.id.is_empty() {
+            struct_ser.serialize_field("id", &self.id)?;
+        }
+        if !self.key.is_empty() {
+            struct_ser.serialize_field("key", &self.key)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for CreateJiraIssueResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "id",
+            "key",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            Key,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "key" => Ok(GeneratedField::Key),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = CreateJiraIssueResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.atlassian.v1.CreateJiraIssueResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CreateJiraIssueResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut key__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Key => {
+                            if key__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("key"));
+                            }
+                            key__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(CreateJiraIssueResponse {
+                    id: id__.unwrap_or_default(),
+                    key: key__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.atlassian.v1.CreateJiraIssueResponse", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for GetConfluencePageRequest {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
