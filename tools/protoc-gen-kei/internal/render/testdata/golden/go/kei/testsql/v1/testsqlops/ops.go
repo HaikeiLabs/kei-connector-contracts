@@ -21,7 +21,7 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpRunQuery = connection.Op{ID: "testsql.query.run", Class: connection.Read}
+	OpRunQuery = connection.Op{ID: "testsql.query.run", Class: connection.Read, ResourceTemplate: "query", MethodName: "RunQuery", Connections: []string{"dsn"}, Transport: connection.TransportSQL}
 )
 
 // Queries implements Operations over an authenticated SQL connection.

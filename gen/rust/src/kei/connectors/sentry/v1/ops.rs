@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::sentry::v1::{GetIssueRequest, GetIssueResponse, ListIssuesRequest, ListIssuesResponse, UpdateIssueRequest, UpdateIssueResponse};
 
@@ -19,6 +19,10 @@ pub const OP_GET_ISSUE: Op = Op {
     id: "sentry.issues.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "organizations/{organization_slug}",
+    method_name: "GetIssue",
+    connections: &["auth_token"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for sentry.issues.list, for authorization and audit: the
@@ -27,6 +31,10 @@ pub const OP_LIST_ISSUES: Op = Op {
     id: "sentry.issues.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "organizations/{organization_slug}",
+    method_name: "ListIssues",
+    connections: &["auth_token"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for sentry.issues.update, for authorization and audit: the
@@ -35,6 +43,10 @@ pub const OP_UPDATE_ISSUE: Op = Op {
     id: "sentry.issues.update",
     class: Class::Write,
     destructive: false,
+    resource_template: "organizations/{organization_slug}",
+    method_name: "UpdateIssue",
+    connections: &["auth_token"],
+    transport: Transport::Http,
 };
 
 const ERRORS_GET_ISSUE: &[ErrorMapping] = &[

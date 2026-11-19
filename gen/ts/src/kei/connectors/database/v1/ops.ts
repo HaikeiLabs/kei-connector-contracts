@@ -3,7 +3,7 @@
 import { callHTTP, callSQL, type HTTP, type SQL } from "../../../connection/index.js";
 import { RunQueryRequest, RunQueryRequestSchema, RunQueryResponse, RunQueryResponseSchema } from "./query_pb.js";
 
-export const OP_RUN_QUERY = { id: "database.query.run", class: "read", destructive: false } as const;
+export const OP_RUN_QUERY = { id: "database.query.run", class: "read", destructive: false, resourceTemplate: "query", methodName: "RunQuery", connections: ["dsn","snowflake_key_pair"], transport: "sql" } as const;
 
 export interface DatabaseOperations {
   runQuery(req: RunQueryRequest): Promise<RunQueryResponse>;

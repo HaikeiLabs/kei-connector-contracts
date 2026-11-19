@@ -17,7 +17,7 @@
 //! and `TestConnection_NoCredentialInErrors`.
 
 use haikeilabs_connector_contracts::connection::{
-    map_error, render_path, Class, HttpConnection, Op,
+    map_error, render_path, Class, HttpConnection, Op, Transport,
 };
 use haikeilabs_connector_contracts::kei::contracts::v1::{Connection, ConnectionKind};
 use wiremock::matchers::{any, header};
@@ -218,6 +218,10 @@ async fn no_credential_in_errors() {
             id: "github.issues.get",
             class: Class::Read,
             destructive: false,
+            resource_template: "repos/{owner}/{repository}",
+            method_name: "GetIssue",
+            connections: &["user_oauth", "pat"],
+            transport: Transport::Http,
         },
         resp.status,
         &[],

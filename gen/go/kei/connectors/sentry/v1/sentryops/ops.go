@@ -26,9 +26,9 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpGetIssue    = connection.Op{ID: "sentry.issues.get", Class: connection.Read}
-	OpListIssues  = connection.Op{ID: "sentry.issues.list", Class: connection.Read}
-	OpUpdateIssue = connection.Op{ID: "sentry.issues.update", Class: connection.Write}
+	OpGetIssue    = connection.Op{ID: "sentry.issues.get", Class: connection.Read, ResourceTemplate: "organizations/{organization_slug}", MethodName: "GetIssue", Connections: []string{"auth_token"}, Transport: connection.TransportHTTP}
+	OpListIssues  = connection.Op{ID: "sentry.issues.list", Class: connection.Read, ResourceTemplate: "organizations/{organization_slug}", MethodName: "ListIssues", Connections: []string{"auth_token"}, Transport: connection.TransportHTTP}
+	OpUpdateIssue = connection.Op{ID: "sentry.issues.update", Class: connection.Write, ResourceTemplate: "organizations/{organization_slug}", MethodName: "UpdateIssue", Connections: []string{"auth_token"}, Transport: connection.TransportHTTP}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.

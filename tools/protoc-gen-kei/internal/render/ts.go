@@ -57,6 +57,23 @@ func tsRelative(from, to string) string {
 	return r
 }
 func tsJSON(v any) string { b, _ := json.Marshal(v); return string(b) }
+
+// tsConnections renders the connector's connection names as a JSON array.
+func tsConnections(names []string) string { return tsJSON(names) }
+
+// transportKind maps a model transport to the generated TS literal.
+func transportKind(t model.Transport) string {
+	switch t {
+	case model.GraphQL:
+		return "graphql"
+	case model.SQL:
+		return "sql"
+	case model.MCP:
+		return "mcp"
+	default:
+		return "http"
+	}
+}
 func tsPascal(s string) string {
 	var out strings.Builder
 	for _, p := range strings.Split(s, "_") {
@@ -94,7 +111,7 @@ func renderTS(gen *protogen.Plugin, c *model.Connector, opts Options) error {
 		if op.Opt.GetClass() == contracts.OperationClass_OPERATION_CLASS_WRITE {
 			class = "write"
 		}
-		descriptor := fmt.Sprintf("{ id: %s, class: %s, destructive: %t }", tsJSON(op.ID), tsJSON(class), op.Opt.GetDestructive())
+		descriptor := fmt.Sprintf("{ id: %s, class: %s, destructive: %t, resourceTemplate: %s, methodName: %s, connections: %s, transport: %s }", tsJSON(op.ID), tsJSON(class), op.Opt.GetDestructive(), tsJSON(op.Opt.GetResourceTemplate()), tsJSON(op.MethodName), tsConnections(op.Opt.GetConnections()), tsJSON(transportKind(op.Transport)))
 		name := "OP_" + tsSnake(op.MethodName)
 		o := tsOperation{Const: name, Descriptor: descriptor, Method: strings.ToLower(op.MethodName[:1]) + op.MethodName[1:], Req: op.Request.GoIdent.GoName, Resp: op.Response.GoIdent.GoName, SQL: op.Transport == model.SQL}
 		o.Helper = !opts.positional() && op.Opt.GetPositionalHelper()
@@ -146,7 +163,7 @@ func renderTS(gen *protogen.Plugin, c *model.Connector, opts Options) error {
 		for _, e := range op.Opt.GetErrors() {
 			mappings = append(mappings, map[string]any{"status": e.GetStatus(), "kind": strings.ToLower(strings.TrimPrefix(e.GetKind().String(), "ERROR_KIND_")), "retryable": e.GetRetryable()})
 		}
-		spec := map[string]any{"op": json.RawMessage(descriptorJSON(op.ID, class, op.Opt.GetDestructive())), "method": strings.ToUpper(op.Opt.GetHttpMethod()), "pathTemplate": op.Opt.GetPathTemplate(), "params": params, "errors": mappings, "graphqlDocument": op.Opt.GetGraphqlDocument(), "cursorField": op.Opt.GetCursorField(), "nextCursorField": op.Opt.GetNextCursorField()}
+		spec := map[string]any{"op": json.RawMessage(descriptorJSON(op, class)), "method": strings.ToUpper(op.Opt.GetHttpMethod()), "pathTemplate": op.Opt.GetPathTemplate(), "params": params, "errors": mappings, "graphqlDocument": op.Opt.GetGraphqlDocument(), "cursorField": op.Opt.GetCursorField(), "nextCursorField": op.Opt.GetNextCursorField()}
 		o.Spec = tsJSON(spec)
 		d.Ops = append(d.Ops, o)
 	}
@@ -171,6 +188,6 @@ func renderTS(gen *protogen.Plugin, c *model.Connector, opts Options) error {
 	_, err := g.Write(b.Bytes())
 	return err
 }
-func descriptorJSON(id, class string, destructive bool) string {
-	return tsJSON(map[string]any{"id": id, "class": class, "destructive": destructive})
+func descriptorJSON(op *model.Operation, class string) string {
+	return tsJSON(map[string]any{"id": op.ID, "class": class, "destructive": op.Opt.GetDestructive(), "resourceTemplate": op.Opt.GetResourceTemplate(), "methodName": op.MethodName, "connections": op.Opt.GetConnections(), "transport": transportKind(op.Transport)})
 }

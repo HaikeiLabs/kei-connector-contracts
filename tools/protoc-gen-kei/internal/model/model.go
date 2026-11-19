@@ -82,6 +82,8 @@ const (
 	GraphQL
 	// SQL runs a statement over a SQL connection.
 	SQL
+	// MCP invokes a tool on a remote MCP server.
+	MCP
 )
 
 // Operation is one message carrying the operation option.

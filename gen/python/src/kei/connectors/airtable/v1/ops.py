@@ -4,11 +4,11 @@
 
 from typing import Protocol
 
-from kei.connection import HttpConnection, Op, OpClass, call_http
+from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
 from kei.connectors.airtable.v1 import records_pb2
 
-OP_CREATE_RECORD = Op(id="airtable.records.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_RECORD = Op(id="airtable.records.create", op_class=OpClass.WRITE, destructive=False, resource_template="bases/{base_id}", method_name="CreateRecord", connections=("pat",), transport=Transport.HTTP)
 _SPEC_CREATE_RECORD = {
     "op": OP_CREATE_RECORD,
     "method": "POST",
@@ -19,7 +19,7 @@ _SPEC_CREATE_RECORD = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_RECORD = Op(id="airtable.records.get", op_class=OpClass.READ, destructive=False)
+OP_GET_RECORD = Op(id="airtable.records.get", op_class=OpClass.READ, destructive=False, resource_template="bases/{base_id}", method_name="GetRecord", connections=("pat",), transport=Transport.HTTP)
 _SPEC_GET_RECORD = {
     "op": OP_GET_RECORD,
     "method": "GET",
@@ -30,7 +30,7 @@ _SPEC_GET_RECORD = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_RECORDS = Op(id="airtable.records.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_RECORDS = Op(id="airtable.records.list", op_class=OpClass.READ, destructive=False, resource_template="bases/{base_id}", method_name="ListRecords", connections=("pat",), transport=Transport.HTTP)
 _SPEC_LIST_RECORDS = {
     "op": OP_LIST_RECORDS,
     "method": "GET",
@@ -41,7 +41,7 @@ _SPEC_LIST_RECORDS = {
     "cursor_field": "offset",
     "next_cursor_field": "offset",
 }
-OP_UPDATE_RECORD = Op(id="airtable.records.update", op_class=OpClass.WRITE, destructive=False)
+OP_UPDATE_RECORD = Op(id="airtable.records.update", op_class=OpClass.WRITE, destructive=False, resource_template="bases/{base_id}", method_name="UpdateRecord", connections=("pat",), transport=Transport.HTTP)
 _SPEC_UPDATE_RECORD = {
     "op": OP_UPDATE_RECORD,
     "method": "PATCH",

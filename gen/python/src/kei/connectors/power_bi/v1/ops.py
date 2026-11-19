@@ -4,11 +4,11 @@
 
 from typing import Protocol
 
-from kei.connection import HttpConnection, Op, OpClass, call_http
+from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
 from kei.connectors.power_bi.v1 import datasets_pb2
 
-OP_EXECUTE_QUERIES = Op(id="power_bi.datasets.execute_queries", op_class=OpClass.READ, destructive=False)
+OP_EXECUTE_QUERIES = Op(id="power_bi.datasets.execute_queries", op_class=OpClass.READ, destructive=False, resource_template="groups/{group_id}/datasets/{dataset_id}", method_name="ExecuteQueries", connections=("user_obo",), transport=Transport.HTTP)
 _SPEC_EXECUTE_QUERIES = {
     "op": OP_EXECUTE_QUERIES,
     "method": "POST",
@@ -19,7 +19,7 @@ _SPEC_EXECUTE_QUERIES = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_DATASETS = Op(id="power_bi.datasets.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_DATASETS = Op(id="power_bi.datasets.list", op_class=OpClass.READ, destructive=False, resource_template="groups/{group_id}", method_name="ListDatasets", connections=("user_obo",), transport=Transport.HTTP)
 _SPEC_LIST_DATASETS = {
     "op": OP_LIST_DATASETS,
     "method": "GET",

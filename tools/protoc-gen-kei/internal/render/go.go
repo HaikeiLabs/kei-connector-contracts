@@ -208,7 +208,20 @@ func goOp(im *goImports, op *model.Operation, opts Options, withSpec bool) (goOp
 		if opt.GetDestructive() {
 			d.OpLiteral += ", Destructive: true"
 		}
-		d.OpLiteral += "}"
+		d.OpLiteral += fmt.Sprintf(", ResourceTemplate: %s, MethodName: %s", strconv.Quote(opt.GetResourceTemplate()), strconv.Quote(op.MethodName))
+		if conns := opt.GetConnections(); len(conns) > 0 {
+			d.OpLiteral += ", Connections: []string{"
+			for i, c := range conns {
+				if i > 0 {
+					d.OpLiteral += ", "
+				}
+				d.OpLiteral += strconv.Quote(c)
+			}
+			d.OpLiteral += "}"
+		} else {
+			d.OpLiteral += ", Connections: nil"
+		}
+		d.OpLiteral += fmt.Sprintf(", Transport: %s%s}", conn, transportConst(op.Transport))
 		if op.Transport != model.SQL {
 			d.SpecValue = goSpec(op, d.OpVar, im)
 		}
@@ -244,6 +257,20 @@ func goOp(im *goImports, op *model.Operation, opts Options, withSpec bool) (goOp
 }
 
 // goSpec renders the connection.HTTPSpec literal of an HTTP or GraphQL op.
+// transportConst maps a model transport to the generated Go constant name.
+func transportConst(t model.Transport) string {
+	switch t {
+	case model.GraphQL:
+		return "TransportGraphQL"
+	case model.SQL:
+		return "TransportSQL"
+	case model.MCP:
+		return "TransportMCP"
+	default:
+		return "TransportHTTP"
+	}
+}
+
 func goSpec(op *model.Operation, opVar string, im *goImports) string {
 	opt := op.Opt
 	conn := im.q(connectionImport)

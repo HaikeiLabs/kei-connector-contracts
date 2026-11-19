@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::notion::v1::{CreatePageRequest, CreatePageResponse, GetPageRequest, GetPageResponse, QueryDatabaseRequest, QueryDatabaseResponse, UpdatePageRequest, UpdatePageResponse};
 
@@ -19,6 +19,10 @@ pub const OP_QUERY_DATABASE: Op = Op {
     id: "notion.databases.query",
     class: Class::Read,
     destructive: false,
+    resource_template: "databases/{database_id}",
+    method_name: "QueryDatabase",
+    connections: &["user_oauth", "integration_token"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for notion.pages.create, for authorization and audit: the
@@ -27,6 +31,10 @@ pub const OP_CREATE_PAGE: Op = Op {
     id: "notion.pages.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "pages",
+    method_name: "CreatePage",
+    connections: &["user_oauth", "integration_token"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for notion.pages.get, for authorization and audit: the
@@ -35,6 +43,10 @@ pub const OP_GET_PAGE: Op = Op {
     id: "notion.pages.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "pages/{page_id}",
+    method_name: "GetPage",
+    connections: &["user_oauth", "integration_token"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for notion.pages.update, for authorization and audit: the
@@ -43,6 +55,10 @@ pub const OP_UPDATE_PAGE: Op = Op {
     id: "notion.pages.update",
     class: Class::Write,
     destructive: false,
+    resource_template: "pages/{page_id}",
+    method_name: "UpdatePage",
+    connections: &["user_oauth", "integration_token"],
+    transport: Transport::Http,
 };
 
 const ERRORS_QUERY_DATABASE: &[ErrorMapping] = &[

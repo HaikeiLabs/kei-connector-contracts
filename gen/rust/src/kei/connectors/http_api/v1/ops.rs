@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::http_api::v1::{GetRecordRequest, GetRecordResponse, ListRecordsRequest, ListRecordsResponse};
 
@@ -19,6 +19,10 @@ pub const OP_GET_RECORD: Op = Op {
     id: "http_api.records.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "collections/{collection}",
+    method_name: "GetRecord",
+    connections: &["api_key"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for http_api.records.list, for authorization and audit: the
@@ -27,6 +31,10 @@ pub const OP_LIST_RECORDS: Op = Op {
     id: "http_api.records.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "collections/{collection}",
+    method_name: "ListRecords",
+    connections: &["api_key"],
+    transport: Transport::Http,
 };
 
 const ERRORS_GET_RECORD: &[ErrorMapping] = &[

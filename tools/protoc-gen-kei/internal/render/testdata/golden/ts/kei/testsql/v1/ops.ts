@@ -3,7 +3,7 @@
 import { callHTTP, callSQL, type HTTP, type SQL } from "../../connection/index.js";
 import { RunQueryRequest, RunQueryRequestSchema, RunQueryResponse, RunQueryResponseSchema } from "./connector_pb.js";
 
-export const OP_RUN_QUERY = { id: "testsql.query.run", class: "read", destructive: false } as const;
+export const OP_RUN_QUERY = { id: "testsql.query.run", class: "read", destructive: false, resourceTemplate: "query", methodName: "RunQuery", connections: ["dsn"], transport: "sql" } as const;
 
 export interface TestsqlOperations {
   runQuery(req: RunQueryRequest): Promise<RunQueryResponse>;

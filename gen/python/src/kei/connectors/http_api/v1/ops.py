@@ -4,11 +4,11 @@
 
 from typing import Protocol
 
-from kei.connection import HttpConnection, Op, OpClass, call_http
+from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
 from kei.connectors.http_api.v1 import records_pb2
 
-OP_GET_RECORD = Op(id="http_api.records.get", op_class=OpClass.READ, destructive=False)
+OP_GET_RECORD = Op(id="http_api.records.get", op_class=OpClass.READ, destructive=False, resource_template="collections/{collection}", method_name="GetRecord", connections=("api_key",), transport=Transport.HTTP)
 _SPEC_GET_RECORD = {
     "op": OP_GET_RECORD,
     "method": "GET",
@@ -19,7 +19,7 @@ _SPEC_GET_RECORD = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_RECORDS = Op(id="http_api.records.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_RECORDS = Op(id="http_api.records.list", op_class=OpClass.READ, destructive=False, resource_template="collections/{collection}", method_name="ListRecords", connections=("api_key",), transport=Transport.HTTP)
 _SPEC_LIST_RECORDS = {
     "op": OP_LIST_RECORDS,
     "method": "GET",

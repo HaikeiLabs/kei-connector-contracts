@@ -62,27 +62,27 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpListWorkflowRuns   = connection.Op{ID: "github.actions.runs.list", Class: connection.Read}
-	OpListCheckRuns      = connection.Op{ID: "github.checks.runs.list", Class: connection.Read}
-	OpPutContents        = connection.Op{ID: "github.contents.put", Class: connection.Write}
-	OpCreateBlob         = connection.Op{ID: "github.git.blobs.create", Class: connection.Write}
-	OpCreateCommit       = connection.Op{ID: "github.git.commits.create", Class: connection.Write}
-	OpCreateRef          = connection.Op{ID: "github.git.refs.create", Class: connection.Write}
-	OpGetRef             = connection.Op{ID: "github.git.refs.get", Class: connection.Read}
-	OpUpdateRef          = connection.Op{ID: "github.git.refs.update", Class: connection.Write, Destructive: true}
-	OpCreateTree         = connection.Op{ID: "github.git.trees.create", Class: connection.Write}
-	OpCreateIssueComment = connection.Op{ID: "github.issues.comments.create", Class: connection.Write}
-	OpCreateIssue        = connection.Op{ID: "github.issues.create", Class: connection.Write}
-	OpGetIssue           = connection.Op{ID: "github.issues.get", Class: connection.Read}
-	OpListIssues         = connection.Op{ID: "github.issues.list", Class: connection.Read}
-	OpUpdateIssue        = connection.Op{ID: "github.issues.update", Class: connection.Write}
-	OpCreatePullRequest  = connection.Op{ID: "github.pulls.create", Class: connection.Write}
-	OpGetPullRequest     = connection.Op{ID: "github.pulls.get", Class: connection.Read}
-	OpListPulls          = connection.Op{ID: "github.pulls.list", Class: connection.Read}
-	OpCreateReview       = connection.Op{ID: "github.pulls.reviews.create", Class: connection.Write}
-	OpListReviews        = connection.Op{ID: "github.pulls.reviews.list", Class: connection.Read}
-	OpUpdatePullRequest  = connection.Op{ID: "github.pulls.update", Class: connection.Write}
-	OpGetRepository      = connection.Op{ID: "github.repos.get", Class: connection.Read}
+	OpListWorkflowRuns   = connection.Op{ID: "github.actions.runs.list", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "ListWorkflowRuns", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpListCheckRuns      = connection.Op{ID: "github.checks.runs.list", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "ListCheckRuns", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpPutContents        = connection.Op{ID: "github.contents.put", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "PutContents", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpCreateBlob         = connection.Op{ID: "github.git.blobs.create", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "CreateBlob", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpCreateCommit       = connection.Op{ID: "github.git.commits.create", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "CreateCommit", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpCreateRef          = connection.Op{ID: "github.git.refs.create", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "CreateRef", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpGetRef             = connection.Op{ID: "github.git.refs.get", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "GetRef", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpUpdateRef          = connection.Op{ID: "github.git.refs.update", Class: connection.Write, Destructive: true, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "UpdateRef", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpCreateTree         = connection.Op{ID: "github.git.trees.create", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "CreateTree", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpCreateIssueComment = connection.Op{ID: "github.issues.comments.create", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "CreateIssueComment", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpCreateIssue        = connection.Op{ID: "github.issues.create", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "CreateIssue", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpGetIssue           = connection.Op{ID: "github.issues.get", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "GetIssue", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpListIssues         = connection.Op{ID: "github.issues.list", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "ListIssues", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpUpdateIssue        = connection.Op{ID: "github.issues.update", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "UpdateIssue", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpCreatePullRequest  = connection.Op{ID: "github.pulls.create", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "CreatePullRequest", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpGetPullRequest     = connection.Op{ID: "github.pulls.get", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "GetPullRequest", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpListPulls          = connection.Op{ID: "github.pulls.list", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "ListPulls", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpCreateReview       = connection.Op{ID: "github.pulls.reviews.create", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "CreateReview", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpListReviews        = connection.Op{ID: "github.pulls.reviews.list", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "ListReviews", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpUpdatePullRequest  = connection.Op{ID: "github.pulls.update", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "UpdatePullRequest", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpGetRepository      = connection.Op{ID: "github.repos.get", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "GetRepository", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.

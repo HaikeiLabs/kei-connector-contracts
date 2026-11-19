@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, Op, OperationError, Sql, call_sql};
+use crate::connection::{Class, Op, OperationError, Sql, Transport, call_sql};
 use crate::kei::testsql::v1::{RunQueryRequest, RunQueryResponse};
 
 /// Operation descriptor for testsql.query.run, for authorization and audit: the
@@ -18,6 +18,10 @@ pub const OP_RUN_QUERY: Op = Op {
     id: "testsql.query.run",
     class: Class::Read,
     destructive: false,
+    resource_template: "query",
+    method_name: "RunQuery",
+    connections: &["dsn"],
+    transport: Transport::Sql,
 };
 
 

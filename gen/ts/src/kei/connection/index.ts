@@ -57,7 +57,15 @@ export function mapError(opId: string, status: number, table: ErrorMapping[]): C
   return new ConnectionError(opId, status, kind, [429, 502, 503, 504].includes(status));
 }
 
-export interface Op { id: string; class: 'read' | 'write'; destructive: boolean }
+export interface Op {
+  id: string;
+  class: 'read' | 'write';
+  destructive: boolean;
+  resourceTemplate: string;
+  methodName: string;
+  connections: readonly string[];
+  transport: 'http' | 'graphql' | 'sql' | 'mcp';
+}
 export interface Param { field: string; in: 'path' | 'query' | 'body'; wire: string; multiSegment: boolean }
 export interface HTTPSpec { op: Op; method: string; pathTemplate: string; params: Param[]; errors: ErrorMapping[]; graphqlDocument: string; cursorField: string; nextCursorField: string }
 export interface HTTPResponse { status: number; headers: Headers; body: string }

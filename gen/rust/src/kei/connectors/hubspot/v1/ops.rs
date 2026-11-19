@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::hubspot::v1::{CreateContactRequest, CreateContactResponse, GetContactRequest, GetContactResponse, ListContactsRequest, ListContactsResponse, ListDealsRequest, ListDealsResponse, UpdateContactRequest, UpdateContactResponse};
 
@@ -19,6 +19,10 @@ pub const OP_CREATE_CONTACT: Op = Op {
     id: "hubspot.contacts.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "contacts",
+    method_name: "CreateContact",
+    connections: &["user_oauth", "private_app"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for hubspot.contacts.get, for authorization and audit: the
@@ -27,6 +31,10 @@ pub const OP_GET_CONTACT: Op = Op {
     id: "hubspot.contacts.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "contacts/{contact_id}",
+    method_name: "GetContact",
+    connections: &["user_oauth", "private_app"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for hubspot.contacts.list, for authorization and audit: the
@@ -35,6 +43,10 @@ pub const OP_LIST_CONTACTS: Op = Op {
     id: "hubspot.contacts.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "contacts",
+    method_name: "ListContacts",
+    connections: &["user_oauth", "private_app"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for hubspot.contacts.update, for authorization and audit: the
@@ -43,6 +55,10 @@ pub const OP_UPDATE_CONTACT: Op = Op {
     id: "hubspot.contacts.update",
     class: Class::Write,
     destructive: false,
+    resource_template: "contacts/{contact_id}",
+    method_name: "UpdateContact",
+    connections: &["user_oauth", "private_app"],
+    transport: Transport::Http,
 };
 
 /// Operation descriptor for hubspot.deals.list, for authorization and audit: the
@@ -51,6 +67,10 @@ pub const OP_LIST_DEALS: Op = Op {
     id: "hubspot.deals.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "deals",
+    method_name: "ListDeals",
+    connections: &["user_oauth", "private_app"],
+    transport: Transport::Http,
 };
 
 const ERRORS_CREATE_CONTACT: &[ErrorMapping] = &[

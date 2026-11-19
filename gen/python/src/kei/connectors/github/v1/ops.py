@@ -4,11 +4,11 @@
 
 from typing import Protocol
 
-from kei.connection import HttpConnection, Op, OpClass, call_http
+from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
 from kei.connectors.github.v1 import actions_pb2, checks_pb2, contents_pb2, git_pb2, issues_pb2, pulls_pb2, repos_pb2
 
-OP_LIST_WORKFLOW_RUNS = Op(id="github.actions.runs.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_WORKFLOW_RUNS = Op(id="github.actions.runs.list", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="ListWorkflowRuns", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_LIST_WORKFLOW_RUNS = {
     "op": OP_LIST_WORKFLOW_RUNS,
     "method": "GET",
@@ -19,7 +19,7 @@ _SPEC_LIST_WORKFLOW_RUNS = {
     "cursor_field": "page",
     "next_cursor_field": "next_page",
 }
-OP_LIST_CHECK_RUNS = Op(id="github.checks.runs.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_CHECK_RUNS = Op(id="github.checks.runs.list", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="ListCheckRuns", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_LIST_CHECK_RUNS = {
     "op": OP_LIST_CHECK_RUNS,
     "method": "GET",
@@ -30,7 +30,7 @@ _SPEC_LIST_CHECK_RUNS = {
     "cursor_field": "page",
     "next_cursor_field": "next_page",
 }
-OP_PUT_CONTENTS = Op(id="github.contents.put", op_class=OpClass.WRITE, destructive=False)
+OP_PUT_CONTENTS = Op(id="github.contents.put", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="PutContents", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_PUT_CONTENTS = {
     "op": OP_PUT_CONTENTS,
     "method": "PUT",
@@ -41,7 +41,7 @@ _SPEC_PUT_CONTENTS = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_CREATE_BLOB = Op(id="github.git.blobs.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_BLOB = Op(id="github.git.blobs.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateBlob", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_BLOB = {
     "op": OP_CREATE_BLOB,
     "method": "POST",
@@ -52,7 +52,7 @@ _SPEC_CREATE_BLOB = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_CREATE_COMMIT = Op(id="github.git.commits.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_COMMIT = Op(id="github.git.commits.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateCommit", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_COMMIT = {
     "op": OP_CREATE_COMMIT,
     "method": "POST",
@@ -63,7 +63,7 @@ _SPEC_CREATE_COMMIT = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_CREATE_REF = Op(id="github.git.refs.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_REF = Op(id="github.git.refs.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateRef", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_REF = {
     "op": OP_CREATE_REF,
     "method": "POST",
@@ -74,7 +74,7 @@ _SPEC_CREATE_REF = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_REF = Op(id="github.git.refs.get", op_class=OpClass.READ, destructive=False)
+OP_GET_REF = Op(id="github.git.refs.get", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="GetRef", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_GET_REF = {
     "op": OP_GET_REF,
     "method": "GET",
@@ -85,7 +85,7 @@ _SPEC_GET_REF = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_UPDATE_REF = Op(id="github.git.refs.update", op_class=OpClass.WRITE, destructive=True)
+OP_UPDATE_REF = Op(id="github.git.refs.update", op_class=OpClass.WRITE, destructive=True, resource_template="repos/{owner}/{repository}", method_name="UpdateRef", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_UPDATE_REF = {
     "op": OP_UPDATE_REF,
     "method": "PATCH",
@@ -96,7 +96,7 @@ _SPEC_UPDATE_REF = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_CREATE_TREE = Op(id="github.git.trees.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_TREE = Op(id="github.git.trees.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateTree", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_TREE = {
     "op": OP_CREATE_TREE,
     "method": "POST",
@@ -107,7 +107,7 @@ _SPEC_CREATE_TREE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_CREATE_ISSUE_COMMENT = Op(id="github.issues.comments.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_ISSUE_COMMENT = Op(id="github.issues.comments.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateIssueComment", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_ISSUE_COMMENT = {
     "op": OP_CREATE_ISSUE_COMMENT,
     "method": "POST",
@@ -118,7 +118,7 @@ _SPEC_CREATE_ISSUE_COMMENT = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_CREATE_ISSUE = Op(id="github.issues.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_ISSUE = Op(id="github.issues.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateIssue", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_ISSUE = {
     "op": OP_CREATE_ISSUE,
     "method": "POST",
@@ -129,7 +129,7 @@ _SPEC_CREATE_ISSUE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_ISSUE = Op(id="github.issues.get", op_class=OpClass.READ, destructive=False)
+OP_GET_ISSUE = Op(id="github.issues.get", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="GetIssue", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_GET_ISSUE = {
     "op": OP_GET_ISSUE,
     "method": "GET",
@@ -140,7 +140,7 @@ _SPEC_GET_ISSUE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_ISSUES = Op(id="github.issues.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_ISSUES = Op(id="github.issues.list", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="ListIssues", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_LIST_ISSUES = {
     "op": OP_LIST_ISSUES,
     "method": "GET",
@@ -151,7 +151,7 @@ _SPEC_LIST_ISSUES = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_UPDATE_ISSUE = Op(id="github.issues.update", op_class=OpClass.WRITE, destructive=False)
+OP_UPDATE_ISSUE = Op(id="github.issues.update", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="UpdateIssue", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_UPDATE_ISSUE = {
     "op": OP_UPDATE_ISSUE,
     "method": "PATCH",
@@ -162,7 +162,7 @@ _SPEC_UPDATE_ISSUE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_CREATE_PULL_REQUEST = Op(id="github.pulls.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_PULL_REQUEST = Op(id="github.pulls.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreatePullRequest", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_PULL_REQUEST = {
     "op": OP_CREATE_PULL_REQUEST,
     "method": "POST",
@@ -173,7 +173,7 @@ _SPEC_CREATE_PULL_REQUEST = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_PULL_REQUEST = Op(id="github.pulls.get", op_class=OpClass.READ, destructive=False)
+OP_GET_PULL_REQUEST = Op(id="github.pulls.get", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="GetPullRequest", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_GET_PULL_REQUEST = {
     "op": OP_GET_PULL_REQUEST,
     "method": "GET",
@@ -184,7 +184,7 @@ _SPEC_GET_PULL_REQUEST = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_PULLS = Op(id="github.pulls.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_PULLS = Op(id="github.pulls.list", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="ListPulls", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_LIST_PULLS = {
     "op": OP_LIST_PULLS,
     "method": "GET",
@@ -195,7 +195,7 @@ _SPEC_LIST_PULLS = {
     "cursor_field": "page",
     "next_cursor_field": "next_page",
 }
-OP_CREATE_REVIEW = Op(id="github.pulls.reviews.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_REVIEW = Op(id="github.pulls.reviews.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateReview", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_REVIEW = {
     "op": OP_CREATE_REVIEW,
     "method": "POST",
@@ -206,7 +206,7 @@ _SPEC_CREATE_REVIEW = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_REVIEWS = Op(id="github.pulls.reviews.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_REVIEWS = Op(id="github.pulls.reviews.list", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="ListReviews", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_LIST_REVIEWS = {
     "op": OP_LIST_REVIEWS,
     "method": "GET",
@@ -217,7 +217,7 @@ _SPEC_LIST_REVIEWS = {
     "cursor_field": "page",
     "next_cursor_field": "next_page",
 }
-OP_UPDATE_PULL_REQUEST = Op(id="github.pulls.update", op_class=OpClass.WRITE, destructive=False)
+OP_UPDATE_PULL_REQUEST = Op(id="github.pulls.update", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="UpdatePullRequest", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_UPDATE_PULL_REQUEST = {
     "op": OP_UPDATE_PULL_REQUEST,
     "method": "PATCH",
@@ -228,7 +228,7 @@ _SPEC_UPDATE_PULL_REQUEST = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_REPOSITORY = Op(id="github.repos.get", op_class=OpClass.READ, destructive=False)
+OP_GET_REPOSITORY = Op(id="github.repos.get", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="GetRepository", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_GET_REPOSITORY = {
     "op": OP_GET_REPOSITORY,
     "method": "GET",

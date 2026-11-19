@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, decode_graphql_response, map_error, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_graphql_response, map_error, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::linear::v1::{CreateCommentRequest, CreateCommentResponse, CreateIssueRequest, CreateIssueResponse, GetIssueRequest, GetIssueResponse, GetTeamRequest, GetTeamResponse, ListCyclesRequest, ListCyclesResponse, ListProjectsRequest, ListProjectsResponse, SearchIssuesRequest, SearchIssuesResponse, UpdateIssueRequest, UpdateIssueResponse};
 
@@ -19,6 +19,10 @@ pub const OP_CREATE_COMMENT: Op = Op {
     id: "linear.comments.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "issues/{issue_id}",
+    method_name: "CreateComment",
+    connections: &["user_oauth", "api_key"],
+    transport: Transport::GraphQL,
 };
 
 /// Operation descriptor for linear.cycles.list, for authorization and audit: the
@@ -27,6 +31,10 @@ pub const OP_LIST_CYCLES: Op = Op {
     id: "linear.cycles.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "teams/{team_id}",
+    method_name: "ListCycles",
+    connections: &["user_oauth", "api_key"],
+    transport: Transport::GraphQL,
 };
 
 /// Operation descriptor for linear.issues.create, for authorization and audit: the
@@ -35,6 +43,10 @@ pub const OP_CREATE_ISSUE: Op = Op {
     id: "linear.issues.create",
     class: Class::Write,
     destructive: false,
+    resource_template: "teams/{team_id}",
+    method_name: "CreateIssue",
+    connections: &["user_oauth", "api_key"],
+    transport: Transport::GraphQL,
 };
 
 /// Operation descriptor for linear.issues.get, for authorization and audit: the
@@ -43,6 +55,10 @@ pub const OP_GET_ISSUE: Op = Op {
     id: "linear.issues.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "issues/{id}",
+    method_name: "GetIssue",
+    connections: &["user_oauth", "api_key"],
+    transport: Transport::GraphQL,
 };
 
 /// Operation descriptor for linear.issues.search, for authorization and audit: the
@@ -51,6 +67,10 @@ pub const OP_SEARCH_ISSUES: Op = Op {
     id: "linear.issues.search",
     class: Class::Read,
     destructive: false,
+    resource_template: "issues",
+    method_name: "SearchIssues",
+    connections: &["user_oauth", "api_key"],
+    transport: Transport::GraphQL,
 };
 
 /// Operation descriptor for linear.issues.update, for authorization and audit: the
@@ -59,6 +79,10 @@ pub const OP_UPDATE_ISSUE: Op = Op {
     id: "linear.issues.update",
     class: Class::Write,
     destructive: false,
+    resource_template: "issues/{id}",
+    method_name: "UpdateIssue",
+    connections: &["user_oauth", "api_key"],
+    transport: Transport::GraphQL,
 };
 
 /// Operation descriptor for linear.projects.list, for authorization and audit: the
@@ -67,6 +91,10 @@ pub const OP_LIST_PROJECTS: Op = Op {
     id: "linear.projects.list",
     class: Class::Read,
     destructive: false,
+    resource_template: "projects",
+    method_name: "ListProjects",
+    connections: &["user_oauth", "api_key"],
+    transport: Transport::GraphQL,
 };
 
 /// Operation descriptor for linear.teams.get, for authorization and audit: the
@@ -75,6 +103,10 @@ pub const OP_GET_TEAM: Op = Op {
     id: "linear.teams.get",
     class: Class::Read,
     destructive: false,
+    resource_template: "teams/{team_id}",
+    method_name: "GetTeam",
+    connections: &["user_oauth", "api_key"],
+    transport: Transport::GraphQL,
 };
 
 const ERRORS_CREATE_COMMENT: &[ErrorMapping] = &[

@@ -24,8 +24,8 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
-	OpListDocuments = connection.Op{ID: "omni.documents.list", Class: connection.Read}
-	OpRunQuery      = connection.Op{ID: "omni.queries.run", Class: connection.Read}
+	OpListDocuments = connection.Op{ID: "omni.documents.list", Class: connection.Read, ResourceTemplate: "documents", MethodName: "ListDocuments", Connections: []string{"api_key"}, Transport: connection.TransportHTTP}
+	OpRunQuery      = connection.Op{ID: "omni.queries.run", Class: connection.Read, ResourceTemplate: "models/{model_id}", MethodName: "RunQuery", Connections: []string{"api_key"}, Transport: connection.TransportHTTP}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.

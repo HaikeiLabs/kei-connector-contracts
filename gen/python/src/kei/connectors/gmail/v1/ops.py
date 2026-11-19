@@ -4,11 +4,11 @@
 
 from typing import Protocol
 
-from kei.connection import HttpConnection, Op, OpClass, call_http
+from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
 from kei.connectors.gmail.v1 import messages_pb2
 
-OP_CREATE_DRAFT = Op(id="gmail.drafts.create", op_class=OpClass.WRITE, destructive=False)
+OP_CREATE_DRAFT = Op(id="gmail.drafts.create", op_class=OpClass.WRITE, destructive=False, resource_template="users/{user_id}", method_name="CreateDraft", connections=("user_oauth", "domain_delegation"), transport=Transport.HTTP)
 _SPEC_CREATE_DRAFT = {
     "op": OP_CREATE_DRAFT,
     "method": "POST",
@@ -19,7 +19,7 @@ _SPEC_CREATE_DRAFT = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_GET_MESSAGE = Op(id="gmail.messages.get", op_class=OpClass.READ, destructive=False)
+OP_GET_MESSAGE = Op(id="gmail.messages.get", op_class=OpClass.READ, destructive=False, resource_template="users/{user_id}", method_name="GetMessage", connections=("user_oauth", "domain_delegation"), transport=Transport.HTTP)
 _SPEC_GET_MESSAGE = {
     "op": OP_GET_MESSAGE,
     "method": "GET",
@@ -30,7 +30,7 @@ _SPEC_GET_MESSAGE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
-OP_LIST_MESSAGES = Op(id="gmail.messages.list", op_class=OpClass.READ, destructive=False)
+OP_LIST_MESSAGES = Op(id="gmail.messages.list", op_class=OpClass.READ, destructive=False, resource_template="users/{user_id}", method_name="ListMessages", connections=("user_oauth", "domain_delegation"), transport=Transport.HTTP)
 _SPEC_LIST_MESSAGES = {
     "op": OP_LIST_MESSAGES,
     "method": "GET",

@@ -60,11 +60,28 @@ class OpClass(str, Enum):
     WRITE = "write"
 
 
+class Transport(str, Enum):
+    """How an operation reaches the provider: an HTTP call, a GraphQL
+    document, a SQL statement, or an MCP tool invocation."""
+
+    HTTP = "http"
+    GRAPHQL = "graphql"
+    SQL = "sql"
+    MCP = "mcp"
+
+
 class Op(NamedTuple):
     """One operation a connector exposes: its capability id, class and
     whether it destroys or substantially changes provider state. The id is
-    also the policy capability: connector:<id>."""
+    also the policy capability: connector:<id>. The remaining fields carry
+    the operation's metadata: the resource template it acts on, the
+    generated method name, the connection kinds that may run it, and how it
+    reaches the provider."""
 
     id: str
     op_class: OpClass
     destructive: bool
+    resource_template: str = ""
+    method_name: str = ""
+    connections: tuple[str, ...] = ()
+    transport: Transport = Transport.HTTP

@@ -8,7 +8,7 @@ from kei.connection import {{.Runtime}}
 {{range .Modules}}
 from {{.Package}} import {{.Names}}
 {{end}}
-{{range .Ops}}{{.Const}} = Op(id={{.ID}}, op_class=OpClass.{{.Class}}, destructive={{.Destructive}})
+{{range .Ops}}{{.Const}} = Op(id={{.ID}}, op_class=OpClass.{{.Class}}, destructive={{.Destructive}}, resource_template={{.ResourceTemplate}}, method_name={{.MethodName}}, connections={{.Connections}}, transport={{.Transport}})
 _SPEC_{{.Snake}} = {
     "op": {{.Const}},
     "method": {{.MethodJSON}},

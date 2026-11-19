@@ -3,8 +3,8 @@
 import { callHTTP, callSQL, type HTTP, type SQL } from "../../../connection/index.js";
 import { ExecuteQueriesRequest, ExecuteQueriesRequestSchema, ExecuteQueriesResponse, ExecuteQueriesResponseSchema, ListDatasetsRequest, ListDatasetsRequestSchema, ListDatasetsResponse, ListDatasetsResponseSchema } from "./datasets_pb.js";
 
-export const OP_EXECUTE_QUERIES = { id: "power_bi.datasets.execute_queries", class: "read", destructive: false } as const;
-export const OP_LIST_DATASETS = { id: "power_bi.datasets.list", class: "read", destructive: false } as const;
+export const OP_EXECUTE_QUERIES = { id: "power_bi.datasets.execute_queries", class: "read", destructive: false, resourceTemplate: "groups/{group_id}/datasets/{dataset_id}", methodName: "ExecuteQueries", connections: ["user_obo"], transport: "http" } as const;
+export const OP_LIST_DATASETS = { id: "power_bi.datasets.list", class: "read", destructive: false, resourceTemplate: "groups/{group_id}", methodName: "ListDatasets", connections: ["user_obo"], transport: "http" } as const;
 
 export interface PowerBiOperations {
   executeQueries(req: ExecuteQueriesRequest): Promise<ExecuteQueriesResponse>;
@@ -14,9 +14,9 @@ export interface PowerBiOperations {
 export class PowerBiQueries implements PowerBiOperations {
   constructor(private readonly conn: HTTP) {}
   executeQueries(req: ExecuteQueriesRequest): Promise<ExecuteQueriesResponse> {
-    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"POST","nextCursorField":"","op":{"class":"read","destructive":false,"id":"power_bi.datasets.execute_queries"},"params":[{"field":"group_id","in":"path","multiSegment":false,"wire":"group_id"},{"field":"dataset_id","in":"path","multiSegment":false,"wire":"dataset_id"},{"field":"queries","in":"body","multiSegment":false,"wire":"queries"}],"pathTemplate":"/v1.0/myorg/groups/{group_id}/datasets/{dataset_id}/executeQueries"}, req, ExecuteQueriesRequestSchema, ExecuteQueriesResponseSchema);
+    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"POST","nextCursorField":"","op":{"class":"read","connections":["user_obo"],"destructive":false,"id":"power_bi.datasets.execute_queries","methodName":"ExecuteQueries","resourceTemplate":"groups/{group_id}/datasets/{dataset_id}","transport":"http"},"params":[{"field":"group_id","in":"path","multiSegment":false,"wire":"group_id"},{"field":"dataset_id","in":"path","multiSegment":false,"wire":"dataset_id"},{"field":"queries","in":"body","multiSegment":false,"wire":"queries"}],"pathTemplate":"/v1.0/myorg/groups/{group_id}/datasets/{dataset_id}/executeQueries"}, req, ExecuteQueriesRequestSchema, ExecuteQueriesResponseSchema);
   }
   listDatasets(req: ListDatasetsRequest): Promise<ListDatasetsResponse> {
-    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"GET","nextCursorField":"","op":{"class":"read","destructive":false,"id":"power_bi.datasets.list"},"params":[{"field":"group_id","in":"path","multiSegment":false,"wire":"group_id"}],"pathTemplate":"/v1.0/myorg/groups/{group_id}/datasets"}, req, ListDatasetsRequestSchema, ListDatasetsResponseSchema);
+    return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"GET","nextCursorField":"","op":{"class":"read","connections":["user_obo"],"destructive":false,"id":"power_bi.datasets.list","methodName":"ListDatasets","resourceTemplate":"groups/{group_id}","transport":"http"},"params":[{"field":"group_id","in":"path","multiSegment":false,"wire":"group_id"}],"pathTemplate":"/v1.0/myorg/groups/{group_id}/datasets"}, req, ListDatasetsRequestSchema, ListDatasetsResponseSchema);
   }
 }
