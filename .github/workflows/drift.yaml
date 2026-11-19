@@ -1,4 +1,4 @@
-# Nightly drift check: run the strict-unmarshal drift tool (HAI-1098) against
+# Nightly drift check: run the strict-unmarshal drift tool against
 # the connector sandboxes with repo secrets. Runs on schedule and on demand.
 #
 # NOTE: this file is committed by the owner (push-drift-ci.sh) on top of the
