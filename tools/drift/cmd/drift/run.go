@@ -46,7 +46,7 @@ type Options struct {
 // KEI_SANDBOX_<CONNECTOR>_<FIELD>, e.g. KEI_SANDBOX_GITHUB_TOKEN.
 const envPrefix = "KEI_SANDBOX_"
 
-const skipNoCreds = "no sandbox credentials (HAI-1098)"
+const skipNoCreds = "no sandbox credentials"
 
 // Manifest is the subset of kei.connector-manifest/v1 the drift check needs.
 type manifest struct {

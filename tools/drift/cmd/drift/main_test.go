@@ -105,8 +105,12 @@ func TestSkipsWithoutCreds(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("exit = %d, want 0; output:\n%s", code, out.String())
 	}
-	if got := out.String(); !strings.Contains(got, "SKIP github: no sandbox credentials (HAI-1098)") {
+	if got := out.String(); !strings.Contains(got, "SKIP github: no sandbox credentials") {
 		t.Fatalf("output missing skip line:\n%s", got)
+	}
+	// The output must never carry internal ticket ids (public repo).
+	if got := out.String(); strings.Contains(got, "HAI-") {
+		t.Fatalf("output carries an internal ticket id:\n%s", got)
 	}
 }
 

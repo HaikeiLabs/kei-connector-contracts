@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Command drift runs the nightly strict-unmarshal drift check against the
-// connector sandboxes (HAI-1098).
+// connector sandboxes.
 //
 // For every connector in manifest/connector-manifest.v1.json it looks for
 // sandbox credentials in KEI_SANDBOX_<CONNECTOR>_<FIELD> environment
