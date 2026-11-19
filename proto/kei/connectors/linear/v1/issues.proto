@@ -167,3 +167,45 @@ message SearchIssuesResponse {
   repeated Issue nodes = 1;
   PageInfo page_info = 2;
 }
+
+// UpdateIssueRequest updates a Linear issue. Every write field is optional:
+// the mutation updates only what the caller sets.
+message UpdateIssueRequest {
+  string id = 1;
+  optional string title = 2;
+  optional string description = 3;
+
+  option (kei.contracts.v1.operation) = {
+    id: "linear.issues.update"
+    connector: "linear"
+    class: OPERATION_CLASS_WRITE
+    http_method: "POST"
+    path_template: "/graphql"
+    scopes: ["issues:write"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    graphql_document:
+      "mutation UpdateIssue($id: String!, $title: String, $description: String) {\n"
+      "  issueUpdate(id: $id, input: {title: $title, description: $description}) {\n"
+      "    success\n"
+      "    issue { id identifier title description url createdAt updatedAt }\n"
+      "  }\n"
+      "}\n"
+    method_name: "UpdateIssue"
+    connections: ["user_oauth", "api_key"]
+    resource_template: "issues/{id}"
+    semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "issue" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// UpdateIssueResponse mirrors Linear's IssuePayload: success plus the updated
+// issue.
+message UpdateIssueResponse {
+  bool success = 1;
+  Issue issue = 2;
+}

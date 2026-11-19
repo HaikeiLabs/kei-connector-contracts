@@ -17,6 +17,8 @@ import (
 type Operations interface {
 	// ListWorkflowRuns runs github.actions.runs.list (GET /repos/{owner}/{repository}/actions/runs).
 	ListWorkflowRuns(ctx context.Context, req *github.ListWorkflowRunsRequest) (*github.ListWorkflowRunsResponse, error)
+	// ListCheckRuns runs github.checks.runs.list (GET /repos/{owner}/{repository}/commits/{ref}/check-runs).
+	ListCheckRuns(ctx context.Context, req *github.ListCheckRunsRequest) (*github.ListCheckRunsResponse, error)
 	// PutContents runs github.contents.put (PUT /repos/{owner}/{repository}/contents/{path}).
 	PutContents(ctx context.Context, req *github.PutContentsRequest) (*github.PutContentsResponse, error)
 	// CreateBlob runs github.git.blobs.create (POST /repos/{owner}/{repository}/git/blobs).
@@ -39,6 +41,8 @@ type Operations interface {
 	GetIssue(ctx context.Context, req *github.GetIssueRequest) (*github.GetIssueResponse, error)
 	// ListIssues runs github.issues.list (GET /repos/{owner}/{repository}/issues).
 	ListIssues(ctx context.Context, req *github.ListIssuesRequest) (*github.ListIssuesResponse, error)
+	// UpdateIssue runs github.issues.update (PATCH /repos/{owner}/{repository}/issues/{issue_number}).
+	UpdateIssue(ctx context.Context, req *github.UpdateIssueRequest) (*github.UpdateIssueResponse, error)
 	// CreatePullRequest runs github.pulls.create (POST /repos/{owner}/{repository}/pulls).
 	CreatePullRequest(ctx context.Context, req *github.CreatePullRequestRequest) (*github.CreatePullRequestResponse, error)
 	// GetPullRequest runs github.pulls.get (GET /repos/{owner}/{repository}/pulls/{pull_number}).
@@ -51,12 +55,15 @@ type Operations interface {
 	ListReviews(ctx context.Context, req *github.ListPullReviewsRequest) (*github.ListPullReviewsResponse, error)
 	// UpdatePullRequest runs github.pulls.update (PATCH /repos/{owner}/{repository}/pulls/{pull_number}).
 	UpdatePullRequest(ctx context.Context, req *github.UpdatePullRequestRequest) (*github.UpdatePullRequestResponse, error)
+	// GetRepository runs github.repos.get (GET /repos/{owner}/{repository}).
+	GetRepository(ctx context.Context, req *github.GetRepositoryRequest) (*github.GetRepositoryResponse, error)
 }
 
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
 	OpListWorkflowRuns   = connection.Op{ID: "github.actions.runs.list", Class: connection.Read}
+	OpListCheckRuns      = connection.Op{ID: "github.checks.runs.list", Class: connection.Read}
 	OpPutContents        = connection.Op{ID: "github.contents.put", Class: connection.Write}
 	OpCreateBlob         = connection.Op{ID: "github.git.blobs.create", Class: connection.Write}
 	OpCreateCommit       = connection.Op{ID: "github.git.commits.create", Class: connection.Write}
@@ -68,12 +75,14 @@ var (
 	OpCreateIssue        = connection.Op{ID: "github.issues.create", Class: connection.Write}
 	OpGetIssue           = connection.Op{ID: "github.issues.get", Class: connection.Read}
 	OpListIssues         = connection.Op{ID: "github.issues.list", Class: connection.Read}
+	OpUpdateIssue        = connection.Op{ID: "github.issues.update", Class: connection.Write}
 	OpCreatePullRequest  = connection.Op{ID: "github.pulls.create", Class: connection.Write}
 	OpGetPullRequest     = connection.Op{ID: "github.pulls.get", Class: connection.Read}
 	OpListPulls          = connection.Op{ID: "github.pulls.list", Class: connection.Read}
 	OpCreateReview       = connection.Op{ID: "github.pulls.reviews.create", Class: connection.Write}
 	OpListReviews        = connection.Op{ID: "github.pulls.reviews.list", Class: connection.Read}
 	OpUpdatePullRequest  = connection.Op{ID: "github.pulls.update", Class: connection.Write}
+	OpGetRepository      = connection.Op{ID: "github.repos.get", Class: connection.Read}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.
@@ -91,6 +100,27 @@ var specListWorkflowRuns = &connection.HTTPSpec{
 	Params: []connection.Param{
 		{Field: "owner", In: connection.InPath, Wire: "owner"},
 		{Field: "repository", In: connection.InPath, Wire: "repository"},
+		{Field: "per_page", In: connection.InQuery, Wire: "per_page"},
+		{Field: "page", In: connection.InQuery, Wire: "page"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+	CursorField:     "page",
+	NextCursorField: "next_page",
+}
+
+var specListCheckRuns = &connection.HTTPSpec{
+	Op:           OpListCheckRuns,
+	Method:       "GET",
+	PathTemplate: "/repos/{owner}/{repository}/commits/{ref}/check-runs",
+	Params: []connection.Param{
+		{Field: "owner", In: connection.InPath, Wire: "owner"},
+		{Field: "repository", In: connection.InPath, Wire: "repository"},
+		{Field: "ref", In: connection.InPath, Wire: "ref", MultiSegment: true},
 		{Field: "per_page", In: connection.InQuery, Wire: "per_page"},
 		{Field: "page", In: connection.InQuery, Wire: "page"},
 	},
@@ -321,6 +351,28 @@ var specListIssues = &connection.HTTPSpec{
 	},
 }
 
+var specUpdateIssue = &connection.HTTPSpec{
+	Op:           OpUpdateIssue,
+	Method:       "PATCH",
+	PathTemplate: "/repos/{owner}/{repository}/issues/{issue_number}",
+	Params: []connection.Param{
+		{Field: "owner", In: connection.InPath, Wire: "owner"},
+		{Field: "repository", In: connection.InPath, Wire: "repository"},
+		{Field: "issue_number", In: connection.InPath, Wire: "issue_number"},
+		{Field: "title", In: connection.InBody, Wire: "title"},
+		{Field: "body", In: connection.InBody, Wire: "body"},
+		{Field: "state", In: connection.InBody, Wire: "state"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
+		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+	},
+}
+
 var specCreatePullRequest = &connection.HTTPSpec{
 	Op:           OpCreatePullRequest,
 	Method:       "POST",
@@ -446,10 +498,35 @@ var specUpdatePullRequest = &connection.HTTPSpec{
 	},
 }
 
+var specGetRepository = &connection.HTTPSpec{
+	Op:           OpGetRepository,
+	Method:       "GET",
+	PathTemplate: "/repos/{owner}/{repository}",
+	Params: []connection.Param{
+		{Field: "owner", In: connection.InPath, Wire: "owner"},
+		{Field: "repository", In: connection.InPath, Wire: "repository"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
 // ListWorkflowRuns runs github.actions.runs.list.
 func (q *Queries) ListWorkflowRuns(ctx context.Context, req *github.ListWorkflowRunsRequest) (*github.ListWorkflowRunsResponse, error) {
 	resp := &github.ListWorkflowRunsResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specListWorkflowRuns, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// ListCheckRuns runs github.checks.runs.list.
+func (q *Queries) ListCheckRuns(ctx context.Context, req *github.ListCheckRunsRequest) (*github.ListCheckRunsResponse, error) {
+	resp := &github.ListCheckRunsResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specListCheckRuns, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil
@@ -554,6 +631,15 @@ func (q *Queries) ListIssues(ctx context.Context, req *github.ListIssuesRequest)
 	return resp, nil
 }
 
+// UpdateIssue runs github.issues.update.
+func (q *Queries) UpdateIssue(ctx context.Context, req *github.UpdateIssueRequest) (*github.UpdateIssueResponse, error) {
+	resp := &github.UpdateIssueResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specUpdateIssue, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
 // CreatePullRequest runs github.pulls.create.
 func (q *Queries) CreatePullRequest(ctx context.Context, req *github.CreatePullRequestRequest) (*github.CreatePullRequestResponse, error) {
 	resp := &github.CreatePullRequestResponse{}
@@ -603,6 +689,15 @@ func (q *Queries) ListReviews(ctx context.Context, req *github.ListPullReviewsRe
 func (q *Queries) UpdatePullRequest(ctx context.Context, req *github.UpdatePullRequestRequest) (*github.UpdatePullRequestResponse, error) {
 	resp := &github.UpdatePullRequestResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specUpdatePullRequest, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// GetRepository runs github.repos.get.
+func (q *Queries) GetRepository(ctx context.Context, req *github.GetRepositoryRequest) (*github.GetRepositoryResponse, error) {
+	resp := &github.GetRepositoryResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specGetRepository, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

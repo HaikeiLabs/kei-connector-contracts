@@ -173,6 +173,60 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "github.repos.get",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.GetRepositoryRequest{} },
+		response:  func() proto.Message { return &githubv1.GetRepositoryResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			repo := resp.(*githubv1.GetRepositoryResponse)
+			if got := repo.GetId(); got != 9007199254741011 {
+				t.Errorf("id = %d, want 9007199254741011 (int64 must not go through float64)", got)
+			}
+			if got := repo.GetFullName(); got != "example-org/example-repo" {
+				t.Errorf("full_name = %q, want example-org/example-repo", got)
+			}
+			if got := repo.GetOwner().GetLogin(); got != "example-user" {
+				t.Errorf("owner.login = %q, want example-user (json_name user)", got)
+			}
+		},
+	},
+	{
+		op:        "github.checks.runs.list",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.ListCheckRunsRequest{} },
+		response:  func() proto.Message { return &githubv1.ListCheckRunsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			runs := resp.(*githubv1.ListCheckRunsResponse)
+			if got := runs.GetCheckRuns()[0].GetId(); got != 9007199254741012 {
+				t.Errorf("check_runs[0].id = %d, want 9007199254741012 (int64 must not go through float64)", got)
+			}
+			if got := runs.GetCheckRuns()[0].GetConclusion(); got != "success" {
+				t.Errorf("check_runs[0].conclusion = %q, want success", got)
+			}
+			if got := runs.GetTotalCount(); got != 2 {
+				t.Errorf("total_count = %d, want 2", got)
+			}
+		},
+	},
+	{
+		op:        "github.issues.update",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.UpdateIssueRequest{} },
+		response:  func() proto.Message { return &githubv1.UpdateIssueResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			issue := resp.(*githubv1.UpdateIssueResponse)
+			if got := issue.GetNumber(); got != 42 {
+				t.Errorf("number = %d, want 42", got)
+			}
+			if got := issue.GetState(); got != "closed" {
+				t.Errorf("state = %q, want closed", got)
+			}
+			if got := issue.GetAuthor().GetLogin(); got != "example-user" {
+				t.Errorf("author.login = %q, want example-user (json_name user)", got)
+			}
+		},
+	},
+	{
 		op:        "github.pulls.create",
 		connector: "github",
 		request:   func() proto.Message { return &githubv1.CreatePullRequestRequest{} },
@@ -375,6 +429,54 @@ var fixtureCases = []fixtureCase{
 			}
 			if got := created.GetComment().GetId(); got == "" {
 				t.Errorf("comment.id is empty, want a synthetic id")
+			}
+		},
+	},
+	{
+		op:        "linear.projects.list",
+		connector: "linear",
+		request:   func() proto.Message { return &linearv1.ListProjectsRequest{} },
+		response:  func() proto.Message { return &linearv1.ListProjectsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			projects := resp.(*linearv1.ListProjectsResponse)
+			if got := projects.GetNodes()[0].GetName(); got != "Synthetic pilot project" {
+				t.Errorf("nodes[0].name = %q, want Synthetic pilot project", got)
+			}
+			if !projects.GetPageInfo().GetHasNextPage() {
+				t.Errorf("page_info.has_next_page = %v, want true", projects.GetPageInfo().GetHasNextPage())
+			}
+			if got := projects.GetPageInfo().GetEndCursor(); got != "synthetic-cursor-1" {
+				t.Errorf("page_info.end_cursor = %q, want synthetic-cursor-1", got)
+			}
+		},
+	},
+	{
+		op:        "linear.cycles.list",
+		connector: "linear",
+		request:   func() proto.Message { return &linearv1.ListCyclesRequest{} },
+		response:  func() proto.Message { return &linearv1.ListCyclesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			cycles := resp.(*linearv1.ListCyclesResponse)
+			if got := cycles.GetNodes()[0].GetNumber(); got != 7 {
+				t.Errorf("nodes[0].number = %d, want 7", got)
+			}
+			if !cycles.GetNodes()[0].GetIsActive() {
+				t.Errorf("nodes[0].is_active = %v, want true", cycles.GetNodes()[0].GetIsActive())
+			}
+		},
+	},
+	{
+		op:        "linear.issues.update",
+		connector: "linear",
+		request:   func() proto.Message { return &linearv1.UpdateIssueRequest{} },
+		response:  func() proto.Message { return &linearv1.UpdateIssueResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			updated := resp.(*linearv1.UpdateIssueResponse)
+			if !updated.GetSuccess() {
+				t.Errorf("success = %v, want true", updated.GetSuccess())
+			}
+			if got := updated.GetIssue().GetTitle(); got != "Synthetic updated issue" {
+				t.Errorf("issue.title = %q, want Synthetic updated issue", got)
 			}
 		},
 	},

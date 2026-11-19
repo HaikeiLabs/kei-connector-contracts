@@ -449,6 +449,28 @@
           "response": "kei.connectors.github.v1.ListWorkflowRunsResponse"
         },
         {
+          "id": "github.checks.runs.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "checks:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "check_run",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.ListCheckRunsRequest",
+          "response": "kei.connectors.github.v1.ListCheckRunsResponse"
+        },
+        {
           "id": "github.contents.put",
           "class": "write",
           "destructive": false,
@@ -691,6 +713,28 @@
           "response": "kei.connectors.github.v1.ListIssuesResponse"
         },
         {
+          "id": "github.issues.update",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issues:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.UpdateIssueRequest",
+          "response": "kei.connectors.github.v1.UpdateIssueResponse"
+        },
+        {
           "id": "github.pulls.create",
           "class": "write",
           "destructive": false,
@@ -821,6 +865,28 @@
           },
           "request": "kei.connectors.github.v1.UpdatePullRequestRequest",
           "response": "kei.connectors.github.v1.UpdatePullRequestResponse"
+        },
+        {
+          "id": "github.repos.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "repo:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "repository",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.GetRepositoryRequest",
+          "response": "kei.connectors.github.v1.GetRepositoryResponse"
         }
       ]
     },
@@ -1303,6 +1369,28 @@
           "response": "kei.connectors.linear.v1.CreateCommentResponse"
         },
         {
+          "id": "linear.cycles.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "cycles:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_key"
+          ],
+          "resource_template": "teams/{team_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "cycle",
+            "version": 1
+          },
+          "request": "kei.connectors.linear.v1.ListCyclesRequest",
+          "response": "kei.connectors.linear.v1.ListCyclesResponse"
+        },
+        {
           "id": "linear.issues.create",
           "class": "write",
           "destructive": false,
@@ -1367,6 +1455,50 @@
           },
           "request": "kei.connectors.linear.v1.SearchIssuesRequest",
           "response": "kei.connectors.linear.v1.SearchIssuesResponse"
+        },
+        {
+          "id": "linear.issues.update",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "issues:write"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_key"
+          ],
+          "resource_template": "issues/{id}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "issue",
+            "version": 1
+          },
+          "request": "kei.connectors.linear.v1.UpdateIssueRequest",
+          "response": "kei.connectors.linear.v1.UpdateIssueResponse"
+        },
+        {
+          "id": "linear.projects.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "projects:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "api_key"
+          ],
+          "resource_template": "projects",
+          "semantics": {
+            "action": "read",
+            "resource_type": "project",
+            "version": 1
+          },
+          "request": "kei.connectors.linear.v1.ListProjectsRequest",
+          "response": "kei.connectors.linear.v1.ListProjectsResponse"
         },
         {
           "id": "linear.teams.get",
@@ -1737,6 +1869,13 @@
   "legacy_capabilities": [
     {
       "connector": "github",
+      "capability": "check.read",
+      "operations": [
+        "github.checks.runs.list"
+      ]
+    },
+    {
+      "connector": "github",
       "capability": "issue.comment",
       "operations": [
         "github.issues.comments.create"
@@ -1755,6 +1894,13 @@
       "operations": [
         "github.issues.get",
         "github.issues.list"
+      ]
+    },
+    {
+      "connector": "github",
+      "capability": "issue.update",
+      "operations": [
+        "github.issues.update"
       ]
     },
     {
@@ -1782,6 +1928,13 @@
     },
     {
       "connector": "github",
+      "capability": "repository.read",
+      "operations": [
+        "github.repos.get"
+      ]
+    },
+    {
+      "connector": "github",
       "capability": "workflow.read",
       "operations": [
         "github.actions.runs.list"
@@ -1792,6 +1945,13 @@
       "capability": "comment.create",
       "operations": [
         "linear.comments.create"
+      ]
+    },
+    {
+      "connector": "linear",
+      "capability": "cycle.read",
+      "operations": [
+        "linear.cycles.list"
       ]
     },
     {
@@ -1807,6 +1967,20 @@
       "operations": [
         "linear.issues.get",
         "linear.issues.search"
+      ]
+    },
+    {
+      "connector": "linear",
+      "capability": "issue.update",
+      "operations": [
+        "linear.issues.update"
+      ]
+    },
+    {
+      "connector": "linear",
+      "capability": "project.read",
+      "operations": [
+        "linear.projects.list"
       ]
     },
     {

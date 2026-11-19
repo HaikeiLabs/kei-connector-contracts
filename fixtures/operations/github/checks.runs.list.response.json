@@ -1,0 +1,15 @@
+{
+  "total_count": 2,
+  "check_runs": [
+    {
+      "id": 9007199254741012,
+      "name": "build",
+      "head_sha": "synthetic-head-sha-1",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://example.invalid/example-org/example-repo/actions/runs/9007199254741012"
+    }
+  ],
+  "next_page": null,
+  "node_id": "synthetic-node-id-21"
+}

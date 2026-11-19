@@ -88,7 +88,10 @@ impl HttpConnection {
                 conn.name
             )));
         }
-        if credential.bytes().any(|b| b == b'\r' || b == b'\n' || b == b'\0') {
+        if credential
+            .bytes()
+            .any(|b| b == b'\r' || b == b'\n' || b == b'\0')
+        {
             return Err(ConnectionError(format!(
                 "NewHTTP {:?}: credential has a control character",
                 conn.name
@@ -186,8 +189,7 @@ impl HttpConnection {
                 if let Some((user, pass)) = &self.basic {
                     let value = format!(
                         "Basic {}",
-                        base64::engine::general_purpose::STANDARD
-                            .encode(format!("{user}:{pass}"))
+                        base64::engine::general_purpose::STANDARD.encode(format!("{user}:{pass}"))
                     );
                     req = req.header(AUTHORIZATION, value);
                 }
@@ -240,15 +242,15 @@ impl HttpConnection {
             base_path,
             path
         );
-        let u = Url::parse(&raw)
-            .map_err(|e| ConnectionError(format!("invalid path {path:?}: {e}")))?;
+        let u =
+            Url::parse(&raw).map_err(|e| ConnectionError(format!("invalid path {path:?}: {e}")))?;
         if u.scheme() != self.base.scheme()
             || u.host_str() != self.base.host_str()
             || u.port() != self.base.port()
         {
-            return Err(ConnectionError(format!(
-                "path {path:?} changes the origin",
-            )));
+            return Err(ConnectionError(
+                format!("path {path:?} changes the origin",),
+            ));
         }
         Ok(u)
     }
@@ -288,9 +290,10 @@ fn valid_header_name(name: &str) -> bool {
 fn parse_base(raw: &str) -> Result<Url, ConnectionError> {
     let u = Url::parse(raw).map_err(|e| ConnectionError(format!("invalid base URL: {e}")))?;
     match () {
-        _ if u.scheme() != "http" && u.scheme() != "https" => Err(ConnectionError(
-            format!("base URL {:?} must be http or https", redacted(&u)),
-        )),
+        _ if u.scheme() != "http" && u.scheme() != "https" => Err(ConnectionError(format!(
+            "base URL {:?} must be http or https",
+            redacted(&u)
+        ))),
         _ if u.host_str().is_none() => Err(ConnectionError(format!(
             "base URL {:?} has no host",
             redacted(&u)

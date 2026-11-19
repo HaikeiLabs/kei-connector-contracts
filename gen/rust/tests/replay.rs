@@ -80,7 +80,10 @@ async fn replay_get_issue_against_fixture() {
         .expect("get_issue");
 
     assert_eq!(resp.number, 1347);
-    assert_eq!(resp.id, 9007199254740993, "int64 survives proto-JSON decode");
+    assert_eq!(
+        resp.id, 9007199254740993,
+        "int64 survives proto-JSON decode"
+    );
     assert_eq!(resp.title, "Synthetic pilot issue");
     srv.verify().await;
 }

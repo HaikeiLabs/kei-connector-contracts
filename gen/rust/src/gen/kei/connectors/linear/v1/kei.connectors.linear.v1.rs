@@ -114,6 +114,88 @@ pub struct SearchIssuesResponse {
     #[prost(message, optional, tag="2")]
     pub page_info: ::core::option::Option<PageInfo>,
 }
+/// UpdateIssueRequest updates a Linear issue. Every write field is optional:
+/// the mutation updates only what the caller sets.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct UpdateIssueRequest {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="2")]
+    pub title: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, optional, tag="3")]
+    pub description: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// UpdateIssueResponse mirrors Linear's IssuePayload: success plus the updated
+/// issue.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateIssueResponse {
+    #[prost(bool, tag="1")]
+    pub success: bool,
+    #[prost(message, optional, tag="2")]
+    pub issue: ::core::option::Option<Issue>,
+}
+/// Cycle models the subset of the Linear cycle object the contract needs.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct Cycle {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(int32, tag="2")]
+    pub number: i32,
+    #[prost(string, tag="3")]
+    pub starts_at: ::prost::alloc::string::String,
+    #[prost(string, tag="4")]
+    pub ends_at: ::prost::alloc::string::String,
+    #[prost(bool, tag="5")]
+    pub is_active: bool,
+}
+/// ListCyclesRequest lists the cycles of one Linear team. team_id filters the
+/// cycle connection to the team; after is the pagination cursor.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ListCyclesRequest {
+    #[prost(string, tag="1")]
+    pub team_id: ::prost::alloc::string::String,
+    #[prost(int32, optional, tag="2")]
+    pub first: ::core::option::Option<i32>,
+    #[prost(string, optional, tag="3")]
+    pub after: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// ListCyclesResponse models the cycle connection the query returns.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListCyclesResponse {
+    #[prost(message, repeated, tag="1")]
+    pub nodes: ::prost::alloc::vec::Vec<Cycle>,
+    #[prost(message, optional, tag="2")]
+    pub page_info: ::core::option::Option<PageInfo>,
+}
+/// Project models the subset of the Linear project object the contract needs.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct Project {
+    #[prost(string, tag="1")]
+    pub id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub name: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="3")]
+    pub description: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, tag="4")]
+    pub url: ::prost::alloc::string::String,
+}
+/// ListProjectsRequest lists the Linear projects of the workspace. after is
+/// the pagination cursor.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ListProjectsRequest {
+    #[prost(int32, optional, tag="1")]
+    pub first: ::core::option::Option<i32>,
+    #[prost(string, optional, tag="2")]
+    pub after: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// ListProjectsResponse models the project connection the query returns.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListProjectsResponse {
+    #[prost(message, repeated, tag="1")]
+    pub nodes: ::prost::alloc::vec::Vec<Project>,
+    #[prost(message, optional, tag="2")]
+    pub page_info: ::core::option::Option<PageInfo>,
+}
 /// Team models the subset of the Linear team object the contract needs.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Team {

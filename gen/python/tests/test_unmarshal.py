@@ -31,10 +31,12 @@ from kei.connectors.airtable.v1 import records_pb2 as airtable_records_pb2
 from kei.connectors.database.v1 import query_pb2
 from kei.connectors.github.v1 import (
     actions_pb2,
+    checks_pb2,
     contents_pb2,
     git_pb2,
     issues_pb2,
     pulls_pb2,
+    repos_pb2,
 )
 from kei.connectors.gmail.v1 import messages_pb2
 from kei.connectors.google_sheets.v1 import spreadsheets_pb2
@@ -42,7 +44,9 @@ from kei.connectors.http_api.v1 import records_pb2
 from kei.connectors.hubspot.v1 import contacts_pb2, deals_pb2
 from kei.connectors.linear.v1 import (
     comments_pb2,
+    cycles_pb2,
     issues_pb2 as linear_issues_pb2,
+    projects_pb2,
     teams_pb2,
 )
 from kei.connectors.omni.v1 import documents_pb2, queries_pb2
@@ -103,6 +107,24 @@ def _spot_github_issues_create(response):
 
 def _spot_github_issues_comments_create(response):
     assert response.body == "Synthetic comment"
+    assert response.author.login == "example-user"
+
+
+def _spot_github_repos_get(response):
+    assert response.id == 9007199254741011
+    assert response.full_name == "example-org/example-repo"
+    assert response.owner.login == "example-user"
+
+
+def _spot_github_checks_runs_list(response):
+    assert response.check_runs[0].id == 9007199254741012
+    assert response.check_runs[0].conclusion == "success"
+    assert response.total_count == 2
+
+
+def _spot_github_issues_update(response):
+    assert response.number == 42
+    assert response.state == "closed"
     assert response.author.login == "example-user"
 
 
@@ -176,6 +198,22 @@ def _spot_linear_teams_get(response):
 def _spot_linear_comments_create(response):
     assert response.success is True
     assert response.comment.body == "Synthetic comment"
+
+
+def _spot_linear_projects_list(response):
+    assert response.nodes[0].name == "Synthetic pilot project"
+    assert response.page_info.has_next_page is True
+    assert response.page_info.end_cursor == "synthetic-cursor-1"
+
+
+def _spot_linear_cycles_list(response):
+    assert response.nodes[0].number == 7
+    assert response.nodes[0].is_active is True
+
+
+def _spot_linear_issues_update(response):
+    assert response.success is True
+    assert response.issue.title == "Synthetic updated issue"
 
 
 def _spot_gmail_messages_list(response):
@@ -523,6 +561,9 @@ OPS = [
     ("github.actions.runs.list", "github", actions_pb2.ListWorkflowRunsRequest, actions_pb2.ListWorkflowRunsResponse, _spot_github_actions_runs_list),
     ("github.issues.create", "github", issues_pb2.CreateIssueRequest, issues_pb2.CreateIssueResponse, _spot_github_issues_create),
     ("github.issues.comments.create", "github", issues_pb2.CreateIssueCommentRequest, issues_pb2.CreateIssueCommentResponse, _spot_github_issues_comments_create),
+    ("github.repos.get", "github", repos_pb2.GetRepositoryRequest, repos_pb2.GetRepositoryResponse, _spot_github_repos_get),
+    ("github.checks.runs.list", "github", checks_pb2.ListCheckRunsRequest, checks_pb2.ListCheckRunsResponse, _spot_github_checks_runs_list),
+    ("github.issues.update", "github", issues_pb2.UpdateIssueRequest, issues_pb2.UpdateIssueResponse, _spot_github_issues_update),
     ("github.pulls.create", "github", pulls_pb2.CreatePullRequestRequest, pulls_pb2.CreatePullRequestResponse, _spot_github_pulls_create),
     ("github.pulls.update", "github", pulls_pb2.UpdatePullRequestRequest, pulls_pb2.UpdatePullRequestResponse, _spot_github_pulls_update),
     ("github.pulls.reviews.list", "github", pulls_pb2.ListPullReviewsRequest, pulls_pb2.ListPullReviewsResponse, _spot_github_pulls_reviews_list),
@@ -538,6 +579,9 @@ OPS = [
     ("linear.issues.search", "linear", linear_issues_pb2.SearchIssuesRequest, linear_issues_pb2.SearchIssuesResponse, _spot_linear_issues_search),
     ("linear.teams.get", "linear", teams_pb2.GetTeamRequest, teams_pb2.GetTeamResponse, _spot_linear_teams_get),
     ("linear.comments.create", "linear", comments_pb2.CreateCommentRequest, comments_pb2.CreateCommentResponse, _spot_linear_comments_create),
+    ("linear.projects.list", "linear", projects_pb2.ListProjectsRequest, projects_pb2.ListProjectsResponse, _spot_linear_projects_list),
+    ("linear.cycles.list", "linear", cycles_pb2.ListCyclesRequest, cycles_pb2.ListCyclesResponse, _spot_linear_cycles_list),
+    ("linear.issues.update", "linear", linear_issues_pb2.UpdateIssueRequest, linear_issues_pb2.UpdateIssueResponse, _spot_linear_issues_update),
     ("gmail.messages.list", "gmail", messages_pb2.ListMessagesRequest, messages_pb2.ListMessagesResponse, _spot_gmail_messages_list),
     ("gmail.messages.get", "gmail", messages_pb2.GetMessageRequest, messages_pb2.GetMessageResponse, _spot_gmail_messages_get),
     ("gmail.drafts.create", "gmail", messages_pb2.CreateDraftRequest, messages_pb2.CreateDraftResponse, _spot_gmail_drafts_create),
