@@ -9,8 +9,11 @@
 # - A row lists only operations that exist. A coarse capability whose
 #   operations are not all in the contracts yet is left out: it stays on its
 #   policies unchanged and is added in the release that adds its operations.
-# - Capabilities with no operation at all stay out (github repository.read,
-#   check.read, issue.update; linear project.read, cycle.read, issue.update).
+# - Capabilities with no operation at all stay out.
+
+- connector: github
+  capability: check.read
+  operations: [github.checks.runs.list]
 
 - connector: github
   capability: issue.comment
@@ -25,6 +28,10 @@
   operations: [github.issues.get, github.issues.list]
 
 - connector: github
+  capability: issue.update
+  operations: [github.issues.update]
+
+- connector: github
   capability: pull_request.create
   operations: [github.pulls.create]
 
@@ -37,6 +44,10 @@
   operations: [github.pulls.update]
 
 - connector: github
+  capability: repository.read
+  operations: [github.repos.get]
+
+- connector: github
   capability: workflow.read
   operations: [github.actions.runs.list]
 
@@ -45,12 +56,24 @@
   operations: [linear.comments.create]
 
 - connector: linear
+  capability: cycle.read
+  operations: [linear.cycles.list]
+
+- connector: linear
   capability: issue.create
   operations: [linear.issues.create]
 
 - connector: linear
   capability: issue.read
   operations: [linear.issues.get, linear.issues.search]
+
+- connector: linear
+  capability: issue.update
+  operations: [linear.issues.update]
+
+- connector: linear
+  capability: project.read
+  operations: [linear.projects.list]
 
 - connector: linear
   capability: team.read

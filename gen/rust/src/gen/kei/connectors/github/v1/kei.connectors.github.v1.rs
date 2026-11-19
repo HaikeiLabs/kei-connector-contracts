@@ -41,6 +41,54 @@ pub struct ListWorkflowRunsResponse {
     #[prost(int64, optional, tag="2")]
     pub next_page: ::core::option::Option<i64>,
 }
+/// ListCheckRunsRequest lists the check runs of one commit ref of a GitHub
+/// repository. The ref is the provider's path form without the refs/ prefix
+/// (heads/main); it may contain slashes, so it renders as multiple path
+/// segments. The contract models the page size and page number of the query
+/// parameters.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ListCheckRunsRequest {
+    #[prost(string, tag="1")]
+    pub owner: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub repository: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub r#ref: ::prost::alloc::string::String,
+    #[prost(int32, optional, tag="4")]
+    pub per_page: ::core::option::Option<i32>,
+    #[prost(int32, optional, tag="5")]
+    pub page: ::core::option::Option<i32>,
+}
+/// CheckRunSummary models the subset of each check run entry a list response
+/// carries. It is filled by JSON unmarshal of the provider response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CheckRunSummary {
+    #[prost(int64, tag="1")]
+    pub id: i64,
+    #[prost(string, tag="2")]
+    pub name: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub head_sha: ::prost::alloc::string::String,
+    #[prost(string, tag="4")]
+    pub status: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="5")]
+    pub conclusion: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, tag="6")]
+    pub html_url: ::prost::alloc::string::String,
+}
+/// ListCheckRunsResponse wraps the check run entries of a list response. The
+/// provider returns the entries under check_runs with a total_count. next_page
+/// carries the next page number from the Link header. It is filled by JSON
+/// unmarshal of the provider response.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListCheckRunsResponse {
+    #[prost(message, repeated, tag="1")]
+    pub check_runs: ::prost::alloc::vec::Vec<CheckRunSummary>,
+    #[prost(int64, optional, tag="2")]
+    pub total_count: ::core::option::Option<i64>,
+    #[prost(int64, optional, tag="3")]
+    pub next_page: ::core::option::Option<i64>,
+}
 /// PutContentsRequest creates or updates one file in a GitHub repository via
 /// the Contents API. content carries the base64-encoded file bytes; sha is set
 /// only when replacing an existing file.
@@ -680,6 +728,73 @@ pub struct CreateIssueCommentResponse {
     pub html_url: ::prost::alloc::string::String,
     #[prost(message, optional, tag="4")]
     pub author: ::core::option::Option<User>,
+}
+/// UpdateIssueRequest updates an issue in a GitHub repository. Every write
+/// field is optional: PATCH updates only what the caller sets.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct UpdateIssueRequest {
+    #[prost(string, tag="1")]
+    pub owner: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub repository: ::prost::alloc::string::String,
+    #[prost(int64, tag="3")]
+    pub issue_number: i64,
+    #[prost(string, optional, tag="4")]
+    pub title: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, optional, tag="5")]
+    pub body: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, optional, tag="6")]
+    pub state: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// UpdateIssueResponse models the updated issue. It is filled by JSON
+/// unmarshal of the provider response.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct UpdateIssueResponse {
+    #[prost(int64, tag="1")]
+    pub id: i64,
+    #[prost(int64, tag="2")]
+    pub number: i64,
+    #[prost(string, tag="3")]
+    pub title: ::prost::alloc::string::String,
+    #[prost(string, tag="4")]
+    pub state: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="5")]
+    pub body: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, tag="6")]
+    pub html_url: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="7")]
+    pub author: ::core::option::Option<User>,
+    #[prost(message, repeated, tag="8")]
+    pub labels: ::prost::alloc::vec::Vec<Label>,
+}
+/// GetRepositoryRequest reads a single GitHub repository by owner and name.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetRepositoryRequest {
+    #[prost(string, tag="1")]
+    pub owner: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub repository: ::prost::alloc::string::String,
+}
+/// GetRepositoryResponse models the repository object. It is filled by JSON
+/// unmarshal of the provider response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetRepositoryResponse {
+    #[prost(int64, tag="1")]
+    pub id: i64,
+    #[prost(string, tag="2")]
+    pub name: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub full_name: ::prost::alloc::string::String,
+    #[prost(string, tag="4")]
+    pub html_url: ::prost::alloc::string::String,
+    #[prost(bool, tag="5")]
+    pub private: bool,
+    #[prost(string, optional, tag="6")]
+    pub description: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, tag="7")]
+    pub default_branch: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="8")]
+    pub owner: ::core::option::Option<User>,
 }
 include!("kei.connectors.github.v1.serde.rs");
 // @@protoc_insertion_point(module)

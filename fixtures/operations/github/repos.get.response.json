@@ -1,0 +1,14 @@
+{
+  "id": 9007199254741011,
+  "name": "example-repo",
+  "full_name": "example-org/example-repo",
+  "html_url": "https://example.invalid/example-org/example-repo",
+  "private": false,
+  "description": null,
+  "default_branch": "main",
+  "owner": {
+    "id": 7002,
+    "login": "example-user"
+  },
+  "node_id": "synthetic-node-id-20"
+}

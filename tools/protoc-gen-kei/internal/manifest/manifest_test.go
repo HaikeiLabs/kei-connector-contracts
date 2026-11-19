@@ -216,14 +216,20 @@ func TestLegacyRows_Expected(t *testing.T) {
 	want := map[string]string{
 		"github issue.read":          "github.issues.get github.issues.list",
 		"github issue.create":        "github.issues.create",
+		"github issue.update":        "github.issues.update",
 		"github issue.comment":       "github.issues.comments.create",
+		"github check.read":          "github.checks.runs.list",
 		"github pull_request.read":   "github.pulls.get github.pulls.list github.pulls.reviews.list",
 		"github pull_request.create": "github.pulls.create",
 		"github pull_request.update": "github.pulls.update",
+		"github repository.read":     "github.repos.get",
 		"github workflow.read":       "github.actions.runs.list",
 		"linear comment.create":      "linear.comments.create",
 		"linear issue.create":        "linear.issues.create",
+		"linear issue.update":        "linear.issues.update",
 		"linear issue.read":          "linear.issues.get linear.issues.search",
+		"linear cycle.read":          "linear.cycles.list",
+		"linear project.read":        "linear.projects.list",
 		"linear team.read":           "linear.teams.get",
 	}
 	m, err := manifest.Build(loadSet(t), testVersion, loadLegacy(t))

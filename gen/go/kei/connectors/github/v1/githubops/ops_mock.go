@@ -13,6 +13,7 @@ import (
 // tests. Calling an operation whose field is nil returns an error.
 type Mock struct {
 	ListWorkflowRunsFunc   func(ctx context.Context, req *github.ListWorkflowRunsRequest) (*github.ListWorkflowRunsResponse, error)
+	ListCheckRunsFunc      func(ctx context.Context, req *github.ListCheckRunsRequest) (*github.ListCheckRunsResponse, error)
 	PutContentsFunc        func(ctx context.Context, req *github.PutContentsRequest) (*github.PutContentsResponse, error)
 	CreateBlobFunc         func(ctx context.Context, req *github.CreateBlobRequest) (*github.CreateBlobResponse, error)
 	CreateCommitFunc       func(ctx context.Context, req *github.CreateCommitRequest) (*github.CreateCommitResponse, error)
@@ -24,12 +25,14 @@ type Mock struct {
 	CreateIssueFunc        func(ctx context.Context, req *github.CreateIssueRequest) (*github.CreateIssueResponse, error)
 	GetIssueFunc           func(ctx context.Context, req *github.GetIssueRequest) (*github.GetIssueResponse, error)
 	ListIssuesFunc         func(ctx context.Context, req *github.ListIssuesRequest) (*github.ListIssuesResponse, error)
+	UpdateIssueFunc        func(ctx context.Context, req *github.UpdateIssueRequest) (*github.UpdateIssueResponse, error)
 	CreatePullRequestFunc  func(ctx context.Context, req *github.CreatePullRequestRequest) (*github.CreatePullRequestResponse, error)
 	GetPullRequestFunc     func(ctx context.Context, req *github.GetPullRequestRequest) (*github.GetPullRequestResponse, error)
 	ListPullsFunc          func(ctx context.Context, req *github.ListPullsRequest) (*github.ListPullsResponse, error)
 	CreateReviewFunc       func(ctx context.Context, req *github.CreatePullReviewRequest) (*github.CreatePullReviewResponse, error)
 	ListReviewsFunc        func(ctx context.Context, req *github.ListPullReviewsRequest) (*github.ListPullReviewsResponse, error)
 	UpdatePullRequestFunc  func(ctx context.Context, req *github.UpdatePullRequestRequest) (*github.UpdatePullRequestResponse, error)
+	GetRepositoryFunc      func(ctx context.Context, req *github.GetRepositoryRequest) (*github.GetRepositoryResponse, error)
 }
 
 var _ Operations = (*Mock)(nil)
@@ -40,6 +43,14 @@ func (m *Mock) ListWorkflowRuns(ctx context.Context, req *github.ListWorkflowRun
 		return nil, errors.New("githubops.Mock: ListWorkflowRunsFunc is not set")
 	}
 	return m.ListWorkflowRunsFunc(ctx, req)
+}
+
+// ListCheckRuns calls m.ListCheckRunsFunc.
+func (m *Mock) ListCheckRuns(ctx context.Context, req *github.ListCheckRunsRequest) (*github.ListCheckRunsResponse, error) {
+	if m.ListCheckRunsFunc == nil {
+		return nil, errors.New("githubops.Mock: ListCheckRunsFunc is not set")
+	}
+	return m.ListCheckRunsFunc(ctx, req)
 }
 
 // PutContents calls m.PutContentsFunc.
@@ -130,6 +141,14 @@ func (m *Mock) ListIssues(ctx context.Context, req *github.ListIssuesRequest) (*
 	return m.ListIssuesFunc(ctx, req)
 }
 
+// UpdateIssue calls m.UpdateIssueFunc.
+func (m *Mock) UpdateIssue(ctx context.Context, req *github.UpdateIssueRequest) (*github.UpdateIssueResponse, error) {
+	if m.UpdateIssueFunc == nil {
+		return nil, errors.New("githubops.Mock: UpdateIssueFunc is not set")
+	}
+	return m.UpdateIssueFunc(ctx, req)
+}
+
 // CreatePullRequest calls m.CreatePullRequestFunc.
 func (m *Mock) CreatePullRequest(ctx context.Context, req *github.CreatePullRequestRequest) (*github.CreatePullRequestResponse, error) {
 	if m.CreatePullRequestFunc == nil {
@@ -176,4 +195,12 @@ func (m *Mock) UpdatePullRequest(ctx context.Context, req *github.UpdatePullRequ
 		return nil, errors.New("githubops.Mock: UpdatePullRequestFunc is not set")
 	}
 	return m.UpdatePullRequestFunc(ctx, req)
+}
+
+// GetRepository calls m.GetRepositoryFunc.
+func (m *Mock) GetRepository(ctx context.Context, req *github.GetRepositoryRequest) (*github.GetRepositoryResponse, error) {
+	if m.GetRepositoryFunc == nil {
+		return nil, errors.New("githubops.Mock: GetRepositoryFunc is not set")
+	}
+	return m.GetRepositoryFunc(ctx, req)
 }

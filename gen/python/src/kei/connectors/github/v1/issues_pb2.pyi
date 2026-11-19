@@ -131,3 +131,39 @@ class CreateIssueCommentResponse(_message.Message):
     html_url: str
     author: _pulls_pb2.User
     def __init__(self, id: _Optional[int] = ..., body: _Optional[str] = ..., html_url: _Optional[str] = ..., author: _Optional[_Union[_pulls_pb2.User, _Mapping]] = ...) -> None: ...
+
+class UpdateIssueRequest(_message.Message):
+    __slots__ = ("owner", "repository", "issue_number", "title", "body", "state")
+    OWNER_FIELD_NUMBER: _ClassVar[int]
+    REPOSITORY_FIELD_NUMBER: _ClassVar[int]
+    ISSUE_NUMBER_FIELD_NUMBER: _ClassVar[int]
+    TITLE_FIELD_NUMBER: _ClassVar[int]
+    BODY_FIELD_NUMBER: _ClassVar[int]
+    STATE_FIELD_NUMBER: _ClassVar[int]
+    owner: str
+    repository: str
+    issue_number: int
+    title: str
+    body: str
+    state: str
+    def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., issue_number: _Optional[int] = ..., title: _Optional[str] = ..., body: _Optional[str] = ..., state: _Optional[str] = ...) -> None: ...
+
+class UpdateIssueResponse(_message.Message):
+    __slots__ = ("id", "number", "title", "state", "body", "html_url", "author", "labels")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    NUMBER_FIELD_NUMBER: _ClassVar[int]
+    TITLE_FIELD_NUMBER: _ClassVar[int]
+    STATE_FIELD_NUMBER: _ClassVar[int]
+    BODY_FIELD_NUMBER: _ClassVar[int]
+    HTML_URL_FIELD_NUMBER: _ClassVar[int]
+    AUTHOR_FIELD_NUMBER: _ClassVar[int]
+    LABELS_FIELD_NUMBER: _ClassVar[int]
+    id: int
+    number: int
+    title: str
+    state: str
+    body: str
+    html_url: str
+    author: _pulls_pb2.User
+    labels: _containers.RepeatedCompositeFieldContainer[_pulls_pb2.Label]
+    def __init__(self, id: _Optional[int] = ..., number: _Optional[int] = ..., title: _Optional[str] = ..., state: _Optional[str] = ..., body: _Optional[str] = ..., html_url: _Optional[str] = ..., author: _Optional[_Union[_pulls_pb2.User, _Mapping]] = ..., labels: _Optional[_Iterable[_Union[_pulls_pb2.Label, _Mapping]]] = ...) -> None: ...

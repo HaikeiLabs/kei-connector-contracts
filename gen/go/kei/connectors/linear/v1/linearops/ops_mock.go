@@ -13,9 +13,12 @@ import (
 // tests. Calling an operation whose field is nil returns an error.
 type Mock struct {
 	CreateCommentFunc func(ctx context.Context, req *linear.CreateCommentRequest) (*linear.CreateCommentResponse, error)
+	ListCyclesFunc    func(ctx context.Context, req *linear.ListCyclesRequest) (*linear.ListCyclesResponse, error)
 	CreateIssueFunc   func(ctx context.Context, req *linear.CreateIssueRequest) (*linear.CreateIssueResponse, error)
 	GetIssueFunc      func(ctx context.Context, req *linear.GetIssueRequest) (*linear.GetIssueResponse, error)
 	SearchIssuesFunc  func(ctx context.Context, req *linear.SearchIssuesRequest) (*linear.SearchIssuesResponse, error)
+	UpdateIssueFunc   func(ctx context.Context, req *linear.UpdateIssueRequest) (*linear.UpdateIssueResponse, error)
+	ListProjectsFunc  func(ctx context.Context, req *linear.ListProjectsRequest) (*linear.ListProjectsResponse, error)
 	GetTeamFunc       func(ctx context.Context, req *linear.GetTeamRequest) (*linear.GetTeamResponse, error)
 }
 
@@ -27,6 +30,14 @@ func (m *Mock) CreateComment(ctx context.Context, req *linear.CreateCommentReque
 		return nil, errors.New("linearops.Mock: CreateCommentFunc is not set")
 	}
 	return m.CreateCommentFunc(ctx, req)
+}
+
+// ListCycles calls m.ListCyclesFunc.
+func (m *Mock) ListCycles(ctx context.Context, req *linear.ListCyclesRequest) (*linear.ListCyclesResponse, error) {
+	if m.ListCyclesFunc == nil {
+		return nil, errors.New("linearops.Mock: ListCyclesFunc is not set")
+	}
+	return m.ListCyclesFunc(ctx, req)
 }
 
 // CreateIssue calls m.CreateIssueFunc.
@@ -51,6 +62,22 @@ func (m *Mock) SearchIssues(ctx context.Context, req *linear.SearchIssuesRequest
 		return nil, errors.New("linearops.Mock: SearchIssuesFunc is not set")
 	}
 	return m.SearchIssuesFunc(ctx, req)
+}
+
+// UpdateIssue calls m.UpdateIssueFunc.
+func (m *Mock) UpdateIssue(ctx context.Context, req *linear.UpdateIssueRequest) (*linear.UpdateIssueResponse, error) {
+	if m.UpdateIssueFunc == nil {
+		return nil, errors.New("linearops.Mock: UpdateIssueFunc is not set")
+	}
+	return m.UpdateIssueFunc(ctx, req)
+}
+
+// ListProjects calls m.ListProjectsFunc.
+func (m *Mock) ListProjects(ctx context.Context, req *linear.ListProjectsRequest) (*linear.ListProjectsResponse, error) {
+	if m.ListProjectsFunc == nil {
+		return nil, errors.New("linearops.Mock: ListProjectsFunc is not set")
+	}
+	return m.ListProjectsFunc(ctx, req)
 }
 
 // GetTeam calls m.GetTeamFunc.

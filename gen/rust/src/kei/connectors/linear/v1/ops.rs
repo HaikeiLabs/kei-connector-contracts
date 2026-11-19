@@ -11,13 +11,21 @@
 
 use crate::connection::{Class, HttpConnection, Op, OperationError, decode_graphql_response, map_error, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
-use crate::kei::connectors::linear::v1::{CreateCommentRequest, CreateCommentResponse, CreateIssueRequest, CreateIssueResponse, GetIssueRequest, GetIssueResponse, GetTeamRequest, GetTeamResponse, SearchIssuesRequest, SearchIssuesResponse};
+use crate::kei::connectors::linear::v1::{CreateCommentRequest, CreateCommentResponse, CreateIssueRequest, CreateIssueResponse, GetIssueRequest, GetIssueResponse, GetTeamRequest, GetTeamResponse, ListCyclesRequest, ListCyclesResponse, ListProjectsRequest, ListProjectsResponse, SearchIssuesRequest, SearchIssuesResponse, UpdateIssueRequest, UpdateIssueResponse};
 
 /// Operation descriptor for linear.comments.create, for authorization and audit: the
 /// capability a policy grants is connector:linear.comments.create.
 pub const OP_CREATE_COMMENT: Op = Op {
     id: "linear.comments.create",
     class: Class::Write,
+    destructive: false,
+};
+
+/// Operation descriptor for linear.cycles.list, for authorization and audit: the
+/// capability a policy grants is connector:linear.cycles.list.
+pub const OP_LIST_CYCLES: Op = Op {
+    id: "linear.cycles.list",
+    class: Class::Read,
     destructive: false,
 };
 
@@ -41,6 +49,22 @@ pub const OP_GET_ISSUE: Op = Op {
 /// capability a policy grants is connector:linear.issues.search.
 pub const OP_SEARCH_ISSUES: Op = Op {
     id: "linear.issues.search",
+    class: Class::Read,
+    destructive: false,
+};
+
+/// Operation descriptor for linear.issues.update, for authorization and audit: the
+/// capability a policy grants is connector:linear.issues.update.
+pub const OP_UPDATE_ISSUE: Op = Op {
+    id: "linear.issues.update",
+    class: Class::Write,
+    destructive: false,
+};
+
+/// Operation descriptor for linear.projects.list, for authorization and audit: the
+/// capability a policy grants is connector:linear.projects.list.
+pub const OP_LIST_PROJECTS: Op = Op {
+    id: "linear.projects.list",
     class: Class::Read,
     destructive: false,
 };
@@ -77,6 +101,31 @@ const ERRORS_CREATE_COMMENT: &[ErrorMapping] = &[
 ];
 
 const RESPONSE_FIELDS_CREATE_COMMENT: &[(&str, &str)] = &[("success", "success"), ("comment", "comment")];
+
+const ERRORS_LIST_CYCLES: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 404,
+        kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
+const RESPONSE_FIELDS_LIST_CYCLES: &[(&str, &str)] = &[("nodes", "nodes"), ("page_info", "pageInfo")];
 
 const ERRORS_CREATE_ISSUE: &[ErrorMapping] = &[
     ErrorMapping {
@@ -153,6 +202,56 @@ const ERRORS_SEARCH_ISSUES: &[ErrorMapping] = &[
 
 const RESPONSE_FIELDS_SEARCH_ISSUES: &[(&str, &str)] = &[("nodes", "nodes"), ("page_info", "pageInfo")];
 
+const ERRORS_UPDATE_ISSUE: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 404,
+        kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
+const RESPONSE_FIELDS_UPDATE_ISSUE: &[(&str, &str)] = &[("success", "success"), ("issue", "issue")];
+
+const ERRORS_LIST_PROJECTS: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 404,
+        kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
+const RESPONSE_FIELDS_LIST_PROJECTS: &[(&str, &str)] = &[("nodes", "nodes"), ("page_info", "pageInfo")];
+
 const ERRORS_GET_TEAM: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -184,12 +283,18 @@ const RESPONSE_FIELDS_GET_TEAM: &[(&str, &str)] = &[("team", "team")];
 pub trait LinearOperations {
     /// create_comment runs linear.comments.create (GraphQL POST /graphql).
     async fn create_comment(&self, req: CreateCommentRequest) -> Result<CreateCommentResponse, OperationError>;
+    /// list_cycles runs linear.cycles.list (GraphQL POST /graphql).
+    async fn list_cycles(&self, req: ListCyclesRequest) -> Result<ListCyclesResponse, OperationError>;
     /// create_issue runs linear.issues.create (GraphQL POST /graphql).
     async fn create_issue(&self, req: CreateIssueRequest) -> Result<CreateIssueResponse, OperationError>;
     /// get_issue runs linear.issues.get (GraphQL POST /graphql).
     async fn get_issue(&self, req: GetIssueRequest) -> Result<GetIssueResponse, OperationError>;
     /// search_issues runs linear.issues.search (GraphQL POST /graphql).
     async fn search_issues(&self, req: SearchIssuesRequest) -> Result<SearchIssuesResponse, OperationError>;
+    /// update_issue runs linear.issues.update (GraphQL POST /graphql).
+    async fn update_issue(&self, req: UpdateIssueRequest) -> Result<UpdateIssueResponse, OperationError>;
+    /// list_projects runs linear.projects.list (GraphQL POST /graphql).
+    async fn list_projects(&self, req: ListProjectsRequest) -> Result<ListProjectsResponse, OperationError>;
     /// get_team runs linear.teams.get (GraphQL POST /graphql).
     async fn get_team(&self, req: GetTeamRequest) -> Result<GetTeamResponse, OperationError>;
 }
@@ -221,6 +326,31 @@ impl LinearOperations for LinearQueries {
             return Err(err);
         }
         let resp: CreateCommentResponse = decode_graphql_response(OP_CREATE_COMMENT.id, out.status, &out.body, &RESPONSE_FIELDS_CREATE_COMMENT, None)?;
+        Ok(resp)
+    }
+    /// list_cycles runs linear.cycles.list (GraphQL POST /graphql).
+    async fn list_cycles(&self, req: ListCyclesRequest) -> Result<ListCyclesResponse, OperationError> {
+        let path = render_path(
+            "/graphql",
+            &[],
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_LIST_CYCLES.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        body.insert("teamId".to_string(), serde_json::Value::String(req.team_id.clone()));
+        if let Some(v) = req.first { body.insert("first".to_string(), serde_json::Value::Number(v.into())); }
+        if let Some(v) = &req.after { body.insert("after".to_string(), serde_json::Value::String(v.clone())); }
+        let payload = serde_json::json!({ "query": "query ListCycles($teamId: String!, $first: Int, $after: String) {\n  cycles(first: $first, after: $after, filter: {team: {id: {eq: $teamId}}}) {\n    nodes { id number startsAt endsAt isActive }\n    pageInfo { hasNextPage endCursor }\n  }\n}\n", "variables": serde_json::Value::Object(body) });
+        let body_bytes = serde_json::to_vec(&payload).map_err(|e| OperationError::wrap(OP_LIST_CYCLES.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("POST", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_LIST_CYCLES.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_LIST_CYCLES, out.status, &ERRORS_LIST_CYCLES) {
+            return Err(err);
+        }
+        let resp: ListCyclesResponse = decode_graphql_response(OP_LIST_CYCLES.id, out.status, &out.body, &RESPONSE_FIELDS_LIST_CYCLES, Some("nodes"))?;
         Ok(resp)
     }
     /// create_issue runs linear.issues.create (GraphQL POST /graphql).
@@ -295,6 +425,55 @@ impl LinearOperations for LinearQueries {
             return Err(err);
         }
         let resp: SearchIssuesResponse = decode_graphql_response(OP_SEARCH_ISSUES.id, out.status, &out.body, &RESPONSE_FIELDS_SEARCH_ISSUES, Some("nodes"))?;
+        Ok(resp)
+    }
+    /// update_issue runs linear.issues.update (GraphQL POST /graphql).
+    async fn update_issue(&self, req: UpdateIssueRequest) -> Result<UpdateIssueResponse, OperationError> {
+        let path = render_path(
+            "/graphql",
+            &[],
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_UPDATE_ISSUE.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        body.insert("id".to_string(), serde_json::Value::String(req.id.clone()));
+        if let Some(v) = &req.title { body.insert("title".to_string(), serde_json::Value::String(v.clone())); }
+        if let Some(v) = &req.description { body.insert("description".to_string(), serde_json::Value::String(v.clone())); }
+        let payload = serde_json::json!({ "query": "mutation UpdateIssue($id: String!, $title: String, $description: String) {\n  issueUpdate(id: $id, input: {title: $title, description: $description}) {\n    success\n    issue { id identifier title description url createdAt updatedAt }\n  }\n}\n", "variables": serde_json::Value::Object(body) });
+        let body_bytes = serde_json::to_vec(&payload).map_err(|e| OperationError::wrap(OP_UPDATE_ISSUE.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("POST", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_UPDATE_ISSUE.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_UPDATE_ISSUE, out.status, &ERRORS_UPDATE_ISSUE) {
+            return Err(err);
+        }
+        let resp: UpdateIssueResponse = decode_graphql_response(OP_UPDATE_ISSUE.id, out.status, &out.body, &RESPONSE_FIELDS_UPDATE_ISSUE, None)?;
+        Ok(resp)
+    }
+    /// list_projects runs linear.projects.list (GraphQL POST /graphql).
+    async fn list_projects(&self, req: ListProjectsRequest) -> Result<ListProjectsResponse, OperationError> {
+        let path = render_path(
+            "/graphql",
+            &[],
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_LIST_PROJECTS.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        if let Some(v) = req.first { body.insert("first".to_string(), serde_json::Value::Number(v.into())); }
+        if let Some(v) = &req.after { body.insert("after".to_string(), serde_json::Value::String(v.clone())); }
+        let payload = serde_json::json!({ "query": "query ListProjects($first: Int, $after: String) {\n  projects(first: $first, after: $after) {\n    nodes { id name description url }\n    pageInfo { hasNextPage endCursor }\n  }\n}\n", "variables": serde_json::Value::Object(body) });
+        let body_bytes = serde_json::to_vec(&payload).map_err(|e| OperationError::wrap(OP_LIST_PROJECTS.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("POST", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_LIST_PROJECTS.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_LIST_PROJECTS, out.status, &ERRORS_LIST_PROJECTS) {
+            return Err(err);
+        }
+        let resp: ListProjectsResponse = decode_graphql_response(OP_LIST_PROJECTS.id, out.status, &out.body, &RESPONSE_FIELDS_LIST_PROJECTS, Some("nodes"))?;
         Ok(resp)
     }
     /// get_team runs linear.teams.get (GraphQL POST /graphql).

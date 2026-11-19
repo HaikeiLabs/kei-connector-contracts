@@ -36,9 +36,9 @@ use haikeilabs_connector_contracts::kei::connectors::github::v1::{
     CreateBlobResponse, CreateCommitResponse, CreateIssueCommentResponse,
     CreateIssueResponse as GhCreateIssueResponse, CreatePullRequestResponse,
     CreatePullReviewResponse, CreateRefResponse, CreateTreeResponse, GetIssueResponse,
-    GetPullRequestResponse, GetRefResponse, ListIssuesResponse, ListPullReviewsResponse,
-    ListPullsResponse, ListWorkflowRunsResponse, PutContentsResponse, UpdatePullRequestResponse,
-    UpdateRefResponse,
+    GetPullRequestResponse, GetRefResponse, GetRepositoryResponse, ListCheckRunsResponse,
+    ListIssuesResponse, ListPullReviewsResponse, ListPullsResponse, ListWorkflowRunsResponse,
+    PutContentsResponse, UpdateIssueResponse, UpdatePullRequestResponse, UpdateRefResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::gmail::v1::{
     CreateDraftResponse, GetMessageResponse, ListMessagesResponse,
@@ -56,7 +56,8 @@ use haikeilabs_connector_contracts::kei::connectors::hubspot::v1::{
 };
 use haikeilabs_connector_contracts::kei::connectors::linear::v1::{
     CreateCommentResponse, CreateIssueResponse, GetIssueResponse as LinearGetIssueResponse,
-    GetTeamResponse, SearchIssuesResponse,
+    GetTeamResponse, ListCyclesResponse, ListProjectsResponse, SearchIssuesResponse,
+    UpdateIssueResponse as LinearUpdateIssueResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::omni::v1::{
     ListDocumentsResponse, RunQueryResponse as OmniRunQueryResponse,
@@ -126,10 +127,7 @@ fn fixtures_unmarshal() {
         serde_json::from_str(&fixture("github", "pulls.list.response.json"))
             .expect("github.pulls.list response unmarshals");
     let pull = &resp.pulls[0];
-    assert_eq!(
-        pull.head.as_ref().expect("head present").r#ref,
-        "feature/x"
-    );
+    assert_eq!(pull.head.as_ref().expect("head present").r#ref, "feature/x");
     assert_eq!(pull.base.as_ref().expect("base present").r#ref, "main");
     assert_eq!(
         pull.author.as_ref().expect("author present").login,
@@ -151,7 +149,10 @@ fn fixtures_unmarshal() {
         serde_json::from_str(&fixture("github", "issues.create.response.json"))
             .expect("github.issues.create response unmarshals");
     assert_eq!(resp.number, 42);
-    assert_eq!(resp.author.as_ref().expect("author present").login, "example-user");
+    assert_eq!(
+        resp.author.as_ref().expect("author present").login,
+        "example-user"
+    );
     assert_eq!(resp.labels[0].name, "synthetic-label");
 
     // github.issues.comments.create — spot: body and author login.
@@ -159,7 +160,10 @@ fn fixtures_unmarshal() {
         serde_json::from_str(&fixture("github", "issues.comments.create.response.json"))
             .expect("github.issues.comments.create response unmarshals");
     assert_eq!(resp.body, "Synthetic comment");
-    assert_eq!(resp.author.as_ref().expect("author present").login, "example-user");
+    assert_eq!(
+        resp.author.as_ref().expect("author present").login,
+        "example-user"
+    );
 
     // github.pulls.create — spot: number, draft flag, head/base refs.
     let resp: CreatePullRequestResponse =
@@ -182,7 +186,14 @@ fn fixtures_unmarshal() {
         serde_json::from_str(&fixture("github", "pulls.reviews.list.response.json"))
             .expect("github.pulls.reviews.list response unmarshals");
     assert_eq!(resp.reviews[0].state, "APPROVED");
-    assert_eq!(resp.reviews[0].author.as_ref().expect("author present").login, "example-reviewer");
+    assert_eq!(
+        resp.reviews[0]
+            .author
+            .as_ref()
+            .expect("author present")
+            .login,
+        "example-reviewer"
+    );
 
     // github.pulls.reviews.create — spot: state and the >2^53 review id.
     let resp: CreatePullReviewResponse =
@@ -196,20 +207,29 @@ fn fixtures_unmarshal() {
         serde_json::from_str(&fixture("github", "git.refs.get.response.json"))
             .expect("github.git.refs.get response unmarshals");
     assert_eq!(resp.r#ref, "refs/heads/feature/x");
-    assert_eq!(resp.object.as_ref().expect("object present").sha, "synthetic-ref-sha-1");
+    assert_eq!(
+        resp.object.as_ref().expect("object present").sha,
+        "synthetic-ref-sha-1"
+    );
 
     // github.git.refs.create — spot: ref and object type.
     let resp: CreateRefResponse =
         serde_json::from_str(&fixture("github", "git.refs.create.response.json"))
             .expect("github.git.refs.create response unmarshals");
     assert_eq!(resp.r#ref, "refs/heads/feature/y");
-    assert_eq!(resp.object.as_ref().expect("object present").r#type, "commit");
+    assert_eq!(
+        resp.object.as_ref().expect("object present").r#type,
+        "commit"
+    );
 
     // github.git.refs.update — spot: the moved sha.
     let resp: UpdateRefResponse =
         serde_json::from_str(&fixture("github", "git.refs.update.response.json"))
             .expect("github.git.refs.update response unmarshals");
-    assert_eq!(resp.object.as_ref().expect("object present").sha, "synthetic-ref-sha-2");
+    assert_eq!(
+        resp.object.as_ref().expect("object present").sha,
+        "synthetic-ref-sha-2"
+    );
 
     // github.git.blobs.create — spot: blob sha.
     let resp: CreateBlobResponse =
@@ -252,9 +272,8 @@ fn fixtures_unmarshal() {
     assert_eq!(resp.nodes.len(), 2);
 
     // linear.teams.get — spot: team.key.
-    let resp: GetTeamResponse =
-        serde_json::from_str(&fixture("linear", "teams.get.response.json"))
-            .expect("linear.teams.get response unmarshals");
+    let resp: GetTeamResponse = serde_json::from_str(&fixture("linear", "teams.get.response.json"))
+        .expect("linear.teams.get response unmarshals");
     assert_eq!(resp.team.as_ref().expect("team present").key, "ENG");
 
     // linear.comments.create — spot: success and the created comment body.
@@ -267,12 +286,74 @@ fn fixtures_unmarshal() {
         "Synthetic comment"
     );
 
+    // github.repos.get — spot: the 2^53+9 id, full name, and owner login.
+    let resp: GetRepositoryResponse =
+        serde_json::from_str(&fixture("github", "repos.get.response.json"))
+            .expect("github.repos.get response unmarshals");
+    assert_eq!(resp.id, 9007199254741011, "int64 must not go through f64");
+    assert_eq!(resp.full_name, "example-org/example-repo");
+    assert_eq!(
+        resp.owner.as_ref().expect("owner present").login,
+        "example-user"
+    );
+
+    // github.checks.runs.list — spot: id, conclusion, and total count.
+    let resp: ListCheckRunsResponse =
+        serde_json::from_str(&fixture("github", "checks.runs.list.response.json"))
+            .expect("github.checks.runs.list response unmarshals");
+    assert_eq!(
+        resp.check_runs[0].id, 9007199254741012,
+        "int64 must not go through f64"
+    );
+    assert_eq!(resp.check_runs[0].conclusion.as_deref(), Some("success"));
+    assert_eq!(resp.total_count, Some(2));
+
+    // github.issues.update — spot: number, state, and author login.
+    let resp: UpdateIssueResponse =
+        serde_json::from_str(&fixture("github", "issues.update.response.json"))
+            .expect("github.issues.update response unmarshals");
+    assert_eq!(resp.number, 42);
+    assert_eq!(resp.state, "closed");
+    assert_eq!(
+        resp.author.as_ref().expect("author present").login,
+        "example-user"
+    );
+
+    // linear.projects.list — spot: project name and the pagination cursor.
+    let resp: ListProjectsResponse =
+        serde_json::from_str(&fixture("linear", "projects.list.response.json"))
+            .expect("linear.projects.list response unmarshals");
+    assert_eq!(resp.nodes[0].name, "Synthetic pilot project");
+    let page_info = resp.page_info.as_ref().expect("page info present");
+    assert!(page_info.has_next_page);
+    assert_eq!(page_info.end_cursor.as_deref(), Some("synthetic-cursor-1"));
+
+    // linear.cycles.list — spot: cycle number and is_active.
+    let resp: ListCyclesResponse =
+        serde_json::from_str(&fixture("linear", "cycles.list.response.json"))
+            .expect("linear.cycles.list response unmarshals");
+    assert_eq!(resp.nodes[0].number, 7);
+    assert!(resp.nodes[0].is_active);
+
+    // linear.issues.update — spot: success and the updated issue title.
+    let resp: LinearUpdateIssueResponse =
+        serde_json::from_str(&fixture("linear", "issues.update.response.json"))
+            .expect("linear.issues.update response unmarshals");
+    assert!(resp.success);
+    assert_eq!(
+        resp.issue.as_ref().expect("issue present").title,
+        "Synthetic updated issue"
+    );
+
     // gmail.messages.list — spot: two messages and the next cursor.
     let resp: ListMessagesResponse =
         serde_json::from_str(&fixture("gmail", "messages.list.response.json"))
             .expect("gmail.messages.list response unmarshals");
     assert_eq!(resp.messages.len(), 2);
-    assert_eq!(resp.next_page_token.as_deref(), Some("synthetic-next-token"));
+    assert_eq!(
+        resp.next_page_token.as_deref(),
+        Some("synthetic-next-token")
+    );
 
     // gmail.messages.get — spot: message id, the snippet, and the null
     // internal date.
@@ -359,7 +440,10 @@ fn fixtures_unmarshal() {
         serde_json::from_str(&fixture("atlassian", "jira.issues.search.response.json"))
             .expect("atlassian.jira.issues.search response unmarshals");
     assert_eq!(resp.issues.len(), 2);
-    assert_eq!(resp.next_page_token.as_deref(), Some("synthetic-next-token"));
+    assert_eq!(
+        resp.next_page_token.as_deref(),
+        Some("synthetic-next-token")
+    );
     let second = resp.issues[1].fields.as_ref().expect("fields present");
     assert!(second.description.is_none(), "description must be null");
 
@@ -507,12 +591,18 @@ fn fixtures_unmarshal() {
             .expect("hubspot.contacts.list response unmarshals");
     assert_eq!(resp.results.len(), 2);
     assert_eq!(resp.next_after.as_deref(), Some("synthetic-next-cursor"));
-    let second = resp.results[1].properties.as_ref().expect("properties present");
+    let second = resp.results[1]
+        .properties
+        .as_ref()
+        .expect("properties present");
     match second.fields.get("lastname") {
         Some(pbjson_types::Value {
             kind: None | Some(Kind::NullValue(_)),
         }) => {}
-        other => panic!("results[1].properties.lastname must be null, got {:?}", other),
+        other => panic!(
+            "results[1].properties.lastname must be null, got {:?}",
+            other
+        ),
     }
 
     // hubspot.deals.list — spot: two results and the null description.
@@ -520,7 +610,10 @@ fn fixtures_unmarshal() {
         serde_json::from_str(&fixture("hubspot", "deals.list.response.json"))
             .expect("hubspot.deals.list response unmarshals");
     assert_eq!(resp.results.len(), 2);
-    let first = resp.results[0].properties.as_ref().expect("properties present");
+    let first = resp.results[0]
+        .properties
+        .as_ref()
+        .expect("properties present");
     match first.fields.get("dealname") {
         Some(pbjson_types::Value {
             kind: Some(Kind::StringValue(name)),
@@ -534,9 +627,8 @@ fn fixtures_unmarshal() {
         other => panic!("properties.description must be null, got {:?}", other),
     }
     // notion.pages.get — spot: the synthetic page id and the null public_url.
-    let resp: GetPageResponse =
-        serde_json::from_str(&fixture("notion", "pages.get.response.json"))
-            .expect("notion.pages.get response unmarshals");
+    let resp: GetPageResponse = serde_json::from_str(&fixture("notion", "pages.get.response.json"))
+        .expect("notion.pages.get response unmarshals");
     assert_eq!(resp.id, "5f8b7e4a-0000-4000-8000-000000000001");
     assert!(resp.public_url.is_none(), "public_url must stay null");
 
@@ -563,7 +655,10 @@ fn fixtures_unmarshal() {
     assert_eq!(resp.results.len(), 2);
     assert_eq!(resp.next_cursor.as_deref(), Some("synthetic-next-cursor"));
     assert!(resp.has_more);
-    assert!(resp.results[1].public_url.is_none(), "public_url must stay null");
+    assert!(
+        resp.results[1].public_url.is_none(),
+        "public_url must stay null"
+    );
 
     // sentry.issues.get — spot: short_id and the null share_id.
     let resp: SentryGetIssueResponse =

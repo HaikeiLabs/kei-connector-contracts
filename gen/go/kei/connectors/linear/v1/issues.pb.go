@@ -579,6 +579,122 @@ func (x *SearchIssuesResponse) GetPageInfo() *PageInfo {
 	return nil
 }
 
+// UpdateIssueRequest updates a Linear issue. Every write field is optional:
+// the mutation updates only what the caller sets.
+type UpdateIssueRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Title         *string                `protobuf:"bytes,2,opt,name=title,proto3,oneof" json:"title,omitempty"`
+	Description   *string                `protobuf:"bytes,3,opt,name=description,proto3,oneof" json:"description,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateIssueRequest) Reset() {
+	*x = UpdateIssueRequest{}
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateIssueRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateIssueRequest) ProtoMessage() {}
+
+func (x *UpdateIssueRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateIssueRequest.ProtoReflect.Descriptor instead.
+func (*UpdateIssueRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *UpdateIssueRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *UpdateIssueRequest) GetTitle() string {
+	if x != nil && x.Title != nil {
+		return *x.Title
+	}
+	return ""
+}
+
+func (x *UpdateIssueRequest) GetDescription() string {
+	if x != nil && x.Description != nil {
+		return *x.Description
+	}
+	return ""
+}
+
+// UpdateIssueResponse mirrors Linear's IssuePayload: success plus the updated
+// issue.
+type UpdateIssueResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Issue         *Issue                 `protobuf:"bytes,2,opt,name=issue,proto3" json:"issue,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateIssueResponse) Reset() {
+	*x = UpdateIssueResponse{}
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateIssueResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateIssueResponse) ProtoMessage() {}
+
+func (x *UpdateIssueResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_linear_v1_issues_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateIssueResponse.ProtoReflect.Descriptor instead.
+func (*UpdateIssueResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_linear_v1_issues_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *UpdateIssueResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *UpdateIssueResponse) GetIssue() *Issue {
+	if x != nil {
+		return x.Issue
+	}
+	return nil
+}
+
 var File_kei_connectors_linear_v1_issues_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_linear_v1_issues_proto_rawDesc = "" +
@@ -649,7 +765,24 @@ const file_kei_connectors_linear_v1_issues_proto_rawDesc = "" +
 	"\v_end_cursor\"\x8e\x01\n" +
 	"\x14SearchIssuesResponse\x125\n" +
 	"\x05nodes\x18\x01 \x03(\v2\x1f.kei.connectors.linear.v1.IssueR\x05nodes\x12?\n" +
-	"\tpage_info\x18\x02 \x01(\v2\".kei.connectors.linear.v1.PageInfoR\bpageInfoBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/linear/v1;linearb\x06proto3"
+	"\tpage_info\x18\x02 \x01(\v2\".kei.connectors.linear.v1.PageInfoR\bpageInfo\"\x95\x04\n" +
+	"\x12UpdateIssueRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
+	"\x05title\x18\x02 \x01(\tH\x00R\x05title\x88\x01\x01\x12%\n" +
+	"\vdescription\x18\x03 \x01(\tH\x01R\vdescription\x88\x01\x01:\x92\x03\x92\x82\x19\x8d\x03\n" +
+	"\x14linear.issues.update\x12\x06linear\x18\x02*\x04POST2\b/graphql:\fissues:write@\x01J\vUpdateIssueR\n" +
+	"user_oauthR\aapi_keyZ\vissues/{id}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01z\xef\x01mutation UpdateIssue($id: String!, $title: String, $description: String) {\n" +
+	"  issueUpdate(id: $id, input: {title: $title, description: $description}) {\n" +
+	"    success\n" +
+	"    issue { id identifier title description url createdAt updatedAt }\n" +
+	"  }\n" +
+	"}\n" +
+	"\x8a\x01\v\b\x03\x12\x05issue\x18\x01B\b\n" +
+	"\x06_titleB\x0e\n" +
+	"\f_description\"f\n" +
+	"\x13UpdateIssueResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x125\n" +
+	"\x05issue\x18\x02 \x01(\v2\x1f.kei.connectors.linear.v1.IssueR\x05issueBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/linear/v1;linearb\x06proto3"
 
 var (
 	file_kei_connectors_linear_v1_issues_proto_rawDescOnce sync.Once
@@ -663,7 +796,7 @@ func file_kei_connectors_linear_v1_issues_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_linear_v1_issues_proto_rawDescData
 }
 
-var file_kei_connectors_linear_v1_issues_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_kei_connectors_linear_v1_issues_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_kei_connectors_linear_v1_issues_proto_goTypes = []any{
 	(*Label)(nil),                // 0: kei.connectors.linear.v1.Label
 	(*Issue)(nil),                // 1: kei.connectors.linear.v1.Issue
@@ -674,6 +807,8 @@ var file_kei_connectors_linear_v1_issues_proto_goTypes = []any{
 	(*SearchIssuesRequest)(nil),  // 6: kei.connectors.linear.v1.SearchIssuesRequest
 	(*PageInfo)(nil),             // 7: kei.connectors.linear.v1.PageInfo
 	(*SearchIssuesResponse)(nil), // 8: kei.connectors.linear.v1.SearchIssuesResponse
+	(*UpdateIssueRequest)(nil),   // 9: kei.connectors.linear.v1.UpdateIssueRequest
+	(*UpdateIssueResponse)(nil),  // 10: kei.connectors.linear.v1.UpdateIssueResponse
 }
 var file_kei_connectors_linear_v1_issues_proto_depIdxs = []int32{
 	0, // 0: kei.connectors.linear.v1.Issue.labels:type_name -> kei.connectors.linear.v1.Label
@@ -681,11 +816,12 @@ var file_kei_connectors_linear_v1_issues_proto_depIdxs = []int32{
 	1, // 2: kei.connectors.linear.v1.CreateIssueResponse.issue:type_name -> kei.connectors.linear.v1.Issue
 	1, // 3: kei.connectors.linear.v1.SearchIssuesResponse.nodes:type_name -> kei.connectors.linear.v1.Issue
 	7, // 4: kei.connectors.linear.v1.SearchIssuesResponse.page_info:type_name -> kei.connectors.linear.v1.PageInfo
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	1, // 5: kei.connectors.linear.v1.UpdateIssueResponse.issue:type_name -> kei.connectors.linear.v1.Issue
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_linear_v1_issues_proto_init() }
@@ -697,13 +833,14 @@ func file_kei_connectors_linear_v1_issues_proto_init() {
 	file_kei_connectors_linear_v1_issues_proto_msgTypes[4].OneofWrappers = []any{}
 	file_kei_connectors_linear_v1_issues_proto_msgTypes[6].OneofWrappers = []any{}
 	file_kei_connectors_linear_v1_issues_proto_msgTypes[7].OneofWrappers = []any{}
+	file_kei_connectors_linear_v1_issues_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_linear_v1_issues_proto_rawDesc), len(file_kei_connectors_linear_v1_issues_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   9,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
