@@ -140,7 +140,7 @@ func statusReasonCode(status string) string {
 }
 
 // SubjectSnapshotFresh reports whether the bundle subject snapshot is usable.
-// HAI-452: the snapshot is trusted for the session lifetime — no
+// The snapshot is trusted for the session lifetime — no
 // max_cache_seconds window is enforced. Returns true when the bundle
 // itself has been issued (IssuedAt ≤ now, allowing MaxIssuedAtClockSkew so a
 // bundle Validate accepted is usable at once).

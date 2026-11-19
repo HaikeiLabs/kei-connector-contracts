@@ -1,4 +1,4 @@
-# kei-connector-contracts local test environment (HAI-998).
+# kei-connector-contracts local test environment.
 #
 # LOCAL DEVELOPMENT ONLY. Every password in this file is intentionally weak
 # ("testenv") and must never be reused outside this compose file.

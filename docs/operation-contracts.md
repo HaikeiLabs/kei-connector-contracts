@@ -93,7 +93,7 @@ same rule the frozen Go contract follows
 Fixtures are synthetic or sanitized only. Never check in real customer data,
 and never a credential value — an API key, token, password, or connection
 string is not a fixture. Fixtures exist so generated types can be proven to
-unmarshal real provider shapes; the HAI-990 gate is 10 pilot operations whose
+unmarshal real provider shapes; the conformance gate is 10 pilot operations whose
 fixtures unmarshal in Go, Python and Rust.
 
 ## Scope

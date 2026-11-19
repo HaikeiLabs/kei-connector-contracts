@@ -1,4 +1,4 @@
-# testenv — local database test environment (HAI-998)
+# testenv — local database test environment
 
 A [podman compose](https://podman.io/docs) stack for exercising the
 connector contracts against real databases. It runs locally with podman and

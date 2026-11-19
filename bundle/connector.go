@@ -25,7 +25,7 @@ import (
 
 // Connector is a policy_set.connectors entry: a workspace connector the bundle
 // knows, with its provider and declared capabilities. In a v2 bundle the entry
-// is also the connector's non-secret descriptor (ADR-034, HAI-378 amendment):
+// is also the connector's non-secret descriptor (ADR-034 amendment):
 // where its credential lives and its non-secret config, never a credential.
 // v1 entries carry only id, provider and capabilities.
 type Connector struct {
@@ -44,7 +44,7 @@ type Connector struct {
 	Config            map[string]any          `json:"config,omitempty"`
 	HTTPAPI           *contract.HTTPAPI       `json:"http_api,omitempty"`
 	Grafana           *contract.GrafanaConfig `json:"grafana,omitempty"`
-	// ADR-036 §4.3 descriptor fields (catalog HAI-570). Optional in the closed
+	// ADR-036 §4.3 descriptor fields. Optional in the closed
 	// schema until every runtime accepts them; mcp requires slug and mcp.
 	Kind string         `json:"kind,omitempty"`
 	Slug string         `json:"slug,omitempty"`

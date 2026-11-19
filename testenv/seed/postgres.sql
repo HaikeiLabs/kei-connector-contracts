@@ -1,4 +1,4 @@
--- LOCAL-ONLY synthetic seed for the kei-connector-contracts testenv (HAI-998).
+-- LOCAL-ONLY synthetic seed for the kei-connector-contracts testenv.
 -- Loaded automatically by the postgres image into database "testenv" on first start.
 -- Same schema in all four dialects: accounts, issues (FK -> accounts).
 -- Includes NULLs, unicode text, and one id above 2^53 (9007199254740993).

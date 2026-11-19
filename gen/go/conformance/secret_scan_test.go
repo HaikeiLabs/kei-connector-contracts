@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Secret-safety conformance (HAI-1001, plan task 1.4).
+// Secret-safety conformance.
 //
 // The contract repository is public and metadata only: no credential value
 // may ever be checked in. TestNoCredentialMaterialInContracts walks proto/,

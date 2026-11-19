@@ -21,7 +21,7 @@ import (
 	"github.com/HaikeiLabs/kei-connector-contracts/contract"
 )
 
-// HAI-493: a postgres connector (Supabase included) takes one secret, the DSN
+// A postgres connector (Supabase included) takes one secret, the DSN
 // of a read-only role, sealed to the credential location. It has no
 // non-secret config and no OAuth.
 func TestPostgresSetupIsOneSecretDSN(t *testing.T) {

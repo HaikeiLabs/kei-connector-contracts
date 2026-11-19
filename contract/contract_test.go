@@ -115,7 +115,7 @@ func TestHTTPAPIContractRejectsDisallowedInvocation(t *testing.T) {
 	}
 }
 
-// HAI-202: Gmail is read-only. The catalog defines no write capability, so a
+// Gmail is read-only. The catalog defines no write capability, so a
 // connector that declares one (send, modify, trash, draft) fails validation.
 func TestGmailContractIsReadOnly(t *testing.T) {
 	m := frozenMetadata(ProviderGmail, CapabilitiesFor(ProviderGmail))
@@ -141,7 +141,7 @@ func TestGmailContractIsReadOnly(t *testing.T) {
 	}
 }
 
-// HAI-203: Tito is read-only and authenticates with an API token that only
+// Tito is read-only and authenticates with an API token that only
 // an opaque credential reference may point at.
 func TestTitoContractIsReadOnlyWithOpaqueCredential(t *testing.T) {
 	m := frozenMetadata(ProviderTito, CapabilitiesFor(ProviderTito))

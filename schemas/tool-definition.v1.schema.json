@@ -127,7 +127,7 @@
           "uniqueItems": true
         },
         "transport": {
-          "description": "Optional non-secret transport metadata so the harness can build the provider call itself (ADR-039, HAI-723). Kei never calls providers; no secret values are permitted here.",
+          "description": "Optional non-secret transport metadata so the harness can build the provider call itself (ADR-039). Kei never calls providers; no secret values are permitted here.",
           "type": "object",
           "additionalProperties": false,
           "properties": {

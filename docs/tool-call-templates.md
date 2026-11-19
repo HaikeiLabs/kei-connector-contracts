@@ -1,7 +1,7 @@
-# Tool call templates (HAI-856)
+# Tool call templates
 
 Decision record, 2026-10-24 (owner approved). Builds on ADR-039 (connectors as
-data, HAI-719) and the `binding.transport` fields from HAI-723.
+data) and the `binding.transport` fields.
 
 ## Decision
 
@@ -57,7 +57,7 @@ transport fields: the GitHub contents API takes file content base64 encoded.
 | --- | --- | --- | --- |
 | `linear.create_issue` | `schemas/linear.tool-definition.v1.json` | `linear.write` | GraphQL `POST` |
 | `github.create_fix_pr` | `schemas/github.tool-definition.v1.json` | `github.write` | closed schema: `title`, `body`, `unified_diff` (max 32 KiB); no transport (kei-agents#45) |
-| `github.file_write` | `schemas/github.tool-definition.v1.json` | `file.write` | `PUT` contents API; governed file_write (HAI-855) |
+| `github.file_write` | `schemas/github.tool-definition.v1.json` | `file.write` | `PUT` contents API; governed file_write |
 
 `conformance/tool_call_templates_test.go` pins their schemas and permissions
 against the hand-written definitions they replace (kei-agents `GITHUB_FIX_ACTION_TOOL`,

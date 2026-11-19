@@ -16,7 +16,7 @@ package bundle
 
 import "time"
 
-// Model-call reason codes under a v2 bundle (ADR-035 §6, HAI-459).
+// Model-call reason codes under a v2 bundle (ADR-035 §6).
 const (
 	ReasonModelAssigned        = "model_assigned"
 	ReasonModelNotAssigned     = "model_not_assigned"

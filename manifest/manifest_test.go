@@ -24,7 +24,7 @@ import (
 	"testing"
 )
 
-// goldenTools is the HAI-484 golden vector (ADR-036 section 5.2).
+// goldenTools is the golden vector (ADR-036 section 5.2).
 var goldenTools = []json.RawMessage{
 	[]byte(`{"name": "search_dashboards", "title": "Search", "description": "Search dashboards by title",
 		"inputSchema": {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]},

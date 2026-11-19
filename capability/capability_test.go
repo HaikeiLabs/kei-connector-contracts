@@ -38,7 +38,7 @@ func TestLookupCapability(t *testing.T) {
 	}
 }
 
-// TestCRMIsNotAProvider (HAI-384): there is no dedicated crm provider; a CRM
+// TestCRMIsNotAProvider: there is no dedicated crm provider; a CRM
 // API is an http_api connector the admin names.
 func TestCRMIsNotAProvider(t *testing.T) {
 	if contract.ValidProvider("crm") {

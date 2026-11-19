@@ -28,7 +28,7 @@ import (
 
 type Provider string
 
-// There is no dedicated CRM provider (HAI-384): a CRM API is an http_api
+// There is no dedicated CRM provider: a CRM API is an http_api
 // connector the admin names.
 const (
 	ProviderLinear  Provider = "linear"
@@ -104,7 +104,7 @@ const (
 // each provider. They are the executable check (ValidateExecutable), which the
 // runtime runs before executing a call; the control plane does not consult
 // them. It authorizes any well-formed capability a connector declares and
-// leaves access to ABAC policy (HAI-258).
+// leaves access to ABAC policy.
 var definitions = map[Provider][]Capability{
 	ProviderLinear: {{Name: "team.read", Action: ActionRead}, {Name: "project.read", Action: ActionRead}, {Name: "cycle.read", Action: ActionRead}, {Name: "issue.read", Action: ActionRead}, {Name: "issue.create", Action: ActionCreate}, {Name: "issue.update", Action: ActionUpdate}, {Name: "comment.create", Action: ActionCreate}},
 	ProviderGitHub: {{Name: "repository.read", Action: ActionRead}, {Name: "issue.read", Action: ActionRead}, {Name: "pull_request.read", Action: ActionRead}, {Name: "check.read", Action: ActionRead}, {Name: "workflow.read", Action: ActionRead}, {Name: "issue.create", Action: ActionCreate}, {Name: "issue.update", Action: ActionUpdate}, {Name: "pull_request.create", Action: ActionCreate}, {Name: "pull_request.update", Action: ActionUpdate}, {Name: "issue.comment", Action: ActionComment}},
@@ -388,10 +388,10 @@ func ValidateCall(m Metadata, in Invocation) error {
 // AuthorizeCall is the control plane's check before it allows a call. It is
 // ValidateCall without the executable check: any well-formed capability the
 // connector declares can be authorized, and ABAC policy decides access
-// (HAI-258). The tenant runtime keeps an http_api request local (ADR-011), so
+// The tenant runtime keeps an http_api request local (ADR-011), so
 // an invocation without one is authorized on the method its capability names
 // (http.get -> GET) and its resource, which is the request path, against the
-// connector's configured methods and path patterns (HAI-256). A POST or PATCH
+// connector's configured methods and path patterns. A POST or PATCH
 // body is not needed to authorize. The runtime re-checks the full request,
 // body included, with ValidateCall before executing.
 func AuthorizeCall(m Metadata, in Invocation) error {

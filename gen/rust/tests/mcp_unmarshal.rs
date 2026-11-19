@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//! MCP contract conformance (HAI-1001, task 2.3): the tool.call fixtures
+//! MCP contract conformance: the tool.call fixtures
 //! unmarshal into the generated prost types (serde impls from prost-serde
 //! with ignore_unknown_fields, so the unknown extra fields each fixture
 //! carries are skipped). Spot asserts prove fields and JSON nulls survive

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""MCP contract conformance (HAI-1001, task 2.3): the tool.call fixtures
+"""MCP contract conformance: the tool.call fixtures
 unmarshal into the generated python types.
 
 Lenient parse (ignore_unknown_fields=True) proves the happy path, JSON nulls

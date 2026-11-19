@@ -3,7 +3,7 @@
 Which auth method each connector uses, where its credential is placed, whose
 account it acts as, and whether it is available or planned. This document is
 metadata: it names methods and placements, never values
-([CONTRIBUTING.md](../CONTRIBUTING.md)). Tracking: HAI-991.
+([CONTRIBUTING.md](../CONTRIBUTING.md)).
 
 ## Auth methods
 
@@ -13,7 +13,7 @@ metadata: it names methods and placements, never values
 | `oauth` | OAuth, in two tiers: tier 1 is a hard-coded SSO app (one Haikei-held registration); tier 2 is a per-org registration the customer brings | available |
 | `secret_ref` | An `opaque_ref` pointer into the install's configured secret store; sealed delivery | available |
 | `kei_token_exchange` | A short-lived token minted by exchanging the session identity | planned; runtime `docs/oidc-token-exchange.md` |
-| `service_principal_key` | A service principal key held in the install's configured secret store; the key-pair JWT is minted harness-side | planned; runtime HAI-993 |
+| `service_principal_key` | A service principal key held in the install's configured secret store; the key-pair JWT is minted harness-side | planned |
 | `saml` | Identity sign-in only; never a connector credential | planned |
 
 Credential placement follows the method. An `oauth`, `sso_reuse` or

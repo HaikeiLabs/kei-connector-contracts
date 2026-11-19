@@ -16,7 +16,7 @@ package contract
 
 import "testing"
 
-// HAI-493: postgres (Supabase included) is a read-only shared-secret
+// Postgres (Supabase included) is a read-only shared-secret
 // provider. Its one capability, query.run, is database.query.run (class
 // READ); the DSN for a read-only role sits behind an opaque_ref.
 func TestPostgresIsReadOnlyWithOpaqueCredential(t *testing.T) {
