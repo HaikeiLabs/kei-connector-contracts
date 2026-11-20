@@ -1,0 +1,215 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Google Calendar connector contract: event reads and writes.
+syntax = "proto3";
+
+package kei.connectors.google_calendar.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/google_calendar/v1;google_calendar";
+
+// EventTime models the start or end of an event: a timed value (date_time,
+// RFC 3339, with an optional time_zone) or an all-day value (date, a
+// calendar date). The provider sets exactly one of the two.
+message EventTime {
+  optional string date_time = 1;
+  optional string date = 2;
+  optional string time_zone = 3;
+}
+
+// Event models the subset of a calendar event the contract needs. status is
+// "confirmed", "tentative", or "cancelled".
+message Event {
+  string id = 1;
+  string summary = 2;
+  optional string description = 3;
+  optional string location = 4;
+  EventTime start = 5;
+  EventTime end = 6;
+  optional string status = 7;
+}
+
+// ListEventsRequest lists the events of one calendar. time_min and time_max
+// are RFC 3339 bounds; q is a free-text search; page_token pages through the
+// result.
+message ListEventsRequest {
+  string calendar_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional string time_min = 2;
+  optional string time_max = 3;
+  optional string q = 4;
+  optional int32 max_results = 5;
+  optional string page_token = 6;
+
+  option (kei.contracts.v1.operation) = {
+    id: "google_calendar.events.list"
+    connector: "google_calendar"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/calendar/v3/calendars/{calendar_id}/events"
+    scopes: ["https://www.googleapis.com/auth/calendar.readonly"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListEvents"
+    connections: ["user_oauth"]
+    resource_template: "calendars/{calendar_id}"
+    cursor_field: "page_token"
+    next_cursor_field: "next_page_token"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "event" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// ListEventsResponse wraps the event entries of a list response. The items
+// key matches the provider shape. It is filled by JSON unmarshal of the
+// provider response.
+message ListEventsResponse {
+  repeated Event items = 1;
+  optional string next_page_token = 2;
+}
+
+// GetEventRequest reads a single event of one calendar.
+message GetEventRequest {
+  string calendar_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string event_id = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "google_calendar.events.get"
+    connector: "google_calendar"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/calendar/v3/calendars/{calendar_id}/events/{event_id}"
+    scopes: ["https://www.googleapis.com/auth/calendar.readonly"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetEvent"
+    connections: ["user_oauth"]
+    resource_template: "calendars/{calendar_id}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "event" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// GetEventResponse models the same event subset the list carries. It is
+// filled by JSON unmarshal of the provider response.
+message GetEventResponse {
+  string id = 1;
+  string summary = 2;
+  optional string description = 3;
+  optional string location = 4;
+  EventTime start = 5;
+  EventTime end = 6;
+  optional string status = 7;
+}
+
+// CreateEventRequest creates an event in one calendar. This creates a new
+// event only; it never overwrites or deletes an existing one.
+message CreateEventRequest {
+  string calendar_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string summary = 2;
+  optional string description = 3;
+  optional string location = 4;
+  EventTime start = 5;
+  EventTime end = 6;
+
+  option (kei.contracts.v1.operation) = {
+    id: "google_calendar.events.create"
+    connector: "google_calendar"
+    class: OPERATION_CLASS_WRITE
+    destructive: false
+    http_method: "POST"
+    path_template: "/calendar/v3/calendars/{calendar_id}/events"
+    scopes: ["https://www.googleapis.com/auth/calendar.events"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "CreateEvent"
+    connections: ["user_oauth"]
+    resource_template: "calendars/{calendar_id}"
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "event" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// CreateEventResponse models the created event. It is filled by JSON
+// unmarshal of the provider response.
+message CreateEventResponse {
+  string id = 1;
+  string summary = 2;
+  optional string description = 3;
+  optional string location = 4;
+  EventTime start = 5;
+  EventTime end = 6;
+  optional string status = 7;
+}
+
+// UpdateEventRequest updates one event of one calendar. The provider applies
+// the patch field by field and leaves unset fields unchanged, so this is not
+// an overwrite and the operation is not destructive.
+message UpdateEventRequest {
+  string calendar_id = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string event_id = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional string summary = 3;
+  optional string description = 4;
+  optional string location = 5;
+  optional EventTime start = 6;
+  optional EventTime end = 7;
+
+  option (kei.contracts.v1.operation) = {
+    id: "google_calendar.events.update"
+    connector: "google_calendar"
+    class: OPERATION_CLASS_WRITE
+    destructive: false
+    http_method: "PATCH"
+    path_template: "/calendar/v3/calendars/{calendar_id}/events/{event_id}"
+    scopes: ["https://www.googleapis.com/auth/calendar.events"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "UpdateEvent"
+    connections: ["user_oauth"]
+    resource_template: "calendars/{calendar_id}"
+    semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "event" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// UpdateEventResponse models the updated event. It is filled by JSON
+// unmarshal of the provider response.
+message UpdateEventResponse {
+  string id = 1;
+  string summary = 2;
+  optional string description = 3;
+  optional string location = 4;
+  EventTime start = 5;
+  EventTime end = 6;
+  optional string status = 7;
+}

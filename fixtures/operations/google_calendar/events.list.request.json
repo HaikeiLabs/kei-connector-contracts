@@ -1,0 +1,8 @@
+{
+  "calendar_id": "synthetic-user@gmail.com",
+  "time_min": "2026-01-01T00:00:00Z",
+  "time_max": "2026-01-31T23:59:59Z",
+  "q": "synthetic",
+  "max_results": 10,
+  "page_token": "synthetic-page-token"
+}

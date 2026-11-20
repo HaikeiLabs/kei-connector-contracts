@@ -1,0 +1,12 @@
+{
+  "kind": "calendar#event",
+  "etag": "\"synthetic-etag-3\"",
+  "id": "evt-synthetic-2",
+  "status": "confirmed",
+  "summary": "Synthetic updated event",
+  "description": "Synthetic updated description",
+  "location": null,
+  "start": {"dateTime": "2026-01-20T15:00:00+01:00", "timeZone": "Europe/Berlin"},
+  "end": {"dateTime": "2026-01-20T16:00:00+01:00", "timeZone": "Europe/Berlin"},
+  "sequence": 2
+}

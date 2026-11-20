@@ -39,6 +39,7 @@ from kei.connectors.github.v1 import (
     repos_pb2,
 )
 from kei.connectors.gmail.v1 import messages_pb2
+from kei.connectors.google_calendar.v1 import calendars_pb2, events_pb2
 from kei.connectors.google_sheets.v1 import spreadsheets_pb2
 from kei.connectors.http_api.v1 import records_pb2
 from kei.connectors.hubspot.v1 import contacts_pb2, deals_pb2
@@ -247,6 +248,37 @@ def _spot_google_sheets_values_update(response):
 def _spot_google_sheets_spreadsheets_get(response):
     assert response.spreadsheet_id == "synthetic-sheet-1"
     assert response.properties.title == "Synthetic sheet"
+
+
+def _spot_google_calendar_calendars_list(response):
+    assert len(response.items) == 2
+    assert response.items[0].primary is True
+    assert not response.items[1].HasField("description")
+    assert response.next_page_token == "synthetic-next-token"
+
+
+def _spot_google_calendar_events_list(response):
+    assert len(response.items) == 2
+    assert response.items[0].id == "9007199254740993"
+    assert response.items[0].start.date_time == "2026-01-15T10:30:00+01:00"
+    assert response.items[1].start.date == "2026-01-20"
+    assert not response.items[1].start.HasField("date_time")
+
+
+def _spot_google_calendar_events_get(response):
+    assert response.id == "9007199254740993"
+    assert not response.HasField("description")
+    assert response.location == "Synthetic Conference Room"
+
+
+def _spot_google_calendar_events_create(response):
+    assert response.id == "evt-synthetic-created-1"
+    assert response.start.date_time == "2026-02-10T14:00:00+01:00"
+
+
+def _spot_google_calendar_events_update(response):
+    assert response.summary == "Synthetic updated event"
+    assert not response.HasField("location")
 
 
 def _spot_atlassian_jira_issues_get(response):
@@ -588,6 +620,11 @@ OPS = [
     ("google_sheets.values.get", "google_sheets", spreadsheets_pb2.GetValuesRequest, spreadsheets_pb2.GetValuesResponse, _spot_google_sheets_values_get),
     ("google_sheets.values.update", "google_sheets", spreadsheets_pb2.UpdateValuesRequest, spreadsheets_pb2.UpdateValuesResponse, _spot_google_sheets_values_update),
     ("google_sheets.spreadsheets.get", "google_sheets", spreadsheets_pb2.GetSpreadsheetRequest, spreadsheets_pb2.GetSpreadsheetResponse, _spot_google_sheets_spreadsheets_get),
+    ("google_calendar.calendars.list", "google_calendar", calendars_pb2.ListCalendarsRequest, calendars_pb2.ListCalendarsResponse, _spot_google_calendar_calendars_list),
+    ("google_calendar.events.list", "google_calendar", events_pb2.ListEventsRequest, events_pb2.ListEventsResponse, _spot_google_calendar_events_list),
+    ("google_calendar.events.get", "google_calendar", events_pb2.GetEventRequest, events_pb2.GetEventResponse, _spot_google_calendar_events_get),
+    ("google_calendar.events.create", "google_calendar", events_pb2.CreateEventRequest, events_pb2.CreateEventResponse, _spot_google_calendar_events_create),
+    ("google_calendar.events.update", "google_calendar", events_pb2.UpdateEventRequest, events_pb2.UpdateEventResponse, _spot_google_calendar_events_update),
     ("atlassian.jira.issues.get", "atlassian", jira_pb2.GetJiraIssueRequest, jira_pb2.GetJiraIssueResponse, _spot_atlassian_jira_issues_get),
     ("atlassian.jira.issues.create", "atlassian", jira_pb2.CreateJiraIssueRequest, jira_pb2.CreateJiraIssueResponse, _spot_atlassian_jira_issues_create),
     ("atlassian.jira.issues.comments.create", "atlassian", jira_pb2.CreateJiraCommentRequest, jira_pb2.CreateJiraCommentResponse, _spot_atlassian_jira_comments_create),

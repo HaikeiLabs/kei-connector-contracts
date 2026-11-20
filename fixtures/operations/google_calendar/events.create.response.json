@@ -1,0 +1,13 @@
+{
+  "kind": "calendar#event",
+  "etag": "\"synthetic-etag-2\"",
+  "id": "evt-synthetic-created-1",
+  "status": "confirmed",
+  "summary": "Synthetic created event",
+  "description": "Created by the synthetic fixture suite",
+  "location": "Synthetic Conference Room",
+  "start": {"dateTime": "2026-02-10T14:00:00+01:00", "timeZone": "Europe/Berlin"},
+  "end": {"dateTime": "2026-02-10T15:00:00+01:00", "timeZone": "Europe/Berlin"},
+  "htmlLink": "https://calendar.google.com/calendar/event?eid=synthetic-created",
+  "created": "2026-02-01T12:00:00.000Z"
+}

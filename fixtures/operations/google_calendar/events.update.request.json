@@ -1,0 +1,8 @@
+{
+  "calendar_id": "synthetic-user@gmail.com",
+  "event_id": "evt-synthetic-2",
+  "summary": "Synthetic updated event",
+  "description": "Synthetic updated description",
+  "start": {"dateTime": "2026-01-20T15:00:00+01:00", "timeZone": "Europe/Berlin"},
+  "end": {"dateTime": "2026-01-20T16:00:00+01:00", "timeZone": "Europe/Berlin"}
+}

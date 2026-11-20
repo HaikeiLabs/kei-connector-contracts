@@ -998,6 +998,130 @@
       ]
     },
     {
+      "id": "google_calendar",
+      "base_url": "https://www.googleapis.com",
+      "connections": [
+        {
+          "name": "user_oauth",
+          "kind": "http_bearer",
+          "auth_method": "oauth",
+          "account_model": "per_user",
+          "scopes": [
+            "https://www.googleapis.com/auth/calendar.readonly",
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "setup_fields": []
+        }
+      ],
+      "capabilities": [
+        {
+          "id": "google_calendar.calendars.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/calendar.readonly"
+          ],
+          "connections": [
+            "user_oauth"
+          ],
+          "resource_template": "users/me/calendarList",
+          "semantics": {
+            "action": "read",
+            "resource_type": "calendar",
+            "version": 1
+          },
+          "request": "kei.connectors.google_calendar.v1.ListCalendarsRequest",
+          "response": "kei.connectors.google_calendar.v1.ListCalendarsResponse"
+        },
+        {
+          "id": "google_calendar.events.create",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "connections": [
+            "user_oauth"
+          ],
+          "resource_template": "calendars/{calendar_id}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "event",
+            "version": 1
+          },
+          "request": "kei.connectors.google_calendar.v1.CreateEventRequest",
+          "response": "kei.connectors.google_calendar.v1.CreateEventResponse"
+        },
+        {
+          "id": "google_calendar.events.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/calendar.readonly"
+          ],
+          "connections": [
+            "user_oauth"
+          ],
+          "resource_template": "calendars/{calendar_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "event",
+            "version": 1
+          },
+          "request": "kei.connectors.google_calendar.v1.GetEventRequest",
+          "response": "kei.connectors.google_calendar.v1.GetEventResponse"
+        },
+        {
+          "id": "google_calendar.events.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/calendar.readonly"
+          ],
+          "connections": [
+            "user_oauth"
+          ],
+          "resource_template": "calendars/{calendar_id}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "event",
+            "version": 1
+          },
+          "request": "kei.connectors.google_calendar.v1.ListEventsRequest",
+          "response": "kei.connectors.google_calendar.v1.ListEventsResponse"
+        },
+        {
+          "id": "google_calendar.events.update",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/calendar.events"
+          ],
+          "connections": [
+            "user_oauth"
+          ],
+          "resource_template": "calendars/{calendar_id}",
+          "semantics": {
+            "action": "update",
+            "resource_type": "event",
+            "version": 1
+          },
+          "request": "kei.connectors.google_calendar.v1.UpdateEventRequest",
+          "response": "kei.connectors.google_calendar.v1.UpdateEventResponse"
+        }
+      ]
+    },
+    {
       "id": "google_sheets",
       "base_url": "https://sheets.googleapis.com",
       "connections": [

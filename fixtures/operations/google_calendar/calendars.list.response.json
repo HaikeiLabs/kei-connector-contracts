@@ -1,0 +1,24 @@
+{
+  "kind": "calendar#calendarList",
+  "etag": "\"synthetic-etag\"",
+  "items": [
+    {
+      "kind": "calendar#calendarListEntry",
+      "id": "synthetic-user@gmail.com",
+      "summary": "Synthetic personal calendar",
+      "timeZone": "Europe/Berlin",
+      "primary": true,
+      "colorId": "1"
+    },
+    {
+      "kind": "calendar#calendarListEntry",
+      "id": "synthetic-shared@group.calendar.google.com",
+      "summary": "Synthetic team calendar",
+      "description": null,
+      "timeZone": "UTC",
+      "primary": false,
+      "backgroundColor": "#9a9cff"
+    }
+  ],
+  "nextPageToken": "synthetic-next-token"
+}
