@@ -39,6 +39,7 @@ import (
 	databasev1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1"
 	githubv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1"
 	gmailv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/gmail/v1"
+	googlecalendarv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/google_calendar/v1"
 	googlesheetsv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/google_sheets/v1"
 	httpapiv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/http_api/v1"
 	hubspotv1 "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/hubspot/v1"
@@ -1019,6 +1020,96 @@ var fixtureCases = []fixtureCase{
 			}
 			if got.GetProperties().GetTitle() != "Synthetic sheet" {
 				t.Errorf("properties.title = %q, want Synthetic sheet", got.GetProperties().GetTitle())
+			}
+		},
+	},
+	{
+		op:        "google_calendar.calendars.list",
+		connector: "google_calendar",
+		request:   func() proto.Message { return &googlecalendarv1.ListCalendarsRequest{} },
+		response:  func() proto.Message { return &googlecalendarv1.ListCalendarsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*googlecalendarv1.ListCalendarsResponse)
+			if len(got.GetItems()) != 2 {
+				t.Errorf("len(items) = %d, want 2", len(got.GetItems()))
+			}
+			if !got.GetItems()[0].GetPrimary() {
+				t.Error("items[0].primary = false, want true")
+			}
+			if got.GetItems()[1].Description != nil {
+				t.Error("items[1].description is set, want nil (provider null)")
+			}
+			if got.GetNextPageToken() != "synthetic-next-token" {
+				t.Errorf("next_page_token = %q, want synthetic-next-token", got.GetNextPageToken())
+			}
+		},
+	},
+	{
+		op:        "google_calendar.events.list",
+		connector: "google_calendar",
+		request:   func() proto.Message { return &googlecalendarv1.ListEventsRequest{} },
+		response:  func() proto.Message { return &googlecalendarv1.ListEventsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			events := resp.(*googlecalendarv1.ListEventsResponse)
+			if len(events.GetItems()) != 2 {
+				t.Errorf("len(items) = %d, want 2", len(events.GetItems()))
+			}
+			if got := events.GetItems()[0].GetId(); got != "9007199254740993" {
+				t.Errorf("items[0].id = %q, want the >2^53 provider id as a string", got)
+			}
+			if got := events.GetItems()[0].GetStart().GetDateTime(); got != "2026-01-15T10:30:00+01:00" {
+				t.Errorf("items[0].start.date_time = %q, want the synthetic start", got)
+			}
+			if got := events.GetItems()[1].GetStart().GetDate(); got != "2026-01-20" {
+				t.Errorf("items[1].start.date = %q, want the all-day date", got)
+			}
+		},
+	},
+	{
+		op:        "google_calendar.events.get",
+		connector: "google_calendar",
+		request:   func() proto.Message { return &googlecalendarv1.GetEventRequest{} },
+		response:  func() proto.Message { return &googlecalendarv1.GetEventResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			event := resp.(*googlecalendarv1.GetEventResponse)
+			if event.GetId() != "9007199254740993" {
+				t.Errorf("id = %q, want the >2^53 provider id as a string", event.GetId())
+			}
+			if event.Description != nil {
+				t.Error("description is set, want nil (provider null)")
+			}
+			if got := event.GetLocation(); got != "Synthetic Conference Room" {
+				t.Errorf("location = %q, want Synthetic Conference Room", got)
+			}
+		},
+	},
+	{
+		op:        "google_calendar.events.create",
+		connector: "google_calendar",
+		request:   func() proto.Message { return &googlecalendarv1.CreateEventRequest{} },
+		response:  func() proto.Message { return &googlecalendarv1.CreateEventResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			event := resp.(*googlecalendarv1.CreateEventResponse)
+			if event.GetId() != "evt-synthetic-created-1" {
+				t.Errorf("id = %q, want evt-synthetic-created-1", event.GetId())
+			}
+			if got := event.GetStart().GetDateTime(); got != "2026-02-10T14:00:00+01:00" {
+				t.Errorf("start.date_time = %q, want the synthetic start", got)
+			}
+		},
+	},
+	{
+		op:        "google_calendar.events.update",
+		connector: "google_calendar",
+		request:   func() proto.Message { return &googlecalendarv1.UpdateEventRequest{} },
+		response:  func() proto.Message { return &googlecalendarv1.UpdateEventResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			event := resp.(*googlecalendarv1.UpdateEventResponse)
+			if got := event.GetSummary(); got != "Synthetic updated event" {
+				t.Errorf("summary = %q, want Synthetic updated event", got)
+			}
+			if event.Location != nil {
+				t.Error("location is set, want nil (provider null)")
 			}
 		},
 	},

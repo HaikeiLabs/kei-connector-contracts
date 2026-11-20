@@ -24,6 +24,7 @@ import (
 	_ "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/database/v1"
 	_ "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1"
 	_ "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/gmail/v1"
+	_ "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/google_calendar/v1"
 	_ "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/google_sheets/v1"
 	_ "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/http_api/v1"
 	_ "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/hubspot/v1"

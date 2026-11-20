@@ -132,6 +132,19 @@ pub mod kei {
                 }
             }
         }
+        /// Google Calendar connector contract.
+        pub mod google_calendar {
+            /// Version 1.
+            pub mod v1 {
+                // The generated file includes the matching .serde.rs itself.
+                include!("gen/kei/connectors/google_calendar/v1/kei.connectors.google_calendar.v1.rs");
+                /// Generated Google Calendar connector operations, driven by the
+                /// hand-written connection runtime.
+                pub mod ops {
+                    include!("kei/connectors/google_calendar/v1/ops.rs");
+                }
+            }
+        }
         /// Google Sheets connector contract.
         pub mod google_sheets {
             /// Version 1.

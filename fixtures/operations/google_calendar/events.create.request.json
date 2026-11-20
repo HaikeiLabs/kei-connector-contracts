@@ -1,0 +1,8 @@
+{
+  "calendar_id": "synthetic-user@gmail.com",
+  "summary": "Synthetic created event",
+  "description": "Created by the synthetic fixture suite",
+  "location": "Synthetic Conference Room",
+  "start": {"dateTime": "2026-02-10T14:00:00+01:00", "timeZone": "Europe/Berlin"},
+  "end": {"dateTime": "2026-02-10T15:00:00+01:00", "timeZone": "Europe/Berlin"}
+}

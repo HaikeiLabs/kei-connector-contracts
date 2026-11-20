@@ -43,6 +43,10 @@ use haikeilabs_connector_contracts::kei::connectors::github::v1::{
 use haikeilabs_connector_contracts::kei::connectors::gmail::v1::{
     CreateDraftResponse, GetMessageResponse, ListMessagesResponse,
 };
+use haikeilabs_connector_contracts::kei::connectors::google_calendar::v1::{
+    CreateEventResponse, GetEventResponse, ListCalendarsResponse, ListEventsResponse,
+    UpdateEventResponse,
+};
 use haikeilabs_connector_contracts::kei::connectors::google_sheets::v1::{
     GetSpreadsheetResponse, GetValuesResponse, UpdateValuesResponse,
 };
@@ -400,6 +404,60 @@ fn fixtures_unmarshal() {
             .expect("google_sheets.values.update response unmarshals");
     assert_eq!(resp.updated_range, "Sheet1!A1:B2");
     assert_eq!(resp.updated_cells, Some(4));
+
+    // google_calendar.calendars.list — spot: two entries, the primary flag,
+    // the null description, and the next cursor.
+    let resp: ListCalendarsResponse =
+        serde_json::from_str(&fixture("google_calendar", "calendars.list.response.json"))
+            .expect("google_calendar.calendars.list response unmarshals");
+    assert_eq!(resp.items.len(), 2);
+    assert!(resp.items[0].primary);
+    assert!(resp.items[1].description.is_none(), "description must be null");
+    assert_eq!(
+        resp.next_page_token.as_deref(),
+        Some("synthetic-next-token")
+    );
+
+    // google_calendar.events.list — spot: the >2^53 event id as a string,
+    // the timed start, and the all-day start.
+    let resp: ListEventsResponse =
+        serde_json::from_str(&fixture("google_calendar", "events.list.response.json"))
+            .expect("google_calendar.events.list response unmarshals");
+    assert_eq!(resp.items.len(), 2);
+    assert_eq!(resp.items[0].id, "9007199254740993");
+    let start = resp.items[0].start.as_ref().expect("start present");
+    assert_eq!(
+        start.date_time.as_deref(),
+        Some("2026-01-15T10:30:00+01:00")
+    );
+    let allday = resp.items[1].start.as_ref().expect("start present");
+    assert_eq!(allday.date.as_deref(), Some("2026-01-20"));
+    assert!(allday.date_time.is_none());
+
+    // google_calendar.events.get — spot: the event id, the null description,
+    // and the location.
+    let resp: GetEventResponse =
+        serde_json::from_str(&fixture("google_calendar", "events.get.response.json"))
+            .expect("google_calendar.events.get response unmarshals");
+    assert_eq!(resp.id, "9007199254740993");
+    assert!(resp.description.is_none(), "description must be null");
+    assert_eq!(resp.location.as_deref(), Some("Synthetic Conference Room"));
+
+    // google_calendar.events.create — spot: the created event id and start.
+    let resp: CreateEventResponse =
+        serde_json::from_str(&fixture("google_calendar", "events.create.response.json"))
+            .expect("google_calendar.events.create response unmarshals");
+    assert_eq!(resp.id, "evt-synthetic-created-1");
+    let start = resp.start.as_ref().expect("start present");
+    assert_eq!(start.date_time.as_deref(), Some("2026-02-10T14:00:00+01:00"));
+
+    // google_calendar.events.update — spot: the updated summary and the null
+    // location.
+    let resp: UpdateEventResponse =
+        serde_json::from_str(&fixture("google_calendar", "events.update.response.json"))
+            .expect("google_calendar.events.update response unmarshals");
+    assert_eq!(resp.summary, "Synthetic updated event");
+    assert!(resp.location.is_none(), "location must be null");
 
     // atlassian.jira.issues.get — spot: issue key, the summary, and the null
     // description.

@@ -3,6 +3,8 @@ import { fromJson, type DescMessage, type JsonValue } from "@bufbuild/protobuf";
 import { describe, expect, it } from "vitest";
 import { isInteger, parse } from "lossless-json";
 import * as gmailMessages from "../src/kei/connectors/gmail/v1/messages_pb.js";
+import * as gcCalendars from "../src/kei/connectors/google_calendar/v1/calendars_pb.js";
+import * as gcEvents from "../src/kei/connectors/google_calendar/v1/events_pb.js";
 import * as googleSheets from "../src/kei/connectors/google_sheets/v1/spreadsheets_pb.js";
 import * as atlassianJira from "../src/kei/connectors/atlassian/v1/jira_pb.js";
 import * as atlassianConfluence from "../src/kei/connectors/atlassian/v1/confluence_pb.js";
@@ -57,6 +59,11 @@ const ops = [
   ["google_sheets.values.get", googleSheets.GetValuesRequestSchema, googleSheets.GetValuesResponseSchema, (r: any) => { expect(r.range).toBe("Sheet1!A1:B2"); expect(r.values).toHaveLength(2); expect(r.values[0].values[1].kind.case).toBe("nullValue"); }],
   ["google_sheets.spreadsheets.get", googleSheets.GetSpreadsheetRequestSchema, googleSheets.GetSpreadsheetResponseSchema, (r: any) => { expect(r.spreadsheetId).toBe("synthetic-sheet-1"); expect(r.properties.title).toBe("Synthetic sheet"); }],
   ["google_sheets.values.update", googleSheets.UpdateValuesRequestSchema, googleSheets.UpdateValuesResponseSchema, (r: any) => { expect(r.updatedRange).toBe("Sheet1!A1:B2"); expect(r.updatedCells).toBe(4); }],
+  ["google_calendar.calendars.list", gcCalendars.ListCalendarsRequestSchema, gcCalendars.ListCalendarsResponseSchema, (r: any) => { expect(r.items).toHaveLength(2); expect(r.items[0].primary).toBe(true); expect(r.items[1].description).toBeUndefined(); expect(r.nextPageToken).toBe("synthetic-next-token"); }],
+  ["google_calendar.events.list", gcEvents.ListEventsRequestSchema, gcEvents.ListEventsResponseSchema, (r: any) => { expect(r.items).toHaveLength(2); expect(r.items[0].id).toBe("9007199254740993"); expect(r.items[0].start.dateTime).toBe("2026-01-15T10:30:00+01:00"); expect(r.items[1].start.date).toBe("2026-01-20"); expect(r.items[1].start.dateTime).toBeUndefined(); }],
+  ["google_calendar.events.get", gcEvents.GetEventRequestSchema, gcEvents.GetEventResponseSchema, (r: any) => { expect(r.id).toBe("9007199254740993"); expect(r.description).toBeUndefined(); expect(r.location).toBe("Synthetic Conference Room"); }],
+  ["google_calendar.events.create", gcEvents.CreateEventRequestSchema, gcEvents.CreateEventResponseSchema, (r: any) => { expect(r.id).toBe("evt-synthetic-created-1"); expect(r.start.dateTime).toBe("2026-02-10T14:00:00+01:00"); }],
+  ["google_calendar.events.update", gcEvents.UpdateEventRequestSchema, gcEvents.UpdateEventResponseSchema, (r: any) => { expect(r.summary).toBe("Synthetic updated event"); expect(r.location).toBeUndefined(); }],
   ["atlassian.jira.issues.get", atlassianJira.GetJiraIssueRequestSchema, atlassianJira.GetJiraIssueResponseSchema, (r: any) => { expect(r.key).toBe("SYN-101"); expect(r.fields.summary).toBe("Synthetic Jira issue"); expect(r.fields.description).toBeUndefined(); }],
   ["atlassian.jira.issues.create", atlassianJira.CreateJiraIssueRequestSchema, atlassianJira.CreateJiraIssueResponseSchema, (r: any) => { expect(r.id).toBe("30001"); expect(r.key).toBe("SYN-301"); }],
   ["atlassian.jira.issues.comments.create", atlassianJira.CreateJiraCommentRequestSchema, atlassianJira.CreateJiraCommentResponseSchema, (r: any) => { expect(r.id).toBe("40001"); expect(r.body["type"]).toBe("doc"); expect(r.created).toBe("2026-02-11T12:00:00.000Z"); }],

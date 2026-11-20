@@ -1,0 +1,69 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Google Calendar connector contract: calendar-list reads.
+syntax = "proto3";
+
+package kei.connectors.google_calendar.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/google_calendar/v1;google_calendar";
+
+// ListCalendarsRequest lists the calendars on the connected user's calendar
+// list. The contract models only the page size and the page token of the
+// query parameters; the connected user is implicit (the API's "me").
+message ListCalendarsRequest {
+  optional int32 max_results = 1;
+  optional string page_token = 2;
+
+  option (kei.contracts.v1.operation) = {
+    id: "google_calendar.calendars.list"
+    connector: "google_calendar"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/calendar/v3/users/me/calendarList"
+    scopes: ["https://www.googleapis.com/auth/calendar.readonly"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListCalendars"
+    connections: ["user_oauth"]
+    resource_template: "users/me/calendarList"
+    cursor_field: "page_token"
+    next_cursor_field: "next_page_token"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "calendar" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// CalendarListEntry models the subset of each calendar-list entry the
+// contract needs. description is null for calendars without one.
+message CalendarListEntry {
+  string id = 1;
+  string summary = 2;
+  optional string description = 3;
+  optional string time_zone = 4;
+  bool primary = 5;
+}
+
+// ListCalendarsResponse wraps the calendar entries of a list response. The
+// items key matches the provider shape. It is filled by JSON unmarshal of
+// the provider response.
+message ListCalendarsResponse {
+  repeated CalendarListEntry items = 1;
+  optional string next_page_token = 2;
+}

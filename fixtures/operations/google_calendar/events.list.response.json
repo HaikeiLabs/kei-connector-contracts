@@ -1,0 +1,27 @@
+{
+  "kind": "calendar#events",
+  "etag": "\"synthetic-etag\"",
+  "items": [
+    {
+      "kind": "calendar#event",
+      "id": "9007199254740993",
+      "status": "confirmed",
+      "summary": "Synthetic first event",
+      "start": {"dateTime": "2026-01-15T10:30:00+01:00", "timeZone": "Europe/Berlin"},
+      "end": {"dateTime": "2026-01-15T11:30:00+01:00", "timeZone": "Europe/Berlin"},
+      "htmlLink": "https://calendar.google.com/calendar/event?eid=synthetic-first",
+      "iCalUID": "synthetic-first-event@google.com"
+    },
+    {
+      "kind": "calendar#event",
+      "id": "evt-synthetic-2",
+      "status": "confirmed",
+      "summary": "Synthetic all-day event",
+      "description": null,
+      "start": {"date": "2026-01-20"},
+      "end": {"date": "2026-01-21"},
+      "creator": {"email": "synthetic-user@gmail.com"}
+    }
+  ],
+  "nextPageToken": "synthetic-next-token"
+}

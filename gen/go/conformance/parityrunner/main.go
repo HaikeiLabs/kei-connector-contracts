@@ -36,6 +36,7 @@ import (
 	"github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/atlassian/v1/atlassianops"
 	"github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1/githubops"
 	"github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/gmail/v1/gmailops"
+	"github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/google_calendar/v1/googlecalendarops"
 	"github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/google_sheets/v1/googlesheetsops"
 	"github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/http_api/v1/httpapiops"
 	"github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/hubspot/v1/hubspotops"
@@ -50,18 +51,19 @@ import (
 // queries builds each HTTP connector's generated Queries. A connector the
 // manifest lists but this map lacks fails the parity test by name.
 var queries = map[string]func(connection.HTTP) any{
-	"airtable":      func(c connection.HTTP) any { return airtableops.New(c) },
-	"atlassian":     func(c connection.HTTP) any { return atlassianops.New(c) },
-	"github":        func(c connection.HTTP) any { return githubops.New(c) },
-	"gmail":         func(c connection.HTTP) any { return gmailops.New(c) },
-	"google_sheets": func(c connection.HTTP) any { return googlesheetsops.New(c) },
-	"http_api":      func(c connection.HTTP) any { return httpapiops.New(c) },
-	"hubspot":       func(c connection.HTTP) any { return hubspotops.New(c) },
-	"linear":        func(c connection.HTTP) any { return linearops.New(c) },
-	"notion":        func(c connection.HTTP) any { return notionops.New(c) },
-	"omni":          func(c connection.HTTP) any { return omniops.New(c) },
-	"power_bi":      func(c connection.HTTP) any { return powerbiops.New(c) },
-	"sentry":        func(c connection.HTTP) any { return sentryops.New(c) },
+	"airtable":        func(c connection.HTTP) any { return airtableops.New(c) },
+	"atlassian":       func(c connection.HTTP) any { return atlassianops.New(c) },
+	"github":          func(c connection.HTTP) any { return githubops.New(c) },
+	"gmail":           func(c connection.HTTP) any { return gmailops.New(c) },
+	"google_calendar": func(c connection.HTTP) any { return googlecalendarops.New(c) },
+	"google_sheets":   func(c connection.HTTP) any { return googlesheetsops.New(c) },
+	"http_api":        func(c connection.HTTP) any { return httpapiops.New(c) },
+	"hubspot":         func(c connection.HTTP) any { return hubspotops.New(c) },
+	"linear":          func(c connection.HTTP) any { return linearops.New(c) },
+	"notion":          func(c connection.HTTP) any { return notionops.New(c) },
+	"omni":            func(c connection.HTTP) any { return omniops.New(c) },
+	"power_bi":        func(c connection.HTTP) any { return powerbiops.New(c) },
+	"sentry":          func(c connection.HTTP) any { return sentryops.New(c) },
 }
 
 type parityCase struct {

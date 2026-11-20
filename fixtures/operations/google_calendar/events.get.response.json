@@ -1,0 +1,13 @@
+{
+  "kind": "calendar#event",
+  "etag": "\"synthetic-etag\"",
+  "id": "9007199254740993",
+  "status": "confirmed",
+  "summary": "Synthetic single event",
+  "description": null,
+  "location": "Synthetic Conference Room",
+  "start": {"dateTime": "2026-02-03T09:00:00Z", "timeZone": "UTC"},
+  "end": {"dateTime": "2026-02-03T10:00:00Z", "timeZone": "UTC"},
+  "htmlLink": "https://calendar.google.com/calendar/event?eid=synthetic-single",
+  "created": "2026-01-20T08:00:00.000Z"
+}
