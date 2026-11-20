@@ -47,6 +47,26 @@ var (
 	sessionRefPattern = regexp.MustCompile(`^[A-Za-z0-9._:/-]{1,128}$`)
 )
 
+// BindingVersion is the version of the connector-to-tool binding the caller
+// was built against. It is optional; when present it must be non-empty and
+// at most 128 characters. kei-proxy denies the call as binding_stale when it
+// differs from the binding it serves.
+type BindingVersion string
+
+// UnmarshalJSON rejects an explicitly empty value: absent means the caller
+// did not say, and an empty string is not a version.
+func (b *BindingVersion) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	if s == "" {
+		return errors.New("binding_version must not be empty when present")
+	}
+	*b = BindingVersion(s)
+	return nil
+}
+
 // Request is a kei.authorize-request/v1 object. Exactly one of Tool and
 // Connector is set.
 type Request struct {
@@ -63,7 +83,9 @@ type Request struct {
 	ToolArgsDigest  string          `json:"tool_args_digest,omitempty"`
 	ToolArgs        json.RawMessage `json:"tool_args,omitempty"`
 	ToolContext     json.RawMessage `json:"tool_context,omitempty"`
-	OnBehalfOf      string          `json:"on_behalf_of,omitempty"`
+	// BindingVersion is optional; see the type for the rules.
+	BindingVersion BindingVersion `json:"binding_version,omitempty"`
+	OnBehalfOf     string         `json:"on_behalf_of,omitempty"`
 	// ShellCommand is accepted only over the tenant-local socket and is used
 	// solely to evaluate shell: policies. It is never copied to audit.
 	ShellCommand string `json:"shell_command,omitempty"`
@@ -124,6 +146,9 @@ func (r Request) Validate() error {
 		if len(r.ToolContext) > 0 && len(r.ToolArgs) == 0 {
 			return errors.New("tool context requires tool arguments")
 		}
+	}
+	if len(r.BindingVersion) > 128 {
+		return errors.New("binding_version is too long")
 	}
 	if r.Caller != nil {
 		return r.Caller.Validate()
