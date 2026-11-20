@@ -26,6 +26,7 @@
     "tool_args_digest": {"type": "string"},
     "tool_args": {"type": "object", "description": "Arguments validated against the registered connector tool plan by the local runtime only."},
     "tool_context": {"type": "object", "description": "Harness-provided context validated against the registered connector tool plan by the local runtime only."},
+    "binding_version": {"type": "string", "minLength": 1, "maxLength": 128, "description": "Optional version of the connector-to-tool binding the caller was built against. kei-proxy denies the call as binding_stale when it differs from the binding it serves."},
     "on_behalf_of": {"type": "string"},
     "shell_command": {"type": "string", "description": "Accepted only over the tenant-local socket, used solely to evaluate shell: policies, and never copied to audit."},
     "caller": {"$ref": "#/$defs/caller"}

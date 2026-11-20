@@ -1,0 +1,6 @@
+{
+  "schema": "kei.authorize-request/v1",
+  "tool": "github.get_issue",
+  "binding_version": "v0.19.0",
+  "resource": "github:repo:acme/widgets:issue:42"
+}
