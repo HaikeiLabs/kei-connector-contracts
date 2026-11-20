@@ -29,6 +29,7 @@ func TestCanonicalExamples(t *testing.T) {
 		{"../schemas/examples/authorize-request/tool.v1.json", false},
 		{"../schemas/examples/authorize-request/tool-with-caller.v1.json", true},
 		{"../schemas/examples/authorize-request/connector-with-caller.v1.json", true},
+		{"../schemas/examples/authorize-request/connector-with-binding-version.v1.json", false},
 	} {
 		raw, err := os.ReadFile(tc.path)
 		if err != nil {
@@ -108,6 +109,53 @@ func TestDecodeRejectsInvalidRequests(t *testing.T) {
 	}
 }
 
+func TestBindingVersion(t *testing.T) {
+	// Present and valid: it round-trips.
+	req, err := Decode([]byte(`{"schema":"kei.authorize-request/v1","tool":"github.get_issue","binding_version":"v0.19.0"}`))
+	if err != nil {
+		t.Fatalf("Decode with binding_version: %v", err)
+	}
+	if req.BindingVersion != "v0.19.0" {
+		t.Fatalf("binding_version = %q, want %q", req.BindingVersion, "v0.19.0")
+	}
+	out, err := json.Marshal(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	back, err := Decode(out)
+	if err != nil {
+		t.Fatalf("Decode round-trip: %v", err)
+	}
+	if back.BindingVersion != "v0.19.0" {
+		t.Errorf("round-trip binding_version = %q, want %q", back.BindingVersion, "v0.19.0")
+	}
+
+	// Absent: backwards compatible, the field is simply not sent.
+	req, err = Decode([]byte(`{"schema":"kei.authorize-request/v1","tool":"web_search"}`))
+	if err != nil {
+		t.Fatalf("Decode without binding_version: %v", err)
+	}
+	if req.BindingVersion != "" {
+		t.Errorf("binding_version = %q, want empty", req.BindingVersion)
+	}
+
+	// At the 128-character limit it is still valid.
+	if _, err := Decode([]byte(`{"schema":"kei.authorize-request/v1","tool":"web_search","binding_version":"` + strings.Repeat("a", 128) + `"}`)); err != nil {
+		t.Fatalf("Decode at the 128-character limit: %v", err)
+	}
+
+	for name, input := range map[string]string{
+		"empty binding_version":    `{"schema":"kei.authorize-request/v1","tool":"web_search","binding_version":""}`,
+		"binding_version too long": `{"schema":"kei.authorize-request/v1","tool":"web_search","binding_version":"` + strings.Repeat("a", 129) + `"}`,
+	} {
+		t.Run(name, func(t *testing.T) {
+			if _, err := Decode([]byte(input)); err == nil {
+				t.Fatal("Decode accepted an invalid binding_version")
+			}
+		})
+	}
+}
+
 func TestCallerAtLimits(t *testing.T) {
 	ref := strings.Repeat("a", 128)
 	harness := "a" + strings.Repeat("b", 63)
@@ -144,6 +192,18 @@ func TestSchemaMatchesValidation(t *testing.T) {
 	}
 	if _, ok := schema.Properties["caller"]; !ok {
 		t.Error("schema has no caller property")
+	}
+	var bindingVersion struct {
+		Type      string `json:"type"`
+		MinLength int    `json:"minLength"`
+		MaxLength int    `json:"maxLength"`
+	}
+	if raw, ok := schema.Properties["binding_version"]; !ok {
+		t.Error("schema has no binding_version property")
+	} else if err := json.Unmarshal(raw, &bindingVersion); err != nil {
+		t.Fatal(err)
+	} else if bindingVersion.Type != "string" || bindingVersion.MinLength != 1 || bindingVersion.MaxLength != 128 {
+		t.Errorf("binding_version = %+v, want string minLength 1 maxLength 128", bindingVersion)
 	}
 	c := schema.Defs.Caller
 	if c.AdditionalProperties {
