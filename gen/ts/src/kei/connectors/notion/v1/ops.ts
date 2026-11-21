@@ -3,17 +3,20 @@
 import { callHTTP, callSQL, type HTTP, type SQL } from "../../../connection/index.js";
 import { QueryDatabaseRequest, QueryDatabaseRequestSchema, QueryDatabaseResponse, QueryDatabaseResponseSchema } from "./databases_pb.js";
 import { CreatePageRequest, CreatePageRequestSchema, CreatePageResponse, CreatePageResponseSchema, GetPageRequest, GetPageRequestSchema, GetPageResponse, GetPageResponseSchema, UpdatePageRequest, UpdatePageRequestSchema, UpdatePageResponse, UpdatePageResponseSchema } from "./pages_pb.js";
+import { SearchRequest, SearchRequestSchema, SearchResponse, SearchResponseSchema } from "./search_pb.js";
 
 export const OP_QUERY_DATABASE = { id: "notion.databases.query", class: "read", destructive: false, resourceTemplate: "databases/{database_id}", methodName: "QueryDatabase", connections: ["user_oauth","integration_token"], transport: "http" } as const;
 export const OP_CREATE_PAGE = { id: "notion.pages.create", class: "write", destructive: false, resourceTemplate: "pages", methodName: "CreatePage", connections: ["user_oauth","integration_token"], transport: "http" } as const;
 export const OP_GET_PAGE = { id: "notion.pages.get", class: "read", destructive: false, resourceTemplate: "pages/{page_id}", methodName: "GetPage", connections: ["user_oauth","integration_token"], transport: "http" } as const;
 export const OP_UPDATE_PAGE = { id: "notion.pages.update", class: "write", destructive: false, resourceTemplate: "pages/{page_id}", methodName: "UpdatePage", connections: ["user_oauth","integration_token"], transport: "http" } as const;
+export const OP_SEARCH = { id: "notion.search", class: "read", destructive: false, resourceTemplate: "search", methodName: "Search", connections: ["user_oauth","integration_token"], transport: "http" } as const;
 
 export interface NotionOperations {
   queryDatabase(req: QueryDatabaseRequest): Promise<QueryDatabaseResponse>;
   createPage(req: CreatePageRequest): Promise<CreatePageResponse>;
   getPage(req: GetPageRequest): Promise<GetPageResponse>;
   updatePage(req: UpdatePageRequest): Promise<UpdatePageResponse>;
+  search(req: SearchRequest): Promise<SearchResponse>;
 }
 
 export class NotionQueries implements NotionOperations {
@@ -29,5 +32,8 @@ export class NotionQueries implements NotionOperations {
   }
   updatePage(req: UpdatePageRequest): Promise<UpdatePageResponse> {
     return callHTTP(this.conn, {"cursorField":"","errors":[{"kind":"invalid","retryable":false,"status":400},{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"not_found","retryable":false,"status":404},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"PATCH","nextCursorField":"","op":{"class":"write","connections":["user_oauth","integration_token"],"destructive":false,"id":"notion.pages.update","methodName":"UpdatePage","resourceTemplate":"pages/{page_id}","transport":"http"},"params":[{"field":"page_id","in":"path","multiSegment":false,"wire":"page_id"},{"field":"properties","in":"body","multiSegment":false,"wire":"properties"},{"field":"archived","in":"body","multiSegment":false,"wire":"archived"},{"field":"in_trash","in":"body","multiSegment":false,"wire":"in_trash"}],"pathTemplate":"/v1/pages/{page_id}"}, req, UpdatePageRequestSchema, UpdatePageResponseSchema);
+  }
+  search(req: SearchRequest): Promise<SearchResponse> {
+    return callHTTP(this.conn, {"cursorField":"start_cursor","errors":[{"kind":"invalid","retryable":false,"status":400},{"kind":"unauthorized","retryable":false,"status":401},{"kind":"forbidden","retryable":false,"status":403},{"kind":"rate_limited","retryable":true,"status":429}],"graphqlDocument":"","method":"POST","nextCursorField":"next_cursor","op":{"class":"read","connections":["user_oauth","integration_token"],"destructive":false,"id":"notion.search","methodName":"Search","resourceTemplate":"search","transport":"http"},"params":[{"field":"query","in":"body","multiSegment":false,"wire":"query"},{"field":"filter","in":"body","multiSegment":false,"wire":"filter"},{"field":"start_cursor","in":"body","multiSegment":false,"wire":"start_cursor"},{"field":"page_size","in":"body","multiSegment":false,"wire":"page_size"}],"pathTemplate":"/v1/search"}, req, SearchRequestSchema, SearchResponseSchema);
   }
 }

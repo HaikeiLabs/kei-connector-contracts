@@ -1,0 +1,9 @@
+{
+  "query": "synthetic",
+  "filter": {
+    "property": "object",
+    "value": "page"
+  },
+  "start_cursor": "synthetic-page-token",
+  "page_size": 10
+}

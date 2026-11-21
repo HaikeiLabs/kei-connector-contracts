@@ -1,0 +1,75 @@
+{
+  "object": "list",
+  "results": [
+    {
+      "object": "page",
+      "id": "9007199254740993",
+      "created_time": "2026-01-15T10:30:00.000Z",
+      "last_edited_time": "2026-01-16T08:45:00.000Z",
+      "created_by": {
+        "object": "user",
+        "id": "usr-synthetic-1"
+      },
+      "last_edited_by": {
+        "object": "user",
+        "id": "usr-synthetic-1"
+      },
+      "cover": null,
+      "icon": null,
+      "parent": {
+        "type": "database_id",
+        "database_id": "synthetic-db-1"
+      },
+      "archived": false,
+      "in_trash": false,
+      "properties": {
+        "title": {
+          "id": "title",
+          "type": "title",
+          "title": [
+            {
+              "type": "text",
+              "text": {
+                "content": "Synthetic page",
+                "link": null
+              },
+              "plain_text": "Synthetic page"
+            }
+          ]
+        }
+      },
+      "url": "https://www.notion.so/synthetic-page-1",
+      "public_url": null,
+      "source_url": "https://provider.example/synthetic-page-1"
+    },
+    {
+      "object": "database",
+      "id": "synthetic-db-1",
+      "created_time": "2026-01-10T09:00:00.000Z",
+      "last_edited_time": "2026-01-16T08:45:00.000Z",
+      "title": [
+        {
+          "type": "text",
+          "text": {
+            "content": "Synthetic database",
+            "link": null
+          },
+          "plain_text": "Synthetic database"
+        }
+      ],
+      "description": [],
+      "is_inline": false,
+      "archived": false,
+      "in_trash": false,
+      "url": "https://www.notion.so/synthetic-db-1",
+      "public_url": null,
+      "unmodeled_provider_field": {
+        "note": "not in the contract"
+      }
+    }
+  ],
+  "next_cursor": "synthetic-next-token",
+  "has_more": true,
+  "type": "page_or_database",
+  "page_or_database": {}
+}

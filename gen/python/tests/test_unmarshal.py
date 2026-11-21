@@ -52,7 +52,7 @@ from kei.connectors.linear.v1 import (
 )
 from kei.connectors.omni.v1 import documents_pb2, queries_pb2
 from kei.connectors.power_bi.v1 import datasets_pb2
-from kei.connectors.notion.v1 import databases_pb2, pages_pb2
+from kei.connectors.notion.v1 import databases_pb2, pages_pb2, search_pb2
 from kei.connectors.sentry.v1 import issues_pb2 as sentry_issues_pb2
 
 FIXTURES = Path(__file__).resolve().parents[3] / "fixtures" / "operations"
@@ -385,6 +385,15 @@ def _spot_notion_pages_update(response):
     assert response.archived is False
 
 
+def _spot_notion_search(response):
+    assert len(response.results) == 2
+    assert response.results[0].fields["id"].string_value == "9007199254740993"
+    assert response.results[0].fields["cover"].WhichOneof("kind") == "null_value"
+    assert response.results[1].fields["object"].string_value == "database"
+    assert response.next_cursor == "synthetic-next-token"
+    assert response.has_more is True
+
+
 def _spot_notion_databases_query(response):
     assert len(response.results) == 2
     assert response.next_cursor == "synthetic-next-cursor"
@@ -645,6 +654,7 @@ OPS = [
     ("notion.pages.create", "notion", pages_pb2.CreatePageRequest, pages_pb2.CreatePageResponse, _spot_notion_pages_create),
     ("notion.pages.update", "notion", pages_pb2.UpdatePageRequest, pages_pb2.UpdatePageResponse, _spot_notion_pages_update),
     ("notion.databases.query", "notion", databases_pb2.QueryDatabaseRequest, databases_pb2.QueryDatabaseResponse, _spot_notion_databases_query),
+    ("notion.search", "notion", search_pb2.SearchRequest, search_pb2.SearchResponse, _spot_notion_search),
     ("sentry.issues.get", "sentry", sentry_issues_pb2.GetIssueRequest, sentry_issues_pb2.GetIssueResponse, _spot_sentry_issues_get),
     ("sentry.issues.update", "sentry", sentry_issues_pb2.UpdateIssueRequest, sentry_issues_pb2.UpdateIssueResponse, _spot_sentry_issues_update),
     ("sentry.issues.list", "sentry", sentry_issues_pb2.ListIssuesRequest, sentry_issues_pb2.ListIssuesResponse, _spot_sentry_issues_list),

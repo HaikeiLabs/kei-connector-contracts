@@ -15,3 +15,4 @@ Source: [`connector.proto`](../../proto/kei/connectors/notion/v1/connector.proto
 | --- | --- | --- | --- | --- | --- | --- |
 | `notion.databases.query` | `POST` | `/v1/databases/{database_id}/query` | `read` | false | `user_oauth`, `integration_token` | `databases/{database_id}` |
 | `notion.pages.get` | `GET` | `/v1/pages/{page_id}` | `read` | false | `user_oauth`, `integration_token` | `pages/{page_id}` |
+| `notion.search` | `POST` | `/v1/search` | `read` | false | `user_oauth`, `integration_token` | `search` |

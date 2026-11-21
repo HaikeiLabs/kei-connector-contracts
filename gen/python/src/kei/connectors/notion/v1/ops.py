@@ -6,7 +6,7 @@ from typing import Protocol
 
 from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
-from kei.connectors.notion.v1 import databases_pb2, pages_pb2
+from kei.connectors.notion.v1 import databases_pb2, pages_pb2, search_pb2
 
 OP_QUERY_DATABASE = Op(id="notion.databases.query", op_class=OpClass.READ, destructive=False, resource_template="databases/{database_id}", method_name="QueryDatabase", connections=("user_oauth", "integration_token"), transport=Transport.HTTP)
 _SPEC_QUERY_DATABASE = {
@@ -52,6 +52,17 @@ _SPEC_UPDATE_PAGE = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
+OP_SEARCH = Op(id="notion.search", op_class=OpClass.READ, destructive=False, resource_template="search", method_name="Search", connections=("user_oauth", "integration_token"), transport=Transport.HTTP)
+_SPEC_SEARCH = {
+    "op": OP_SEARCH,
+    "method": "POST",
+    "path_template": "/v1/search",
+    "params": [{"field": "query", "in": "body", "multi_segment": False, "wire": "query"}, {"field": "filter", "in": "body", "multi_segment": False, "wire": "filter"}, {"field": "start_cursor", "in": "body", "multi_segment": False, "wire": "start_cursor"}, {"field": "page_size", "in": "body", "multi_segment": False, "wire": "page_size"}],
+    "errors": [{"kind": "invalid", "retryable": False, "status": 400}, {"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "start_cursor",
+    "next_cursor_field": "next_cursor",
+}
 
 class NotionOperations(Protocol):
     async def query_database(self, req: databases_pb2.QueryDatabaseRequest) -> databases_pb2.QueryDatabaseResponse:
@@ -61,6 +72,8 @@ class NotionOperations(Protocol):
     async def get_page(self, req: pages_pb2.GetPageRequest) -> pages_pb2.GetPageResponse:
         ...
     async def update_page(self, req: pages_pb2.UpdatePageRequest) -> pages_pb2.UpdatePageResponse:
+        ...
+    async def search(self, req: search_pb2.SearchRequest) -> search_pb2.SearchResponse:
         ...
 
 class NotionQueries:
@@ -80,3 +93,6 @@ class NotionQueries:
 
     async def update_page(self, req: pages_pb2.UpdatePageRequest) -> pages_pb2.UpdatePageResponse:
         return await call_http(self._conn, _SPEC_UPDATE_PAGE, req, pages_pb2.UpdatePageResponse)
+
+    async def search(self, req: search_pb2.SearchRequest) -> search_pb2.SearchResponse:
+        return await call_http(self._conn, _SPEC_SEARCH, req, search_pb2.SearchResponse)

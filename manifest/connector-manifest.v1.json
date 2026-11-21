@@ -1764,6 +1764,28 @@
           },
           "request": "kei.connectors.notion.v1.UpdatePageRequest",
           "response": "kei.connectors.notion.v1.UpdatePageResponse"
+        },
+        {
+          "id": "notion.search",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "pages:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "integration_token"
+          ],
+          "resource_template": "search",
+          "semantics": {
+            "action": "read",
+            "resource_type": "page",
+            "version": 1
+          },
+          "request": "kei.connectors.notion.v1.SearchRequest",
+          "response": "kei.connectors.notion.v1.SearchResponse"
         }
       ]
     },

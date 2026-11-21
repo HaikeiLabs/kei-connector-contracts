@@ -1,0 +1,67 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// Notion connector contract.
+syntax = "proto3";
+
+package kei.connectors.notion.v1;
+
+import "google/protobuf/struct.proto";
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/notion/v1;notion";
+
+// SearchRequest searches a Notion workspace for pages and databases whose
+// title matches a query. filter carries Notion's filter object (for example
+// {"property": "object", "value": "page" or "database"}); start_cursor
+// carries the page cursor returned by the previous call. All fields are
+// POST body parameters; unannotated fields default to the body.
+message SearchRequest {
+  optional string query = 1;
+  google.protobuf.Struct filter = 2;
+  optional string start_cursor = 3;
+  optional int32 page_size = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "notion.search"
+    connector: "notion"
+    class: OPERATION_CLASS_READ
+    http_method: "POST"
+    path_template: "/v1/search"
+    scopes: ["pages:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "Search"
+    connections: ["user_oauth", "integration_token"]
+    resource_template: "search"
+    cursor_field: "start_cursor"
+    next_cursor_field: "next_cursor"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "page" version: 1}
+    errors: [
+      {status: 400 kind: ERROR_KIND_INVALID},
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// SearchResponse models one page of search results. Results carry page and
+// database objects in Notion's object shape, which differ enough to stay
+// provider-shaped Structs rather than modeled fields.
+message SearchResponse {
+  repeated google.protobuf.Struct results = 1;
+  optional string next_cursor = 2;
+  bool has_more = 3;
+}

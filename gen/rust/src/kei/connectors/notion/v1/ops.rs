@@ -11,7 +11,7 @@
 
 use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
-use crate::kei::connectors::notion::v1::{CreatePageRequest, CreatePageResponse, GetPageRequest, GetPageResponse, QueryDatabaseRequest, QueryDatabaseResponse, UpdatePageRequest, UpdatePageResponse};
+use crate::kei::connectors::notion::v1::{CreatePageRequest, CreatePageResponse, GetPageRequest, GetPageResponse, QueryDatabaseRequest, QueryDatabaseResponse, SearchRequest, SearchResponse, UpdatePageRequest, UpdatePageResponse};
 
 /// Operation descriptor for notion.databases.query, for authorization and audit: the
 /// capability a policy grants is connector:notion.databases.query.
@@ -57,6 +57,18 @@ pub const OP_UPDATE_PAGE: Op = Op {
     destructive: false,
     resource_template: "pages/{page_id}",
     method_name: "UpdatePage",
+    connections: &["user_oauth", "integration_token"],
+    transport: Transport::Http,
+};
+
+/// Operation descriptor for notion.search, for authorization and audit: the
+/// capability a policy grants is connector:notion.search.
+pub const OP_SEARCH: Op = Op {
+    id: "notion.search",
+    class: Class::Read,
+    destructive: false,
+    resource_template: "search",
+    method_name: "Search",
     connections: &["user_oauth", "integration_token"],
     transport: Transport::Http,
 };
@@ -158,6 +170,29 @@ const ERRORS_UPDATE_PAGE: &[ErrorMapping] = &[
     },
 ];
 
+const ERRORS_SEARCH: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 400,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
 // The generated queries run inside one caller's task, so the
 // async-fn-in-trait auto-trait bounds do not matter here.
 #[allow(async_fn_in_trait)]
@@ -170,6 +205,8 @@ pub trait NotionOperations {
     async fn get_page(&self, req: GetPageRequest) -> Result<GetPageResponse, OperationError>;
     /// update_page runs notion.pages.update (PATCH /v1/pages/{page_id}).
     async fn update_page(&self, req: UpdatePageRequest) -> Result<UpdatePageResponse, OperationError>;
+    /// search runs notion.search (POST /v1/search).
+    async fn search(&self, req: SearchRequest) -> Result<SearchResponse, OperationError>;
 }
 
 pub struct NotionQueries {
@@ -278,6 +315,36 @@ impl NotionOperations for NotionQueries {
             return Err(err);
         }
         let resp: UpdatePageResponse = decode_response(OP_UPDATE_PAGE.id, &out.body, None)?;
+        Ok(resp)
+    }
+    /// search runs notion.search (POST /v1/search).
+    async fn search(&self, req: SearchRequest) -> Result<SearchResponse, OperationError> {
+        let path = render_path(
+            "/v1/search",
+            &[],
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_SEARCH.id, format!("render path: {e}")))?;
+        let mut body = serde_json::Map::new();
+        if let Some(v) = &req.query { body.insert("query".to_string(), serde_json::Value::String(v.clone())); }
+        if let Some(v0) = &req.filter { body.insert("filter".to_string(), crate::connection::normalize_protojson_numbers(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_SEARCH.id, e.to_string()))?)); }
+        if let Some(v) = &req.start_cursor { body.insert("start_cursor".to_string(), serde_json::Value::String(v.clone())); }
+        if let Some(v) = req.page_size { body.insert("page_size".to_string(), serde_json::Value::Number(v.into())); }
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_SEARCH.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("POST", &path, &[], Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_SEARCH.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_SEARCH, out.status, &ERRORS_SEARCH) {
+            return Err(err);
+        }
+        let mut resp: SearchResponse = decode_response(OP_SEARCH.id, &out.body, Some("results"))?;
+        if resp.next_cursor.is_none() {
+            if let Some(cursor) = next_cursor_from_link(&out.headers, "start_cursor") {
+                resp.next_cursor = Some(cursor);
+            }
+        }
         Ok(resp)
     }
 }

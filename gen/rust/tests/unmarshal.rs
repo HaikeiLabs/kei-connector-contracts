@@ -63,7 +63,7 @@ use haikeilabs_connector_contracts::kei::connectors::linear::v1::{
     UpdateIssueResponse as LinearUpdateIssueResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::notion::v1::{
-    CreatePageResponse, GetPageResponse, QueryDatabaseResponse, UpdatePageResponse,
+    CreatePageResponse, GetPageResponse, QueryDatabaseResponse, SearchResponse, UpdatePageResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::omni::v1::{
     ListDocumentsResponse, RunQueryResponse as OmniRunQueryResponse,
@@ -723,6 +723,32 @@ fn fixtures_unmarshal() {
         resp.results[1].public_url.is_none(),
         "public_url must stay null"
     );
+
+    // notion.search — spot: page and database results, the null cover, and
+    // the next cursor.
+    let resp: SearchResponse = serde_json::from_str(&fixture("notion", "search.response.json"))
+        .expect("notion.search response unmarshals");
+    assert_eq!(resp.results.len(), 2);
+    match resp.results[0].fields.get("id") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(id)),
+        }) => assert_eq!(id, "9007199254740993"),
+        other => panic!("results[0].id must be the string id, got {:?}", other),
+    }
+    match resp.results[0].fields.get("cover") {
+        Some(pbjson_types::Value {
+            kind: None | Some(Kind::NullValue(_)),
+        }) => {}
+        other => panic!("results[0].cover must be null, got {:?}", other),
+    }
+    match resp.results[1].fields.get("object") {
+        Some(pbjson_types::Value {
+            kind: Some(Kind::StringValue(object)),
+        }) => assert_eq!(object, "database"),
+        other => panic!("results[1].object must be database, got {:?}", other),
+    }
+    assert_eq!(resp.next_cursor.as_deref(), Some("synthetic-next-token"));
+    assert!(resp.has_more);
 
     // sentry.issues.get — spot: short_id and the null share_id.
     let resp: SentryGetIssueResponse =

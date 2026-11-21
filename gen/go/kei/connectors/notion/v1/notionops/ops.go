@@ -23,6 +23,8 @@ type Operations interface {
 	GetPage(ctx context.Context, req *notion.GetPageRequest) (*notion.GetPageResponse, error)
 	// UpdatePage runs notion.pages.update (PATCH /v1/pages/{page_id}).
 	UpdatePage(ctx context.Context, req *notion.UpdatePageRequest) (*notion.UpdatePageResponse, error)
+	// Search runs notion.search (POST /v1/search).
+	Search(ctx context.Context, req *notion.SearchRequest) (*notion.SearchResponse, error)
 }
 
 // Operation descriptors, for authorization and audit. Each ID is the
@@ -32,6 +34,7 @@ var (
 	OpCreatePage    = connection.Op{ID: "notion.pages.create", Class: connection.Write, ResourceTemplate: "pages", MethodName: "CreatePage", Connections: []string{"user_oauth", "integration_token"}, Transport: connection.TransportHTTP}
 	OpGetPage       = connection.Op{ID: "notion.pages.get", Class: connection.Read, ResourceTemplate: "pages/{page_id}", MethodName: "GetPage", Connections: []string{"user_oauth", "integration_token"}, Transport: connection.TransportHTTP}
 	OpUpdatePage    = connection.Op{ID: "notion.pages.update", Class: connection.Write, ResourceTemplate: "pages/{page_id}", MethodName: "UpdatePage", Connections: []string{"user_oauth", "integration_token"}, Transport: connection.TransportHTTP}
+	OpSearch        = connection.Op{ID: "notion.search", Class: connection.Read, ResourceTemplate: "search", MethodName: "Search", Connections: []string{"user_oauth", "integration_token"}, Transport: connection.TransportHTTP}
 )
 
 // Queries implements Operations over an authenticated HTTP connection.
@@ -112,6 +115,26 @@ var specUpdatePage = &connection.HTTPSpec{
 	},
 }
 
+var specSearch = &connection.HTTPSpec{
+	Op:           OpSearch,
+	Method:       "POST",
+	PathTemplate: "/v1/search",
+	Params: []connection.Param{
+		{Field: "query", In: connection.InBody, Wire: "query"},
+		{Field: "filter", In: connection.InBody, Wire: "filter"},
+		{Field: "start_cursor", In: connection.InBody, Wire: "start_cursor"},
+		{Field: "page_size", In: connection.InBody, Wire: "page_size"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 400, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+	CursorField:     "start_cursor",
+	NextCursorField: "next_cursor",
+}
+
 // QueryDatabase runs notion.databases.query.
 func (q *Queries) QueryDatabase(ctx context.Context, req *notion.QueryDatabaseRequest) (*notion.QueryDatabaseResponse, error) {
 	resp := &notion.QueryDatabaseResponse{}
@@ -143,6 +166,15 @@ func (q *Queries) GetPage(ctx context.Context, req *notion.GetPageRequest) (*not
 func (q *Queries) UpdatePage(ctx context.Context, req *notion.UpdatePageRequest) (*notion.UpdatePageResponse, error) {
 	resp := &notion.UpdatePageResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specUpdatePage, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// Search runs notion.search.
+func (q *Queries) Search(ctx context.Context, req *notion.SearchRequest) (*notion.SearchResponse, error) {
+	resp := &notion.SearchResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specSearch, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

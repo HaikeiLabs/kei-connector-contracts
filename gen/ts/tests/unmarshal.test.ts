@@ -25,6 +25,7 @@ import * as hubspotContacts from "../src/kei/connectors/hubspot/v1/contacts_pb.j
 import * as hubspotDeals from "../src/kei/connectors/hubspot/v1/deals_pb.js";
 import * as notionPages from "../src/kei/connectors/notion/v1/pages_pb.js";
 import * as notionDatabases from "../src/kei/connectors/notion/v1/databases_pb.js";
+import * as notionSearch from "../src/kei/connectors/notion/v1/search_pb.js";
 import * as sentry from "../src/kei/connectors/sentry/v1/issues_pb.js";
 import * as http from "../src/kei/connectors/http_api/v1/records_pb.js";
 import * as db from "../src/kei/connectors/database/v1/query_pb.js";
@@ -113,6 +114,7 @@ const ops = [
   ["notion.pages.create", notionPages.CreatePageRequestSchema, notionPages.CreatePageResponseSchema, (r: any) => { expect(r.id).toBe("d4e5f6a7-0000-4000-8000-000000000005"); expect(r.publicUrl).toBeUndefined(); }],
   ["notion.pages.update", notionPages.UpdatePageRequestSchema, notionPages.UpdatePageResponseSchema, (r: any) => { expect(r.lastEditedTime).toBe("2026-02-11T09:45:00.000Z"); expect(r.archived).toBe(false); }],
   ["notion.databases.query", notionDatabases.QueryDatabaseRequestSchema, notionDatabases.QueryDatabaseResponseSchema, (r: any) => { expect(r.results).toHaveLength(2); expect(r.nextCursor).toBe("synthetic-next-cursor"); expect(r.results[1].publicUrl).toBeUndefined(); }],
+  ["notion.search", notionSearch.SearchRequestSchema, notionSearch.SearchResponseSchema, (r: any) => { expect(r.results).toHaveLength(2); expect(r.results[0]["id"]).toBe("9007199254740993"); expect(r.results[0]["cover"]).toBeNull(); expect(r.results[1]["object"]).toBe("database"); expect(r.nextCursor).toBe("synthetic-next-token"); expect(r.hasMore).toBe(true); }],
   ["sentry.issues.get", sentry.GetIssueRequestSchema, sentry.GetIssueResponseSchema, (r: any) => { expect(r.shortId).toBe("PROJ-103"); expect(r.shareId).toBeUndefined(); }],
   ["sentry.issues.update", sentry.UpdateIssueRequestSchema, sentry.UpdateIssueResponseSchema, (r: any) => { expect(r.status).toBe("resolved"); expect(r.shortId).toBe("PROJ-103"); expect(r.shareId).toBeUndefined(); }],
   ["sentry.issues.list", sentry.ListIssuesRequestSchema, sentry.ListIssuesResponseSchema, (r: any) => { expect(r.issues).toHaveLength(2); expect(r.issues[1].shareId).toBe("synthetic-share-id-2"); }],
