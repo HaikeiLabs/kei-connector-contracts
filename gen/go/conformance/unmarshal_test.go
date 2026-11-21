@@ -1114,6 +1114,33 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "notion.search",
+		connector: "notion",
+		request:   func() proto.Message { return &notionv1.SearchRequest{} },
+		response:  func() proto.Message { return &notionv1.SearchResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*notionv1.SearchResponse)
+			if len(got.GetResults()) != 2 {
+				t.Errorf("len(results) = %d, want 2", len(got.GetResults()))
+			}
+			if got := got.GetResults()[0].GetFields()["id"].GetStringValue(); got != "9007199254740993" {
+				t.Errorf("results[0].id = %q, want the >2^53 provider id as a string", got)
+			}
+			if got := got.GetResults()[0].GetFields()["cover"].GetNullValue(); got != structpb.NullValue_NULL_VALUE {
+				t.Errorf("results[0].cover = %v, want null", got)
+			}
+			if got := got.GetResults()[1].GetFields()["object"].GetStringValue(); got != "database" {
+				t.Errorf("results[1].object = %q, want database", got)
+			}
+			if got.GetNextCursor() != "synthetic-next-token" {
+				t.Errorf("next_cursor = %q, want synthetic-next-token", got.GetNextCursor())
+			}
+			if !got.GetHasMore() {
+				t.Error("has_more = false, want true")
+			}
+		},
+	},
+	{
 		op:        "omni.documents.list",
 		connector: "omni",
 		request:   func() proto.Message { return &omniv1.ListDocumentsRequest{} },

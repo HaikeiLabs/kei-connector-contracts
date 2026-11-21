@@ -128,5 +128,33 @@ pub struct UpdatePageResponse {
     #[prost(string, optional, tag="6")]
     pub public_url: ::core::option::Option<::prost::alloc::string::String>,
 }
+/// SearchRequest searches a Notion workspace for pages and databases whose
+/// title matches a query. filter carries Notion's filter object (for example
+/// {"property": "object", "value": "page" or "database"}); start_cursor
+/// carries the page cursor returned by the previous call. All fields are
+/// POST body parameters; unannotated fields default to the body.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SearchRequest {
+    #[prost(string, optional, tag="1")]
+    pub query: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(message, optional, tag="2")]
+    pub filter: ::core::option::Option<::pbjson_types::Struct>,
+    #[prost(string, optional, tag="3")]
+    pub start_cursor: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(int32, optional, tag="4")]
+    pub page_size: ::core::option::Option<i32>,
+}
+/// SearchResponse models one page of search results. Results carry page and
+/// database objects in Notion's object shape, which differ enough to stay
+/// provider-shaped Structs rather than modeled fields.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SearchResponse {
+    #[prost(message, repeated, tag="1")]
+    pub results: ::prost::alloc::vec::Vec<::pbjson_types::Struct>,
+    #[prost(string, optional, tag="2")]
+    pub next_cursor: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(bool, tag="3")]
+    pub has_more: bool,
+}
 include!("kei.connectors.notion.v1.serde.rs");
 // @@protoc_insertion_point(module)

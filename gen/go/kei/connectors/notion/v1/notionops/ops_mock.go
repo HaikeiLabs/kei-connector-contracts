@@ -16,6 +16,7 @@ type Mock struct {
 	CreatePageFunc    func(ctx context.Context, req *notion.CreatePageRequest) (*notion.CreatePageResponse, error)
 	GetPageFunc       func(ctx context.Context, req *notion.GetPageRequest) (*notion.GetPageResponse, error)
 	UpdatePageFunc    func(ctx context.Context, req *notion.UpdatePageRequest) (*notion.UpdatePageResponse, error)
+	SearchFunc        func(ctx context.Context, req *notion.SearchRequest) (*notion.SearchResponse, error)
 }
 
 var _ Operations = (*Mock)(nil)
@@ -50,4 +51,12 @@ func (m *Mock) UpdatePage(ctx context.Context, req *notion.UpdatePageRequest) (*
 		return nil, errors.New("notionops.Mock: UpdatePageFunc is not set")
 	}
 	return m.UpdatePageFunc(ctx, req)
+}
+
+// Search calls m.SearchFunc.
+func (m *Mock) Search(ctx context.Context, req *notion.SearchRequest) (*notion.SearchResponse, error) {
+	if m.SearchFunc == nil {
+		return nil, errors.New("notionops.Mock: SearchFunc is not set")
+	}
+	return m.SearchFunc(ctx, req)
 }
