@@ -11,7 +11,7 @@
 
 use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
-use crate::kei::connectors::google_sheets::v1::{GetSpreadsheetRequest, GetSpreadsheetResponse, GetValuesRequest, GetValuesResponse, UpdateValuesRequest, UpdateValuesResponse};
+use crate::kei::connectors::google_sheets::v1::{AppendValuesRequest, AppendValuesResponse, GetSpreadsheetRequest, GetSpreadsheetResponse, GetValuesRequest, GetValuesResponse, UpdateValuesRequest, UpdateValuesResponse};
 
 /// Operation descriptor for google_sheets.spreadsheets.get, for authorization and audit: the
 /// capability a policy grants is connector:google_sheets.spreadsheets.get.
@@ -21,6 +21,18 @@ pub const OP_GET_SPREADSHEET: Op = Op {
     destructive: false,
     resource_template: "spreadsheets/{spreadsheet_id}",
     method_name: "GetSpreadsheet",
+    connections: &["user_oauth", "domain_delegation"],
+    transport: Transport::Http,
+};
+
+/// Operation descriptor for google_sheets.values.append, for authorization and audit: the
+/// capability a policy grants is connector:google_sheets.values.append.
+pub const OP_APPEND_VALUES: Op = Op {
+    id: "google_sheets.values.append",
+    class: Class::Write,
+    destructive: false,
+    resource_template: "spreadsheets/{spreadsheet_id}",
+    method_name: "AppendValues",
     connections: &["user_oauth", "domain_delegation"],
     transport: Transport::Http,
 };
@@ -50,6 +62,34 @@ pub const OP_UPDATE_VALUES: Op = Op {
 };
 
 const ERRORS_GET_SPREADSHEET: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 404,
+        kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
+const ERRORS_APPEND_VALUES: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 400,
+        kind: ErrorKind::Invalid as i32,
+        retryable: false,
+    },
     ErrorMapping {
         status: 401,
         kind: ErrorKind::Unauthorized as i32,
@@ -134,6 +174,8 @@ const ERRORS_UPDATE_VALUES: &[ErrorMapping] = &[
 pub trait GoogleSheetsOperations {
     /// get_spreadsheet runs google_sheets.spreadsheets.get (GET /v4/spreadsheets/{spreadsheet_id}).
     async fn get_spreadsheet(&self, req: GetSpreadsheetRequest) -> Result<GetSpreadsheetResponse, OperationError>;
+    /// append_values runs google_sheets.values.append (POST /v4/spreadsheets/{spreadsheet_id}/values/{range}:append).
+    async fn append_values(&self, req: AppendValuesRequest) -> Result<AppendValuesResponse, OperationError>;
     /// get_values runs google_sheets.values.get (GET /v4/spreadsheets/{spreadsheet_id}/values/{range}).
     async fn get_values(&self, req: GetValuesRequest) -> Result<GetValuesResponse, OperationError>;
     /// update_values runs google_sheets.values.update (PUT /v4/spreadsheets/{spreadsheet_id}/values/{range}).
@@ -164,6 +206,36 @@ impl GoogleSheetsOperations for GoogleSheetsQueries {
             return Err(err);
         }
         let resp: GetSpreadsheetResponse = decode_response(OP_GET_SPREADSHEET.id, &out.body, None)?;
+        Ok(resp)
+    }
+    /// append_values runs google_sheets.values.append (POST /v4/spreadsheets/{spreadsheet_id}/values/{range}:append).
+    async fn append_values(&self, req: AppendValuesRequest) -> Result<AppendValuesResponse, OperationError> {
+        let mut path_values: Vec<(&str, &str)> = Vec::new();
+        path_values.push(("spreadsheet_id", req.spreadsheet_id.as_str()));
+        path_values.push(("range", req.range.as_str()));
+        let path = render_path(
+            "/v4/spreadsheets/{spreadsheet_id}/values/{range}:append",
+            &path_values,
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_APPEND_VALUES.id, format!("render path: {e}")))?;
+        let mut query_values: Vec<(String, String)> = Vec::new();
+        if let Some(v) = &req.value_input_option { query_values.push(("value_input_option".to_string(), v.clone())); }
+        if let Some(v) = &req.insert_data_option { query_values.push(("insert_data_option".to_string(), v.clone())); }
+        let mut body = serde_json::Map::new();
+        let mut values_json = Vec::with_capacity(req.values.len());
+        for v0 in &req.values { values_json.push(crate::connection::normalize_protojson_numbers(serde_json::to_value(v0).map_err(|e| OperationError::wrap(OP_APPEND_VALUES.id, e.to_string()))?)); }
+        body.insert("values".to_string(), serde_json::Value::Array(values_json));
+        let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_APPEND_VALUES.id, e.to_string()))?;
+        let out = self
+            .conn
+            .do_request("POST", &path, &query_values, Some(body_bytes.as_slice()))
+            .await
+            .map_err(|e| OperationError::wrap(OP_APPEND_VALUES.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_APPEND_VALUES, out.status, &ERRORS_APPEND_VALUES) {
+            return Err(err);
+        }
+        let resp: AppendValuesResponse = decode_response(OP_APPEND_VALUES.id, &out.body, None)?;
         Ok(resp)
     }
     /// get_values runs google_sheets.values.get (GET /v4/spreadsheets/{spreadsheet_id}/values/{range}).

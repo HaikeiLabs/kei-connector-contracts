@@ -15,3 +15,5 @@ Source: [`connector.proto`](../../proto/kei/connectors/google_sheets/v1/connecto
 | --- | --- | --- | --- | --- | --- | --- |
 | `google_sheets.spreadsheets.get` | `GET` | `/v4/spreadsheets/{spreadsheet_id}` | `read` | false | `user_oauth`, `domain_delegation` | `spreadsheets/{spreadsheet_id}` |
 | `google_sheets.values.get` | `GET` | `/v4/spreadsheets/{spreadsheet_id}/values/{range}` | `read` | false | `user_oauth`, `domain_delegation` | `spreadsheets/{spreadsheet_id}` |
+| `google_sheets.values.update` | `PUT` | `/v4/spreadsheets/{spreadsheet_id}/values/{range}` | `write` | true | `user_oauth`, `domain_delegation` | `spreadsheets/{spreadsheet_id}` |
+| `google_sheets.values.append` | `POST` | `/v4/spreadsheets/{spreadsheet_id}/values/{range}:append` | `write` | false | `user_oauth`, `domain_delegation` | `spreadsheets/{spreadsheet_id}` |

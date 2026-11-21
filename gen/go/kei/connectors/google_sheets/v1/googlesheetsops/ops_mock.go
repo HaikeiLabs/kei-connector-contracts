@@ -13,6 +13,7 @@ import (
 // tests. Calling an operation whose field is nil returns an error.
 type Mock struct {
 	GetSpreadsheetFunc func(ctx context.Context, req *google_sheets.GetSpreadsheetRequest) (*google_sheets.GetSpreadsheetResponse, error)
+	AppendValuesFunc   func(ctx context.Context, req *google_sheets.AppendValuesRequest) (*google_sheets.AppendValuesResponse, error)
 	GetValuesFunc      func(ctx context.Context, req *google_sheets.GetValuesRequest) (*google_sheets.GetValuesResponse, error)
 	UpdateValuesFunc   func(ctx context.Context, req *google_sheets.UpdateValuesRequest) (*google_sheets.UpdateValuesResponse, error)
 }
@@ -25,6 +26,14 @@ func (m *Mock) GetSpreadsheet(ctx context.Context, req *google_sheets.GetSpreads
 		return nil, errors.New("googlesheetsops.Mock: GetSpreadsheetFunc is not set")
 	}
 	return m.GetSpreadsheetFunc(ctx, req)
+}
+
+// AppendValues calls m.AppendValuesFunc.
+func (m *Mock) AppendValues(ctx context.Context, req *google_sheets.AppendValuesRequest) (*google_sheets.AppendValuesResponse, error) {
+	if m.AppendValuesFunc == nil {
+		return nil, errors.New("googlesheetsops.Mock: AppendValuesFunc is not set")
+	}
+	return m.AppendValuesFunc(ctx, req)
 }
 
 // GetValues calls m.GetValuesFunc.

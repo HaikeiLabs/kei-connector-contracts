@@ -67,3 +67,27 @@ class UpdateValuesResponse(_message.Message):
     updated_columns: int
     updated_cells: int
     def __init__(self, spreadsheet_id: _Optional[str] = ..., updated_range: _Optional[str] = ..., updated_rows: _Optional[int] = ..., updated_columns: _Optional[int] = ..., updated_cells: _Optional[int] = ...) -> None: ...
+
+class AppendValuesRequest(_message.Message):
+    __slots__ = ("spreadsheet_id", "range", "value_input_option", "insert_data_option", "values")
+    SPREADSHEET_ID_FIELD_NUMBER: _ClassVar[int]
+    RANGE_FIELD_NUMBER: _ClassVar[int]
+    VALUE_INPUT_OPTION_FIELD_NUMBER: _ClassVar[int]
+    INSERT_DATA_OPTION_FIELD_NUMBER: _ClassVar[int]
+    VALUES_FIELD_NUMBER: _ClassVar[int]
+    spreadsheet_id: str
+    range: str
+    value_input_option: str
+    insert_data_option: str
+    values: _containers.RepeatedCompositeFieldContainer[_struct_pb2.ListValue]
+    def __init__(self, spreadsheet_id: _Optional[str] = ..., range: _Optional[str] = ..., value_input_option: _Optional[str] = ..., insert_data_option: _Optional[str] = ..., values: _Optional[_Iterable[_Union[_struct_pb2.ListValue, _Mapping]]] = ...) -> None: ...
+
+class AppendValuesResponse(_message.Message):
+    __slots__ = ("spreadsheet_id", "table_range", "updates")
+    SPREADSHEET_ID_FIELD_NUMBER: _ClassVar[int]
+    TABLE_RANGE_FIELD_NUMBER: _ClassVar[int]
+    UPDATES_FIELD_NUMBER: _ClassVar[int]
+    spreadsheet_id: str
+    table_range: str
+    updates: UpdateValuesResponse
+    def __init__(self, spreadsheet_id: _Optional[str] = ..., table_range: _Optional[str] = ..., updates: _Optional[_Union[UpdateValuesResponse, _Mapping]] = ...) -> None: ...

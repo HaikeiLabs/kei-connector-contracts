@@ -1,0 +1,13 @@
+{
+  "spreadsheetId": "synthetic-sheet-1",
+  "tableRange": "Sheet1!A1:B2",
+  "updates": {
+    "spreadsheetId": "synthetic-sheet-1",
+    "updatedRange": "Sheet1!A3:B4",
+    "updatedRows": 2,
+    "updatedColumns": 2,
+    "updatedCells": 4,
+    "unmodeledProviderField": "not in the contract"
+  },
+  "providerDriftField": 42
+}

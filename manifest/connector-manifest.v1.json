@@ -1183,6 +1183,28 @@
           "response": "kei.connectors.google_sheets.v1.GetSpreadsheetResponse"
         },
         {
+          "id": "google_sheets.values.append",
+          "class": "write",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "https://www.googleapis.com/auth/spreadsheets"
+          ],
+          "connections": [
+            "user_oauth",
+            "domain_delegation"
+          ],
+          "resource_template": "spreadsheets/{spreadsheet_id}",
+          "semantics": {
+            "action": "create",
+            "resource_type": "spreadsheet",
+            "version": 1
+          },
+          "request": "kei.connectors.google_sheets.v1.AppendValuesRequest",
+          "response": "kei.connectors.google_sheets.v1.AppendValuesResponse"
+        },
+        {
           "id": "google_sheets.values.get",
           "class": "read",
           "destructive": false,
