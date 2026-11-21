@@ -48,7 +48,7 @@ use haikeilabs_connector_contracts::kei::connectors::google_calendar::v1::{
     UpdateEventResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::google_sheets::v1::{
-    GetSpreadsheetResponse, GetValuesResponse, UpdateValuesResponse,
+    AppendValuesResponse, GetSpreadsheetResponse, GetValuesResponse, UpdateValuesResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::http_api::v1::{
     GetRecordResponse, ListRecordsResponse,
@@ -404,6 +404,17 @@ fn fixtures_unmarshal() {
             .expect("google_sheets.values.update response unmarshals");
     assert_eq!(resp.updated_range, "Sheet1!A1:B2");
     assert_eq!(resp.updated_cells, Some(4));
+
+    // google_sheets.values.append — spot: the echoed spreadsheet id, the
+    // table range, and the nested updates write.
+    let resp: AppendValuesResponse =
+        serde_json::from_str(&fixture("google_sheets", "values.append.response.json"))
+            .expect("google_sheets.values.append response unmarshals");
+    assert_eq!(resp.spreadsheet_id, "synthetic-sheet-1");
+    assert_eq!(resp.table_range.as_deref(), Some("Sheet1!A1:B2"));
+    let updates = resp.updates.as_ref().expect("updates present");
+    assert_eq!(updates.updated_range, "Sheet1!A3:B4");
+    assert_eq!(updates.updated_cells, Some(4));
 
     // google_calendar.calendars.list — spot: two entries, the primary flag,
     // the null description, and the next cursor.

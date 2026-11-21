@@ -250,6 +250,13 @@ def _spot_google_sheets_spreadsheets_get(response):
     assert response.properties.title == "Synthetic sheet"
 
 
+def _spot_google_sheets_values_append(response):
+    assert response.spreadsheet_id == "synthetic-sheet-1"
+    assert response.table_range == "Sheet1!A1:B2"
+    assert response.updates.updated_range == "Sheet1!A3:B4"
+    assert response.updates.updated_cells == 4
+
+
 def _spot_google_calendar_calendars_list(response):
     assert len(response.items) == 2
     assert response.items[0].primary is True
@@ -629,6 +636,7 @@ OPS = [
     ("google_sheets.values.get", "google_sheets", spreadsheets_pb2.GetValuesRequest, spreadsheets_pb2.GetValuesResponse, _spot_google_sheets_values_get),
     ("google_sheets.values.update", "google_sheets", spreadsheets_pb2.UpdateValuesRequest, spreadsheets_pb2.UpdateValuesResponse, _spot_google_sheets_values_update),
     ("google_sheets.spreadsheets.get", "google_sheets", spreadsheets_pb2.GetSpreadsheetRequest, spreadsheets_pb2.GetSpreadsheetResponse, _spot_google_sheets_spreadsheets_get),
+    ("google_sheets.values.append", "google_sheets", spreadsheets_pb2.AppendValuesRequest, spreadsheets_pb2.AppendValuesResponse, _spot_google_sheets_values_append),
     ("google_calendar.calendars.list", "google_calendar", calendars_pb2.ListCalendarsRequest, calendars_pb2.ListCalendarsResponse, _spot_google_calendar_calendars_list),
     ("google_calendar.events.list", "google_calendar", events_pb2.ListEventsRequest, events_pb2.ListEventsResponse, _spot_google_calendar_events_list),
     ("google_calendar.events.get", "google_calendar", events_pb2.GetEventRequest, events_pb2.GetEventResponse, _spot_google_calendar_events_get),

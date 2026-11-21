@@ -29,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file kei/connectors/google_sheets/v1/spreadsheets.proto.
  */
 export const file_kei_connectors_google_sheets_v1_spreadsheets: GenFile = /*@__PURE__*/
-  fileDesc("CjJrZWkvY29ubmVjdG9ycy9nb29nbGVfc2hlZXRzL3YxL3NwcmVhZHNoZWV0cy5wcm90bxIfa2VpLmNvbm5lY3RvcnMuZ29vZ2xlX3NoZWV0cy52MSLuAgoQR2V0VmFsdWVzUmVxdWVzdBIeCg5zcHJlYWRzaGVldF9pZBgBIAEoCUIGooIZAggBEhUKBXJhbmdlGAIgASgJQgaighkCCAE6ogKSghmdAgoYZ29vZ2xlX3NoZWV0cy52YWx1ZXMuZ2V0Eg1nb29nbGVfc2hlZXRzGAEqA0dFVDIwL3Y0L3NwcmVhZHNoZWV0cy97c3ByZWFkc2hlZXRfaWR9L3ZhbHVlcy97cmFuZ2V9OjVodHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9hdXRoL3NwcmVhZHNoZWV0cy5yZWFkb25seUABSglHZXRWYWx1ZXNSCnVzZXJfb2F1dGhSEWRvbWFpbl9kZWxlZ2F0aW9uWh1zcHJlYWRzaGVldHMve3NwcmVhZHNoZWV0X2lkfWIFCJADEAZiBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAREIARILc3ByZWFkc2hlZXQYASJOChFHZXRWYWx1ZXNSZXNwb25zZRINCgVyYW5nZRgBIAEoCRIqCgZ2YWx1ZXMYAiADKAsyGi5nb29nbGUucHJvdG9idWYuTGlzdFZhbHVlItECChVHZXRTcHJlYWRzaGVldFJlcXVlc3QSHgoOc3ByZWFkc2hlZXRfaWQYASABKAlCBqKCGQIIATqXApKCGZICCh5nb29nbGVfc2hlZXRzLnNwcmVhZHNoZWV0cy5nZXQSDWdvb2dsZV9zaGVldHMYASoDR0VUMiEvdjQvc3ByZWFkc2hlZXRzL3tzcHJlYWRzaGVldF9pZH06NWh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL2F1dGgvc3ByZWFkc2hlZXRzLnJlYWRvbmx5QAFKDkdldFNwcmVhZHNoZWV0Ugp1c2VyX29hdXRoUhFkb21haW5fZGVsZWdhdGlvblodc3ByZWFkc2hlZXRzL3tzcHJlYWRzaGVldF9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAREIARILc3ByZWFkc2hlZXQYASImChVTcHJlYWRzaGVldFByb3BlcnRpZXMSDQoFdGl0bGUYASABKAkifAoWR2V0U3ByZWFkc2hlZXRSZXNwb25zZRIWCg5zcHJlYWRzaGVldF9pZBgBIAEoCRJKCgpwcm9wZXJ0aWVzGAIgASgLMjYua2VpLmNvbm5lY3RvcnMuZ29vZ2xlX3NoZWV0cy52MS5TcHJlYWRzaGVldFByb3BlcnRpZXMinAMKE1VwZGF0ZVZhbHVlc1JlcXVlc3QSHgoOc3ByZWFkc2hlZXRfaWQYASABKAlCBqKCGQIIARIVCgVyYW5nZRgCIAEoCUIGooIZAggBEioKBnZhbHVlcxgDIAMoCzIaLmdvb2dsZS5wcm90b2J1Zi5MaXN0VmFsdWU6oQKSghmcAgobZ29vZ2xlX3NoZWV0cy52YWx1ZXMudXBkYXRlEg1nb29nbGVfc2hlZXRzGAIgASoDUFVUMjAvdjQvc3ByZWFkc2hlZXRzL3tzcHJlYWRzaGVldF9pZH0vdmFsdWVzL3tyYW5nZX06LGh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL2F1dGgvc3ByZWFkc2hlZXRzQAFKDFVwZGF0ZVZhbHVlc1IKdXNlcl9vYXV0aFIRZG9tYWluX2RlbGVnYXRpb25aHXNwcmVhZHNoZWV0cy97c3ByZWFkc2hlZXRfaWR9YgUIkAMQBmIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAYoBEQgDEgtzcHJlYWRzaGVldBgBItEBChRVcGRhdGVWYWx1ZXNSZXNwb25zZRIWCg5zcHJlYWRzaGVldF9pZBgBIAEoCRIVCg11cGRhdGVkX3JhbmdlGAIgASgJEhkKDHVwZGF0ZWRfcm93cxgDIAEoBUgAiAEBEhwKD3VwZGF0ZWRfY29sdW1ucxgEIAEoBUgBiAEBEhoKDXVwZGF0ZWRfY2VsbHMYBSABKAVIAogBAUIPCg1fdXBkYXRlZF9yb3dzQhIKEF91cGRhdGVkX2NvbHVtbnNCEAoOX3VwZGF0ZWRfY2VsbHNCZFpiZ2l0aHViLmNvbS9IYWlrZWlMYWJzL2tlaS1jb25uZWN0b3ItY29udHJhY3RzL2dlbi9nby9rZWkvY29ubmVjdG9ycy9nb29nbGVfc2hlZXRzL3YxO2dvb2dsZV9zaGVldHNiBnByb3RvMw", [file_google_protobuf_struct, file_kei_contracts_v1_options]);
+  fileDesc("CjJrZWkvY29ubmVjdG9ycy9nb29nbGVfc2hlZXRzL3YxL3NwcmVhZHNoZWV0cy5wcm90bxIfa2VpLmNvbm5lY3RvcnMuZ29vZ2xlX3NoZWV0cy52MSLuAgoQR2V0VmFsdWVzUmVxdWVzdBIeCg5zcHJlYWRzaGVldF9pZBgBIAEoCUIGooIZAggBEhUKBXJhbmdlGAIgASgJQgaighkCCAE6ogKSghmdAgoYZ29vZ2xlX3NoZWV0cy52YWx1ZXMuZ2V0Eg1nb29nbGVfc2hlZXRzGAEqA0dFVDIwL3Y0L3NwcmVhZHNoZWV0cy97c3ByZWFkc2hlZXRfaWR9L3ZhbHVlcy97cmFuZ2V9OjVodHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9hdXRoL3NwcmVhZHNoZWV0cy5yZWFkb25seUABSglHZXRWYWx1ZXNSCnVzZXJfb2F1dGhSEWRvbWFpbl9kZWxlZ2F0aW9uWh1zcHJlYWRzaGVldHMve3NwcmVhZHNoZWV0X2lkfWIFCJADEAZiBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAREIARILc3ByZWFkc2hlZXQYASJOChFHZXRWYWx1ZXNSZXNwb25zZRINCgVyYW5nZRgBIAEoCRIqCgZ2YWx1ZXMYAiADKAsyGi5nb29nbGUucHJvdG9idWYuTGlzdFZhbHVlItECChVHZXRTcHJlYWRzaGVldFJlcXVlc3QSHgoOc3ByZWFkc2hlZXRfaWQYASABKAlCBqKCGQIIATqXApKCGZICCh5nb29nbGVfc2hlZXRzLnNwcmVhZHNoZWV0cy5nZXQSDWdvb2dsZV9zaGVldHMYASoDR0VUMiEvdjQvc3ByZWFkc2hlZXRzL3tzcHJlYWRzaGVldF9pZH06NWh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL2F1dGgvc3ByZWFkc2hlZXRzLnJlYWRvbmx5QAFKDkdldFNwcmVhZHNoZWV0Ugp1c2VyX29hdXRoUhFkb21haW5fZGVsZWdhdGlvblodc3ByZWFkc2hlZXRzL3tzcHJlYWRzaGVldF9pZH1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAREIARILc3ByZWFkc2hlZXQYASImChVTcHJlYWRzaGVldFByb3BlcnRpZXMSDQoFdGl0bGUYASABKAkifAoWR2V0U3ByZWFkc2hlZXRSZXNwb25zZRIWCg5zcHJlYWRzaGVldF9pZBgBIAEoCRJKCgpwcm9wZXJ0aWVzGAIgASgLMjYua2VpLmNvbm5lY3RvcnMuZ29vZ2xlX3NoZWV0cy52MS5TcHJlYWRzaGVldFByb3BlcnRpZXMinAMKE1VwZGF0ZVZhbHVlc1JlcXVlc3QSHgoOc3ByZWFkc2hlZXRfaWQYASABKAlCBqKCGQIIARIVCgVyYW5nZRgCIAEoCUIGooIZAggBEioKBnZhbHVlcxgDIAMoCzIaLmdvb2dsZS5wcm90b2J1Zi5MaXN0VmFsdWU6oQKSghmcAgobZ29vZ2xlX3NoZWV0cy52YWx1ZXMudXBkYXRlEg1nb29nbGVfc2hlZXRzGAIgASoDUFVUMjAvdjQvc3ByZWFkc2hlZXRzL3tzcHJlYWRzaGVldF9pZH0vdmFsdWVzL3tyYW5nZX06LGh0dHBzOi8vd3d3Lmdvb2dsZWFwaXMuY29tL2F1dGgvc3ByZWFkc2hlZXRzQAFKDFVwZGF0ZVZhbHVlc1IKdXNlcl9vYXV0aFIRZG9tYWluX2RlbGVnYXRpb25aHXNwcmVhZHNoZWV0cy97c3ByZWFkc2hlZXRfaWR9YgUIkAMQBmIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAYoBEQgDEgtzcHJlYWRzaGVldBgBItEBChRVcGRhdGVWYWx1ZXNSZXNwb25zZRIWCg5zcHJlYWRzaGVldF9pZBgBIAEoCRIVCg11cGRhdGVkX3JhbmdlGAIgASgJEhkKDHVwZGF0ZWRfcm93cxgDIAEoBUgAiAEBEhwKD3VwZGF0ZWRfY29sdW1ucxgEIAEoBUgBiAEBEhoKDXVwZGF0ZWRfY2VsbHMYBSABKAVIAogBAUIPCg1fdXBkYXRlZF9yb3dzQhIKEF91cGRhdGVkX2NvbHVtbnNCEAoOX3VwZGF0ZWRfY2VsbHMiogQKE0FwcGVuZFZhbHVlc1JlcXVlc3QSHgoOc3ByZWFkc2hlZXRfaWQYASABKAlCBqKCGQIIARIVCgVyYW5nZRgCIAEoCUIGooIZAggBEicKEnZhbHVlX2lucHV0X29wdGlvbhgDIAEoCUIGooIZAggCSACIAQESJwoSaW5zZXJ0X2RhdGFfb3B0aW9uGAQgASgJQgaighkCCAJIAYgBARIqCgZ2YWx1ZXMYBSADKAsyGi5nb29nbGUucHJvdG9idWYuTGlzdFZhbHVlOqcCkoIZogIKG2dvb2dsZV9zaGVldHMudmFsdWVzLmFwcGVuZBINZ29vZ2xlX3NoZWV0cxgCKgRQT1NUMjcvdjQvc3ByZWFkc2hlZXRzL3tzcHJlYWRzaGVldF9pZH0vdmFsdWVzL3tyYW5nZX06YXBwZW5kOixodHRwczovL3d3dy5nb29nbGVhcGlzLmNvbS9hdXRoL3NwcmVhZHNoZWV0c0ABSgxBcHBlbmRWYWx1ZXNSCnVzZXJfb2F1dGhSEWRvbWFpbl9kZWxlZ2F0aW9uWh1zcHJlYWRzaGVldHMve3NwcmVhZHNoZWV0X2lkfWIFCJADEAZiBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAREIAhILc3ByZWFkc2hlZXQYAUIVChNfdmFsdWVfaW5wdXRfb3B0aW9uQhUKE19pbnNlcnRfZGF0YV9vcHRpb24ioAEKFEFwcGVuZFZhbHVlc1Jlc3BvbnNlEhYKDnNwcmVhZHNoZWV0X2lkGAEgASgJEhgKC3RhYmxlX3JhbmdlGAIgASgJSACIAQESRgoHdXBkYXRlcxgDIAEoCzI1LmtlaS5jb25uZWN0b3JzLmdvb2dsZV9zaGVldHMudjEuVXBkYXRlVmFsdWVzUmVzcG9uc2VCDgoMX3RhYmxlX3JhbmdlQmRaYmdpdGh1Yi5jb20vSGFpa2VpTGFicy9rZWktY29ubmVjdG9yLWNvbnRyYWN0cy9nZW4vZ28va2VpL2Nvbm5lY3RvcnMvZ29vZ2xlX3NoZWV0cy92MTtnb29nbGVfc2hlZXRzYgZwcm90bzM", [file_google_protobuf_struct, file_kei_contracts_v1_options]);
 
 /**
  * GetValuesRequest reads one A1-notation range of cell values. The range is
@@ -222,4 +222,81 @@ export type UpdateValuesResponse = Message<"kei.connectors.google_sheets.v1.Upda
  */
 export const UpdateValuesResponseSchema: GenMessage<UpdateValuesResponse> = /*@__PURE__*/
   messageDesc(file_kei_connectors_google_sheets_v1_spreadsheets, 6);
+
+/**
+ * AppendValuesRequest appends rows after the last row of data in the range's
+ * table. The range is a single path segment like the read's; Google's
+ * `:append` method suffix is part of the path template. value_input_option
+ * and insert_data_option are query parameters; values carries the rows to
+ * append in the same positional ListValue shape the read returns. Google
+ * appends below existing data without touching it, so this operation is not
+ * destructive.
+ *
+ * @generated from message kei.connectors.google_sheets.v1.AppendValuesRequest
+ */
+export type AppendValuesRequest = Message<"kei.connectors.google_sheets.v1.AppendValuesRequest"> & {
+  /**
+   * @generated from field: string spreadsheet_id = 1;
+   */
+  spreadsheetId: string;
+
+  /**
+   * @generated from field: string range = 2;
+   */
+  range: string;
+
+  /**
+   * @generated from field: optional string value_input_option = 3;
+   */
+  valueInputOption?: string | undefined;
+
+  /**
+   * @generated from field: optional string insert_data_option = 4;
+   */
+  insertDataOption?: string | undefined;
+
+  /**
+   * @generated from field: repeated google.protobuf.ListValue values = 5;
+   */
+  values: ListValue[];
+};
+
+/**
+ * Describes the message kei.connectors.google_sheets.v1.AppendValuesRequest.
+ * Use `create(AppendValuesRequestSchema)` to create a new message.
+ */
+export const AppendValuesRequestSchema: GenMessage<AppendValuesRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_google_sheets_v1_spreadsheets, 7);
+
+/**
+ * AppendValuesResponse models the subset of the Sheets append response the
+ * contract needs. table_range is the A1 range the values were found after;
+ * updates carries the effective write Google performed on the appended
+ * table. It is filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.google_sheets.v1.AppendValuesResponse
+ */
+export type AppendValuesResponse = Message<"kei.connectors.google_sheets.v1.AppendValuesResponse"> & {
+  /**
+   * @generated from field: string spreadsheet_id = 1;
+   */
+  spreadsheetId: string;
+
+  /**
+   * @generated from field: optional string table_range = 2;
+   */
+  tableRange?: string | undefined;
+
+  /**
+   * @generated from field: kei.connectors.google_sheets.v1.UpdateValuesResponse updates = 3;
+   */
+  updates?: UpdateValuesResponse | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.google_sheets.v1.AppendValuesResponse.
+ * Use `create(AppendValuesResponseSchema)` to create a new message.
+ */
+export const AppendValuesResponseSchema: GenMessage<AppendValuesResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_google_sheets_v1_spreadsheets, 8);
 

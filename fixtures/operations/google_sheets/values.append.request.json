@@ -1,0 +1,10 @@
+{
+  "spreadsheet_id": "synthetic-sheet-1",
+  "range": "Sheet1!A1:B2",
+  "value_input_option": "USER_ENTERED",
+  "insert_data_option": "INSERT_ROWS",
+  "values": [
+    ["Synthetic appended first cell", "Synthetic appended second cell"],
+    ["Synthetic appended third cell", null]
+  ]
+}

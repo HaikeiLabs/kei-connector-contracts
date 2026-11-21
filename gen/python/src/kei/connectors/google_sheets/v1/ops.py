@@ -19,6 +19,17 @@ _SPEC_GET_SPREADSHEET = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
+OP_APPEND_VALUES = Op(id="google_sheets.values.append", op_class=OpClass.WRITE, destructive=False, resource_template="spreadsheets/{spreadsheet_id}", method_name="AppendValues", connections=("user_oauth", "domain_delegation"), transport=Transport.HTTP)
+_SPEC_APPEND_VALUES = {
+    "op": OP_APPEND_VALUES,
+    "method": "POST",
+    "path_template": "/v4/spreadsheets/{spreadsheet_id}/values/{range}:append",
+    "params": [{"field": "spreadsheet_id", "in": "path", "multi_segment": False, "wire": "spreadsheet_id"}, {"field": "range", "in": "path", "multi_segment": False, "wire": "range"}, {"field": "value_input_option", "in": "query", "multi_segment": False, "wire": "value_input_option"}, {"field": "insert_data_option", "in": "query", "multi_segment": False, "wire": "insert_data_option"}, {"field": "values", "in": "body", "multi_segment": False, "wire": "values"}],
+    "errors": [{"kind": "invalid", "retryable": False, "status": 400}, {"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 OP_GET_VALUES = Op(id="google_sheets.values.get", op_class=OpClass.READ, destructive=False, resource_template="spreadsheets/{spreadsheet_id}", method_name="GetValues", connections=("user_oauth", "domain_delegation"), transport=Transport.HTTP)
 _SPEC_GET_VALUES = {
     "op": OP_GET_VALUES,
@@ -45,6 +56,8 @@ _SPEC_UPDATE_VALUES = {
 class GoogleSheetsOperations(Protocol):
     async def get_spreadsheet(self, req: spreadsheets_pb2.GetSpreadsheetRequest) -> spreadsheets_pb2.GetSpreadsheetResponse:
         ...
+    async def append_values(self, req: spreadsheets_pb2.AppendValuesRequest) -> spreadsheets_pb2.AppendValuesResponse:
+        ...
     async def get_values(self, req: spreadsheets_pb2.GetValuesRequest) -> spreadsheets_pb2.GetValuesResponse:
         ...
     async def update_values(self, req: spreadsheets_pb2.UpdateValuesRequest) -> spreadsheets_pb2.UpdateValuesResponse:
@@ -58,6 +71,9 @@ class GoogleSheetsQueries:
 
     async def get_spreadsheet(self, req: spreadsheets_pb2.GetSpreadsheetRequest) -> spreadsheets_pb2.GetSpreadsheetResponse:
         return await call_http(self._conn, _SPEC_GET_SPREADSHEET, req, spreadsheets_pb2.GetSpreadsheetResponse)
+
+    async def append_values(self, req: spreadsheets_pb2.AppendValuesRequest) -> spreadsheets_pb2.AppendValuesResponse:
+        return await call_http(self._conn, _SPEC_APPEND_VALUES, req, spreadsheets_pb2.AppendValuesResponse)
 
     async def get_values(self, req: spreadsheets_pb2.GetValuesRequest) -> spreadsheets_pb2.GetValuesResponse:
         return await call_http(self._conn, _SPEC_GET_VALUES, req, spreadsheets_pb2.GetValuesResponse)

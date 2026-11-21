@@ -1,4 +1,301 @@
 // @generated
+impl serde::Serialize for AppendValuesRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.spreadsheet_id.is_empty() {
+            len += 1;
+        }
+        if !self.range.is_empty() {
+            len += 1;
+        }
+        if self.value_input_option.is_some() {
+            len += 1;
+        }
+        if self.insert_data_option.is_some() {
+            len += 1;
+        }
+        if !self.values.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.google_sheets.v1.AppendValuesRequest", len)?;
+        if !self.spreadsheet_id.is_empty() {
+            struct_ser.serialize_field("spreadsheetId", &self.spreadsheet_id)?;
+        }
+        if !self.range.is_empty() {
+            struct_ser.serialize_field("range", &self.range)?;
+        }
+        if let Some(v) = self.value_input_option.as_ref() {
+            struct_ser.serialize_field("valueInputOption", v)?;
+        }
+        if let Some(v) = self.insert_data_option.as_ref() {
+            struct_ser.serialize_field("insertDataOption", v)?;
+        }
+        if !self.values.is_empty() {
+            struct_ser.serialize_field("values", &self.values)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for AppendValuesRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "spreadsheet_id",
+            "spreadsheetId",
+            "range",
+            "value_input_option",
+            "valueInputOption",
+            "insert_data_option",
+            "insertDataOption",
+            "values",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            SpreadsheetId,
+            Range,
+            ValueInputOption,
+            InsertDataOption,
+            Values,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "spreadsheetId" | "spreadsheet_id" => Ok(GeneratedField::SpreadsheetId),
+                            "range" => Ok(GeneratedField::Range),
+                            "valueInputOption" | "value_input_option" => Ok(GeneratedField::ValueInputOption),
+                            "insertDataOption" | "insert_data_option" => Ok(GeneratedField::InsertDataOption),
+                            "values" => Ok(GeneratedField::Values),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = AppendValuesRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.google_sheets.v1.AppendValuesRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<AppendValuesRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut spreadsheet_id__ = None;
+                let mut range__ = None;
+                let mut value_input_option__ = None;
+                let mut insert_data_option__ = None;
+                let mut values__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::SpreadsheetId => {
+                            if spreadsheet_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("spreadsheetId"));
+                            }
+                            spreadsheet_id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Range => {
+                            if range__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("range"));
+                            }
+                            range__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::ValueInputOption => {
+                            if value_input_option__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("valueInputOption"));
+                            }
+                            value_input_option__ = map_.next_value()?;
+                        }
+                        GeneratedField::InsertDataOption => {
+                            if insert_data_option__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("insertDataOption"));
+                            }
+                            insert_data_option__ = map_.next_value()?;
+                        }
+                        GeneratedField::Values => {
+                            if values__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("values"));
+                            }
+                            values__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(AppendValuesRequest {
+                    spreadsheet_id: spreadsheet_id__.unwrap_or_default(),
+                    range: range__.unwrap_or_default(),
+                    value_input_option: value_input_option__,
+                    insert_data_option: insert_data_option__,
+                    values: values__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.google_sheets.v1.AppendValuesRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for AppendValuesResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.spreadsheet_id.is_empty() {
+            len += 1;
+        }
+        if self.table_range.is_some() {
+            len += 1;
+        }
+        if self.updates.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.google_sheets.v1.AppendValuesResponse", len)?;
+        if !self.spreadsheet_id.is_empty() {
+            struct_ser.serialize_field("spreadsheetId", &self.spreadsheet_id)?;
+        }
+        if let Some(v) = self.table_range.as_ref() {
+            struct_ser.serialize_field("tableRange", v)?;
+        }
+        if let Some(v) = self.updates.as_ref() {
+            struct_ser.serialize_field("updates", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for AppendValuesResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "spreadsheet_id",
+            "spreadsheetId",
+            "table_range",
+            "tableRange",
+            "updates",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            SpreadsheetId,
+            TableRange,
+            Updates,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "spreadsheetId" | "spreadsheet_id" => Ok(GeneratedField::SpreadsheetId),
+                            "tableRange" | "table_range" => Ok(GeneratedField::TableRange),
+                            "updates" => Ok(GeneratedField::Updates),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = AppendValuesResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.google_sheets.v1.AppendValuesResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<AppendValuesResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut spreadsheet_id__ = None;
+                let mut table_range__ = None;
+                let mut updates__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::SpreadsheetId => {
+                            if spreadsheet_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("spreadsheetId"));
+                            }
+                            spreadsheet_id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::TableRange => {
+                            if table_range__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("tableRange"));
+                            }
+                            table_range__ = map_.next_value()?;
+                        }
+                        GeneratedField::Updates => {
+                            if updates__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("updates"));
+                            }
+                            updates__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(AppendValuesResponse {
+                    spreadsheet_id: spreadsheet_id__.unwrap_or_default(),
+                    table_range: table_range__,
+                    updates: updates__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.google_sheets.v1.AppendValuesResponse", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for GetSpreadsheetRequest {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>

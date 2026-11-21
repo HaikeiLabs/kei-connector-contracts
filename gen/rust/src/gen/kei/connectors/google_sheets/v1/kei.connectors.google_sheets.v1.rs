@@ -74,5 +74,38 @@ pub struct UpdateValuesResponse {
     #[prost(int32, optional, tag="5")]
     pub updated_cells: ::core::option::Option<i32>,
 }
+/// AppendValuesRequest appends rows after the last row of data in the range's
+/// table. The range is a single path segment like the read's; Google's
+/// `:append` method suffix is part of the path template. value_input_option
+/// and insert_data_option are query parameters; values carries the rows to
+/// append in the same positional ListValue shape the read returns. Google
+/// appends below existing data without touching it, so this operation is not
+/// destructive.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AppendValuesRequest {
+    #[prost(string, tag="1")]
+    pub spreadsheet_id: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub range: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="3")]
+    pub value_input_option: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, optional, tag="4")]
+    pub insert_data_option: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(message, repeated, tag="5")]
+    pub values: ::prost::alloc::vec::Vec<::pbjson_types::ListValue>,
+}
+/// AppendValuesResponse models the subset of the Sheets append response the
+/// contract needs. table_range is the A1 range the values were found after;
+/// updates carries the effective write Google performed on the appended
+/// table. It is filled by JSON unmarshal of the provider response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AppendValuesResponse {
+    #[prost(string, tag="1")]
+    pub spreadsheet_id: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="2")]
+    pub table_range: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(message, optional, tag="3")]
+    pub updates: ::core::option::Option<UpdateValuesResponse>,
+}
 include!("kei.connectors.google_sheets.v1.serde.rs");
 // @@protoc_insertion_point(module)

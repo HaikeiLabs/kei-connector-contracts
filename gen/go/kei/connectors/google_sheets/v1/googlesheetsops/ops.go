@@ -17,6 +17,8 @@ import (
 type Operations interface {
 	// GetSpreadsheet runs google_sheets.spreadsheets.get (GET /v4/spreadsheets/{spreadsheet_id}).
 	GetSpreadsheet(ctx context.Context, req *google_sheets.GetSpreadsheetRequest) (*google_sheets.GetSpreadsheetResponse, error)
+	// AppendValues runs google_sheets.values.append (POST /v4/spreadsheets/{spreadsheet_id}/values/{range}:append).
+	AppendValues(ctx context.Context, req *google_sheets.AppendValuesRequest) (*google_sheets.AppendValuesResponse, error)
 	// GetValues runs google_sheets.values.get (GET /v4/spreadsheets/{spreadsheet_id}/values/{range}).
 	GetValues(ctx context.Context, req *google_sheets.GetValuesRequest) (*google_sheets.GetValuesResponse, error)
 	// UpdateValues runs google_sheets.values.update (PUT /v4/spreadsheets/{spreadsheet_id}/values/{range}).
@@ -27,6 +29,7 @@ type Operations interface {
 // capability a policy grants: connector:<ID>.
 var (
 	OpGetSpreadsheet = connection.Op{ID: "google_sheets.spreadsheets.get", Class: connection.Read, ResourceTemplate: "spreadsheets/{spreadsheet_id}", MethodName: "GetSpreadsheet", Connections: []string{"user_oauth", "domain_delegation"}, Transport: connection.TransportHTTP}
+	OpAppendValues   = connection.Op{ID: "google_sheets.values.append", Class: connection.Write, ResourceTemplate: "spreadsheets/{spreadsheet_id}", MethodName: "AppendValues", Connections: []string{"user_oauth", "domain_delegation"}, Transport: connection.TransportHTTP}
 	OpGetValues      = connection.Op{ID: "google_sheets.values.get", Class: connection.Read, ResourceTemplate: "spreadsheets/{spreadsheet_id}", MethodName: "GetValues", Connections: []string{"user_oauth", "domain_delegation"}, Transport: connection.TransportHTTP}
 	OpUpdateValues   = connection.Op{ID: "google_sheets.values.update", Class: connection.Write, Destructive: true, ResourceTemplate: "spreadsheets/{spreadsheet_id}", MethodName: "UpdateValues", Connections: []string{"user_oauth", "domain_delegation"}, Transport: connection.TransportHTTP}
 )
@@ -47,6 +50,26 @@ var specGetSpreadsheet = &connection.HTTPSpec{
 		{Field: "spreadsheet_id", In: connection.InPath, Wire: "spreadsheet_id"},
 	},
 	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
+var specAppendValues = &connection.HTTPSpec{
+	Op:           OpAppendValues,
+	Method:       "POST",
+	PathTemplate: "/v4/spreadsheets/{spreadsheet_id}/values/{range}:append",
+	Params: []connection.Param{
+		{Field: "spreadsheet_id", In: connection.InPath, Wire: "spreadsheet_id"},
+		{Field: "range", In: connection.InPath, Wire: "range"},
+		{Field: "value_input_option", In: connection.InQuery, Wire: "value_input_option"},
+		{Field: "insert_data_option", In: connection.InQuery, Wire: "insert_data_option"},
+		{Field: "values", In: connection.InBody, Wire: "values"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 400, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
 		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
 		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
@@ -93,6 +116,15 @@ var specUpdateValues = &connection.HTTPSpec{
 func (q *Queries) GetSpreadsheet(ctx context.Context, req *google_sheets.GetSpreadsheetRequest) (*google_sheets.GetSpreadsheetResponse, error) {
 	resp := &google_sheets.GetSpreadsheetResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specGetSpreadsheet, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// AppendValues runs google_sheets.values.append.
+func (q *Queries) AppendValues(ctx context.Context, req *google_sheets.AppendValuesRequest) (*google_sheets.AppendValuesResponse, error) {
+	resp := &google_sheets.AppendValuesResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specAppendValues, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

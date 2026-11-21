@@ -1024,6 +1024,27 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "google_sheets.values.append",
+		connector: "google_sheets",
+		request:   func() proto.Message { return &googlesheetsv1.AppendValuesRequest{} },
+		response:  func() proto.Message { return &googlesheetsv1.AppendValuesResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			got := resp.(*googlesheetsv1.AppendValuesResponse)
+			if got.GetSpreadsheetId() != "synthetic-sheet-1" {
+				t.Errorf("spreadsheet_id = %q, want synthetic-sheet-1", got.GetSpreadsheetId())
+			}
+			if got := got.GetTableRange(); got != "Sheet1!A1:B2" {
+				t.Errorf("table_range = %q, want Sheet1!A1:B2", got)
+			}
+			if got := got.GetUpdates().GetUpdatedRange(); got != "Sheet1!A3:B4" {
+				t.Errorf("updates.updated_range = %q, want Sheet1!A3:B4", got)
+			}
+			if got := got.GetUpdates().GetUpdatedCells(); got != 4 {
+				t.Errorf("updates.updated_cells = %d, want 4", got)
+			}
+		},
+	},
+	{
 		op:        "google_calendar.calendars.list",
 		connector: "google_calendar",
 		request:   func() proto.Message { return &googlecalendarv1.ListCalendarsRequest{} },
