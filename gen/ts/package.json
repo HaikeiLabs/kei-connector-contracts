@@ -1,6 +1,6 @@
 {
   "name": "@haikeilabs/connector-contracts",
-  "version": "0.20.1",
+  "version": "0.20.2",
   "description": "Generated connector operation contracts",
   "type": "module",
   "license": "Apache-2.0",
@@ -14,6 +14,11 @@
     "dist",
     "README.md"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HaikeiLabs/kei-connector-contracts.git",
+    "directory": "gen/ts"
+  },
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
