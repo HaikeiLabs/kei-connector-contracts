@@ -97,10 +97,15 @@ describe.skipIf(!hasGo)('generated operations against the contract mock', () => 
   let mock: { proc: ChildProcess; base: string } | undefined;
   let dir = '';
 
-  beforeAll(async () => {
-    mock = await startMock();
-    dir = path.dirname(mock.proc.spawnfile);
-  });
+  // The go build of the mock can exceed vitest's 10s hook default on the
+  // release runner; give it a generous budget.
+  beforeAll(
+    async () => {
+      mock = await startMock();
+      dir = path.dirname(mock.proc.spawnfile);
+    },
+    180000,
+  );
   afterAll(() => {
     mock?.proc.kill();
     if (!process.env.MOCKAPI_BIN && dir.startsWith(tmpdir())) rmSync(dir, { recursive: true, force: true });
