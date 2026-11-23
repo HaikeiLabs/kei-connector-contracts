@@ -4,7 +4,7 @@
 # gen/ are byproducts of buf generate plus thin hand-written glue.
 [package]
 name = "haikeilabs-connector-contracts"
-version = "0.20.0"
+version = "0.20.1"
 edition = "2021"
 license = "Apache-2.0"
 description = "Kei connector operation contracts: prost types and pbjson serde impls"
