@@ -59,5 +59,5 @@ plugins:
     out: manifest
     strategy: all
     opt:
-      - contracts_version=v0.20.1
+      - contracts_version=v0.20.2
       - legacy=../../proto/kei/contracts/v1/legacy_capabilities.yaml
