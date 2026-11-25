@@ -16,8 +16,10 @@ package bundle
 
 import (
 	"encoding/json"
+	"errors"
 	"net"
 	"net/url"
+	"regexp"
 	"strings"
 
 	"github.com/HaikeiLabs/kei-connector-contracts/contract"
@@ -49,6 +51,38 @@ type Connector struct {
 	Kind string         `json:"kind,omitempty"`
 	Slug string         `json:"slug,omitempty"`
 	MCP  *MCPDescriptor `json:"mcp,omitempty"`
+	// Connection is the name of the contract connection (the
+	// kei.contracts.v1.Connection name, for example pat or user_oauth)
+	// this installation uses, chosen by the auth method set at connector
+	// setup. Optional; non-secret.
+	Connection string `json:"connection,omitempty"`
+	// BaseURL is the resolved provider origin the harness calls for this
+	// installation: an https URL with no userinfo, query, or fragment.
+	// Optional; non-secret.
+	BaseURL string `json:"base_url,omitempty"`
+}
+
+var connectionNamePattern = regexp.MustCompile(`^[a-z][a-z0-9_]{0,63}$`)
+
+// validateDescriptor checks the optional connection and base_url of a v2
+// connector descriptor. Unknown keys, including any credential field, are
+// already refused by the closed parser.
+func (c Connector) validateDescriptor() error {
+	if c.Connection != "" && !connectionNamePattern.MatchString(c.Connection) {
+		return errors.New("connection must be a snake_case connection name")
+	}
+	if c.BaseURL == "" {
+		return nil
+	}
+	u, err := url.Parse(c.BaseURL)
+	if err != nil || len(c.BaseURL) > 2048 || u.Scheme != "https" || u.Hostname() == "" || u.User != nil ||
+		u.Opaque != "" || u.RawQuery != "" || u.ForceQuery || u.Fragment != "" || strings.Contains(c.BaseURL, "#") {
+		return errors.New("base_url must be an https URL without userinfo, query, or fragment")
+	}
+	if ip := net.ParseIP(u.Hostname()); ip != nil && (ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() || ip.IsUnspecified()) {
+		return errors.New("base_url must not be a link-local or unspecified address")
+	}
+	return nil
 }
 
 // MCPDescriptor is the mcp block of a v2 connector descriptor (ADR-036 §4.3).

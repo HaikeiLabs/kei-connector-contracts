@@ -388,6 +388,11 @@ func validatePolicySetV2(raw json.RawMessage) error {
 			return fmt.Errorf("%w: policy_set.harness_policies[%d].when.harness", ErrBundleUnsupported, i)
 		}
 	}
+	for i, c := range set.Connectors {
+		if err := c.validateDescriptor(); err != nil {
+			return fmt.Errorf("%w: policy_set.connectors[%d]: %v", ErrBundleUnsupported, i, err)
+		}
+	}
 	for _, tool := range set.Tools {
 		if tool.Route.ConnectorBinding != nil && len(tool.Plan) > 0 {
 			if err := planValid(tool); err != nil {
