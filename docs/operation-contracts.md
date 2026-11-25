@@ -113,6 +113,29 @@ option (kei.contracts.v1.operation) = {
 The cross-language parity test (`KEI_PARITY=1`) proves all four languages
 reject the same broken responses and accept the same good one.
 
+## Bundle connector descriptor
+
+A v2 policy bundle's `policy_set.connectors[]` entry (`bundle.Connector`) is
+the installed connector's non-secret descriptor. Two optional fields tie an
+installation to its operation contract, so a harness can build its connector
+config from the platform instead of from IDs and URLs in its own config:
+
+| Field | Meaning |
+| --- | --- |
+| `connection` | The name of the contract `Connection` this installation uses (for example `pat` or `user_oauth`), taken from the auth method the admin chose at connector setup. Snake case, at most 64 characters. The harness looks up `kind`, `header_name` and scopes on that contract `Connection`. |
+| `base_url` | The provider origin resolved for this installation: the connection's fixed `base_url`, the connector default, or the setup field named by `base_url_field` (for example a self-hosted GitHub or an Atlassian site). An `https` URL with a host and no userinfo, query or fragment; link-local and unspecified addresses are refused. A path is allowed. |
+
+Both are omitted when the catalog does not set them, and a bundle without
+them validates as before. The catalog emits them only to runtimes that
+accept them (a bundle feature gate), because older runtimes' closed parser
+rejects unknown descriptor fields.
+
+The descriptor never carries a credential value. The closed parser rejects
+any field it does not declare, so keys such as `credential`, `token`,
+`api_key`, `secret` or `password` fail validation; `credential_ref` is a
+`kei://` reference resolved inside the runtime, never a value. A harness gets
+credentials only from a credential release after an allow decision.
+
 ## Versioning
 
 Within v1, changes are additive only, enforced mechanically by
