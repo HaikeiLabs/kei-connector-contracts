@@ -1,6 +1,6 @@
 {
   "name": "@haikeilabs/connector-contracts",
-  "version": "0.20.3",
+  "version": "0.21.0",
   "description": "Generated connector operation contracts",
   "type": "module",
   "license": "Apache-2.0",
