@@ -48,6 +48,13 @@ const (
 	RuleUnsupportedParam       = "unsupported_param"
 	RuleUnknownCursorField     = "unknown_cursor_field"
 	RuleQueryShape             = "query_shape"
+	// result_required rules: a write must declare the response paths that
+	// prove the write happened, and every path must resolve to a bool,
+	// string or message field. Writes whose response has no fields are
+	// exempt. Reads never declare the option.
+	RuleMissingResultFields    = "missing_result_fields"
+	RuleUnsupportedResultField = "unsupported_result_field"
+	RuleResultFieldsOnRead     = "result_fields_on_read"
 )
 
 func errorf(rule, subject, format string, args ...any) error {
@@ -151,7 +158,95 @@ func checkOp(op *model.Operation) []error {
 	if name := opt.GetNextCursorField(); name != "" && (op.Response == nil || field(op.Response.Desc, name) == nil) {
 		add(RuleUnknownCursorField, "next_cursor_field %q is not a response field", name)
 	}
+	errs = append(errs, checkResultRequired(op)...)
 	return errs
+}
+
+// checkResultRequired enforces the result_required option: every write with
+// a fielded response declares the response paths that prove the write
+// happened, every path resolves to a bool (true), string (non-empty),
+// numeric (non-zero) or message (set) field, and a read never declares the
+// option. A write whose response has no fields is exempt: nothing in the
+// response could carry a proof.
+func checkResultRequired(op *model.Operation) []error {
+	opt := op.Opt
+	switch opt.GetClass() {
+	case contracts.OperationClass_OPERATION_CLASS_WRITE:
+	case contracts.OperationClass_OPERATION_CLASS_READ:
+		if len(opt.GetResultRequired()) > 0 {
+			return []error{errorf(RuleResultFieldsOnRead, op.ID, "result_required applies only to write operations")}
+		}
+		return nil
+	default:
+		return nil
+	}
+	if op.Response == nil || op.Response.Desc.Fields().Len() == 0 {
+		return nil
+	}
+	var errs []error
+	if len(opt.GetResultRequired()) == 0 {
+		errs = append(errs, errorf(RuleMissingResultFields, op.ID,
+			"a write operation must declare result_required (response paths that prove the write happened)"))
+	}
+	for _, path := range opt.GetResultRequired() {
+		if err := resolveResultPath(op.Response.Desc, path); err != nil {
+			errs = append(errs, errorf(RuleUnsupportedResultField, op.ID, "result_required %q: %v", path, err))
+		}
+	}
+	return errs
+}
+
+// resolveResultPath walks a result_required dot path through the response
+// message and checks that the final field proves the write: a bool (must be
+// true), a string (must be non-empty), a plain numeric scalar (must be
+// non-zero, matching proto3's no-presence semantics) or a message (must be
+// set). Every segment must name a field; an intermediate segment must be a
+// singular message the walk can continue through. Enums, bytes, lists,
+// maps and presence-carrying scalars cannot prove a write.
+func resolveResultPath(md protoreflect.MessageDescriptor, path string) error {
+	var fd protoreflect.FieldDescriptor
+	segs := strings.Split(path, ".")
+	for i, seg := range segs {
+		if fd = field(md, seg); fd == nil {
+			return fmt.Errorf("%s has no field %s", md.FullName(), seg)
+		}
+		if i == len(segs)-1 {
+			break
+		}
+		if (fd.Kind() != protoreflect.MessageKind && fd.Kind() != protoreflect.GroupKind) || fd.IsList() || fd.IsMap() {
+			return fmt.Errorf("field %s does not lead to a message", seg)
+		}
+		md = fd.Message()
+	}
+	if fd.IsMap() || fd.IsList() {
+		return fmt.Errorf("field %s is %s, not a bool, a string, a number or a message", fd.Name(), kindWord(fd))
+	}
+	switch fd.Kind() {
+	case protoreflect.BoolKind, protoreflect.StringKind, protoreflect.MessageKind, protoreflect.GroupKind:
+		return nil
+	case protoreflect.DoubleKind, protoreflect.FloatKind, protoreflect.Int32Kind, protoreflect.Int64Kind,
+		protoreflect.Uint32Kind, protoreflect.Uint64Kind, protoreflect.Sint32Kind, protoreflect.Sint64Kind,
+		protoreflect.Fixed32Kind, protoreflect.Fixed64Kind, protoreflect.Sfixed32Kind, protoreflect.Sfixed64Kind:
+		if fd.HasPresence() {
+			return fmt.Errorf("field %s is optional; a numeric result field must be a plain scalar", fd.Name())
+		}
+		return nil
+	default:
+		return fmt.Errorf("field %s is %s, not a bool, a string, a number or a message", fd.Name(), kindWord(fd))
+	}
+}
+
+func kindWord(fd protoreflect.FieldDescriptor) string {
+	switch {
+	case fd.IsMap():
+		return "a map"
+	case fd.IsList():
+		return "a repeated " + fd.Kind().String()
+	case fd.Kind() == protoreflect.EnumKind:
+		return "an enum"
+	default:
+		return "a " + fd.Kind().String()
+	}
 }
 
 func checkParam(op *model.Operation, p *model.Param) []error {

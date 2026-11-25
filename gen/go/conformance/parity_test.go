@@ -73,6 +73,12 @@ type parityCase struct {
 	RequestType  string          `json:"request_type"`
 	ResponseType string          `json:"response_type"`
 	Request      json.RawMessage `json:"request"`
+	// ExpectViolation marks a case whose provider response deliberately
+	// misses a result_required path: every language must fail it with
+	// ERROR_KIND_CONTRACT_VIOLATION instead of returning a result. The op
+	// field carries the op id plus an "@<variant>" suffix, so the server
+	// serves the broken fixture and the runners still call the real op.
+	ExpectViolation bool `json:"expect_violation"`
 }
 
 // parityResult is one line a runner prints.
@@ -162,6 +168,12 @@ func TestParity_AllLanguages(t *testing.T) {
 	}
 	for _, c := range cases {
 		r := ref[c.Op]
+		if c.ExpectViolation {
+			if r.Response != nil || !strings.Contains(r.Error, "contract_violation") {
+				t.Errorf("go %s: error = %q, want a contract_violation", c.Op, r.Error)
+			}
+			continue
+		}
 		if r.Error != "" || r.Response == nil {
 			t.Errorf("go %s: %s", c.Op, r.Error)
 		}
@@ -189,6 +201,10 @@ func TestParity_AllLanguages(t *testing.T) {
 			switch {
 			case !ok:
 				t.Errorf("%s runner has no result for %s", lang, c.Op)
+			case c.ExpectViolation:
+				if r.Response != nil || !strings.Contains(r.Error, "contract_violation") {
+					t.Errorf("%s %s: %q, want a contract_violation", lang, c.Op, r.Error)
+				}
 			case r.Error != "":
 				t.Errorf("%s %s: %s", lang, c.Op, r.Error)
 			case canonicalJSON(t, r.Response) != canonicalJSON(t, ref[c.Op].Response):
@@ -225,6 +241,7 @@ func parityCases(t *testing.T) ([]parityCase, map[string][]byte) {
 	}
 	var cases []parityCase
 	served := map[string][]byte{}
+	var createReqType, createRespType string
 	for _, c := range m.Connectors {
 		if len(c.Connections) > 0 && c.Connections[0].Kind == "sql_dsn" {
 			continue // SQL has no cross-language test server; replay covers it per language
@@ -246,12 +263,43 @@ func parityCases(t *testing.T) ([]parityCase, map[string][]byte) {
 			})
 			served[capability.ID] = providerShape(t, c.ID, op, capability.Response,
 				readFixture(t, c.ID, opFixtureName(capability.ID, "response")))
+			if capability.ID == "linear.issues.create" {
+				createReqType, createRespType = capability.Request, capability.Response
+			}
 		}
 	}
 	if len(cases) == 0 {
 		t.Fatal("no parity cases")
 	}
+	if createReqType == "" {
+		t.Fatal("linear.issues.create is not in the manifest")
+	}
+	appendResultRequiredCases(t, &cases, served, createReqType, createRespType)
 	return cases, served
+}
+
+// appendResultRequiredCases adds the result_required parity cases: the same
+// linear.issues.create call against response fixtures that each miss one
+// result_required path. Every language must fail them with
+// ERROR_KIND_CONTRACT_VIOLATION; the good fixture stays a normal case.
+func appendResultRequiredCases(t *testing.T, cases *[]parityCase, served map[string][]byte, requestType, responseType string) {
+	t.Helper()
+	const opID = "linear.issues.create"
+	op, ok := contracts.Lookup(opID)
+	if !ok {
+		t.Fatalf("%s is not registered", opID)
+	}
+	request := readFixture(t, "linear", opFixtureName(opID, "request"))
+	for _, variant := range []string{"success-false", "no-issue", "empty-identifier"} {
+		fixtureName := strings.TrimSuffix(opFixtureName(opID, "response"), ".json") + "." + variant + ".json"
+		caseID := opID + "@" + variant
+		*cases = append(*cases, parityCase{
+			Op: caseID, Connector: "linear", Method: op.GetMethodName(),
+			RequestType: requestType, ResponseType: responseType,
+			Request: request, ExpectViolation: true,
+		})
+		served[caseID] = providerShape(t, "linear", op, responseType, readFixture(t, "linear", fixtureName))
+	}
 }
 
 var graphQLRootRe = regexp.MustCompile(`^\s*(?:query|mutation)\b[^{]*\{\s*([A-Za-z_][A-Za-z0-9_]*)`)
@@ -278,7 +326,10 @@ func providerShape(t *testing.T, connector string, op *contracts.Operation, resp
 		out, _ := json.Marshal(map[string]json.RawMessage{"data": data})
 		return out
 	}
-	if connector == "github" {
+	if connector == "github" && op.GetClass() != contracts.OperationClass_OPERATION_CLASS_WRITE {
+		// A GitHub list read sends a bare array when the response has one
+		// repeated field. A write response is an object; unwrapping it would
+		// drop the very fields result_required checks.
 		mt, err := protoregistry.GlobalTypes.FindMessageByName(protoreflect.FullName(responseType))
 		if err != nil {
 			t.Fatalf("%s: %v", responseType, err)

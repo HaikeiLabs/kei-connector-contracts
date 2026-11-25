@@ -30,8 +30,12 @@ async fn main() {
     let mut out = std::io::stdout().lock();
     for case in cases {
         let op = case["op"].as_str().unwrap_or_default().to_string();
+        // A "@<variant>" suffix marks a deliberately broken response fixture
+        // (parity's result_required cases); the dispatch still calls the
+        // real operation.
+        let op_id = op.split('@').next().unwrap_or(&op).to_string();
         let result = match HttpConnection::new(&format!("{}/{}", args[2], op), &conn_spec, &args[3], client.clone()) {
-            Ok(conn) => dispatch(&op, conn, case["request"].clone()).await,
+            Ok(conn) => dispatch(&op_id, conn, case["request"].clone()).await,
             Err(e) => Err(e.to_string()),
         };
         let line = match result {

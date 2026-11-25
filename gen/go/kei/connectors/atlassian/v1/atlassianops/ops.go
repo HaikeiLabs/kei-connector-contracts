@@ -67,6 +67,7 @@ var specCreateConfluencePage = &connection.HTTPSpec{
 		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"id", "space_id"},
 }
 
 var specGetConfluencePage = &connection.HTTPSpec{
@@ -115,6 +116,7 @@ var specCreateJiraComment = &connection.HTTPSpec{
 		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"id", "body"},
 }
 
 var specCreateJiraIssue = &connection.HTTPSpec{
@@ -130,6 +132,7 @@ var specCreateJiraIssue = &connection.HTTPSpec{
 		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"id", "key"},
 }
 
 var specGetJiraIssue = &connection.HTTPSpec{

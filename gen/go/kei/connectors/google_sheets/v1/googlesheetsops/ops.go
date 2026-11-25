@@ -75,6 +75,7 @@ var specAppendValues = &connection.HTTPSpec{
 		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"updates.updated_range"},
 }
 
 var specGetValues = &connection.HTTPSpec{
@@ -110,6 +111,7 @@ var specUpdateValues = &connection.HTTPSpec{
 		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"updated_range"},
 }
 
 // GetSpreadsheet runs google_sheets.spreadsheets.get.

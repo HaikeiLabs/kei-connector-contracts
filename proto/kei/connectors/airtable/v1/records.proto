@@ -125,6 +125,7 @@ message CreateRecordRequest {
     scopes: ["data.records:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateRecord"
+    result_required: ["id", "created_time"]
     connections: ["pat"]
     resource_template: "bases/{base_id}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "record" version: 1}
@@ -165,6 +166,7 @@ message UpdateRecordRequest {
     scopes: ["data.records:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "UpdateRecord"
+    result_required: ["id", "created_time"]
     connections: ["pat"]
     resource_template: "bases/{base_id}"
     semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "record" version: 1}

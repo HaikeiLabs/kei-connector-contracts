@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Path, PathKind, Transport, decode_response, map_error, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::google_sheets::v1::{AppendValuesRequest, AppendValuesResponse, GetSpreadsheetRequest, GetSpreadsheetResponse, GetValuesRequest, GetValuesResponse, UpdateValuesRequest, UpdateValuesResponse};
 
@@ -112,6 +112,10 @@ const ERRORS_APPEND_VALUES: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_APPEND_VALUES: &[Path] = &[
+    Path { proto: "updates.updated_range", json: "updates.updatedRange", kind: PathKind::Str },
+];
+
 const ERRORS_GET_VALUES: &[ErrorMapping] = &[
     ErrorMapping {
         status: 400,
@@ -168,6 +172,10 @@ const ERRORS_UPDATE_VALUES: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_UPDATE_VALUES: &[Path] = &[
+    Path { proto: "updated_range", json: "updatedRange", kind: PathKind::Str },
+];
+
 // The generated queries run inside one caller's task, so the
 // async-fn-in-trait auto-trait bounds do not matter here.
 #[allow(async_fn_in_trait)]
@@ -205,7 +213,7 @@ impl GoogleSheetsOperations for GoogleSheetsQueries {
         if let Some(err) = map_error(&OP_GET_SPREADSHEET, out.status, &ERRORS_GET_SPREADSHEET) {
             return Err(err);
         }
-        let resp: GetSpreadsheetResponse = decode_response(OP_GET_SPREADSHEET.id, &out.body, None)?;
+        let resp: GetSpreadsheetResponse = decode_response(OP_GET_SPREADSHEET.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// append_values runs google_sheets.values.append (POST /v4/spreadsheets/{spreadsheet_id}/values/{range}:append).
@@ -235,7 +243,7 @@ impl GoogleSheetsOperations for GoogleSheetsQueries {
         if let Some(err) = map_error(&OP_APPEND_VALUES, out.status, &ERRORS_APPEND_VALUES) {
             return Err(err);
         }
-        let resp: AppendValuesResponse = decode_response(OP_APPEND_VALUES.id, &out.body, None)?;
+        let resp: AppendValuesResponse = decode_response(OP_APPEND_VALUES.id, out.status, &out.body, &RESULT_REQUIRED_APPEND_VALUES, None)?;
         Ok(resp)
     }
     /// get_values runs google_sheets.values.get (GET /v4/spreadsheets/{spreadsheet_id}/values/{range}).
@@ -257,7 +265,7 @@ impl GoogleSheetsOperations for GoogleSheetsQueries {
         if let Some(err) = map_error(&OP_GET_VALUES, out.status, &ERRORS_GET_VALUES) {
             return Err(err);
         }
-        let resp: GetValuesResponse = decode_response(OP_GET_VALUES.id, &out.body, Some("values"))?;
+        let resp: GetValuesResponse = decode_response(OP_GET_VALUES.id, out.status, &out.body, &[], Some("values"))?;
         Ok(resp)
     }
     /// update_values runs google_sheets.values.update (PUT /v4/spreadsheets/{spreadsheet_id}/values/{range}).
@@ -284,7 +292,7 @@ impl GoogleSheetsOperations for GoogleSheetsQueries {
         if let Some(err) = map_error(&OP_UPDATE_VALUES, out.status, &ERRORS_UPDATE_VALUES) {
             return Err(err);
         }
-        let resp: UpdateValuesResponse = decode_response(OP_UPDATE_VALUES.id, &out.body, None)?;
+        let resp: UpdateValuesResponse = decode_response(OP_UPDATE_VALUES.id, out.status, &out.body, &RESULT_REQUIRED_UPDATE_VALUES, None)?;
         Ok(resp)
     }
 }

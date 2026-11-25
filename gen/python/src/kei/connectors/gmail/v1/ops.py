@@ -18,6 +18,7 @@ _SPEC_CREATE_DRAFT = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id"],
 }
 OP_GET_MESSAGE = Op(id="gmail.messages.get", op_class=OpClass.READ, destructive=False, resource_template="users/{user_id}", method_name="GetMessage", connections=("user_oauth", "domain_delegation"), transport=Transport.HTTP)
 _SPEC_GET_MESSAGE = {

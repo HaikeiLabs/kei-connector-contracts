@@ -81,6 +81,7 @@ message CreateRefRequest {
     scopes: ["contents:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateRef"
+    result_required: ["ref", "object.sha"]
     connections: ["user_oauth", "pat"]
     resource_template: "repos/{owner}/{repository}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "git_ref" version: 1}
@@ -124,6 +125,7 @@ message UpdateRefRequest {
     scopes: ["contents:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "UpdateRef"
+    result_required: ["ref", "object.sha"]
     connections: ["user_oauth", "pat"]
     resource_template: "repos/{owner}/{repository}"
     semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "git_ref" version: 1}
@@ -162,6 +164,7 @@ message CreateBlobRequest {
     scopes: ["contents:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateBlob"
+    result_required: ["sha"]
     connections: ["user_oauth", "pat"]
     resource_template: "repos/{owner}/{repository}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "git_blob" version: 1}
@@ -210,6 +213,7 @@ message CreateTreeRequest {
     scopes: ["contents:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateTree"
+    result_required: ["sha"]
     connections: ["user_oauth", "pat"]
     resource_template: "repos/{owner}/{repository}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "git_tree" version: 1}
@@ -251,6 +255,7 @@ message CreateCommitRequest {
     scopes: ["contents:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateCommit"
+    result_required: ["sha"]
     connections: ["user_oauth", "pat"]
     resource_template: "repos/{owner}/{repository}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "git_commit" version: 1}

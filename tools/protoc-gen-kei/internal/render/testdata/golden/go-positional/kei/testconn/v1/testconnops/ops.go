@@ -75,6 +75,7 @@ var specCreateThing = &connection.HTTPSpec{
 	Errors: []*contracts.ErrorMapping{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 	},
+	ResultRequired: []string{"id", "name"},
 }
 
 var specGetThing = &connection.HTTPSpec{

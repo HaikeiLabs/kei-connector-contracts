@@ -77,6 +77,7 @@ message CreateConfluencePageRequest {
     scopes: ["write:page:confluence"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateConfluencePage"
+    result_required: ["id", "space_id"]
     connections: ["user_oauth", "api_token"]
     resource_template: "confluence/pages"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "page" version: 1}

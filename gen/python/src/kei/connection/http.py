@@ -12,8 +12,10 @@ from typing import Any, Mapping, Protocol, Sequence, Union
 from urllib.parse import parse_qs, quote_plus, urlencode, urlsplit
 
 from google.protobuf import json_format
+from google.protobuf.descriptor import FieldDescriptor
 
 from .errors import (
+    CONTRACT_VIOLATION,
     FORBIDDEN,
     NOT_FOUND,
     RATE_LIMITED,
@@ -584,5 +586,63 @@ async def call_http(conn, spec: Mapping[str, Any], req, resp_type):
         _decode_graphql(spec, status, resp_body, resp)
     else:
         _decode_json(spec, resp_body, resp)
+    _check_result_required(spec, status, resp)
     _fill_next_cursor(spec, headers, resp)
     return resp
+
+
+def _check_result_required(spec, status: int, resp) -> None:
+    """Verify that a 2xx response holds every result_required path: the
+    fields that prove the write happened. A response missing one fails with
+    the contract_violation kind — the provider answered 2xx, but the
+    contract cannot confirm the write."""
+    for path in spec.get("result_required") or ():
+        if not _holds_path(resp, path.split(".")):
+            raise OperationError(spec["op"].id, CONTRACT_VIOLATION, status, False)
+
+
+def _holds_path(msg, segs) -> bool:
+    """Whether msg holds one dot path: every segment names a field, an
+    intermediate message is set, and the final field proves the write — a
+    bool True, a string non-empty, a plain number non-zero, a message set."""
+    md = msg.DESCRIPTOR
+    for i, seg in enumerate(segs):
+        fd = md.fields_by_name.get(seg)
+        if fd is None:
+            return False
+        value = getattr(msg, fd.name)
+        if i == len(segs) - 1:
+            if fd.message_type is not None:
+                return not fd.is_repeated and not _is_map(fd) and value is not None
+            if fd.is_repeated or _is_map(fd):
+                return False
+            if fd.type == fd.TYPE_BOOL:
+                return value is True
+            if fd.type == fd.TYPE_STRING:
+                return value != ""
+            if fd.type in _NUMERIC_TYPES:
+                return value != 0
+            return False
+        if fd.message_type is None or fd.is_repeated or _is_map(fd) or not msg.HasField(fd.name):
+            return False
+        msg = value
+        md = fd.message_type
+    return False
+
+
+_NUMERIC_TYPES = frozenset(
+    (
+        FieldDescriptor.TYPE_DOUBLE,
+        FieldDescriptor.TYPE_FLOAT,
+        FieldDescriptor.TYPE_INT64,
+        FieldDescriptor.TYPE_UINT64,
+        FieldDescriptor.TYPE_INT32,
+        FieldDescriptor.TYPE_FIXED64,
+        FieldDescriptor.TYPE_FIXED32,
+        FieldDescriptor.TYPE_UINT32,
+        FieldDescriptor.TYPE_SFIXED32,
+        FieldDescriptor.TYPE_SFIXED64,
+        FieldDescriptor.TYPE_SINT32,
+        FieldDescriptor.TYPE_SINT64,
+    )
+)
