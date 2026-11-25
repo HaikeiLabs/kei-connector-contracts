@@ -603,6 +603,28 @@
           "response": "kei.connectors.github.v1.CreateCommitResponse"
         },
         {
+          "id": "github.git.commits.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "contents:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "git_commit",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.GetGitCommitRequest",
+          "response": "kei.connectors.github.v1.GetGitCommitResponse"
+        },
+        {
           "id": "github.git.refs.create",
           "class": "write",
           "destructive": false,

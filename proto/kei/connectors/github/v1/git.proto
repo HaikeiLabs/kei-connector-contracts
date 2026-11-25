@@ -279,3 +279,44 @@ message CreateCommitResponse {
   GitObject tree = 4;
   repeated GitObject parents = 5;
 }
+
+// GetGitCommitRequest reads one git commit object from a GitHub repository
+// by sha. The sibling github.repos.commits.get reads the same commit in its
+// list form (with the GitHub account it is attributed to).
+message GetGitCommitRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  // The commit sha.
+  string commit_sha = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.git.commits.get"
+    connector: "github"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/repos/{owner}/{repository}/git/commits/{commit_sha}"
+    scopes: ["contents:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetGitCommit"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "git_commit" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// GetGitCommitResponse models the git commit object: its sha, its message,
+// the tree it points at and its parents. It is filled by JSON unmarshal of
+// the provider response.
+message GetGitCommitResponse {
+  string sha = 1;
+  string html_url = 2;
+  string message = 3;
+  GitObject tree = 4;
+  repeated GitObject parents = 5;
+}

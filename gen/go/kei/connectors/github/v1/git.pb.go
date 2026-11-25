@@ -952,6 +952,149 @@ func (x *CreateCommitResponse) GetParents() []*GitObject {
 	return nil
 }
 
+// GetGitCommitRequest reads one git commit object from a GitHub repository
+// by sha. The sibling github.repos.commits.get reads the same commit in its
+// list form (with the GitHub account it is attributed to).
+type GetGitCommitRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Owner      string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	// The commit sha.
+	CommitSha     string `protobuf:"bytes,3,opt,name=commit_sha,json=commitSha,proto3" json:"commit_sha,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGitCommitRequest) Reset() {
+	*x = GetGitCommitRequest{}
+	mi := &file_kei_connectors_github_v1_git_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGitCommitRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGitCommitRequest) ProtoMessage() {}
+
+func (x *GetGitCommitRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_git_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGitCommitRequest.ProtoReflect.Descriptor instead.
+func (*GetGitCommitRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_git_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *GetGitCommitRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *GetGitCommitRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *GetGitCommitRequest) GetCommitSha() string {
+	if x != nil {
+		return x.CommitSha
+	}
+	return ""
+}
+
+// GetGitCommitResponse models the git commit object: its sha, its message,
+// the tree it points at and its parents. It is filled by JSON unmarshal of
+// the provider response.
+type GetGitCommitResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Sha           string                 `protobuf:"bytes,1,opt,name=sha,proto3" json:"sha,omitempty"`
+	HtmlUrl       string                 `protobuf:"bytes,2,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	Message       string                 `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	Tree          *GitObject             `protobuf:"bytes,4,opt,name=tree,proto3" json:"tree,omitempty"`
+	Parents       []*GitObject           `protobuf:"bytes,5,rep,name=parents,proto3" json:"parents,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetGitCommitResponse) Reset() {
+	*x = GetGitCommitResponse{}
+	mi := &file_kei_connectors_github_v1_git_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetGitCommitResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetGitCommitResponse) ProtoMessage() {}
+
+func (x *GetGitCommitResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_git_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetGitCommitResponse.ProtoReflect.Descriptor instead.
+func (*GetGitCommitResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_git_proto_rawDescGZIP(), []int{15}
+}
+
+func (x *GetGitCommitResponse) GetSha() string {
+	if x != nil {
+		return x.Sha
+	}
+	return ""
+}
+
+func (x *GetGitCommitResponse) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+func (x *GetGitCommitResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *GetGitCommitResponse) GetTree() *GitObject {
+	if x != nil {
+		return x.Tree
+	}
+	return nil
+}
+
+func (x *GetGitCommitResponse) GetParents() []*GitObject {
+	if x != nil {
+		return x.Parents
+	}
+	return nil
+}
+
 var File_kei_connectors_github_v1_git_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_github_v1_git_proto_rawDesc = "" +
@@ -1049,6 +1192,22 @@ const file_kei_connectors_github_v1_git_proto_rawDesc = "" +
 	"\bhtml_url\x18\x02 \x01(\tR\ahtmlUrl\x12\x18\n" +
 	"\amessage\x18\x03 \x01(\tR\amessage\x127\n" +
 	"\x04tree\x18\x04 \x01(\v2#.kei.connectors.github.v1.GitObjectR\x04tree\x12=\n" +
+	"\aparents\x18\x05 \x03(\v2#.kei.connectors.github.v1.GitObjectR\aparents\"\xe4\x02\n" +
+	"\x13GetGitCommitRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12%\n" +
+	"\n" +
+	"commit_sha\x18\x03 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\tcommitSha:\xdf\x01\x92\x82\x19\xda\x01\n" +
+	"\x16github.git.commits.get\x12\x06github\x18\x01*\x03GET24/repos/{owner}/{repository}/git/commits/{commit_sha}:\rcontents:read@\x01J\fGetGitCommitR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x10\b\x01\x12\n" +
+	"git_commit\x18\x01\"\xd5\x01\n" +
+	"\x14GetGitCommitResponse\x12\x10\n" +
+	"\x03sha\x18\x01 \x01(\tR\x03sha\x12\x19\n" +
+	"\bhtml_url\x18\x02 \x01(\tR\ahtmlUrl\x12\x18\n" +
+	"\amessage\x18\x03 \x01(\tR\amessage\x127\n" +
+	"\x04tree\x18\x04 \x01(\v2#.kei.connectors.github.v1.GitObjectR\x04tree\x12=\n" +
 	"\aparents\x18\x05 \x03(\v2#.kei.connectors.github.v1.GitObjectR\aparentsBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3"
 
 var (
@@ -1063,7 +1222,7 @@ func file_kei_connectors_github_v1_git_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_github_v1_git_proto_rawDescData
 }
 
-var file_kei_connectors_github_v1_git_proto_msgTypes = make([]protoimpl.MessageInfo, 14)
+var file_kei_connectors_github_v1_git_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
 var file_kei_connectors_github_v1_git_proto_goTypes = []any{
 	(*GetRefRequest)(nil),        // 0: kei.connectors.github.v1.GetRefRequest
 	(*GitObject)(nil),            // 1: kei.connectors.github.v1.GitObject
@@ -1079,6 +1238,8 @@ var file_kei_connectors_github_v1_git_proto_goTypes = []any{
 	(*CreateTreeResponse)(nil),   // 11: kei.connectors.github.v1.CreateTreeResponse
 	(*CreateCommitRequest)(nil),  // 12: kei.connectors.github.v1.CreateCommitRequest
 	(*CreateCommitResponse)(nil), // 13: kei.connectors.github.v1.CreateCommitResponse
+	(*GetGitCommitRequest)(nil),  // 14: kei.connectors.github.v1.GetGitCommitRequest
+	(*GetGitCommitResponse)(nil), // 15: kei.connectors.github.v1.GetGitCommitResponse
 }
 var file_kei_connectors_github_v1_git_proto_depIdxs = []int32{
 	1, // 0: kei.connectors.github.v1.GetRefResponse.object:type_name -> kei.connectors.github.v1.GitObject
@@ -1088,11 +1249,13 @@ var file_kei_connectors_github_v1_git_proto_depIdxs = []int32{
 	9, // 4: kei.connectors.github.v1.CreateTreeResponse.tree:type_name -> kei.connectors.github.v1.TreeEntry
 	1, // 5: kei.connectors.github.v1.CreateCommitResponse.tree:type_name -> kei.connectors.github.v1.GitObject
 	1, // 6: kei.connectors.github.v1.CreateCommitResponse.parents:type_name -> kei.connectors.github.v1.GitObject
-	7, // [7:7] is the sub-list for method output_type
-	7, // [7:7] is the sub-list for method input_type
-	7, // [7:7] is the sub-list for extension type_name
-	7, // [7:7] is the sub-list for extension extendee
-	0, // [0:7] is the sub-list for field type_name
+	1, // 7: kei.connectors.github.v1.GetGitCommitResponse.tree:type_name -> kei.connectors.github.v1.GitObject
+	1, // 8: kei.connectors.github.v1.GetGitCommitResponse.parents:type_name -> kei.connectors.github.v1.GitObject
+	9, // [9:9] is the sub-list for method output_type
+	9, // [9:9] is the sub-list for method input_type
+	9, // [9:9] is the sub-list for extension type_name
+	9, // [9:9] is the sub-list for extension extendee
+	0, // [0:9] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_github_v1_git_proto_init() }
@@ -1108,7 +1271,7 @@ func file_kei_connectors_github_v1_git_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_github_v1_git_proto_rawDesc), len(file_kei_connectors_github_v1_git_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   14,
+			NumMessages:   16,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

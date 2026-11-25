@@ -95,6 +95,10 @@ message ListPullsRequest {
   optional int32 page = 4;
   // open, closed or all.
   optional string state = 5;
+  // Filter by head branch, as owner:branch.
+  optional string head = 6;
+  // Filter by base branch.
+  optional string base = 7;
 
   option (kei.contracts.v1.operation) = {
     id: "github.pulls.list"

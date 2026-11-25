@@ -20,6 +20,7 @@ type Mock struct {
 	PutContentsFunc                func(ctx context.Context, req *github.PutContentsRequest) (*github.PutContentsResponse, error)
 	CreateBlobFunc                 func(ctx context.Context, req *github.CreateBlobRequest) (*github.CreateBlobResponse, error)
 	CreateCommitFunc               func(ctx context.Context, req *github.CreateCommitRequest) (*github.CreateCommitResponse, error)
+	GetGitCommitFunc               func(ctx context.Context, req *github.GetGitCommitRequest) (*github.GetGitCommitResponse, error)
 	CreateRefFunc                  func(ctx context.Context, req *github.CreateRefRequest) (*github.CreateRefResponse, error)
 	GetRefFunc                     func(ctx context.Context, req *github.GetRefRequest) (*github.GetRefResponse, error)
 	UpdateRefFunc                  func(ctx context.Context, req *github.UpdateRefRequest) (*github.UpdateRefResponse, error)
@@ -106,6 +107,14 @@ func (m *Mock) CreateCommit(ctx context.Context, req *github.CreateCommitRequest
 		return nil, errors.New("githubops.Mock: CreateCommitFunc is not set")
 	}
 	return m.CreateCommitFunc(ctx, req)
+}
+
+// GetGitCommit calls m.GetGitCommitFunc.
+func (m *Mock) GetGitCommit(ctx context.Context, req *github.GetGitCommitRequest) (*github.GetGitCommitResponse, error) {
+	if m.GetGitCommitFunc == nil {
+		return nil, errors.New("githubops.Mock: GetGitCommitFunc is not set")
+	}
+	return m.GetGitCommitFunc(ctx, req)
 }
 
 // CreateRef calls m.CreateRefFunc.

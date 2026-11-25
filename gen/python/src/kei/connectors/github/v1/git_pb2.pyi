@@ -156,3 +156,27 @@ class CreateCommitResponse(_message.Message):
     tree: GitObject
     parents: _containers.RepeatedCompositeFieldContainer[GitObject]
     def __init__(self, sha: _Optional[str] = ..., html_url: _Optional[str] = ..., message: _Optional[str] = ..., tree: _Optional[_Union[GitObject, _Mapping]] = ..., parents: _Optional[_Iterable[_Union[GitObject, _Mapping]]] = ...) -> None: ...
+
+class GetGitCommitRequest(_message.Message):
+    __slots__ = ("owner", "repository", "commit_sha")
+    OWNER_FIELD_NUMBER: _ClassVar[int]
+    REPOSITORY_FIELD_NUMBER: _ClassVar[int]
+    COMMIT_SHA_FIELD_NUMBER: _ClassVar[int]
+    owner: str
+    repository: str
+    commit_sha: str
+    def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., commit_sha: _Optional[str] = ...) -> None: ...
+
+class GetGitCommitResponse(_message.Message):
+    __slots__ = ("sha", "html_url", "message", "tree", "parents")
+    SHA_FIELD_NUMBER: _ClassVar[int]
+    HTML_URL_FIELD_NUMBER: _ClassVar[int]
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    TREE_FIELD_NUMBER: _ClassVar[int]
+    PARENTS_FIELD_NUMBER: _ClassVar[int]
+    sha: str
+    html_url: str
+    message: str
+    tree: GitObject
+    parents: _containers.RepeatedCompositeFieldContainer[GitObject]
+    def __init__(self, sha: _Optional[str] = ..., html_url: _Optional[str] = ..., message: _Optional[str] = ..., tree: _Optional[_Union[GitObject, _Mapping]] = ..., parents: _Optional[_Iterable[_Union[GitObject, _Mapping]]] = ...) -> None: ...
