@@ -49,6 +49,7 @@ class ErrorKind(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     ERROR_KIND_CONFLICT: _ClassVar[ErrorKind]
     ERROR_KIND_INVALID: _ClassVar[ErrorKind]
     ERROR_KIND_UNAVAILABLE: _ClassVar[ErrorKind]
+    ERROR_KIND_CONTRACT_VIOLATION: _ClassVar[ErrorKind]
 
 class ParamIn(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     __slots__ = ()
@@ -92,6 +93,7 @@ ERROR_KIND_RATE_LIMITED: ErrorKind
 ERROR_KIND_CONFLICT: ErrorKind
 ERROR_KIND_INVALID: ErrorKind
 ERROR_KIND_UNAVAILABLE: ErrorKind
+ERROR_KIND_CONTRACT_VIOLATION: ErrorKind
 PARAM_IN_UNSPECIFIED: ParamIn
 PARAM_IN_PATH: ParamIn
 PARAM_IN_QUERY: ParamIn
@@ -185,7 +187,7 @@ class Semantics(_message.Message):
     def __init__(self, action: _Optional[_Union[SemanticAction, str]] = ..., resource_type: _Optional[str] = ..., version: _Optional[int] = ...) -> None: ...
 
 class Operation(_message.Message):
-    __slots__ = ("id", "connector", "destructive", "http_method", "path_template", "scopes", "credential_placement", "method_name", "connections", "resource_template", "errors", "deprecated", "replaced_by", "graphql_document", "positional_helper", "semantics", "cursor_field", "next_cursor_field")
+    __slots__ = ("id", "connector", "destructive", "http_method", "path_template", "scopes", "credential_placement", "method_name", "connections", "resource_template", "errors", "deprecated", "replaced_by", "graphql_document", "positional_helper", "semantics", "cursor_field", "next_cursor_field", "result_required")
     ID_FIELD_NUMBER: _ClassVar[int]
     CONNECTOR_FIELD_NUMBER: _ClassVar[int]
     CLASS_FIELD_NUMBER: _ClassVar[int]
@@ -205,6 +207,7 @@ class Operation(_message.Message):
     SEMANTICS_FIELD_NUMBER: _ClassVar[int]
     CURSOR_FIELD_FIELD_NUMBER: _ClassVar[int]
     NEXT_CURSOR_FIELD_FIELD_NUMBER: _ClassVar[int]
+    RESULT_REQUIRED_FIELD_NUMBER: _ClassVar[int]
     id: str
     connector: str
     destructive: bool
@@ -223,4 +226,5 @@ class Operation(_message.Message):
     semantics: Semantics
     cursor_field: str
     next_cursor_field: str
-    def __init__(self, id: _Optional[str] = ..., connector: _Optional[str] = ..., destructive: _Optional[bool] = ..., http_method: _Optional[str] = ..., path_template: _Optional[str] = ..., scopes: _Optional[_Iterable[str]] = ..., credential_placement: _Optional[_Union[CredentialPlacement, str]] = ..., method_name: _Optional[str] = ..., connections: _Optional[_Iterable[str]] = ..., resource_template: _Optional[str] = ..., errors: _Optional[_Iterable[_Union[ErrorMapping, _Mapping]]] = ..., deprecated: _Optional[bool] = ..., replaced_by: _Optional[str] = ..., graphql_document: _Optional[str] = ..., positional_helper: _Optional[bool] = ..., semantics: _Optional[_Union[Semantics, _Mapping]] = ..., cursor_field: _Optional[str] = ..., next_cursor_field: _Optional[str] = ..., **kwargs) -> None: ...
+    result_required: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, id: _Optional[str] = ..., connector: _Optional[str] = ..., destructive: _Optional[bool] = ..., http_method: _Optional[str] = ..., path_template: _Optional[str] = ..., scopes: _Optional[_Iterable[str]] = ..., credential_placement: _Optional[_Union[CredentialPlacement, str]] = ..., method_name: _Optional[str] = ..., connections: _Optional[_Iterable[str]] = ..., resource_template: _Optional[str] = ..., errors: _Optional[_Iterable[_Union[ErrorMapping, _Mapping]]] = ..., deprecated: _Optional[bool] = ..., replaced_by: _Optional[str] = ..., graphql_document: _Optional[str] = ..., positional_helper: _Optional[bool] = ..., semantics: _Optional[_Union[Semantics, _Mapping]] = ..., cursor_field: _Optional[str] = ..., next_cursor_field: _Optional[str] = ..., result_required: _Optional[_Iterable[str]] = ..., **kwargs) -> None: ...

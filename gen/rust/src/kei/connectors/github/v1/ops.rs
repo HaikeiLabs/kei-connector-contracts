@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Path, PathKind, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::github::v1::{CreateBlobRequest, CreateBlobResponse, CreateCommitRequest, CreateCommitResponse, CreateIssueCommentRequest, CreateIssueCommentResponse, CreateIssueRequest, CreateIssueResponse, CreatePullRequestRequest, CreatePullRequestResponse, CreatePullReviewRequest, CreatePullReviewResponse, CreateRefRequest, CreateRefResponse, CreateTreeRequest, CreateTreeResponse, GetCommitRequest, GetCommitResponse, GetContentsRequest, GetContentsResponse, GetIssueRequest, GetIssueResponse, GetPullRequestRequest, GetPullRequestResponse, GetRefRequest, GetRefResponse, GetRepositoryRequest, GetRepositoryResponse, GetRunAttemptRequest, GetRunAttemptResponse, ListCheckRunsRequest, ListCheckRunsResponse, ListCommitsRequest, ListCommitsResponse, ListContentsRequest, ListContentsResponse, ListIssuesRequest, ListIssuesResponse, ListPullReviewsRequest, ListPullReviewsResponse, ListPullsRequest, ListPullsResponse, ListRunJobsRequest, ListRunJobsResponse, ListWorkflowRunsByWorkflowRequest, ListWorkflowRunsByWorkflowResponse, ListWorkflowRunsRequest, ListWorkflowRunsResponse, PutContentsRequest, PutContentsResponse, UpdateIssueRequest, UpdateIssueResponse, UpdatePullRequestRequest, UpdatePullRequestResponse, UpdateRefRequest, UpdateRefResponse};
 
@@ -497,6 +497,10 @@ const ERRORS_PUT_CONTENTS: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_PUT_CONTENTS: &[Path] = &[
+    Path { proto: "content.sha", json: "content.sha", kind: PathKind::Str },
+];
+
 const ERRORS_CREATE_BLOB: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -528,6 +532,10 @@ const ERRORS_CREATE_BLOB: &[ErrorMapping] = &[
         kind: ErrorKind::Invalid as i32,
         retryable: false,
     },
+];
+
+const RESULT_REQUIRED_CREATE_BLOB: &[Path] = &[
+    Path { proto: "sha", json: "sha", kind: PathKind::Str },
 ];
 
 const ERRORS_CREATE_COMMIT: &[ErrorMapping] = &[
@@ -563,6 +571,10 @@ const ERRORS_CREATE_COMMIT: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_CREATE_COMMIT: &[Path] = &[
+    Path { proto: "sha", json: "sha", kind: PathKind::Str },
+];
+
 const ERRORS_CREATE_REF: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -594,6 +606,11 @@ const ERRORS_CREATE_REF: &[ErrorMapping] = &[
         kind: ErrorKind::Invalid as i32,
         retryable: false,
     },
+];
+
+const RESULT_REQUIRED_CREATE_REF: &[Path] = &[
+    Path { proto: "ref", json: "ref", kind: PathKind::Str },
+    Path { proto: "object.sha", json: "object.sha", kind: PathKind::Str },
 ];
 
 const ERRORS_GET_REF: &[ErrorMapping] = &[
@@ -652,6 +669,11 @@ const ERRORS_UPDATE_REF: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_UPDATE_REF: &[Path] = &[
+    Path { proto: "ref", json: "ref", kind: PathKind::Str },
+    Path { proto: "object.sha", json: "object.sha", kind: PathKind::Str },
+];
+
 const ERRORS_CREATE_TREE: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -683,6 +705,10 @@ const ERRORS_CREATE_TREE: &[ErrorMapping] = &[
         kind: ErrorKind::Invalid as i32,
         retryable: false,
     },
+];
+
+const RESULT_REQUIRED_CREATE_TREE: &[Path] = &[
+    Path { proto: "sha", json: "sha", kind: PathKind::Str },
 ];
 
 const ERRORS_CREATE_ISSUE_COMMENT: &[ErrorMapping] = &[
@@ -718,6 +744,10 @@ const ERRORS_CREATE_ISSUE_COMMENT: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_CREATE_ISSUE_COMMENT: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Num },
+];
+
 const ERRORS_CREATE_ISSUE: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -749,6 +779,11 @@ const ERRORS_CREATE_ISSUE: &[ErrorMapping] = &[
         kind: ErrorKind::Invalid as i32,
         retryable: false,
     },
+];
+
+const RESULT_REQUIRED_CREATE_ISSUE: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Num },
+    Path { proto: "number", json: "number", kind: PathKind::Num },
 ];
 
 const ERRORS_GET_ISSUE: &[ErrorMapping] = &[
@@ -830,6 +865,11 @@ const ERRORS_UPDATE_ISSUE: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_UPDATE_ISSUE: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Num },
+    Path { proto: "number", json: "number", kind: PathKind::Num },
+];
+
 const ERRORS_CREATE_PULL_REQUEST: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -861,6 +901,11 @@ const ERRORS_CREATE_PULL_REQUEST: &[ErrorMapping] = &[
         kind: ErrorKind::Invalid as i32,
         retryable: false,
     },
+];
+
+const RESULT_REQUIRED_CREATE_PULL_REQUEST: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Num },
+    Path { proto: "number", json: "number", kind: PathKind::Num },
 ];
 
 const ERRORS_GET_PULL_REQUEST: &[ErrorMapping] = &[
@@ -942,6 +987,11 @@ const ERRORS_CREATE_REVIEW: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_CREATE_REVIEW: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Num },
+    Path { proto: "state", json: "state", kind: PathKind::Str },
+];
+
 const ERRORS_LIST_REVIEWS: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -996,6 +1046,11 @@ const ERRORS_UPDATE_PULL_REQUEST: &[ErrorMapping] = &[
         kind: ErrorKind::Invalid as i32,
         retryable: false,
     },
+];
+
+const RESULT_REQUIRED_UPDATE_PULL_REQUEST: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Num },
+    Path { proto: "number", json: "number", kind: PathKind::Num },
 ];
 
 const ERRORS_GET_COMMIT: &[ErrorMapping] = &[
@@ -1203,7 +1258,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_GET_RUN_ATTEMPT, out.status, &ERRORS_GET_RUN_ATTEMPT) {
             return Err(err);
         }
-        let resp: GetRunAttemptResponse = decode_response(OP_GET_RUN_ATTEMPT.id, &out.body, None)?;
+        let resp: GetRunAttemptResponse = decode_response(OP_GET_RUN_ATTEMPT.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// list_run_jobs runs github.actions.runs.jobs.list (GET /repos/{owner}/{repository}/actions/runs/{run_id}/jobs).
@@ -1230,7 +1285,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_LIST_RUN_JOBS, out.status, &ERRORS_LIST_RUN_JOBS) {
             return Err(err);
         }
-        let mut resp: ListRunJobsResponse = decode_response(OP_LIST_RUN_JOBS.id, &out.body, Some("jobs"))?;
+        let mut resp: ListRunJobsResponse = decode_response(OP_LIST_RUN_JOBS.id, out.status, &out.body, &[], Some("jobs"))?;
         if resp.next_page.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "page") {
                 resp.next_page = cursor.parse::<i64>().ok();
@@ -1262,7 +1317,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_LIST_WORKFLOW_RUNS, out.status, &ERRORS_LIST_WORKFLOW_RUNS) {
             return Err(err);
         }
-        let mut resp: ListWorkflowRunsResponse = decode_response(OP_LIST_WORKFLOW_RUNS.id, &out.body, Some("workflowRuns"))?;
+        let mut resp: ListWorkflowRunsResponse = decode_response(OP_LIST_WORKFLOW_RUNS.id, out.status, &out.body, &[], Some("workflowRuns"))?;
         if resp.next_page.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "page") {
                 resp.next_page = cursor.parse::<i64>().ok();
@@ -1295,7 +1350,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_LIST_WORKFLOW_RUNS_BY_WORKFLOW, out.status, &ERRORS_LIST_WORKFLOW_RUNS_BY_WORKFLOW) {
             return Err(err);
         }
-        let mut resp: ListWorkflowRunsByWorkflowResponse = decode_response(OP_LIST_WORKFLOW_RUNS_BY_WORKFLOW.id, &out.body, Some("workflowRuns"))?;
+        let mut resp: ListWorkflowRunsByWorkflowResponse = decode_response(OP_LIST_WORKFLOW_RUNS_BY_WORKFLOW.id, out.status, &out.body, &[], Some("workflowRuns"))?;
         if resp.next_page.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "page") {
                 resp.next_page = cursor.parse::<i64>().ok();
@@ -1326,7 +1381,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_LIST_CHECK_RUNS, out.status, &ERRORS_LIST_CHECK_RUNS) {
             return Err(err);
         }
-        let mut resp: ListCheckRunsResponse = decode_response(OP_LIST_CHECK_RUNS.id, &out.body, Some("checkRuns"))?;
+        let mut resp: ListCheckRunsResponse = decode_response(OP_LIST_CHECK_RUNS.id, out.status, &out.body, &[], Some("checkRuns"))?;
         if resp.next_page.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "page") {
                 resp.next_page = cursor.parse::<i64>().ok();
@@ -1360,7 +1415,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_PUT_CONTENTS, out.status, &ERRORS_PUT_CONTENTS) {
             return Err(err);
         }
-        let resp: PutContentsResponse = decode_response(OP_PUT_CONTENTS.id, &out.body, None)?;
+        let resp: PutContentsResponse = decode_response(OP_PUT_CONTENTS.id, out.status, &out.body, &RESULT_REQUIRED_PUT_CONTENTS, None)?;
         Ok(resp)
     }
     /// create_blob runs github.git.blobs.create (POST /repos/{owner}/{repository}/git/blobs).
@@ -1386,7 +1441,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_CREATE_BLOB, out.status, &ERRORS_CREATE_BLOB) {
             return Err(err);
         }
-        let resp: CreateBlobResponse = decode_response(OP_CREATE_BLOB.id, &out.body, None)?;
+        let resp: CreateBlobResponse = decode_response(OP_CREATE_BLOB.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_BLOB, None)?;
         Ok(resp)
     }
     /// create_commit runs github.git.commits.create (POST /repos/{owner}/{repository}/git/commits).
@@ -1413,7 +1468,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_CREATE_COMMIT, out.status, &ERRORS_CREATE_COMMIT) {
             return Err(err);
         }
-        let resp: CreateCommitResponse = decode_response(OP_CREATE_COMMIT.id, &out.body, Some("parents"))?;
+        let resp: CreateCommitResponse = decode_response(OP_CREATE_COMMIT.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_COMMIT, Some("parents"))?;
         Ok(resp)
     }
     /// create_ref runs github.git.refs.create (POST /repos/{owner}/{repository}/git/refs).
@@ -1439,7 +1494,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_CREATE_REF, out.status, &ERRORS_CREATE_REF) {
             return Err(err);
         }
-        let resp: CreateRefResponse = decode_response(OP_CREATE_REF.id, &out.body, None)?;
+        let resp: CreateRefResponse = decode_response(OP_CREATE_REF.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_REF, None)?;
         Ok(resp)
     }
     /// get_ref runs github.git.refs.get (GET /repos/{owner}/{repository}/git/ref/{ref}).
@@ -1462,7 +1517,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_GET_REF, out.status, &ERRORS_GET_REF) {
             return Err(err);
         }
-        let resp: GetRefResponse = decode_response(OP_GET_REF.id, &out.body, None)?;
+        let resp: GetRefResponse = decode_response(OP_GET_REF.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// update_ref runs github.git.refs.update (PATCH /repos/{owner}/{repository}/git/refs/{ref}).
@@ -1489,7 +1544,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_UPDATE_REF, out.status, &ERRORS_UPDATE_REF) {
             return Err(err);
         }
-        let resp: UpdateRefResponse = decode_response(OP_UPDATE_REF.id, &out.body, None)?;
+        let resp: UpdateRefResponse = decode_response(OP_UPDATE_REF.id, out.status, &out.body, &RESULT_REQUIRED_UPDATE_REF, None)?;
         Ok(resp)
     }
     /// create_tree runs github.git.trees.create (POST /repos/{owner}/{repository}/git/trees).
@@ -1515,7 +1570,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_CREATE_TREE, out.status, &ERRORS_CREATE_TREE) {
             return Err(err);
         }
-        let resp: CreateTreeResponse = decode_response(OP_CREATE_TREE.id, &out.body, Some("tree"))?;
+        let resp: CreateTreeResponse = decode_response(OP_CREATE_TREE.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_TREE, Some("tree"))?;
         Ok(resp)
     }
     /// create_issue_comment runs github.issues.comments.create (POST /repos/{owner}/{repository}/issues/{issue_number}/comments).
@@ -1542,7 +1597,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_CREATE_ISSUE_COMMENT, out.status, &ERRORS_CREATE_ISSUE_COMMENT) {
             return Err(err);
         }
-        let resp: CreateIssueCommentResponse = decode_response(OP_CREATE_ISSUE_COMMENT.id, &out.body, None)?;
+        let resp: CreateIssueCommentResponse = decode_response(OP_CREATE_ISSUE_COMMENT.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_ISSUE_COMMENT, None)?;
         Ok(resp)
     }
     /// create_issue runs github.issues.create (POST /repos/{owner}/{repository}/issues).
@@ -1569,7 +1624,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_CREATE_ISSUE, out.status, &ERRORS_CREATE_ISSUE) {
             return Err(err);
         }
-        let resp: CreateIssueResponse = decode_response(OP_CREATE_ISSUE.id, &out.body, Some("labels"))?;
+        let resp: CreateIssueResponse = decode_response(OP_CREATE_ISSUE.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_ISSUE, Some("labels"))?;
         Ok(resp)
     }
     /// get_issue runs github.issues.get (GET /repos/{owner}/{repository}/issues/{issue_number}).
@@ -1593,7 +1648,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_GET_ISSUE, out.status, &ERRORS_GET_ISSUE) {
             return Err(err);
         }
-        let resp: GetIssueResponse = decode_response(OP_GET_ISSUE.id, &out.body, Some("labels"))?;
+        let resp: GetIssueResponse = decode_response(OP_GET_ISSUE.id, out.status, &out.body, &[], Some("labels"))?;
         Ok(resp)
     }
     /// list_issues runs github.issues.list (GET /repos/{owner}/{repository}/issues).
@@ -1618,7 +1673,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_LIST_ISSUES, out.status, &ERRORS_LIST_ISSUES) {
             return Err(err);
         }
-        let resp: ListIssuesResponse = decode_response(OP_LIST_ISSUES.id, &out.body, Some("issues"))?;
+        let resp: ListIssuesResponse = decode_response(OP_LIST_ISSUES.id, out.status, &out.body, &[], Some("issues"))?;
         Ok(resp)
     }
     /// update_issue runs github.issues.update (PATCH /repos/{owner}/{repository}/issues/{issue_number}).
@@ -1647,7 +1702,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_UPDATE_ISSUE, out.status, &ERRORS_UPDATE_ISSUE) {
             return Err(err);
         }
-        let resp: UpdateIssueResponse = decode_response(OP_UPDATE_ISSUE.id, &out.body, Some("labels"))?;
+        let resp: UpdateIssueResponse = decode_response(OP_UPDATE_ISSUE.id, out.status, &out.body, &RESULT_REQUIRED_UPDATE_ISSUE, Some("labels"))?;
         Ok(resp)
     }
     /// create_pull_request runs github.pulls.create (POST /repos/{owner}/{repository}/pulls).
@@ -1676,7 +1731,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_CREATE_PULL_REQUEST, out.status, &ERRORS_CREATE_PULL_REQUEST) {
             return Err(err);
         }
-        let resp: CreatePullRequestResponse = decode_response(OP_CREATE_PULL_REQUEST.id, &out.body, Some("labels"))?;
+        let resp: CreatePullRequestResponse = decode_response(OP_CREATE_PULL_REQUEST.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_PULL_REQUEST, Some("labels"))?;
         Ok(resp)
     }
     /// get_pull_request runs github.pulls.get (GET /repos/{owner}/{repository}/pulls/{pull_number}).
@@ -1700,7 +1755,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_GET_PULL_REQUEST, out.status, &ERRORS_GET_PULL_REQUEST) {
             return Err(err);
         }
-        let resp: GetPullRequestResponse = decode_response(OP_GET_PULL_REQUEST.id, &out.body, Some("labels"))?;
+        let resp: GetPullRequestResponse = decode_response(OP_GET_PULL_REQUEST.id, out.status, &out.body, &[], Some("labels"))?;
         Ok(resp)
     }
     /// list_pulls runs github.pulls.list (GET /repos/{owner}/{repository}/pulls).
@@ -1726,7 +1781,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_LIST_PULLS, out.status, &ERRORS_LIST_PULLS) {
             return Err(err);
         }
-        let mut resp: ListPullsResponse = decode_response(OP_LIST_PULLS.id, &out.body, Some("pulls"))?;
+        let mut resp: ListPullsResponse = decode_response(OP_LIST_PULLS.id, out.status, &out.body, &[], Some("pulls"))?;
         if resp.next_page.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "page") {
                 resp.next_page = cursor.parse::<i64>().ok();
@@ -1759,7 +1814,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_CREATE_REVIEW, out.status, &ERRORS_CREATE_REVIEW) {
             return Err(err);
         }
-        let resp: CreatePullReviewResponse = decode_response(OP_CREATE_REVIEW.id, &out.body, None)?;
+        let resp: CreatePullReviewResponse = decode_response(OP_CREATE_REVIEW.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_REVIEW, None)?;
         Ok(resp)
     }
     /// list_reviews runs github.pulls.reviews.list (GET /repos/{owner}/{repository}/pulls/{pull_number}/reviews).
@@ -1786,7 +1841,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_LIST_REVIEWS, out.status, &ERRORS_LIST_REVIEWS) {
             return Err(err);
         }
-        let mut resp: ListPullReviewsResponse = decode_response(OP_LIST_REVIEWS.id, &out.body, Some("reviews"))?;
+        let mut resp: ListPullReviewsResponse = decode_response(OP_LIST_REVIEWS.id, out.status, &out.body, &[], Some("reviews"))?;
         if resp.next_page.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "page") {
                 resp.next_page = cursor.parse::<i64>().ok();
@@ -1821,7 +1876,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_UPDATE_PULL_REQUEST, out.status, &ERRORS_UPDATE_PULL_REQUEST) {
             return Err(err);
         }
-        let resp: UpdatePullRequestResponse = decode_response(OP_UPDATE_PULL_REQUEST.id, &out.body, Some("labels"))?;
+        let resp: UpdatePullRequestResponse = decode_response(OP_UPDATE_PULL_REQUEST.id, out.status, &out.body, &RESULT_REQUIRED_UPDATE_PULL_REQUEST, Some("labels"))?;
         Ok(resp)
     }
     /// get_commit runs github.repos.commits.get (GET /repos/{owner}/{repository}/commits/{ref}).
@@ -1844,7 +1899,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_GET_COMMIT, out.status, &ERRORS_GET_COMMIT) {
             return Err(err);
         }
-        let resp: GetCommitResponse = decode_response(OP_GET_COMMIT.id, &out.body, None)?;
+        let resp: GetCommitResponse = decode_response(OP_GET_COMMIT.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// list_commits runs github.repos.commits.list (GET /repos/{owner}/{repository}/commits).
@@ -1870,7 +1925,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_LIST_COMMITS, out.status, &ERRORS_LIST_COMMITS) {
             return Err(err);
         }
-        let mut resp: ListCommitsResponse = decode_response(OP_LIST_COMMITS.id, &out.body, Some("commits"))?;
+        let mut resp: ListCommitsResponse = decode_response(OP_LIST_COMMITS.id, out.status, &out.body, &[], Some("commits"))?;
         if resp.next_page.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "page") {
                 resp.next_page = cursor.parse::<i64>().ok();
@@ -1900,7 +1955,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_GET_CONTENTS, out.status, &ERRORS_GET_CONTENTS) {
             return Err(err);
         }
-        let resp: GetContentsResponse = decode_response(OP_GET_CONTENTS.id, &out.body, None)?;
+        let resp: GetContentsResponse = decode_response(OP_GET_CONTENTS.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// list_contents runs github.repos.contents.list (GET /repos/{owner}/{repository}/contents/{path}).
@@ -1925,7 +1980,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_LIST_CONTENTS, out.status, &ERRORS_LIST_CONTENTS) {
             return Err(err);
         }
-        let resp: ListContentsResponse = decode_response(OP_LIST_CONTENTS.id, &out.body, Some("entries"))?;
+        let resp: ListContentsResponse = decode_response(OP_LIST_CONTENTS.id, out.status, &out.body, &[], Some("entries"))?;
         Ok(resp)
     }
     /// get_repository runs github.repos.get (GET /repos/{owner}/{repository}).
@@ -1947,7 +2002,7 @@ impl GithubOperations for GithubQueries {
         if let Some(err) = map_error(&OP_GET_REPOSITORY, out.status, &ERRORS_GET_REPOSITORY) {
             return Err(err);
         }
-        let resp: GetRepositoryResponse = decode_response(OP_GET_REPOSITORY.id, &out.body, None)?;
+        let resp: GetRepositoryResponse = decode_response(OP_GET_REPOSITORY.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
 }

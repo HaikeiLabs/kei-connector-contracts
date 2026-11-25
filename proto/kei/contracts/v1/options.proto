@@ -87,6 +87,11 @@ enum ErrorKind {
   ERROR_KIND_CONFLICT = 5;
   ERROR_KIND_INVALID = 6;
   ERROR_KIND_UNAVAILABLE = 7;
+  // The provider answered 2xx but the response is missing a field the
+  // operation's result_required contract demands, so no write happened as
+  // far as the contract can tell. Never mapped from a provider status: it
+  // is only raised by the runtime's own response check.
+  ERROR_KIND_CONTRACT_VIOLATION = 8;
 }
 
 // ParamIn says where a request field goes on the outgoing HTTP request.
@@ -227,6 +232,14 @@ message Operation {
   string cursor_field = 18;
   // Response field that returns the next cursor, empty on the last page.
   string next_cursor_field = 19;
+  // Dot paths into the response that must hold a value for the write to
+  // count as done: a bool path must be true, a string path non-empty and a
+  // message path present. Only write operations set it, and only to fields
+  // that are bool, string or message (no lists, maps, enums or bytes). The
+  // runtime raises ERROR_KIND_CONTRACT_VIOLATION on any 2xx response that
+  // misses one. Paths use proto field names; they are matched against the
+  // provider's JSON by field name as the decoder accepts it.
+  repeated string result_required = 20;
 }
 
 extend google.protobuf.MessageOptions {

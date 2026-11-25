@@ -18,6 +18,7 @@ _SPEC_CREATE_RECORD = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "created_time"],
 }
 OP_GET_RECORD = Op(id="airtable.records.get", op_class=OpClass.READ, destructive=False, resource_template="bases/{base_id}", method_name="GetRecord", connections=("pat",), transport=Transport.HTTP)
 _SPEC_GET_RECORD = {
@@ -51,6 +52,7 @@ _SPEC_UPDATE_RECORD = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "created_time"],
 }
 
 class AirtableOperations(Protocol):

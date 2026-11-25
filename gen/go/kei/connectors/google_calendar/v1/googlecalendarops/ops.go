@@ -80,6 +80,7 @@ var specCreateEvent = &connection.HTTPSpec{
 		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"id", "status"},
 }
 
 var specGetEvent = &connection.HTTPSpec{
@@ -141,6 +142,7 @@ var specUpdateEvent = &connection.HTTPSpec{
 		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"id", "status"},
 }
 
 // ListCalendars runs google_calendar.calendars.list.

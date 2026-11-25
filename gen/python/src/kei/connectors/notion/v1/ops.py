@@ -29,6 +29,7 @@ _SPEC_CREATE_PAGE = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "url"],
 }
 OP_GET_PAGE = Op(id="notion.pages.get", op_class=OpClass.READ, destructive=False, resource_template="pages/{page_id}", method_name="GetPage", connections=("user_oauth", "integration_token"), transport=Transport.HTTP)
 _SPEC_GET_PAGE = {
@@ -51,6 +52,7 @@ _SPEC_UPDATE_PAGE = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "url"],
 }
 OP_SEARCH = Op(id="notion.search", op_class=OpClass.READ, destructive=False, resource_template="search", method_name="Search", connections=("user_oauth", "integration_token"), transport=Transport.HTTP)
 _SPEC_SEARCH = {

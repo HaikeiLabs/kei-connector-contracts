@@ -917,7 +917,7 @@ const file_kei_connectors_google_calendar_v1_events_proto_rawDesc = "" +
 	"\x06status\x18\a \x01(\tH\x02R\x06status\x88\x01\x01B\x0e\n" +
 	"\f_descriptionB\v\n" +
 	"\t_locationB\t\n" +
-	"\a_status\"\xbe\x04\n" +
+	"\a_status\"\xcc\x04\n" +
 	"\x12CreateEventRequest\x12'\n" +
 	"\vcalendar_id\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
 	"calendarId\x12\x18\n" +
@@ -925,9 +925,9 @@ const file_kei_connectors_google_calendar_v1_events_proto_rawDesc = "" +
 	"\vdescription\x18\x03 \x01(\tH\x00R\vdescription\x88\x01\x01\x12\x1f\n" +
 	"\blocation\x18\x04 \x01(\tH\x01R\blocation\x88\x01\x01\x12B\n" +
 	"\x05start\x18\x05 \x01(\v2,.kei.connectors.google_calendar.v1.EventTimeR\x05start\x12>\n" +
-	"\x03end\x18\x06 \x01(\v2,.kei.connectors.google_calendar.v1.EventTimeR\x03end:\xfb\x01\x92\x82\x19\xf6\x01\n" +
+	"\x03end\x18\x06 \x01(\v2,.kei.connectors.google_calendar.v1.EventTimeR\x03end:\x89\x02\x92\x82\x19\x84\x02\n" +
 	"\x1dgoogle_calendar.events.create\x12\x0fgoogle_calendar\x18\x02*\x04POST2+/calendar/v3/calendars/{calendar_id}/events:/https://www.googleapis.com/auth/calendar.events@\x01J\vCreateEventR\n" +
-	"user_oauthZ\x17calendars/{calendar_id}b\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\v\b\x02\x12\x05event\x18\x01B\x0e\n" +
+	"user_oauthZ\x17calendars/{calendar_id}b\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\v\b\x02\x12\x05event\x18\x01\xa2\x01\x02id\xa2\x01\x06statusB\x0e\n" +
 	"\f_descriptionB\v\n" +
 	"\t_location\"\xd0\x02\n" +
 	"\x13CreateEventResponse\x12\x0e\n" +
@@ -940,7 +940,7 @@ const file_kei_connectors_google_calendar_v1_events_proto_rawDesc = "" +
 	"\x06status\x18\a \x01(\tH\x02R\x06status\x88\x01\x01B\x0e\n" +
 	"\f_descriptionB\v\n" +
 	"\t_locationB\t\n" +
-	"\a_status\"\xa1\x05\n" +
+	"\a_status\"\xaf\x05\n" +
 	"\x12UpdateEventRequest\x12'\n" +
 	"\vcalendar_id\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
 	"calendarId\x12!\n" +
@@ -949,9 +949,9 @@ const file_kei_connectors_google_calendar_v1_events_proto_rawDesc = "" +
 	"\vdescription\x18\x04 \x01(\tH\x01R\vdescription\x88\x01\x01\x12\x1f\n" +
 	"\blocation\x18\x05 \x01(\tH\x02R\blocation\x88\x01\x01\x12G\n" +
 	"\x05start\x18\x06 \x01(\v2,.kei.connectors.google_calendar.v1.EventTimeH\x03R\x05start\x88\x01\x01\x12C\n" +
-	"\x03end\x18\a \x01(\v2,.kei.connectors.google_calendar.v1.EventTimeH\x04R\x03end\x88\x01\x01:\x8e\x02\x92\x82\x19\x89\x02\n" +
+	"\x03end\x18\a \x01(\v2,.kei.connectors.google_calendar.v1.EventTimeH\x04R\x03end\x88\x01\x01:\x9c\x02\x92\x82\x19\x97\x02\n" +
 	"\x1dgoogle_calendar.events.update\x12\x0fgoogle_calendar\x18\x02*\x05PATCH26/calendar/v3/calendars/{calendar_id}/events/{event_id}:/https://www.googleapis.com/auth/calendar.events@\x01J\vUpdateEventR\n" +
-	"user_oauthZ\x17calendars/{calendar_id}b\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\v\b\x03\x12\x05event\x18\x01B\n" +
+	"user_oauthZ\x17calendars/{calendar_id}b\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\v\b\x03\x12\x05event\x18\x01\xa2\x01\x02id\xa2\x01\x06statusB\n" +
 	"\n" +
 	"\b_summaryB\x0e\n" +
 	"\f_descriptionB\v\n" +

@@ -87,6 +87,7 @@ message CreateThingRequest {
     method_name: "CreateThing"
     connections: ["user_oauth"]
     resource_template: "spaces/{space}"
+    result_required: ["id", "name"]
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "thing" version: 1}
     errors: [{status: 409 kind: ERROR_KIND_CONFLICT}]
   };

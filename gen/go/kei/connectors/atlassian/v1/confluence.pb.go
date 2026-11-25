@@ -478,15 +478,15 @@ const file_kei_connectors_atlassian_v1_confluence_proto_rawDesc = "" +
 	"\bspace_id\x18\x03 \x01(\tR\aspaceId\x12 \n" +
 	"\tparent_id\x18\x04 \x01(\tH\x00R\bparentId\x88\x01\x01B\f\n" +
 	"\n" +
-	"_parent_id\"\x80\x03\n" +
+	"_parent_id\"\x90\x03\n" +
 	"\x1bCreateConfluencePageRequest\x12\x19\n" +
 	"\bspace_id\x18\x01 \x01(\tR\aspaceId\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
 	"\tparent_id\x18\x03 \x01(\tH\x00R\bparentId\x88\x01\x01\x12+\n" +
-	"\x04body\x18\x04 \x01(\v2\x17.google.protobuf.StructR\x04body:\xd2\x01\x92\x82\x19\xcd\x01\n" +
+	"\x04body\x18\x04 \x01(\v2\x17.google.protobuf.StructR\x04body:\xe2\x01\x92\x82\x19\xdd\x01\n" +
 	"!atlassian.confluence.pages.create\x12\tatlassian\x18\x02*\x04POST2\x12/wiki/api/v2/pages:\x15write:page:confluence@\x01J\x14CreateConfluencePageR\n" +
 	"user_oauthR\tapi_tokenZ\x10confluence/pagesb\x05\b\x90\x03\x10\x06b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\n" +
-	"\b\x02\x12\x04page\x18\x01B\f\n" +
+	"\b\x02\x12\x04page\x18\x01\xa2\x01\x02id\xa2\x01\bspace_idB\f\n" +
 	"\n" +
 	"_parent_id\"\x8f\x01\n" +
 	"\x1cCreateConfluencePageResponse\x12\x0e\n" +

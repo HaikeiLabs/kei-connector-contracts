@@ -164,6 +164,9 @@ func renderTS(gen *protogen.Plugin, c *model.Connector, opts Options) error {
 			mappings = append(mappings, map[string]any{"status": e.GetStatus(), "kind": strings.ToLower(strings.TrimPrefix(e.GetKind().String(), "ERROR_KIND_")), "retryable": e.GetRetryable()})
 		}
 		spec := map[string]any{"op": json.RawMessage(descriptorJSON(op, class)), "method": strings.ToUpper(op.Opt.GetHttpMethod()), "pathTemplate": op.Opt.GetPathTemplate(), "params": params, "errors": mappings, "graphqlDocument": op.Opt.GetGraphqlDocument(), "cursorField": op.Opt.GetCursorField(), "nextCursorField": op.Opt.GetNextCursorField()}
+		if rr := op.Opt.GetResultRequired(); len(rr) > 0 {
+			spec["resultRequired"] = rr
+		}
 		o.Spec = tsJSON(spec)
 		d.Ops = append(d.Ops, o)
 	}

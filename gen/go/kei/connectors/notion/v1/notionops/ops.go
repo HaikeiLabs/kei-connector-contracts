@@ -79,6 +79,7 @@ var specCreatePage = &connection.HTTPSpec{
 		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"id", "url"},
 }
 
 var specGetPage = &connection.HTTPSpec{
@@ -113,6 +114,7 @@ var specUpdatePage = &connection.HTTPSpec{
 		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"id", "url"},
 }
 
 var specSearch = &connection.HTTPSpec{

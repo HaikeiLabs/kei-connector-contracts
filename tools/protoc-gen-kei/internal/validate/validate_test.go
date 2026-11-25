@@ -38,6 +38,9 @@ func TestValidate_Rules(t *testing.T) {
 		validate.RuleSemanticsClassMismatch,
 		validate.RuleGraphQLWithoutDocument,
 		validate.RuleUnsupportedParam,
+		validate.RuleMissingResultFields,
+		validate.RuleUnsupportedResultField,
+		validate.RuleResultFieldsOnRead,
 	}
 	for _, rule := range rules {
 		t.Run(rule, func(t *testing.T) {

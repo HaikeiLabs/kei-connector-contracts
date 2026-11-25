@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_graphql_response, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Path, PathKind, Transport, decode_graphql_response, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::testconn::v1::{CreateThingRequest, CreateThingResponse, GetFileRequest, GetFileResponse, GetThingRequest, GetThingResponse, ListThingsRequest, ListThingsResponse, RemoveThingRequest, RemoveThingResponse, SearchThingsRequest, SearchThingsResponse};
 
@@ -93,6 +93,11 @@ const ERRORS_CREATE_THING: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_CREATE_THING: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Num },
+    Path { proto: "name", json: "name", kind: PathKind::Str },
+];
+
 const ERRORS_GET_THING: &[ErrorMapping] = &[
     ErrorMapping {
         status: 404,
@@ -151,7 +156,7 @@ impl TestconnOperations for TestconnQueries {
         if let Some(err) = map_error(&OP_GET_FILE, out.status, &[]) {
             return Err(err);
         }
-        let resp: GetFileResponse = decode_response(OP_GET_FILE.id, &out.body, None)?;
+        let resp: GetFileResponse = decode_response(OP_GET_FILE.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// create_thing runs testconn.things.create (POST /spaces/{space}/things).
@@ -180,7 +185,7 @@ impl TestconnOperations for TestconnQueries {
         if let Some(err) = map_error(&OP_CREATE_THING, out.status, &ERRORS_CREATE_THING) {
             return Err(err);
         }
-        let resp: CreateThingResponse = decode_response(OP_CREATE_THING.id, &out.body, None)?;
+        let resp: CreateThingResponse = decode_response(OP_CREATE_THING.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_THING, None)?;
         Ok(resp)
     }
     /// get_thing runs testconn.things.get (GET /spaces/{space}/things/{thing_id}).
@@ -203,7 +208,7 @@ impl TestconnOperations for TestconnQueries {
         if let Some(err) = map_error(&OP_GET_THING, out.status, &ERRORS_GET_THING) {
             return Err(err);
         }
-        let resp: GetThingResponse = decode_response(OP_GET_THING.id, &out.body, None)?;
+        let resp: GetThingResponse = decode_response(OP_GET_THING.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// list_things runs testconn.things.list (GET /spaces/{space}/things).
@@ -228,7 +233,7 @@ impl TestconnOperations for TestconnQueries {
         if let Some(err) = map_error(&OP_LIST_THINGS, out.status, &[]) {
             return Err(err);
         }
-        let mut resp: ListThingsResponse = decode_response(OP_LIST_THINGS.id, &out.body, Some("things"))?;
+        let mut resp: ListThingsResponse = decode_response(OP_LIST_THINGS.id, out.status, &out.body, &[], Some("things"))?;
         if resp.next_page.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "page") {
                 resp.next_page = cursor.parse::<i32>().ok();
@@ -257,7 +262,7 @@ impl TestconnOperations for TestconnQueries {
         if let Some(err) = map_error(&OP_REMOVE_THING, out.status, &[]) {
             return Err(err);
         }
-        let resp: RemoveThingResponse = decode_response(OP_REMOVE_THING.id, &out.body, None)?;
+        let resp: RemoveThingResponse = decode_response(OP_REMOVE_THING.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// search_things runs testconn.things.search (GraphQL POST /graphql).
@@ -282,7 +287,7 @@ impl TestconnOperations for TestconnQueries {
         if let Some(err) = map_error(&OP_SEARCH_THINGS, out.status, &[]) {
             return Err(err);
         }
-        let mut resp: SearchThingsResponse = decode_graphql_response(OP_SEARCH_THINGS.id, out.status, &out.body, &RESPONSE_FIELDS_SEARCH_THINGS, Some("nodes"))?;
+        let mut resp: SearchThingsResponse = decode_graphql_response(OP_SEARCH_THINGS.id, out.status, &out.body, &RESPONSE_FIELDS_SEARCH_THINGS, &[], Some("nodes"))?;
         if resp.end_cursor.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "after") {
                 resp.end_cursor = Some(cursor);

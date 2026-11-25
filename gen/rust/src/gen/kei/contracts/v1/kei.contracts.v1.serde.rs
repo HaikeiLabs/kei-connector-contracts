@@ -645,6 +645,7 @@ impl serde::Serialize for ErrorKind {
             Self::Conflict => "ERROR_KIND_CONFLICT",
             Self::Invalid => "ERROR_KIND_INVALID",
             Self::Unavailable => "ERROR_KIND_UNAVAILABLE",
+            Self::ContractViolation => "ERROR_KIND_CONTRACT_VIOLATION",
         };
         serializer.serialize_str(variant)
     }
@@ -664,6 +665,7 @@ impl<'de> serde::Deserialize<'de> for ErrorKind {
             "ERROR_KIND_CONFLICT",
             "ERROR_KIND_INVALID",
             "ERROR_KIND_UNAVAILABLE",
+            "ERROR_KIND_CONTRACT_VIOLATION",
         ];
 
         struct GeneratedVisitor;
@@ -712,6 +714,7 @@ impl<'de> serde::Deserialize<'de> for ErrorKind {
                     "ERROR_KIND_CONFLICT" => Ok(ErrorKind::Conflict),
                     "ERROR_KIND_INVALID" => Ok(ErrorKind::Invalid),
                     "ERROR_KIND_UNAVAILABLE" => Ok(ErrorKind::Unavailable),
+                    "ERROR_KIND_CONTRACT_VIOLATION" => Ok(ErrorKind::ContractViolation),
                     _ => Err(serde::de::Error::unknown_variant(value, FIELDS)),
                 }
             }
@@ -917,6 +920,9 @@ impl serde::Serialize for Operation {
         if !self.next_cursor_field.is_empty() {
             len += 1;
         }
+        if !self.result_required.is_empty() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("kei.contracts.v1.Operation", len)?;
         if !self.id.is_empty() {
             struct_ser.serialize_field("id", &self.id)?;
@@ -979,6 +985,9 @@ impl serde::Serialize for Operation {
         if !self.next_cursor_field.is_empty() {
             struct_ser.serialize_field("nextCursorField", &self.next_cursor_field)?;
         }
+        if !self.result_required.is_empty() {
+            struct_ser.serialize_field("resultRequired", &self.result_required)?;
+        }
         struct_ser.end()
     }
 }
@@ -1018,6 +1027,8 @@ impl<'de> serde::Deserialize<'de> for Operation {
             "cursorField",
             "next_cursor_field",
             "nextCursorField",
+            "result_required",
+            "resultRequired",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -1041,6 +1052,7 @@ impl<'de> serde::Deserialize<'de> for Operation {
             Semantics,
             CursorField,
             NextCursorField,
+            ResultRequired,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -1082,6 +1094,7 @@ impl<'de> serde::Deserialize<'de> for Operation {
                             "semantics" => Ok(GeneratedField::Semantics),
                             "cursorField" | "cursor_field" => Ok(GeneratedField::CursorField),
                             "nextCursorField" | "next_cursor_field" => Ok(GeneratedField::NextCursorField),
+                            "resultRequired" | "result_required" => Ok(GeneratedField::ResultRequired),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1120,6 +1133,7 @@ impl<'de> serde::Deserialize<'de> for Operation {
                 let mut semantics__ = None;
                 let mut cursor_field__ = None;
                 let mut next_cursor_field__ = None;
+                let mut result_required__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Id => {
@@ -1236,6 +1250,12 @@ impl<'de> serde::Deserialize<'de> for Operation {
                             }
                             next_cursor_field__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::ResultRequired => {
+                            if result_required__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("resultRequired"));
+                            }
+                            result_required__ = Some(map_.next_value()?);
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -1261,6 +1281,7 @@ impl<'de> serde::Deserialize<'de> for Operation {
                     semantics: semantics__,
                     cursor_field: cursor_field__.unwrap_or_default(),
                     next_cursor_field: next_cursor_field__.unwrap_or_default(),
+                    result_required: result_required__.unwrap_or_default(),
                 })
             }
         }

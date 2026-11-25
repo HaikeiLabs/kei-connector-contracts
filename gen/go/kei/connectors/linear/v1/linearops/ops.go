@@ -69,6 +69,7 @@ var specCreateComment = &connection.HTTPSpec{
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
 	GraphQLDocument: "mutation CommentCreate($issueId: String!, $body: String!) {\n  commentCreate(input: {issueId: $issueId, body: $body}) {\n    success\n    comment { id body }\n  }\n}\n",
+	ResultRequired:  []string{"success", "comment.id"},
 }
 
 var specListCycles = &connection.HTTPSpec{
@@ -106,6 +107,7 @@ var specCreateIssue = &connection.HTTPSpec{
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
 	GraphQLDocument: "mutation CreateIssue($title: String!, $teamId: String!, $description: String, $priority: Int) {\n  issueCreate(input: {title: $title, teamId: $teamId, description: $description, priority: $priority}) {\n    success\n    issue { id identifier title description url createdAt updatedAt }\n  }\n}\n",
+	ResultRequired:  []string{"success", "issue.id", "issue.identifier"},
 }
 
 var specGetIssue = &connection.HTTPSpec{
@@ -158,6 +160,7 @@ var specUpdateIssue = &connection.HTTPSpec{
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
 	GraphQLDocument: "mutation UpdateIssue($id: String!, $title: String, $description: String) {\n  issueUpdate(id: $id, input: {title: $title, description: $description}) {\n    success\n    issue { id identifier title description url createdAt updatedAt }\n  }\n}\n",
+	ResultRequired:  []string{"success", "issue.id", "issue.identifier"},
 }
 
 var specListProjects = &connection.HTTPSpec{

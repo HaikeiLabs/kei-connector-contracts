@@ -72,6 +72,11 @@ type HTTPSpec struct {
 	// NextCursorField the response field returning the next one.
 	CursorField     string
 	NextCursorField string
+	// ResultRequired lists the dot paths into the response that must hold
+	// after a 2xx: the fields that prove the write happened. A response
+	// missing one fails with ERROR_KIND_CONTRACT_VIOLATION (see
+	// checkResultRequired).
+	ResultRequired []string
 }
 
 // ErrDecode is wrapped by every response decoding error. Decoding errors
@@ -111,8 +116,75 @@ func CallHTTP(ctx context.Context, conn HTTP, spec *HTTPSpec, req, resp proto.Me
 	} else if err := decodeJSON(spec, respBody, resp); err != nil {
 		return err
 	}
+	if err := checkResultRequired(spec, status, resp); err != nil {
+		return err
+	}
 	fillNextCursor(spec, header, resp.ProtoReflect())
 	return nil
+}
+
+// checkResultRequired verifies that a 2xx response holds every path in
+// spec.ResultRequired: the fields that prove the write happened. A response
+// missing one fails with ERROR_KIND_CONTRACT_VIOLATION — the provider
+// answered 2xx, but the contract cannot confirm the write.
+func checkResultRequired(spec *HTTPSpec, status int, resp proto.Message) error {
+	if len(spec.ResultRequired) == 0 {
+		return nil
+	}
+	for _, path := range spec.ResultRequired {
+		if !holdsPath(resp.ProtoReflect(), strings.Split(path, ".")) {
+			return &Error{Kind: contracts.ErrorKind_ERROR_KIND_CONTRACT_VIOLATION, Status: status, OpID: spec.Op.ID}
+		}
+	}
+	return nil
+}
+
+// holdsPath reports whether m holds path: every segment names a field, an
+// intermediate message is set, and the final field proves the write per
+// kind: a bool is true, a string non-empty, a plain numeric non-zero, a
+// message set.
+func holdsPath(m protoreflect.Message, segs []string) bool {
+	fields := m.Descriptor().Fields()
+	for i, seg := range segs {
+		fd := fields.ByName(protoreflect.Name(seg))
+		if fd == nil {
+			return false
+		}
+		if i == len(segs)-1 {
+			switch fd.Kind() {
+			case protoreflect.BoolKind:
+				return m.Has(fd)
+			case protoreflect.StringKind:
+				return m.Get(fd).String() != ""
+			case protoreflect.MessageKind, protoreflect.GroupKind:
+				return m.Has(fd)
+			default:
+				return scalarNumber(fd, m.Get(fd)) != 0
+			}
+		}
+		if (fd.Kind() != protoreflect.MessageKind && fd.Kind() != protoreflect.GroupKind) || fd.IsList() || fd.IsMap() || !m.Has(fd) {
+			return false
+		}
+		m = m.Get(fd).Message()
+		fields = m.Descriptor().Fields()
+	}
+	return false
+}
+
+// scalarNumber returns a numeric scalar's value; non-numeric kinds return
+// zero (the validator never declares one as a result field).
+func scalarNumber(fd protoreflect.FieldDescriptor, v protoreflect.Value) float64 {
+	switch fd.Kind() {
+	case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind,
+		protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
+		return float64(v.Int())
+	case protoreflect.Uint32Kind, protoreflect.Fixed32Kind, protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
+		return float64(v.Uint())
+	case protoreflect.FloatKind, protoreflect.DoubleKind:
+		return v.Float()
+	default:
+		return 0
+	}
 }
 
 func encodeRequest(spec *HTTPSpec, m protoreflect.Message) (string, url.Values, []byte, error) {

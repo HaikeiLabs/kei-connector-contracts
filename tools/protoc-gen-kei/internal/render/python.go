@@ -38,13 +38,13 @@ var pythonTemplate = template.Must(template.New("python").Parse(pythonTemplateTe
 
 type pyModule struct{ Package, Names string }
 type pyOperation struct {
-	Const, ID, Class, Destructive, Snake, Method string
-	MethodJSON, PathJSON, Params, Errors         string
-	GraphQL, CursorField, NextCursorField        string
-	ResourceTemplate, MethodName, Connections    string
-	Transport                                    string
-	Req, Resp, PosArgs, PosBuild                 string
-	SQL, Helper                                  bool
+	Const, ID, Class, Destructive, Snake, Method          string
+	MethodJSON, PathJSON, Params, Errors                  string
+	GraphQL, CursorField, NextCursorField, ResultRequired string
+	ResourceTemplate, MethodName, Connections             string
+	Transport                                             string
+	Req, Resp, PosArgs, PosBuild                          string
+	SQL, Helper                                           bool
 }
 type pyFile struct {
 	Source, Name, Runtime string
@@ -326,6 +326,13 @@ func renderPython(gen *protogen.Plugin, c *model.Connector, opts Options) error 
 		o.GraphQL = pyStr(op.Opt.GetGraphqlDocument())
 		o.CursorField = pyStr(op.Opt.GetCursorField())
 		o.NextCursorField = pyStr(op.Opt.GetNextCursorField())
+		if rr := op.Opt.GetResultRequired(); len(rr) > 0 {
+			paths := make([]any, 0, len(rr))
+			for _, p := range rr {
+				paths = append(paths, p)
+			}
+			o.ResultRequired = pyLiteral(paths)
+		}
 		d.Ops = append(d.Ops, o)
 	}
 	// Positional signatures annotate helper arguments with field types, so
