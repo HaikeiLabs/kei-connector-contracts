@@ -18,6 +18,7 @@ syntax = "proto3";
 package kei.connectors.github.v1;
 
 import "kei/contracts/v1/options.proto";
+import "kei/connectors/github/v1/pulls.proto";
 
 option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;github";
 
@@ -66,10 +67,14 @@ message ContentFile {
   optional string download_url = 5;
 }
 
-// CommitSummary models the commit a put created.
+// CommitSummary models the commit-level subset shared by the Contents put
+// response and the commits list. author is the GitHub account the commit is
+// attributed to; absent when the account is gone or when the response does
+// not carry it (the put response does not).
 message CommitSummary {
   string sha = 1;
   string html_url = 2;
+  User author = 3;
 }
 
 // PutContentsResponse models the subset of the Contents API put response the
@@ -77,4 +82,102 @@ message CommitSummary {
 message PutContentsResponse {
   ContentFile content = 1;
   CommitSummary commit = 2;
+}
+
+// GetContentsRequest reads one file from a GitHub repository via the
+// Contents API. A directory path belongs to github.repos.contents.list, the
+// sibling operation on the same path.
+message GetContentsRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  // A file path such as docs/notes.md: its slashes are kept.
+  string path = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH multi_segment: true}];
+  // A branch, tag or commit sha to read from; defaults to the default branch.
+  optional string ref = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.repos.contents.get"
+    connector: "github"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/repos/{owner}/{repository}/contents/{path}"
+    scopes: ["contents:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetContents"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "file" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// GetContentsResponse models one file entry. content carries the
+// base64-encoded file bytes under encoding base64; the contract never
+// decodes it. It is filled by JSON unmarshal of the provider response.
+message GetContentsResponse {
+  string type = 1;
+  string encoding = 2;
+  string content = 3;
+  string sha = 4;
+  int64 size = 5;
+  string path = 6;
+  string name = 7;
+  string html_url = 8;
+  optional string download_url = 9;
+}
+
+// ListContentsRequest lists one directory of a GitHub repository via the
+// Contents API. A file path belongs to github.repos.contents.get, the
+// sibling operation on the same path.
+message ListContentsRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  // A directory path such as docs: its slashes are kept.
+  string path = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH multi_segment: true}];
+  // A branch, tag or commit sha to read from; defaults to the default branch.
+  optional string ref = 4;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.repos.contents.list"
+    connector: "github"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/repos/{owner}/{repository}/contents/{path}"
+    scopes: ["contents:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListContents"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "directory" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// ContentsEntry models one entry of a directory listing. type is file, dir,
+// symlink or submodule; a dir entry has no download_url.
+message ContentsEntry {
+  string type = 1;
+  string name = 2;
+  string path = 3;
+  string sha = 4;
+  int64 size = 5;
+  string html_url = 6;
+  optional string download_url = 7;
+}
+
+// ListContentsResponse wraps the entries of a directory listing. The
+// provider returns a bare JSON array and no pagination. It is filled by JSON
+// unmarshal of the provider response.
+message ListContentsResponse {
+  repeated ContentsEntry entries = 1;
 }

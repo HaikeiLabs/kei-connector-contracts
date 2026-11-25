@@ -32,6 +32,7 @@ from kei.connectors.database.v1 import query_pb2
 from kei.connectors.github.v1 import (
     actions_pb2,
     checks_pb2,
+    commits_pb2,
     contents_pb2,
     git_pb2,
     issues_pb2,
@@ -108,6 +109,37 @@ def _spot_github_actions_workflows_runs_list(response):
     assert len(response.workflow_runs) == 1
     assert response.workflow_runs[0].actor.login == "example-user"
     assert response.workflow_runs[0].head_sha == "synthetic-head-sha-1"
+
+
+def _spot_github_repos_contents_get(response):
+    assert response.encoding == "base64"
+    assert response.content == "c3ludGhldGljLWNvbnRlbnQ="
+
+
+def _spot_github_repos_contents_list(response):
+    assert len(response.entries) == 2
+    assert response.entries[0].type == "file"
+    assert response.entries[1].type == "dir"
+
+
+def _spot_github_repos_commits_list(response):
+    assert response.commits[0].sha == "synthetic-commit-sha-3"
+    assert response.commits[0].author.login == "example-user"
+
+
+def _spot_github_repos_commits_get(response):
+    assert response.commit.message == "Synthetic commit message"
+    assert response.author.login == "example-user"
+
+
+def _spot_github_actions_runs_attempts_get(response):
+    assert response.run_attempt == 2
+    assert response.head_sha == "synthetic-head-sha-1"
+
+
+def _spot_github_actions_runs_jobs_list(response):
+    assert response.jobs[0].id == 9007199254741005
+    assert response.jobs[0].runner_name == "synthetic-runner-1"
 
 
 def _spot_github_issues_create(response):
@@ -618,6 +650,12 @@ OPS = [
     ("github.pulls.list", "github", pulls_pb2.ListPullsRequest, pulls_pb2.ListPullsResponse, _spot_github_pulls_list),
     ("github.actions.runs.list", "github", actions_pb2.ListWorkflowRunsRequest, actions_pb2.ListWorkflowRunsResponse, _spot_github_actions_runs_list),
     ("github.actions.workflows.runs.list", "github", actions_pb2.ListWorkflowRunsByWorkflowRequest, actions_pb2.ListWorkflowRunsByWorkflowResponse, _spot_github_actions_workflows_runs_list),
+    ("github.repos.contents.get", "github", contents_pb2.GetContentsRequest, contents_pb2.GetContentsResponse, _spot_github_repos_contents_get),
+    ("github.repos.contents.list", "github", contents_pb2.ListContentsRequest, contents_pb2.ListContentsResponse, _spot_github_repos_contents_list),
+    ("github.repos.commits.list", "github", commits_pb2.ListCommitsRequest, commits_pb2.ListCommitsResponse, _spot_github_repos_commits_list),
+    ("github.repos.commits.get", "github", commits_pb2.GetCommitRequest, commits_pb2.GetCommitResponse, _spot_github_repos_commits_get),
+    ("github.actions.runs.attempts.get", "github", actions_pb2.GetRunAttemptRequest, actions_pb2.GetRunAttemptResponse, _spot_github_actions_runs_attempts_get),
+    ("github.actions.runs.jobs.list", "github", actions_pb2.ListRunJobsRequest, actions_pb2.ListRunJobsResponse, _spot_github_actions_runs_jobs_list),
     ("github.issues.create", "github", issues_pb2.CreateIssueRequest, issues_pb2.CreateIssueResponse, _spot_github_issues_create),
     ("github.issues.comments.create", "github", issues_pb2.CreateIssueCommentRequest, issues_pb2.CreateIssueCommentResponse, _spot_github_issues_comments_create),
     ("github.repos.get", "github", repos_pb2.GetRepositoryRequest, repos_pb2.GetRepositoryResponse, _spot_github_repos_get),

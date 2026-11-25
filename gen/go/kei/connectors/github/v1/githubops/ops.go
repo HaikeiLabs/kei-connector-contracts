@@ -15,6 +15,10 @@ import (
 
 // Operations is the github connector. Callers depend on it; tests use Mock.
 type Operations interface {
+	// GetRunAttempt runs github.actions.runs.attempts.get (GET /repos/{owner}/{repository}/actions/runs/{run_id}/attempts/{attempt_number}).
+	GetRunAttempt(ctx context.Context, req *github.GetRunAttemptRequest) (*github.GetRunAttemptResponse, error)
+	// ListRunJobs runs github.actions.runs.jobs.list (GET /repos/{owner}/{repository}/actions/runs/{run_id}/jobs).
+	ListRunJobs(ctx context.Context, req *github.ListRunJobsRequest) (*github.ListRunJobsResponse, error)
 	// ListWorkflowRuns runs github.actions.runs.list (GET /repos/{owner}/{repository}/actions/runs).
 	ListWorkflowRuns(ctx context.Context, req *github.ListWorkflowRunsRequest) (*github.ListWorkflowRunsResponse, error)
 	// ListWorkflowRunsByWorkflow runs github.actions.workflows.runs.list (GET /repos/{owner}/{repository}/actions/workflows/{workflow_id}/runs).
@@ -57,6 +61,14 @@ type Operations interface {
 	ListReviews(ctx context.Context, req *github.ListPullReviewsRequest) (*github.ListPullReviewsResponse, error)
 	// UpdatePullRequest runs github.pulls.update (PATCH /repos/{owner}/{repository}/pulls/{pull_number}).
 	UpdatePullRequest(ctx context.Context, req *github.UpdatePullRequestRequest) (*github.UpdatePullRequestResponse, error)
+	// GetCommit runs github.repos.commits.get (GET /repos/{owner}/{repository}/commits/{ref}).
+	GetCommit(ctx context.Context, req *github.GetCommitRequest) (*github.GetCommitResponse, error)
+	// ListCommits runs github.repos.commits.list (GET /repos/{owner}/{repository}/commits).
+	ListCommits(ctx context.Context, req *github.ListCommitsRequest) (*github.ListCommitsResponse, error)
+	// GetContents runs github.repos.contents.get (GET /repos/{owner}/{repository}/contents/{path}).
+	GetContents(ctx context.Context, req *github.GetContentsRequest) (*github.GetContentsResponse, error)
+	// ListContents runs github.repos.contents.list (GET /repos/{owner}/{repository}/contents/{path}).
+	ListContents(ctx context.Context, req *github.ListContentsRequest) (*github.ListContentsResponse, error)
 	// GetRepository runs github.repos.get (GET /repos/{owner}/{repository}).
 	GetRepository(ctx context.Context, req *github.GetRepositoryRequest) (*github.GetRepositoryResponse, error)
 }
@@ -64,6 +76,8 @@ type Operations interface {
 // Operation descriptors, for authorization and audit. Each ID is the
 // capability a policy grants: connector:<ID>.
 var (
+	OpGetRunAttempt              = connection.Op{ID: "github.actions.runs.attempts.get", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "GetRunAttempt", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpListRunJobs                = connection.Op{ID: "github.actions.runs.jobs.list", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "ListRunJobs", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
 	OpListWorkflowRuns           = connection.Op{ID: "github.actions.runs.list", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "ListWorkflowRuns", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
 	OpListWorkflowRunsByWorkflow = connection.Op{ID: "github.actions.workflows.runs.list", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "ListWorkflowRunsByWorkflow", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
 	OpListCheckRuns              = connection.Op{ID: "github.checks.runs.list", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "ListCheckRuns", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
@@ -85,6 +99,10 @@ var (
 	OpCreateReview               = connection.Op{ID: "github.pulls.reviews.create", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "CreateReview", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
 	OpListReviews                = connection.Op{ID: "github.pulls.reviews.list", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "ListReviews", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
 	OpUpdatePullRequest          = connection.Op{ID: "github.pulls.update", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "UpdatePullRequest", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpGetCommit                  = connection.Op{ID: "github.repos.commits.get", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "GetCommit", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpListCommits                = connection.Op{ID: "github.repos.commits.list", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "ListCommits", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpGetContents                = connection.Op{ID: "github.repos.contents.get", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "GetContents", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpListContents               = connection.Op{ID: "github.repos.contents.list", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "ListContents", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
 	OpGetRepository              = connection.Op{ID: "github.repos.get", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "GetRepository", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
 )
 
@@ -95,6 +113,45 @@ type Queries struct{ conn connection.HTTP }
 func New(conn connection.HTTP) *Queries { return &Queries{conn: conn} }
 
 var _ Operations = (*Queries)(nil)
+
+var specGetRunAttempt = &connection.HTTPSpec{
+	Op:           OpGetRunAttempt,
+	Method:       "GET",
+	PathTemplate: "/repos/{owner}/{repository}/actions/runs/{run_id}/attempts/{attempt_number}",
+	Params: []connection.Param{
+		{Field: "owner", In: connection.InPath, Wire: "owner"},
+		{Field: "repository", In: connection.InPath, Wire: "repository"},
+		{Field: "run_id", In: connection.InPath, Wire: "run_id"},
+		{Field: "attempt_number", In: connection.InPath, Wire: "attempt_number"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
+var specListRunJobs = &connection.HTTPSpec{
+	Op:           OpListRunJobs,
+	Method:       "GET",
+	PathTemplate: "/repos/{owner}/{repository}/actions/runs/{run_id}/jobs",
+	Params: []connection.Param{
+		{Field: "owner", In: connection.InPath, Wire: "owner"},
+		{Field: "repository", In: connection.InPath, Wire: "repository"},
+		{Field: "run_id", In: connection.InPath, Wire: "run_id"},
+		{Field: "per_page", In: connection.InQuery, Wire: "per_page"},
+		{Field: "page", In: connection.InQuery, Wire: "page"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+	CursorField:     "page",
+	NextCursorField: "next_page",
+}
 
 var specListWorkflowRuns = &connection.HTTPSpec{
 	Op:           OpListWorkflowRuns,
@@ -528,6 +585,80 @@ var specUpdatePullRequest = &connection.HTTPSpec{
 	},
 }
 
+var specGetCommit = &connection.HTTPSpec{
+	Op:           OpGetCommit,
+	Method:       "GET",
+	PathTemplate: "/repos/{owner}/{repository}/commits/{ref}",
+	Params: []connection.Param{
+		{Field: "owner", In: connection.InPath, Wire: "owner"},
+		{Field: "repository", In: connection.InPath, Wire: "repository"},
+		{Field: "ref", In: connection.InPath, Wire: "ref", MultiSegment: true},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
+var specListCommits = &connection.HTTPSpec{
+	Op:           OpListCommits,
+	Method:       "GET",
+	PathTemplate: "/repos/{owner}/{repository}/commits",
+	Params: []connection.Param{
+		{Field: "owner", In: connection.InPath, Wire: "owner"},
+		{Field: "repository", In: connection.InPath, Wire: "repository"},
+		{Field: "sha", In: connection.InQuery, Wire: "sha"},
+		{Field: "per_page", In: connection.InQuery, Wire: "per_page"},
+		{Field: "page", In: connection.InQuery, Wire: "page"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+	CursorField:     "page",
+	NextCursorField: "next_page",
+}
+
+var specGetContents = &connection.HTTPSpec{
+	Op:           OpGetContents,
+	Method:       "GET",
+	PathTemplate: "/repos/{owner}/{repository}/contents/{path}",
+	Params: []connection.Param{
+		{Field: "owner", In: connection.InPath, Wire: "owner"},
+		{Field: "repository", In: connection.InPath, Wire: "repository"},
+		{Field: "path", In: connection.InPath, Wire: "path", MultiSegment: true},
+		{Field: "ref", In: connection.InQuery, Wire: "ref"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
+var specListContents = &connection.HTTPSpec{
+	Op:           OpListContents,
+	Method:       "GET",
+	PathTemplate: "/repos/{owner}/{repository}/contents/{path}",
+	Params: []connection.Param{
+		{Field: "owner", In: connection.InPath, Wire: "owner"},
+		{Field: "repository", In: connection.InPath, Wire: "repository"},
+		{Field: "path", In: connection.InPath, Wire: "path", MultiSegment: true},
+		{Field: "ref", In: connection.InQuery, Wire: "ref"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
+	},
+}
+
 var specGetRepository = &connection.HTTPSpec{
 	Op:           OpGetRepository,
 	Method:       "GET",
@@ -542,6 +673,24 @@ var specGetRepository = &connection.HTTPSpec{
 		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+}
+
+// GetRunAttempt runs github.actions.runs.attempts.get.
+func (q *Queries) GetRunAttempt(ctx context.Context, req *github.GetRunAttemptRequest) (*github.GetRunAttemptResponse, error) {
+	resp := &github.GetRunAttemptResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specGetRunAttempt, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// ListRunJobs runs github.actions.runs.jobs.list.
+func (q *Queries) ListRunJobs(ctx context.Context, req *github.ListRunJobsRequest) (*github.ListRunJobsResponse, error) {
+	resp := &github.ListRunJobsResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specListRunJobs, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
 }
 
 // ListWorkflowRuns runs github.actions.runs.list.
@@ -728,6 +877,42 @@ func (q *Queries) ListReviews(ctx context.Context, req *github.ListPullReviewsRe
 func (q *Queries) UpdatePullRequest(ctx context.Context, req *github.UpdatePullRequestRequest) (*github.UpdatePullRequestResponse, error) {
 	resp := &github.UpdatePullRequestResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specUpdatePullRequest, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// GetCommit runs github.repos.commits.get.
+func (q *Queries) GetCommit(ctx context.Context, req *github.GetCommitRequest) (*github.GetCommitResponse, error) {
+	resp := &github.GetCommitResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specGetCommit, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// ListCommits runs github.repos.commits.list.
+func (q *Queries) ListCommits(ctx context.Context, req *github.ListCommitsRequest) (*github.ListCommitsResponse, error) {
+	resp := &github.ListCommitsResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specListCommits, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// GetContents runs github.repos.contents.get.
+func (q *Queries) GetContents(ctx context.Context, req *github.GetContentsRequest) (*github.GetContentsResponse, error) {
+	resp := &github.GetContentsResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specGetContents, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// ListContents runs github.repos.contents.list.
+func (q *Queries) ListContents(ctx context.Context, req *github.ListContentsRequest) (*github.ListContentsResponse, error) {
+	resp := &github.ListContentsResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specListContents, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

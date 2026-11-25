@@ -393,6 +393,91 @@ pub struct ListWorkflowRunsByWorkflowResponse {
     #[prost(int64, optional, tag="2")]
     pub next_page: ::core::option::Option<i64>,
 }
+/// GetRunAttemptRequest reads one attempt of a workflow run.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetRunAttemptRequest {
+    #[prost(string, tag="1")]
+    pub owner: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub repository: ::prost::alloc::string::String,
+    /// The run's id.
+    #[prost(int64, tag="3")]
+    pub run_id: i64,
+    /// The attempt number, starting at 1.
+    #[prost(int32, tag="4")]
+    pub attempt_number: i32,
+}
+/// GetRunAttemptResponse models the subset of one run attempt the contract
+/// needs. conclusion is null until the attempt finishes. It is filled by JSON
+/// unmarshal of the provider response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetRunAttemptResponse {
+    #[prost(int64, tag="1")]
+    pub id: i64,
+    #[prost(string, tag="2")]
+    pub name: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub head_branch: ::prost::alloc::string::String,
+    #[prost(string, tag="4")]
+    pub head_sha: ::prost::alloc::string::String,
+    #[prost(string, tag="5")]
+    pub status: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="6")]
+    pub conclusion: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(int32, tag="7")]
+    pub run_attempt: i32,
+    #[prost(string, tag="8")]
+    pub html_url: ::prost::alloc::string::String,
+}
+/// ListRunJobsRequest lists the jobs of one workflow run.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ListRunJobsRequest {
+    #[prost(string, tag="1")]
+    pub owner: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub repository: ::prost::alloc::string::String,
+    /// The run's id.
+    #[prost(int64, tag="3")]
+    pub run_id: i64,
+    #[prost(int32, optional, tag="4")]
+    pub per_page: ::core::option::Option<i32>,
+    #[prost(int32, optional, tag="5")]
+    pub page: ::core::option::Option<i32>,
+}
+/// RunJobSummary models the subset of each job entry a run's job list
+/// carries. started_at and completed_at are provider timestamps; completed_at
+/// is null while the job runs. It is filled by JSON unmarshal of the provider
+/// response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct RunJobSummary {
+    #[prost(int64, tag="1")]
+    pub id: i64,
+    #[prost(string, tag="2")]
+    pub name: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub status: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="4")]
+    pub conclusion: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, tag="5")]
+    pub started_at: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="6")]
+    pub completed_at: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(string, tag="7")]
+    pub html_url: ::prost::alloc::string::String,
+    /// The runner that executed the job; null until a runner picks it up.
+    #[prost(string, optional, tag="8")]
+    pub runner_name: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// ListRunJobsResponse wraps the job entries of a run's job list response.
+/// next_page carries the next page number from the Link header. It is filled
+/// by JSON unmarshal of the provider response.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListRunJobsResponse {
+    #[prost(message, repeated, tag="1")]
+    pub jobs: ::prost::alloc::vec::Vec<RunJobSummary>,
+    #[prost(int64, optional, tag="2")]
+    pub next_page: ::core::option::Option<i64>,
+}
 /// ListCheckRunsRequest lists the check runs of one commit ref of a GitHub
 /// repository. The ref is the provider's path form without the refs/ prefix
 /// (heads/main); it may contain slashes, so it renders as multiple path
@@ -476,13 +561,18 @@ pub struct ContentFile {
     #[prost(string, optional, tag="5")]
     pub download_url: ::core::option::Option<::prost::alloc::string::String>,
 }
-/// CommitSummary models the commit a put created.
+/// CommitSummary models the commit-level subset shared by the Contents put
+/// response and the commits list. author is the GitHub account the commit is
+/// attributed to; absent when the account is gone or when the response does
+/// not carry it (the put response does not).
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct CommitSummary {
     #[prost(string, tag="1")]
     pub sha: ::prost::alloc::string::String,
     #[prost(string, tag="2")]
     pub html_url: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="3")]
+    pub author: ::core::option::Option<User>,
 }
 /// PutContentsResponse models the subset of the Contents API put response the
 /// contract needs. It is filled by JSON unmarshal of the provider response.
@@ -492,6 +582,147 @@ pub struct PutContentsResponse {
     pub content: ::core::option::Option<ContentFile>,
     #[prost(message, optional, tag="2")]
     pub commit: ::core::option::Option<CommitSummary>,
+}
+/// GetContentsRequest reads one file from a GitHub repository via the
+/// Contents API. A directory path belongs to github.repos.contents.list, the
+/// sibling operation on the same path.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetContentsRequest {
+    #[prost(string, tag="1")]
+    pub owner: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub repository: ::prost::alloc::string::String,
+    /// A file path such as docs/notes.md: its slashes are kept.
+    #[prost(string, tag="3")]
+    pub path: ::prost::alloc::string::String,
+    /// A branch, tag or commit sha to read from; defaults to the default branch.
+    #[prost(string, optional, tag="4")]
+    pub r#ref: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// GetContentsResponse models one file entry. content carries the
+/// base64-encoded file bytes under encoding base64; the contract never
+/// decodes it. It is filled by JSON unmarshal of the provider response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetContentsResponse {
+    #[prost(string, tag="1")]
+    pub r#type: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub encoding: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub content: ::prost::alloc::string::String,
+    #[prost(string, tag="4")]
+    pub sha: ::prost::alloc::string::String,
+    #[prost(int64, tag="5")]
+    pub size: i64,
+    #[prost(string, tag="6")]
+    pub path: ::prost::alloc::string::String,
+    #[prost(string, tag="7")]
+    pub name: ::prost::alloc::string::String,
+    #[prost(string, tag="8")]
+    pub html_url: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="9")]
+    pub download_url: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// ListContentsRequest lists one directory of a GitHub repository via the
+/// Contents API. A file path belongs to github.repos.contents.get, the
+/// sibling operation on the same path.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ListContentsRequest {
+    #[prost(string, tag="1")]
+    pub owner: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub repository: ::prost::alloc::string::String,
+    /// A directory path such as docs: its slashes are kept.
+    #[prost(string, tag="3")]
+    pub path: ::prost::alloc::string::String,
+    /// A branch, tag or commit sha to read from; defaults to the default branch.
+    #[prost(string, optional, tag="4")]
+    pub r#ref: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// ContentsEntry models one entry of a directory listing. type is file, dir,
+/// symlink or submodule; a dir entry has no download_url.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ContentsEntry {
+    #[prost(string, tag="1")]
+    pub r#type: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub name: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub path: ::prost::alloc::string::String,
+    #[prost(string, tag="4")]
+    pub sha: ::prost::alloc::string::String,
+    #[prost(int64, tag="5")]
+    pub size: i64,
+    #[prost(string, tag="6")]
+    pub html_url: ::prost::alloc::string::String,
+    #[prost(string, optional, tag="7")]
+    pub download_url: ::core::option::Option<::prost::alloc::string::String>,
+}
+/// ListContentsResponse wraps the entries of a directory listing. The
+/// provider returns a bare JSON array and no pagination. It is filled by JSON
+/// unmarshal of the provider response.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListContentsResponse {
+    #[prost(message, repeated, tag="1")]
+    pub entries: ::prost::alloc::vec::Vec<ContentsEntry>,
+}
+/// ListCommitsRequest lists the commits of a GitHub repository.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ListCommitsRequest {
+    #[prost(string, tag="1")]
+    pub owner: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub repository: ::prost::alloc::string::String,
+    /// A commit sha or branch name to list from; defaults to the default branch.
+    #[prost(string, optional, tag="3")]
+    pub sha: ::core::option::Option<::prost::alloc::string::String>,
+    #[prost(int32, optional, tag="4")]
+    pub per_page: ::core::option::Option<i32>,
+    #[prost(int32, optional, tag="5")]
+    pub page: ::core::option::Option<i32>,
+}
+/// ListCommitsResponse wraps the commit entries of a list response. The
+/// provider returns a bare JSON array; next_page carries the next page number
+/// from the Link header. It is filled by JSON unmarshal of the provider
+/// response.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListCommitsResponse {
+    #[prost(message, repeated, tag="1")]
+    pub commits: ::prost::alloc::vec::Vec<CommitSummary>,
+    #[prost(int64, optional, tag="2")]
+    pub next_page: ::core::option::Option<i64>,
+}
+/// GetCommitRequest reads one commit of a GitHub repository by sha or branch
+/// name.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetCommitRequest {
+    #[prost(string, tag="1")]
+    pub owner: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub repository: ::prost::alloc::string::String,
+    /// A commit sha or branch name.
+    #[prost(string, tag="3")]
+    pub r#ref: ::prost::alloc::string::String,
+}
+/// CommitDetail models the git commit object the provider nests under
+/// "commit".
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CommitDetail {
+    #[prost(string, tag="1")]
+    pub message: ::prost::alloc::string::String,
+}
+/// GetCommitResponse models the subset of one commit the contract needs. It
+/// is filled by JSON unmarshal of the provider response.
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetCommitResponse {
+    #[prost(string, tag="1")]
+    pub sha: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub html_url: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="3")]
+    pub commit: ::core::option::Option<CommitDetail>,
+    #[prost(message, optional, tag="4")]
+    pub author: ::core::option::Option<User>,
 }
 /// GetRefRequest reads a single git ref from a GitHub repository. The ref is
 /// the provider's path form without the refs/ prefix (heads/main); it may

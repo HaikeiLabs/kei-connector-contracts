@@ -1,0 +1,12 @@
+{
+  "type": "file",
+  "encoding": "base64",
+  "content": "c3ludGhldGljLWNvbnRlbnQ=",
+  "sha": "synthetic-content-sha-2",
+  "size": 2048,
+  "path": "docs/notes.md",
+  "name": "notes.md",
+  "html_url": "https://example.invalid/example-org/example-repo/blob/main/docs/notes.md",
+  "download_url": null,
+  "node_id": "synthetic-node-id-5"
+}

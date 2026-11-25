@@ -1,0 +1,12 @@
+{
+  "sha": "synthetic-commit-sha-3",
+  "html_url": "https://example.invalid/example-org/example-repo/commit/synthetic-commit-sha-3",
+  "commit": {
+    "message": "Synthetic commit message"
+  },
+  "author": {
+    "id": 9007199254741004,
+    "login": "example-user"
+  },
+  "node_id": "synthetic-node-id-9"
+}

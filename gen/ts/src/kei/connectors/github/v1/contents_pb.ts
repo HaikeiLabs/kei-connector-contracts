@@ -21,13 +21,15 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_kei_contracts_v1_options } from "../../../contracts/v1/options_pb.js";
+import type { User } from "./pulls_pb.js";
+import { file_kei_connectors_github_v1_pulls } from "./pulls_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file kei/connectors/github/v1/contents.proto.
  */
 export const file_kei_connectors_github_v1_contents: GenFile = /*@__PURE__*/
-  fileDesc("CidrZWkvY29ubmVjdG9ycy9naXRodWIvdjEvY29udGVudHMucHJvdG8SGGtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MSKZAwoSUHV0Q29udGVudHNSZXF1ZXN0EhUKBW93bmVyGAEgASgJQgaighkCCAESGgoKcmVwb3NpdG9yeRgCIAEoCUIGooIZAggBEhYKBHBhdGgYAyABKAlCCKKCGQQIARgBEg8KB21lc3NhZ2UYBCABKAkSDwoHY29udGVudBgFIAEoCRITCgZicmFuY2gYBiABKAlIAIgBARIQCgNzaGEYByABKAlIAYgBATrbAZKCGdYBChNnaXRodWIuY29udGVudHMucHV0EgZnaXRodWIYAioDUFVUMisvcmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX0vY29udGVudHMve3BhdGh9Og5jb250ZW50czp3cml0ZUABSgtQdXRDb250ZW50c1IKdXNlcl9vYXV0aFIDcGF0WhpyZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fWIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAWIFCJkDEAViBQimAxAGigEKCAMSBGZpbGUYAUIJCgdfYnJhbmNoQgYKBF9zaGEidAoLQ29udGVudEZpbGUSDAoEbmFtZRgBIAEoCRIMCgRwYXRoGAIgASgJEgsKA3NoYRgDIAEoCRIQCghodG1sX3VybBgEIAEoCRIZCgxkb3dubG9hZF91cmwYBSABKAlIAIgBAUIPCg1fZG93bmxvYWRfdXJsIi4KDUNvbW1pdFN1bW1hcnkSCwoDc2hhGAEgASgJEhAKCGh0bWxfdXJsGAIgASgJIoYBChNQdXRDb250ZW50c1Jlc3BvbnNlEjYKB2NvbnRlbnQYASABKAsyJS5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuQ29udGVudEZpbGUSNwoGY29tbWl0GAIgASgLMicua2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxLkNvbW1pdFN1bW1hcnlCVlpUZ2l0aHViLmNvbS9IYWlrZWlMYWJzL2tlaS1jb25uZWN0b3ItY29udHJhY3RzL2dlbi9nby9rZWkvY29ubmVjdG9ycy9naXRodWIvdjE7Z2l0aHViYgZwcm90bzM", [file_kei_contracts_v1_options]);
+  fileDesc("CidrZWkvY29ubmVjdG9ycy9naXRodWIvdjEvY29udGVudHMucHJvdG8SGGtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MSKZAwoSUHV0Q29udGVudHNSZXF1ZXN0EhUKBW93bmVyGAEgASgJQgaighkCCAESGgoKcmVwb3NpdG9yeRgCIAEoCUIGooIZAggBEhYKBHBhdGgYAyABKAlCCKKCGQQIARgBEg8KB21lc3NhZ2UYBCABKAkSDwoHY29udGVudBgFIAEoCRITCgZicmFuY2gYBiABKAlIAIgBARIQCgNzaGEYByABKAlIAYgBATrbAZKCGdYBChNnaXRodWIuY29udGVudHMucHV0EgZnaXRodWIYAioDUFVUMisvcmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX0vY29udGVudHMve3BhdGh9Og5jb250ZW50czp3cml0ZUABSgtQdXRDb250ZW50c1IKdXNlcl9vYXV0aFIDcGF0WhpyZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fWIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAWIFCJkDEAViBQimAxAGigEKCAMSBGZpbGUYAUIJCgdfYnJhbmNoQgYKBF9zaGEidAoLQ29udGVudEZpbGUSDAoEbmFtZRgBIAEoCRIMCgRwYXRoGAIgASgJEgsKA3NoYRgDIAEoCRIQCghodG1sX3VybBgEIAEoCRIZCgxkb3dubG9hZF91cmwYBSABKAlIAIgBAUIPCg1fZG93bmxvYWRfdXJsIl4KDUNvbW1pdFN1bW1hcnkSCwoDc2hhGAEgASgJEhAKCGh0bWxfdXJsGAIgASgJEi4KBmF1dGhvchgDIAEoCzIeLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5Vc2VyIoYBChNQdXRDb250ZW50c1Jlc3BvbnNlEjYKB2NvbnRlbnQYASABKAsyJS5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuQ29udGVudEZpbGUSNwoGY29tbWl0GAIgASgLMicua2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxLkNvbW1pdFN1bW1hcnkizgIKEkdldENvbnRlbnRzUmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIWCgRwYXRoGAMgASgJQgiighkECAEYARIQCgNyZWYYBCABKAlIAIgBATrSAZKCGc0BChlnaXRodWIucmVwb3MuY29udGVudHMuZ2V0EgZnaXRodWIYASoDR0VUMisvcmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX0vY29udGVudHMve3BhdGh9Og1jb250ZW50czpyZWFkQAFKC0dldENvbnRlbnRzUgp1c2VyX29hdXRoUgNwYXRaGnJlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9YgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBigEKCAESBGZpbGUYAUIGCgRfcmVmIrsBChNHZXRDb250ZW50c1Jlc3BvbnNlEgwKBHR5cGUYASABKAkSEAoIZW5jb2RpbmcYAiABKAkSDwoHY29udGVudBgDIAEoCRILCgNzaGEYBCABKAkSDAoEc2l6ZRgFIAEoAxIMCgRwYXRoGAYgASgJEgwKBG5hbWUYByABKAkSEAoIaHRtbF91cmwYCCABKAkSGQoMZG93bmxvYWRfdXJsGAkgASgJSACIAQFCDwoNX2Rvd25sb2FkX3VybCLWAgoTTGlzdENvbnRlbnRzUmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIWCgRwYXRoGAMgASgJQgiighkECAEYARIQCgNyZWYYBCABKAlIAIgBATrZAZKCGdQBChpnaXRodWIucmVwb3MuY29udGVudHMubGlzdBIGZ2l0aHViGAEqA0dFVDIrL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L2NvbnRlbnRzL3twYXRofToNY29udGVudHM6cmVhZEABSgxMaXN0Q29udGVudHNSCnVzZXJfb2F1dGhSA3BhdFoacmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKAQ8IARIJZGlyZWN0b3J5GAFCBgoEX3JlZiKSAQoNQ29udGVudHNFbnRyeRIMCgR0eXBlGAEgASgJEgwKBG5hbWUYAiABKAkSDAoEcGF0aBgDIAEoCRILCgNzaGEYBCABKAkSDAoEc2l6ZRgFIAEoAxIQCghodG1sX3VybBgGIAEoCRIZCgxkb3dubG9hZF91cmwYByABKAlIAIgBAUIPCg1fZG93bmxvYWRfdXJsIlAKFExpc3RDb250ZW50c1Jlc3BvbnNlEjgKB2VudHJpZXMYASADKAsyJy5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuQ29udGVudHNFbnRyeUJWWlRnaXRodWIuY29tL0hhaWtlaUxhYnMva2VpLWNvbm5lY3Rvci1jb250cmFjdHMvZ2VuL2dvL2tlaS9jb25uZWN0b3JzL2dpdGh1Yi92MTtnaXRodWJiBnByb3RvMw", [file_kei_contracts_v1_options, file_kei_connectors_github_v1_pulls]);
 
 /**
  * PutContentsRequest creates or updates one file in a GitHub repository via
@@ -122,7 +124,10 @@ export const ContentFileSchema: GenMessage<ContentFile> = /*@__PURE__*/
   messageDesc(file_kei_connectors_github_v1_contents, 1);
 
 /**
- * CommitSummary models the commit a put created.
+ * CommitSummary models the commit-level subset shared by the Contents put
+ * response and the commits list. author is the GitHub account the commit is
+ * attributed to; absent when the account is gone or when the response does
+ * not carry it (the put response does not).
  *
  * @generated from message kei.connectors.github.v1.CommitSummary
  */
@@ -136,6 +141,11 @@ export type CommitSummary = Message<"kei.connectors.github.v1.CommitSummary"> & 
    * @generated from field: string html_url = 2;
    */
   htmlUrl: string;
+
+  /**
+   * @generated from field: kei.connectors.github.v1.User author = 3;
+   */
+  author?: User | undefined;
 };
 
 /**
@@ -169,4 +179,216 @@ export type PutContentsResponse = Message<"kei.connectors.github.v1.PutContentsR
  */
 export const PutContentsResponseSchema: GenMessage<PutContentsResponse> = /*@__PURE__*/
   messageDesc(file_kei_connectors_github_v1_contents, 3);
+
+/**
+ * GetContentsRequest reads one file from a GitHub repository via the
+ * Contents API. A directory path belongs to github.repos.contents.list, the
+ * sibling operation on the same path.
+ *
+ * @generated from message kei.connectors.github.v1.GetContentsRequest
+ */
+export type GetContentsRequest = Message<"kei.connectors.github.v1.GetContentsRequest"> & {
+  /**
+   * @generated from field: string owner = 1;
+   */
+  owner: string;
+
+  /**
+   * @generated from field: string repository = 2;
+   */
+  repository: string;
+
+  /**
+   * A file path such as docs/notes.md: its slashes are kept.
+   *
+   * @generated from field: string path = 3;
+   */
+  path: string;
+
+  /**
+   * A branch, tag or commit sha to read from; defaults to the default branch.
+   *
+   * @generated from field: optional string ref = 4;
+   */
+  ref?: string | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.GetContentsRequest.
+ * Use `create(GetContentsRequestSchema)` to create a new message.
+ */
+export const GetContentsRequestSchema: GenMessage<GetContentsRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_contents, 4);
+
+/**
+ * GetContentsResponse models one file entry. content carries the
+ * base64-encoded file bytes under encoding base64; the contract never
+ * decodes it. It is filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.GetContentsResponse
+ */
+export type GetContentsResponse = Message<"kei.connectors.github.v1.GetContentsResponse"> & {
+  /**
+   * @generated from field: string type = 1;
+   */
+  type: string;
+
+  /**
+   * @generated from field: string encoding = 2;
+   */
+  encoding: string;
+
+  /**
+   * @generated from field: string content = 3;
+   */
+  content: string;
+
+  /**
+   * @generated from field: string sha = 4;
+   */
+  sha: string;
+
+  /**
+   * @generated from field: int64 size = 5;
+   */
+  size: bigint;
+
+  /**
+   * @generated from field: string path = 6;
+   */
+  path: string;
+
+  /**
+   * @generated from field: string name = 7;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string html_url = 8;
+   */
+  htmlUrl: string;
+
+  /**
+   * @generated from field: optional string download_url = 9;
+   */
+  downloadUrl?: string | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.GetContentsResponse.
+ * Use `create(GetContentsResponseSchema)` to create a new message.
+ */
+export const GetContentsResponseSchema: GenMessage<GetContentsResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_contents, 5);
+
+/**
+ * ListContentsRequest lists one directory of a GitHub repository via the
+ * Contents API. A file path belongs to github.repos.contents.get, the
+ * sibling operation on the same path.
+ *
+ * @generated from message kei.connectors.github.v1.ListContentsRequest
+ */
+export type ListContentsRequest = Message<"kei.connectors.github.v1.ListContentsRequest"> & {
+  /**
+   * @generated from field: string owner = 1;
+   */
+  owner: string;
+
+  /**
+   * @generated from field: string repository = 2;
+   */
+  repository: string;
+
+  /**
+   * A directory path such as docs: its slashes are kept.
+   *
+   * @generated from field: string path = 3;
+   */
+  path: string;
+
+  /**
+   * A branch, tag or commit sha to read from; defaults to the default branch.
+   *
+   * @generated from field: optional string ref = 4;
+   */
+  ref?: string | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ListContentsRequest.
+ * Use `create(ListContentsRequestSchema)` to create a new message.
+ */
+export const ListContentsRequestSchema: GenMessage<ListContentsRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_contents, 6);
+
+/**
+ * ContentsEntry models one entry of a directory listing. type is file, dir,
+ * symlink or submodule; a dir entry has no download_url.
+ *
+ * @generated from message kei.connectors.github.v1.ContentsEntry
+ */
+export type ContentsEntry = Message<"kei.connectors.github.v1.ContentsEntry"> & {
+  /**
+   * @generated from field: string type = 1;
+   */
+  type: string;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string path = 3;
+   */
+  path: string;
+
+  /**
+   * @generated from field: string sha = 4;
+   */
+  sha: string;
+
+  /**
+   * @generated from field: int64 size = 5;
+   */
+  size: bigint;
+
+  /**
+   * @generated from field: string html_url = 6;
+   */
+  htmlUrl: string;
+
+  /**
+   * @generated from field: optional string download_url = 7;
+   */
+  downloadUrl?: string | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ContentsEntry.
+ * Use `create(ContentsEntrySchema)` to create a new message.
+ */
+export const ContentsEntrySchema: GenMessage<ContentsEntry> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_contents, 7);
+
+/**
+ * ListContentsResponse wraps the entries of a directory listing. The
+ * provider returns a bare JSON array and no pagination. It is filled by JSON
+ * unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.ListContentsResponse
+ */
+export type ListContentsResponse = Message<"kei.connectors.github.v1.ListContentsResponse"> & {
+  /**
+   * @generated from field: repeated kei.connectors.github.v1.ContentsEntry entries = 1;
+   */
+  entries: ContentsEntry[];
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ListContentsResponse.
+ * Use `create(ListContentsResponseSchema)` to create a new message.
+ */
+export const ListContentsResponseSchema: GenMessage<ListContentsResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_contents, 8);
 

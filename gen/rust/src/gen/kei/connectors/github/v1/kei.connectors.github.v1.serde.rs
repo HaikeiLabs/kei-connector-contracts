@@ -185,6 +185,101 @@ impl<'de> serde::Deserialize<'de> for CheckRunSummary {
         deserializer.deserialize_struct("kei.connectors.github.v1.CheckRunSummary", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for CommitDetail {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.message.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.CommitDetail", len)?;
+        if !self.message.is_empty() {
+            struct_ser.serialize_field("message", &self.message)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for CommitDetail {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "message",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Message,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "message" => Ok(GeneratedField::Message),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = CommitDetail;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.CommitDetail")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<CommitDetail, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut message__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Message => {
+                            if message__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("message"));
+                            }
+                            message__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(CommitDetail {
+                    message: message__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.CommitDetail", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for CommitSummary {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -199,12 +294,18 @@ impl serde::Serialize for CommitSummary {
         if !self.html_url.is_empty() {
             len += 1;
         }
+        if self.author.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.CommitSummary", len)?;
         if !self.sha.is_empty() {
             struct_ser.serialize_field("sha", &self.sha)?;
         }
         if !self.html_url.is_empty() {
             struct_ser.serialize_field("htmlUrl", &self.html_url)?;
+        }
+        if let Some(v) = self.author.as_ref() {
+            struct_ser.serialize_field("author", v)?;
         }
         struct_ser.end()
     }
@@ -219,12 +320,14 @@ impl<'de> serde::Deserialize<'de> for CommitSummary {
             "sha",
             "html_url",
             "htmlUrl",
+            "author",
         ];
 
         #[allow(clippy::enum_variant_names)]
         enum GeneratedField {
             Sha,
             HtmlUrl,
+            Author,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -249,6 +352,7 @@ impl<'de> serde::Deserialize<'de> for CommitSummary {
                         match value {
                             "sha" => Ok(GeneratedField::Sha),
                             "htmlUrl" | "html_url" => Ok(GeneratedField::HtmlUrl),
+                            "author" => Ok(GeneratedField::Author),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -270,6 +374,7 @@ impl<'de> serde::Deserialize<'de> for CommitSummary {
             {
                 let mut sha__ = None;
                 let mut html_url__ = None;
+                let mut author__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Sha => {
@@ -284,6 +389,12 @@ impl<'de> serde::Deserialize<'de> for CommitSummary {
                             }
                             html_url__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::Author => {
+                            if author__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("author"));
+                            }
+                            author__ = map_.next_value()?;
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -292,6 +403,7 @@ impl<'de> serde::Deserialize<'de> for CommitSummary {
                 Ok(CommitSummary {
                     sha: sha__.unwrap_or_default(),
                     html_url: html_url__.unwrap_or_default(),
+                    author: author__,
                 })
             }
         }
@@ -461,6 +573,209 @@ impl<'de> serde::Deserialize<'de> for ContentFile {
             }
         }
         deserializer.deserialize_struct("kei.connectors.github.v1.ContentFile", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ContentsEntry {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.r#type.is_empty() {
+            len += 1;
+        }
+        if !self.name.is_empty() {
+            len += 1;
+        }
+        if !self.path.is_empty() {
+            len += 1;
+        }
+        if !self.sha.is_empty() {
+            len += 1;
+        }
+        if self.size != 0 {
+            len += 1;
+        }
+        if !self.html_url.is_empty() {
+            len += 1;
+        }
+        if self.download_url.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.ContentsEntry", len)?;
+        if !self.r#type.is_empty() {
+            struct_ser.serialize_field("type", &self.r#type)?;
+        }
+        if !self.name.is_empty() {
+            struct_ser.serialize_field("name", &self.name)?;
+        }
+        if !self.path.is_empty() {
+            struct_ser.serialize_field("path", &self.path)?;
+        }
+        if !self.sha.is_empty() {
+            struct_ser.serialize_field("sha", &self.sha)?;
+        }
+        if self.size != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("size", ToString::to_string(&self.size).as_str())?;
+        }
+        if !self.html_url.is_empty() {
+            struct_ser.serialize_field("htmlUrl", &self.html_url)?;
+        }
+        if let Some(v) = self.download_url.as_ref() {
+            struct_ser.serialize_field("downloadUrl", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ContentsEntry {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "type",
+            "name",
+            "path",
+            "sha",
+            "size",
+            "html_url",
+            "htmlUrl",
+            "download_url",
+            "downloadUrl",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Type,
+            Name,
+            Path,
+            Sha,
+            Size,
+            HtmlUrl,
+            DownloadUrl,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "type" => Ok(GeneratedField::Type),
+                            "name" => Ok(GeneratedField::Name),
+                            "path" => Ok(GeneratedField::Path),
+                            "sha" => Ok(GeneratedField::Sha),
+                            "size" => Ok(GeneratedField::Size),
+                            "htmlUrl" | "html_url" => Ok(GeneratedField::HtmlUrl),
+                            "downloadUrl" | "download_url" => Ok(GeneratedField::DownloadUrl),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ContentsEntry;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.ContentsEntry")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ContentsEntry, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut r#type__ = None;
+                let mut name__ = None;
+                let mut path__ = None;
+                let mut sha__ = None;
+                let mut size__ = None;
+                let mut html_url__ = None;
+                let mut download_url__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Type => {
+                            if r#type__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("type"));
+                            }
+                            r#type__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Name => {
+                            if name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("name"));
+                            }
+                            name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Path => {
+                            if path__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("path"));
+                            }
+                            path__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Sha => {
+                            if sha__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("sha"));
+                            }
+                            sha__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Size => {
+                            if size__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("size"));
+                            }
+                            size__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::HtmlUrl => {
+                            if html_url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("htmlUrl"));
+                            }
+                            html_url__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::DownloadUrl => {
+                            if download_url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("downloadUrl"));
+                            }
+                            download_url__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ContentsEntry {
+                    r#type: r#type__.unwrap_or_default(),
+                    name: name__.unwrap_or_default(),
+                    path: path__.unwrap_or_default(),
+                    sha: sha__.unwrap_or_default(),
+                    size: size__.unwrap_or_default(),
+                    html_url: html_url__.unwrap_or_default(),
+                    download_url: download_url__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.ContentsEntry", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for CreateBlobRequest {
@@ -3118,6 +3433,665 @@ impl<'de> serde::Deserialize<'de> for CreateTreeResponse {
         deserializer.deserialize_struct("kei.connectors.github.v1.CreateTreeResponse", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for GetCommitRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.owner.is_empty() {
+            len += 1;
+        }
+        if !self.repository.is_empty() {
+            len += 1;
+        }
+        if !self.r#ref.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.GetCommitRequest", len)?;
+        if !self.owner.is_empty() {
+            struct_ser.serialize_field("owner", &self.owner)?;
+        }
+        if !self.repository.is_empty() {
+            struct_ser.serialize_field("repository", &self.repository)?;
+        }
+        if !self.r#ref.is_empty() {
+            struct_ser.serialize_field("ref", &self.r#ref)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GetCommitRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "owner",
+            "repository",
+            "ref",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Owner,
+            Repository,
+            Ref,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "owner" => Ok(GeneratedField::Owner),
+                            "repository" => Ok(GeneratedField::Repository),
+                            "ref" => Ok(GeneratedField::Ref),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GetCommitRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.GetCommitRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetCommitRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut owner__ = None;
+                let mut repository__ = None;
+                let mut r#ref__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Owner => {
+                            if owner__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("owner"));
+                            }
+                            owner__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Repository => {
+                            if repository__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("repository"));
+                            }
+                            repository__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Ref => {
+                            if r#ref__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("ref"));
+                            }
+                            r#ref__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(GetCommitRequest {
+                    owner: owner__.unwrap_or_default(),
+                    repository: repository__.unwrap_or_default(),
+                    r#ref: r#ref__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.GetCommitRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for GetCommitResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.sha.is_empty() {
+            len += 1;
+        }
+        if !self.html_url.is_empty() {
+            len += 1;
+        }
+        if self.commit.is_some() {
+            len += 1;
+        }
+        if self.author.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.GetCommitResponse", len)?;
+        if !self.sha.is_empty() {
+            struct_ser.serialize_field("sha", &self.sha)?;
+        }
+        if !self.html_url.is_empty() {
+            struct_ser.serialize_field("htmlUrl", &self.html_url)?;
+        }
+        if let Some(v) = self.commit.as_ref() {
+            struct_ser.serialize_field("commit", v)?;
+        }
+        if let Some(v) = self.author.as_ref() {
+            struct_ser.serialize_field("author", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GetCommitResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "sha",
+            "html_url",
+            "htmlUrl",
+            "commit",
+            "author",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Sha,
+            HtmlUrl,
+            Commit,
+            Author,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "sha" => Ok(GeneratedField::Sha),
+                            "htmlUrl" | "html_url" => Ok(GeneratedField::HtmlUrl),
+                            "commit" => Ok(GeneratedField::Commit),
+                            "author" => Ok(GeneratedField::Author),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GetCommitResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.GetCommitResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetCommitResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut sha__ = None;
+                let mut html_url__ = None;
+                let mut commit__ = None;
+                let mut author__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Sha => {
+                            if sha__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("sha"));
+                            }
+                            sha__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::HtmlUrl => {
+                            if html_url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("htmlUrl"));
+                            }
+                            html_url__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Commit => {
+                            if commit__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("commit"));
+                            }
+                            commit__ = map_.next_value()?;
+                        }
+                        GeneratedField::Author => {
+                            if author__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("author"));
+                            }
+                            author__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(GetCommitResponse {
+                    sha: sha__.unwrap_or_default(),
+                    html_url: html_url__.unwrap_or_default(),
+                    commit: commit__,
+                    author: author__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.GetCommitResponse", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for GetContentsRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.owner.is_empty() {
+            len += 1;
+        }
+        if !self.repository.is_empty() {
+            len += 1;
+        }
+        if !self.path.is_empty() {
+            len += 1;
+        }
+        if self.r#ref.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.GetContentsRequest", len)?;
+        if !self.owner.is_empty() {
+            struct_ser.serialize_field("owner", &self.owner)?;
+        }
+        if !self.repository.is_empty() {
+            struct_ser.serialize_field("repository", &self.repository)?;
+        }
+        if !self.path.is_empty() {
+            struct_ser.serialize_field("path", &self.path)?;
+        }
+        if let Some(v) = self.r#ref.as_ref() {
+            struct_ser.serialize_field("ref", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GetContentsRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "owner",
+            "repository",
+            "path",
+            "ref",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Owner,
+            Repository,
+            Path,
+            Ref,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "owner" => Ok(GeneratedField::Owner),
+                            "repository" => Ok(GeneratedField::Repository),
+                            "path" => Ok(GeneratedField::Path),
+                            "ref" => Ok(GeneratedField::Ref),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GetContentsRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.GetContentsRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetContentsRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut owner__ = None;
+                let mut repository__ = None;
+                let mut path__ = None;
+                let mut r#ref__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Owner => {
+                            if owner__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("owner"));
+                            }
+                            owner__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Repository => {
+                            if repository__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("repository"));
+                            }
+                            repository__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Path => {
+                            if path__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("path"));
+                            }
+                            path__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Ref => {
+                            if r#ref__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("ref"));
+                            }
+                            r#ref__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(GetContentsRequest {
+                    owner: owner__.unwrap_or_default(),
+                    repository: repository__.unwrap_or_default(),
+                    path: path__.unwrap_or_default(),
+                    r#ref: r#ref__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.GetContentsRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for GetContentsResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.r#type.is_empty() {
+            len += 1;
+        }
+        if !self.encoding.is_empty() {
+            len += 1;
+        }
+        if !self.content.is_empty() {
+            len += 1;
+        }
+        if !self.sha.is_empty() {
+            len += 1;
+        }
+        if self.size != 0 {
+            len += 1;
+        }
+        if !self.path.is_empty() {
+            len += 1;
+        }
+        if !self.name.is_empty() {
+            len += 1;
+        }
+        if !self.html_url.is_empty() {
+            len += 1;
+        }
+        if self.download_url.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.GetContentsResponse", len)?;
+        if !self.r#type.is_empty() {
+            struct_ser.serialize_field("type", &self.r#type)?;
+        }
+        if !self.encoding.is_empty() {
+            struct_ser.serialize_field("encoding", &self.encoding)?;
+        }
+        if !self.content.is_empty() {
+            struct_ser.serialize_field("content", &self.content)?;
+        }
+        if !self.sha.is_empty() {
+            struct_ser.serialize_field("sha", &self.sha)?;
+        }
+        if self.size != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("size", ToString::to_string(&self.size).as_str())?;
+        }
+        if !self.path.is_empty() {
+            struct_ser.serialize_field("path", &self.path)?;
+        }
+        if !self.name.is_empty() {
+            struct_ser.serialize_field("name", &self.name)?;
+        }
+        if !self.html_url.is_empty() {
+            struct_ser.serialize_field("htmlUrl", &self.html_url)?;
+        }
+        if let Some(v) = self.download_url.as_ref() {
+            struct_ser.serialize_field("downloadUrl", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GetContentsResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "type",
+            "encoding",
+            "content",
+            "sha",
+            "size",
+            "path",
+            "name",
+            "html_url",
+            "htmlUrl",
+            "download_url",
+            "downloadUrl",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Type,
+            Encoding,
+            Content,
+            Sha,
+            Size,
+            Path,
+            Name,
+            HtmlUrl,
+            DownloadUrl,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "type" => Ok(GeneratedField::Type),
+                            "encoding" => Ok(GeneratedField::Encoding),
+                            "content" => Ok(GeneratedField::Content),
+                            "sha" => Ok(GeneratedField::Sha),
+                            "size" => Ok(GeneratedField::Size),
+                            "path" => Ok(GeneratedField::Path),
+                            "name" => Ok(GeneratedField::Name),
+                            "htmlUrl" | "html_url" => Ok(GeneratedField::HtmlUrl),
+                            "downloadUrl" | "download_url" => Ok(GeneratedField::DownloadUrl),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GetContentsResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.GetContentsResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetContentsResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut r#type__ = None;
+                let mut encoding__ = None;
+                let mut content__ = None;
+                let mut sha__ = None;
+                let mut size__ = None;
+                let mut path__ = None;
+                let mut name__ = None;
+                let mut html_url__ = None;
+                let mut download_url__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Type => {
+                            if r#type__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("type"));
+                            }
+                            r#type__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Encoding => {
+                            if encoding__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("encoding"));
+                            }
+                            encoding__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Content => {
+                            if content__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("content"));
+                            }
+                            content__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Sha => {
+                            if sha__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("sha"));
+                            }
+                            sha__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Size => {
+                            if size__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("size"));
+                            }
+                            size__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::Path => {
+                            if path__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("path"));
+                            }
+                            path__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Name => {
+                            if name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("name"));
+                            }
+                            name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::HtmlUrl => {
+                            if html_url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("htmlUrl"));
+                            }
+                            html_url__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::DownloadUrl => {
+                            if download_url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("downloadUrl"));
+                            }
+                            download_url__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(GetContentsResponse {
+                    r#type: r#type__.unwrap_or_default(),
+                    encoding: encoding__.unwrap_or_default(),
+                    content: content__.unwrap_or_default(),
+                    sha: sha__.unwrap_or_default(),
+                    size: size__.unwrap_or_default(),
+                    path: path__.unwrap_or_default(),
+                    name: name__.unwrap_or_default(),
+                    html_url: html_url__.unwrap_or_default(),
+                    download_url: download_url__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.GetContentsResponse", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for GetIssueRequest {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -4513,6 +5487,381 @@ impl<'de> serde::Deserialize<'de> for GetRepositoryResponse {
         deserializer.deserialize_struct("kei.connectors.github.v1.GetRepositoryResponse", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for GetRunAttemptRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.owner.is_empty() {
+            len += 1;
+        }
+        if !self.repository.is_empty() {
+            len += 1;
+        }
+        if self.run_id != 0 {
+            len += 1;
+        }
+        if self.attempt_number != 0 {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.GetRunAttemptRequest", len)?;
+        if !self.owner.is_empty() {
+            struct_ser.serialize_field("owner", &self.owner)?;
+        }
+        if !self.repository.is_empty() {
+            struct_ser.serialize_field("repository", &self.repository)?;
+        }
+        if self.run_id != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("runId", ToString::to_string(&self.run_id).as_str())?;
+        }
+        if self.attempt_number != 0 {
+            struct_ser.serialize_field("attemptNumber", &self.attempt_number)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GetRunAttemptRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "owner",
+            "repository",
+            "run_id",
+            "runId",
+            "attempt_number",
+            "attemptNumber",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Owner,
+            Repository,
+            RunId,
+            AttemptNumber,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "owner" => Ok(GeneratedField::Owner),
+                            "repository" => Ok(GeneratedField::Repository),
+                            "runId" | "run_id" => Ok(GeneratedField::RunId),
+                            "attemptNumber" | "attempt_number" => Ok(GeneratedField::AttemptNumber),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GetRunAttemptRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.GetRunAttemptRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetRunAttemptRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut owner__ = None;
+                let mut repository__ = None;
+                let mut run_id__ = None;
+                let mut attempt_number__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Owner => {
+                            if owner__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("owner"));
+                            }
+                            owner__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Repository => {
+                            if repository__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("repository"));
+                            }
+                            repository__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::RunId => {
+                            if run_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("runId"));
+                            }
+                            run_id__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::AttemptNumber => {
+                            if attempt_number__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("attemptNumber"));
+                            }
+                            attempt_number__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(GetRunAttemptRequest {
+                    owner: owner__.unwrap_or_default(),
+                    repository: repository__.unwrap_or_default(),
+                    run_id: run_id__.unwrap_or_default(),
+                    attempt_number: attempt_number__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.GetRunAttemptRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for GetRunAttemptResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.id != 0 {
+            len += 1;
+        }
+        if !self.name.is_empty() {
+            len += 1;
+        }
+        if !self.head_branch.is_empty() {
+            len += 1;
+        }
+        if !self.head_sha.is_empty() {
+            len += 1;
+        }
+        if !self.status.is_empty() {
+            len += 1;
+        }
+        if self.conclusion.is_some() {
+            len += 1;
+        }
+        if self.run_attempt != 0 {
+            len += 1;
+        }
+        if !self.html_url.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.GetRunAttemptResponse", len)?;
+        if self.id != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("id", ToString::to_string(&self.id).as_str())?;
+        }
+        if !self.name.is_empty() {
+            struct_ser.serialize_field("name", &self.name)?;
+        }
+        if !self.head_branch.is_empty() {
+            struct_ser.serialize_field("head_branch", &self.head_branch)?;
+        }
+        if !self.head_sha.is_empty() {
+            struct_ser.serialize_field("head_sha", &self.head_sha)?;
+        }
+        if !self.status.is_empty() {
+            struct_ser.serialize_field("status", &self.status)?;
+        }
+        if let Some(v) = self.conclusion.as_ref() {
+            struct_ser.serialize_field("conclusion", v)?;
+        }
+        if self.run_attempt != 0 {
+            struct_ser.serialize_field("run_attempt", &self.run_attempt)?;
+        }
+        if !self.html_url.is_empty() {
+            struct_ser.serialize_field("htmlUrl", &self.html_url)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for GetRunAttemptResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "id",
+            "name",
+            "head_branch",
+            "head_sha",
+            "status",
+            "conclusion",
+            "run_attempt",
+            "html_url",
+            "htmlUrl",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            Name,
+            HeadBranch,
+            HeadSha,
+            Status,
+            Conclusion,
+            RunAttempt,
+            HtmlUrl,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "name" => Ok(GeneratedField::Name),
+                            "head_branch" => Ok(GeneratedField::HeadBranch),
+                            "head_sha" => Ok(GeneratedField::HeadSha),
+                            "status" => Ok(GeneratedField::Status),
+                            "conclusion" => Ok(GeneratedField::Conclusion),
+                            "run_attempt" => Ok(GeneratedField::RunAttempt),
+                            "htmlUrl" | "html_url" => Ok(GeneratedField::HtmlUrl),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = GetRunAttemptResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.GetRunAttemptResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<GetRunAttemptResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut name__ = None;
+                let mut head_branch__ = None;
+                let mut head_sha__ = None;
+                let mut status__ = None;
+                let mut conclusion__ = None;
+                let mut run_attempt__ = None;
+                let mut html_url__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::Name => {
+                            if name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("name"));
+                            }
+                            name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::HeadBranch => {
+                            if head_branch__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("head_branch"));
+                            }
+                            head_branch__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::HeadSha => {
+                            if head_sha__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("head_sha"));
+                            }
+                            head_sha__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Status => {
+                            if status__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("status"));
+                            }
+                            status__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Conclusion => {
+                            if conclusion__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("conclusion"));
+                            }
+                            conclusion__ = map_.next_value()?;
+                        }
+                        GeneratedField::RunAttempt => {
+                            if run_attempt__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("run_attempt"));
+                            }
+                            run_attempt__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::HtmlUrl => {
+                            if html_url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("htmlUrl"));
+                            }
+                            html_url__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(GetRunAttemptResponse {
+                    id: id__.unwrap_or_default(),
+                    name: name__.unwrap_or_default(),
+                    head_branch: head_branch__.unwrap_or_default(),
+                    head_sha: head_sha__.unwrap_or_default(),
+                    status: status__.unwrap_or_default(),
+                    conclusion: conclusion__,
+                    run_attempt: run_attempt__.unwrap_or_default(),
+                    html_url: html_url__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.GetRunAttemptResponse", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for GitObject {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -5271,6 +6620,532 @@ impl<'de> serde::Deserialize<'de> for ListCheckRunsResponse {
             }
         }
         deserializer.deserialize_struct("kei.connectors.github.v1.ListCheckRunsResponse", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListCommitsRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.owner.is_empty() {
+            len += 1;
+        }
+        if !self.repository.is_empty() {
+            len += 1;
+        }
+        if self.sha.is_some() {
+            len += 1;
+        }
+        if self.per_page.is_some() {
+            len += 1;
+        }
+        if self.page.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.ListCommitsRequest", len)?;
+        if !self.owner.is_empty() {
+            struct_ser.serialize_field("owner", &self.owner)?;
+        }
+        if !self.repository.is_empty() {
+            struct_ser.serialize_field("repository", &self.repository)?;
+        }
+        if let Some(v) = self.sha.as_ref() {
+            struct_ser.serialize_field("sha", v)?;
+        }
+        if let Some(v) = self.per_page.as_ref() {
+            struct_ser.serialize_field("perPage", v)?;
+        }
+        if let Some(v) = self.page.as_ref() {
+            struct_ser.serialize_field("page", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListCommitsRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "owner",
+            "repository",
+            "sha",
+            "per_page",
+            "perPage",
+            "page",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Owner,
+            Repository,
+            Sha,
+            PerPage,
+            Page,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "owner" => Ok(GeneratedField::Owner),
+                            "repository" => Ok(GeneratedField::Repository),
+                            "sha" => Ok(GeneratedField::Sha),
+                            "perPage" | "per_page" => Ok(GeneratedField::PerPage),
+                            "page" => Ok(GeneratedField::Page),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListCommitsRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.ListCommitsRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListCommitsRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut owner__ = None;
+                let mut repository__ = None;
+                let mut sha__ = None;
+                let mut per_page__ = None;
+                let mut page__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Owner => {
+                            if owner__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("owner"));
+                            }
+                            owner__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Repository => {
+                            if repository__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("repository"));
+                            }
+                            repository__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Sha => {
+                            if sha__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("sha"));
+                            }
+                            sha__ = map_.next_value()?;
+                        }
+                        GeneratedField::PerPage => {
+                            if per_page__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("perPage"));
+                            }
+                            per_page__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::Page => {
+                            if page__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("page"));
+                            }
+                            page__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListCommitsRequest {
+                    owner: owner__.unwrap_or_default(),
+                    repository: repository__.unwrap_or_default(),
+                    sha: sha__,
+                    per_page: per_page__,
+                    page: page__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.ListCommitsRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListCommitsResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.commits.is_empty() {
+            len += 1;
+        }
+        if self.next_page.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.ListCommitsResponse", len)?;
+        if !self.commits.is_empty() {
+            struct_ser.serialize_field("commits", &self.commits)?;
+        }
+        if let Some(v) = self.next_page.as_ref() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("nextPage", ToString::to_string(&v).as_str())?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListCommitsResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "commits",
+            "next_page",
+            "nextPage",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Commits,
+            NextPage,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "commits" => Ok(GeneratedField::Commits),
+                            "nextPage" | "next_page" => Ok(GeneratedField::NextPage),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListCommitsResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.ListCommitsResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListCommitsResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut commits__ = None;
+                let mut next_page__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Commits => {
+                            if commits__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("commits"));
+                            }
+                            commits__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::NextPage => {
+                            if next_page__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("nextPage"));
+                            }
+                            next_page__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListCommitsResponse {
+                    commits: commits__.unwrap_or_default(),
+                    next_page: next_page__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.ListCommitsResponse", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListContentsRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.owner.is_empty() {
+            len += 1;
+        }
+        if !self.repository.is_empty() {
+            len += 1;
+        }
+        if !self.path.is_empty() {
+            len += 1;
+        }
+        if self.r#ref.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.ListContentsRequest", len)?;
+        if !self.owner.is_empty() {
+            struct_ser.serialize_field("owner", &self.owner)?;
+        }
+        if !self.repository.is_empty() {
+            struct_ser.serialize_field("repository", &self.repository)?;
+        }
+        if !self.path.is_empty() {
+            struct_ser.serialize_field("path", &self.path)?;
+        }
+        if let Some(v) = self.r#ref.as_ref() {
+            struct_ser.serialize_field("ref", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListContentsRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "owner",
+            "repository",
+            "path",
+            "ref",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Owner,
+            Repository,
+            Path,
+            Ref,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "owner" => Ok(GeneratedField::Owner),
+                            "repository" => Ok(GeneratedField::Repository),
+                            "path" => Ok(GeneratedField::Path),
+                            "ref" => Ok(GeneratedField::Ref),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListContentsRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.ListContentsRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListContentsRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut owner__ = None;
+                let mut repository__ = None;
+                let mut path__ = None;
+                let mut r#ref__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Owner => {
+                            if owner__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("owner"));
+                            }
+                            owner__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Repository => {
+                            if repository__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("repository"));
+                            }
+                            repository__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Path => {
+                            if path__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("path"));
+                            }
+                            path__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Ref => {
+                            if r#ref__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("ref"));
+                            }
+                            r#ref__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListContentsRequest {
+                    owner: owner__.unwrap_or_default(),
+                    repository: repository__.unwrap_or_default(),
+                    path: path__.unwrap_or_default(),
+                    r#ref: r#ref__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.ListContentsRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListContentsResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.entries.is_empty() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.ListContentsResponse", len)?;
+        if !self.entries.is_empty() {
+            struct_ser.serialize_field("entries", &self.entries)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListContentsResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "entries",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Entries,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "entries" => Ok(GeneratedField::Entries),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListContentsResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.ListContentsResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListContentsResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut entries__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Entries => {
+                            if entries__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("entries"));
+                            }
+                            entries__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListContentsResponse {
+                    entries: entries__.unwrap_or_default(),
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.ListContentsResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListIssuesRequest {
@@ -6090,6 +7965,296 @@ impl<'de> serde::Deserialize<'de> for ListPullsResponse {
             }
         }
         deserializer.deserialize_struct("kei.connectors.github.v1.ListPullsResponse", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListRunJobsRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.owner.is_empty() {
+            len += 1;
+        }
+        if !self.repository.is_empty() {
+            len += 1;
+        }
+        if self.run_id != 0 {
+            len += 1;
+        }
+        if self.per_page.is_some() {
+            len += 1;
+        }
+        if self.page.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.ListRunJobsRequest", len)?;
+        if !self.owner.is_empty() {
+            struct_ser.serialize_field("owner", &self.owner)?;
+        }
+        if !self.repository.is_empty() {
+            struct_ser.serialize_field("repository", &self.repository)?;
+        }
+        if self.run_id != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("runId", ToString::to_string(&self.run_id).as_str())?;
+        }
+        if let Some(v) = self.per_page.as_ref() {
+            struct_ser.serialize_field("perPage", v)?;
+        }
+        if let Some(v) = self.page.as_ref() {
+            struct_ser.serialize_field("page", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListRunJobsRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "owner",
+            "repository",
+            "run_id",
+            "runId",
+            "per_page",
+            "perPage",
+            "page",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Owner,
+            Repository,
+            RunId,
+            PerPage,
+            Page,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "owner" => Ok(GeneratedField::Owner),
+                            "repository" => Ok(GeneratedField::Repository),
+                            "runId" | "run_id" => Ok(GeneratedField::RunId),
+                            "perPage" | "per_page" => Ok(GeneratedField::PerPage),
+                            "page" => Ok(GeneratedField::Page),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListRunJobsRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.ListRunJobsRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListRunJobsRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut owner__ = None;
+                let mut repository__ = None;
+                let mut run_id__ = None;
+                let mut per_page__ = None;
+                let mut page__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Owner => {
+                            if owner__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("owner"));
+                            }
+                            owner__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Repository => {
+                            if repository__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("repository"));
+                            }
+                            repository__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::RunId => {
+                            if run_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("runId"));
+                            }
+                            run_id__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::PerPage => {
+                            if per_page__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("perPage"));
+                            }
+                            per_page__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::Page => {
+                            if page__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("page"));
+                            }
+                            page__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListRunJobsRequest {
+                    owner: owner__.unwrap_or_default(),
+                    repository: repository__.unwrap_or_default(),
+                    run_id: run_id__.unwrap_or_default(),
+                    per_page: per_page__,
+                    page: page__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.ListRunJobsRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListRunJobsResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.jobs.is_empty() {
+            len += 1;
+        }
+        if self.next_page.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.ListRunJobsResponse", len)?;
+        if !self.jobs.is_empty() {
+            struct_ser.serialize_field("jobs", &self.jobs)?;
+        }
+        if let Some(v) = self.next_page.as_ref() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("nextPage", ToString::to_string(&v).as_str())?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListRunJobsResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "jobs",
+            "next_page",
+            "nextPage",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Jobs,
+            NextPage,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "jobs" => Ok(GeneratedField::Jobs),
+                            "nextPage" | "next_page" => Ok(GeneratedField::NextPage),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListRunJobsResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.ListRunJobsResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListRunJobsResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut jobs__ = None;
+                let mut next_page__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Jobs => {
+                            if jobs__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("jobs"));
+                            }
+                            jobs__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::NextPage => {
+                            if next_page__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("nextPage"));
+                            }
+                            next_page__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListRunJobsResponse {
+                    jobs: jobs__.unwrap_or_default(),
+                    next_page: next_page__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.ListRunJobsResponse", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for ListWorkflowRunsByWorkflowRequest {
@@ -7580,6 +9745,225 @@ impl<'de> serde::Deserialize<'de> for ReviewSummary {
             }
         }
         deserializer.deserialize_struct("kei.connectors.github.v1.ReviewSummary", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for RunJobSummary {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if self.id != 0 {
+            len += 1;
+        }
+        if !self.name.is_empty() {
+            len += 1;
+        }
+        if !self.status.is_empty() {
+            len += 1;
+        }
+        if self.conclusion.is_some() {
+            len += 1;
+        }
+        if !self.started_at.is_empty() {
+            len += 1;
+        }
+        if self.completed_at.is_some() {
+            len += 1;
+        }
+        if !self.html_url.is_empty() {
+            len += 1;
+        }
+        if self.runner_name.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.RunJobSummary", len)?;
+        if self.id != 0 {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("id", ToString::to_string(&self.id).as_str())?;
+        }
+        if !self.name.is_empty() {
+            struct_ser.serialize_field("name", &self.name)?;
+        }
+        if !self.status.is_empty() {
+            struct_ser.serialize_field("status", &self.status)?;
+        }
+        if let Some(v) = self.conclusion.as_ref() {
+            struct_ser.serialize_field("conclusion", v)?;
+        }
+        if !self.started_at.is_empty() {
+            struct_ser.serialize_field("started_at", &self.started_at)?;
+        }
+        if let Some(v) = self.completed_at.as_ref() {
+            struct_ser.serialize_field("completed_at", v)?;
+        }
+        if !self.html_url.is_empty() {
+            struct_ser.serialize_field("htmlUrl", &self.html_url)?;
+        }
+        if let Some(v) = self.runner_name.as_ref() {
+            struct_ser.serialize_field("runner_name", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for RunJobSummary {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "id",
+            "name",
+            "status",
+            "conclusion",
+            "started_at",
+            "completed_at",
+            "html_url",
+            "htmlUrl",
+            "runner_name",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Id,
+            Name,
+            Status,
+            Conclusion,
+            StartedAt,
+            CompletedAt,
+            HtmlUrl,
+            RunnerName,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "id" => Ok(GeneratedField::Id),
+                            "name" => Ok(GeneratedField::Name),
+                            "status" => Ok(GeneratedField::Status),
+                            "conclusion" => Ok(GeneratedField::Conclusion),
+                            "started_at" => Ok(GeneratedField::StartedAt),
+                            "completed_at" => Ok(GeneratedField::CompletedAt),
+                            "htmlUrl" | "html_url" => Ok(GeneratedField::HtmlUrl),
+                            "runner_name" => Ok(GeneratedField::RunnerName),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = RunJobSummary;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.RunJobSummary")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<RunJobSummary, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut id__ = None;
+                let mut name__ = None;
+                let mut status__ = None;
+                let mut conclusion__ = None;
+                let mut started_at__ = None;
+                let mut completed_at__ = None;
+                let mut html_url__ = None;
+                let mut runner_name__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Id => {
+                            if id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("id"));
+                            }
+                            id__ = 
+                                Some(map_.next_value::<::pbjson::private::NumberDeserialize<_>>()?.0)
+                            ;
+                        }
+                        GeneratedField::Name => {
+                            if name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("name"));
+                            }
+                            name__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Status => {
+                            if status__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("status"));
+                            }
+                            status__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Conclusion => {
+                            if conclusion__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("conclusion"));
+                            }
+                            conclusion__ = map_.next_value()?;
+                        }
+                        GeneratedField::StartedAt => {
+                            if started_at__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("started_at"));
+                            }
+                            started_at__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::CompletedAt => {
+                            if completed_at__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("completed_at"));
+                            }
+                            completed_at__ = map_.next_value()?;
+                        }
+                        GeneratedField::HtmlUrl => {
+                            if html_url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("htmlUrl"));
+                            }
+                            html_url__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::RunnerName => {
+                            if runner_name__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("runner_name"));
+                            }
+                            runner_name__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(RunJobSummary {
+                    id: id__.unwrap_or_default(),
+                    name: name__.unwrap_or_default(),
+                    status: status__.unwrap_or_default(),
+                    conclusion: conclusion__,
+                    started_at: started_at__.unwrap_or_default(),
+                    completed_at: completed_at__,
+                    html_url: html_url__.unwrap_or_default(),
+                    runner_name: runner_name__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.RunJobSummary", FIELDS, GeneratedVisitor)
     }
 }
 impl serde::Serialize for TreeEntry {

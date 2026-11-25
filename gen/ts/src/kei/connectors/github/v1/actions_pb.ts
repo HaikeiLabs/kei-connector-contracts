@@ -29,7 +29,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file kei/connectors/github/v1/actions.proto.
  */
 export const file_kei_connectors_github_v1_actions: GenFile = /*@__PURE__*/
-  fileDesc("CiZrZWkvY29ubmVjdG9ycy9naXRodWIvdjEvYWN0aW9ucy5wcm90bxIYa2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxIroDChdMaXN0V29ya2Zsb3dSdW5zUmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIVCghwZXJfcGFnZRgDIAEoBUgAiAEBEhEKBHBhZ2UYBCABKAVIAYgBARITCgZicmFuY2gYBSABKAlIAogBARISCgVldmVudBgGIAEoCUgDiAEBOu0BkoIZ6AEKGGdpdGh1Yi5hY3Rpb25zLnJ1bnMubGlzdBIGZ2l0aHViGAEqA0dFVDIoL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L2FjdGlvbnMvcnVuczoMYWN0aW9uczpyZWFkQAFKEExpc3RXb3JrZmxvd1J1bnNSCnVzZXJfb2F1dGhSA3BhdFoacmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKARIIARIMd29ya2Zsb3dfcnVuGAGSAQRwYWdlmgEJbmV4dF9wYWdlQgsKCV9wZXJfcGFnZUIHCgVfcGFnZUIJCgdfYnJhbmNoQggKBl9ldmVudCLYAQoSV29ya2Zsb3dSdW5TdW1tYXJ5EgoKAmlkGAEgASgDEgwKBG5hbWUYAiABKAkSEwoLaGVhZF9icmFuY2gYAyABKAkSDgoGc3RhdHVzGAQgASgJEhcKCmNvbmNsdXNpb24YBSABKAlIAIgBARIQCghodG1sX3VybBgGIAEoCRItCgVhY3RvchgHIAEoCzIeLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5Vc2VyEhoKCGhlYWRfc2hhGAggASgJUghoZWFkX3NoYUINCgtfY29uY2x1c2lvbiKFAQoYTGlzdFdvcmtmbG93UnVuc1Jlc3BvbnNlEkMKDXdvcmtmbG93X3J1bnMYASADKAsyLC5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuV29ya2Zsb3dSdW5TdW1tYXJ5EhYKCW5leHRfcGFnZRgCIAEoA0gAiAEBQgwKCl9uZXh0X3BhZ2UijQQKIUxpc3RXb3JrZmxvd1J1bnNCeVdvcmtmbG93UmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIbCgt3b3JrZmxvd19pZBgDIAEoCUIGooIZAggBEhUKCHBlcl9wYWdlGAQgASgFSACIAQESEQoEcGFnZRgFIAEoBUgBiAEBEhMKBmJyYW5jaBgGIAEoCUgCiAEBEhIKBWV2ZW50GAcgASgJSAOIAQE6mQKSghmUAgoiZ2l0aHViLmFjdGlvbnMud29ya2Zsb3dzLnJ1bnMubGlzdBIGZ2l0aHViGAEqA0dFVDJAL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L2FjdGlvbnMvd29ya2Zsb3dzL3t3b3JrZmxvd19pZH0vcnVuczoMYWN0aW9uczpyZWFkQAFKGkxpc3RXb3JrZmxvd1J1bnNCeVdvcmtmbG93Ugp1c2VyX29hdXRoUgNwYXRaGnJlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9YgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBigESCAESDHdvcmtmbG93X3J1bhgBkgEEcGFnZZoBCW5leHRfcGFnZUILCglfcGVyX3BhZ2VCBwoFX3BhZ2VCCQoHX2JyYW5jaEIICgZfZXZlbnQijwEKIkxpc3RXb3JrZmxvd1J1bnNCeVdvcmtmbG93UmVzcG9uc2USQwoNd29ya2Zsb3dfcnVucxgBIAMoCzIsLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5Xb3JrZmxvd1J1blN1bW1hcnkSFgoJbmV4dF9wYWdlGAIgASgDSACIAQFCDAoKX25leHRfcGFnZUJWWlRnaXRodWIuY29tL0hhaWtlaUxhYnMva2VpLWNvbm5lY3Rvci1jb250cmFjdHMvZ2VuL2dvL2tlaS9jb25uZWN0b3JzL2dpdGh1Yi92MTtnaXRodWJiBnByb3RvMw", [file_kei_contracts_v1_options, file_kei_connectors_github_v1_pulls]);
+  fileDesc("CiZrZWkvY29ubmVjdG9ycy9naXRodWIvdjEvYWN0aW9ucy5wcm90bxIYa2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxIroDChdMaXN0V29ya2Zsb3dSdW5zUmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIVCghwZXJfcGFnZRgDIAEoBUgAiAEBEhEKBHBhZ2UYBCABKAVIAYgBARITCgZicmFuY2gYBSABKAlIAogBARISCgVldmVudBgGIAEoCUgDiAEBOu0BkoIZ6AEKGGdpdGh1Yi5hY3Rpb25zLnJ1bnMubGlzdBIGZ2l0aHViGAEqA0dFVDIoL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L2FjdGlvbnMvcnVuczoMYWN0aW9uczpyZWFkQAFKEExpc3RXb3JrZmxvd1J1bnNSCnVzZXJfb2F1dGhSA3BhdFoacmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKARIIARIMd29ya2Zsb3dfcnVuGAGSAQRwYWdlmgEJbmV4dF9wYWdlQgsKCV9wZXJfcGFnZUIHCgVfcGFnZUIJCgdfYnJhbmNoQggKBl9ldmVudCLYAQoSV29ya2Zsb3dSdW5TdW1tYXJ5EgoKAmlkGAEgASgDEgwKBG5hbWUYAiABKAkSEwoLaGVhZF9icmFuY2gYAyABKAkSDgoGc3RhdHVzGAQgASgJEhcKCmNvbmNsdXNpb24YBSABKAlIAIgBARIQCghodG1sX3VybBgGIAEoCRItCgVhY3RvchgHIAEoCzIeLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5Vc2VyEhoKCGhlYWRfc2hhGAggASgJUghoZWFkX3NoYUINCgtfY29uY2x1c2lvbiKFAQoYTGlzdFdvcmtmbG93UnVuc1Jlc3BvbnNlEkMKDXdvcmtmbG93X3J1bnMYASADKAsyLC5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuV29ya2Zsb3dSdW5TdW1tYXJ5EhYKCW5leHRfcGFnZRgCIAEoA0gAiAEBQgwKCl9uZXh0X3BhZ2UijQQKIUxpc3RXb3JrZmxvd1J1bnNCeVdvcmtmbG93UmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIbCgt3b3JrZmxvd19pZBgDIAEoCUIGooIZAggBEhUKCHBlcl9wYWdlGAQgASgFSACIAQESEQoEcGFnZRgFIAEoBUgBiAEBEhMKBmJyYW5jaBgGIAEoCUgCiAEBEhIKBWV2ZW50GAcgASgJSAOIAQE6mQKSghmUAgoiZ2l0aHViLmFjdGlvbnMud29ya2Zsb3dzLnJ1bnMubGlzdBIGZ2l0aHViGAEqA0dFVDJAL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L2FjdGlvbnMvd29ya2Zsb3dzL3t3b3JrZmxvd19pZH0vcnVuczoMYWN0aW9uczpyZWFkQAFKGkxpc3RXb3JrZmxvd1J1bnNCeVdvcmtmbG93Ugp1c2VyX29hdXRoUgNwYXRaGnJlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9YgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBigESCAESDHdvcmtmbG93X3J1bhgBkgEEcGFnZZoBCW5leHRfcGFnZUILCglfcGVyX3BhZ2VCBwoFX3BhZ2VCCQoHX2JyYW5jaEIICgZfZXZlbnQijwEKIkxpc3RXb3JrZmxvd1J1bnNCeVdvcmtmbG93UmVzcG9uc2USQwoNd29ya2Zsb3dfcnVucxgBIAMoCzIsLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5Xb3JrZmxvd1J1blN1bW1hcnkSFgoJbmV4dF9wYWdlGAIgASgDSACIAQFCDAoKX25leHRfcGFnZSKGAwoUR2V0UnVuQXR0ZW1wdFJlcXVlc3QSFQoFb3duZXIYASABKAlCBqKCGQIIARIaCgpyZXBvc2l0b3J5GAIgASgJQgaighkCCAESFgoGcnVuX2lkGAMgASgDQgaighkCCAESHgoOYXR0ZW1wdF9udW1iZXIYBCABKAVCBqKCGQIIATqCApKCGf0BCiBnaXRodWIuYWN0aW9ucy5ydW5zLmF0dGVtcHRzLmdldBIGZ2l0aHViGAEqA0dFVDJLL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L2FjdGlvbnMvcnVucy97cnVuX2lkfS9hdHRlbXB0cy97YXR0ZW1wdF9udW1iZXJ9OgxhY3Rpb25zOnJlYWRAAUoNR2V0UnVuQXR0ZW1wdFIKdXNlcl9vYXV0aFIDcGF0WhpyZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fWIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAYoBEggBEgx3b3JrZmxvd19ydW4YASLbAQoVR2V0UnVuQXR0ZW1wdFJlc3BvbnNlEgoKAmlkGAEgASgDEgwKBG5hbWUYAiABKAkSIAoLaGVhZF9icmFuY2gYAyABKAlSC2hlYWRfYnJhbmNoEhoKCGhlYWRfc2hhGAQgASgJUghoZWFkX3NoYRIOCgZzdGF0dXMYBSABKAkSFwoKY29uY2x1c2lvbhgGIAEoCUgAiAEBEiAKC3J1bl9hdHRlbXB0GAcgASgFUgtydW5fYXR0ZW1wdBIQCghodG1sX3VybBgIIAEoCUINCgtfY29uY2x1c2lvbiKdAwoSTGlzdFJ1bkpvYnNSZXF1ZXN0EhUKBW93bmVyGAEgASgJQgaighkCCAESGgoKcmVwb3NpdG9yeRgCIAEoCUIGooIZAggBEhYKBnJ1bl9pZBgDIAEoA0IGooIZAggBEhUKCHBlcl9wYWdlGAQgASgFSACIAQESEQoEcGFnZRgFIAEoBUgBiAEBOvsBkoIZ9gEKHWdpdGh1Yi5hY3Rpb25zLnJ1bnMuam9icy5saXN0EgZnaXRodWIYASoDR0VUMjYvcmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX0vYWN0aW9ucy9ydW5zL3tydW5faWR9L2pvYnM6DGFjdGlvbnM6cmVhZEABSgtMaXN0UnVuSm9ic1IKdXNlcl9vYXV0aFIDcGF0WhpyZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fWIFCJEDEAJiBQiTAxADYgUIlAMQAWIHCK0DEAQYAYoBEggBEgx3b3JrZmxvd19qb2IYAZIBBHBhZ2WaAQluZXh0X3BhZ2VCCwoJX3Blcl9wYWdlQgcKBV9wYWdlIoQCCg1SdW5Kb2JTdW1tYXJ5EgoKAmlkGAEgASgDEgwKBG5hbWUYAiABKAkSDgoGc3RhdHVzGAMgASgJEhcKCmNvbmNsdXNpb24YBCABKAlIAIgBARIeCgpzdGFydGVkX2F0GAUgASgJUgpzdGFydGVkX2F0EicKDGNvbXBsZXRlZF9hdBgGIAEoCUgBUgxjb21wbGV0ZWRfYXSIAQESEAoIaHRtbF91cmwYByABKAkSJQoLcnVubmVyX25hbWUYCCABKAlIAlILcnVubmVyX25hbWWIAQFCDQoLX2NvbmNsdXNpb25CDwoNX2NvbXBsZXRlZF9hdEIOCgxfcnVubmVyX25hbWUicgoTTGlzdFJ1bkpvYnNSZXNwb25zZRI1CgRqb2JzGAEgAygLMicua2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxLlJ1bkpvYlN1bW1hcnkSFgoJbmV4dF9wYWdlGAIgASgDSACIAQFCDAoKX25leHRfcGFnZUJWWlRnaXRodWIuY29tL0hhaWtlaUxhYnMva2VpLWNvbm5lY3Rvci1jb250cmFjdHMvZ2VuL2dvL2tlaS9jb25uZWN0b3JzL2dpdGh1Yi92MTtnaXRodWJiBnByb3RvMw", [file_kei_contracts_v1_options, file_kei_connectors_github_v1_pulls]);
 
 /**
  * ListWorkflowRunsRequest lists the workflow runs of a GitHub repository.
@@ -251,4 +251,224 @@ export type ListWorkflowRunsByWorkflowResponse = Message<"kei.connectors.github.
  */
 export const ListWorkflowRunsByWorkflowResponseSchema: GenMessage<ListWorkflowRunsByWorkflowResponse> = /*@__PURE__*/
   messageDesc(file_kei_connectors_github_v1_actions, 4);
+
+/**
+ * GetRunAttemptRequest reads one attempt of a workflow run.
+ *
+ * @generated from message kei.connectors.github.v1.GetRunAttemptRequest
+ */
+export type GetRunAttemptRequest = Message<"kei.connectors.github.v1.GetRunAttemptRequest"> & {
+  /**
+   * @generated from field: string owner = 1;
+   */
+  owner: string;
+
+  /**
+   * @generated from field: string repository = 2;
+   */
+  repository: string;
+
+  /**
+   * The run's id.
+   *
+   * @generated from field: int64 run_id = 3;
+   */
+  runId: bigint;
+
+  /**
+   * The attempt number, starting at 1.
+   *
+   * @generated from field: int32 attempt_number = 4;
+   */
+  attemptNumber: number;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.GetRunAttemptRequest.
+ * Use `create(GetRunAttemptRequestSchema)` to create a new message.
+ */
+export const GetRunAttemptRequestSchema: GenMessage<GetRunAttemptRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_actions, 5);
+
+/**
+ * GetRunAttemptResponse models the subset of one run attempt the contract
+ * needs. conclusion is null until the attempt finishes. It is filled by JSON
+ * unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.GetRunAttemptResponse
+ */
+export type GetRunAttemptResponse = Message<"kei.connectors.github.v1.GetRunAttemptResponse"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string head_branch = 3 [json_name = "head_branch"];
+   */
+  headBranch: string;
+
+  /**
+   * @generated from field: string head_sha = 4 [json_name = "head_sha"];
+   */
+  headSha: string;
+
+  /**
+   * @generated from field: string status = 5;
+   */
+  status: string;
+
+  /**
+   * @generated from field: optional string conclusion = 6;
+   */
+  conclusion?: string | undefined;
+
+  /**
+   * @generated from field: int32 run_attempt = 7 [json_name = "run_attempt"];
+   */
+  runAttempt: number;
+
+  /**
+   * @generated from field: string html_url = 8;
+   */
+  htmlUrl: string;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.GetRunAttemptResponse.
+ * Use `create(GetRunAttemptResponseSchema)` to create a new message.
+ */
+export const GetRunAttemptResponseSchema: GenMessage<GetRunAttemptResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_actions, 6);
+
+/**
+ * ListRunJobsRequest lists the jobs of one workflow run.
+ *
+ * @generated from message kei.connectors.github.v1.ListRunJobsRequest
+ */
+export type ListRunJobsRequest = Message<"kei.connectors.github.v1.ListRunJobsRequest"> & {
+  /**
+   * @generated from field: string owner = 1;
+   */
+  owner: string;
+
+  /**
+   * @generated from field: string repository = 2;
+   */
+  repository: string;
+
+  /**
+   * The run's id.
+   *
+   * @generated from field: int64 run_id = 3;
+   */
+  runId: bigint;
+
+  /**
+   * @generated from field: optional int32 per_page = 4;
+   */
+  perPage?: number | undefined;
+
+  /**
+   * @generated from field: optional int32 page = 5;
+   */
+  page?: number | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ListRunJobsRequest.
+ * Use `create(ListRunJobsRequestSchema)` to create a new message.
+ */
+export const ListRunJobsRequestSchema: GenMessage<ListRunJobsRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_actions, 7);
+
+/**
+ * RunJobSummary models the subset of each job entry a run's job list
+ * carries. started_at and completed_at are provider timestamps; completed_at
+ * is null while the job runs. It is filled by JSON unmarshal of the provider
+ * response.
+ *
+ * @generated from message kei.connectors.github.v1.RunJobSummary
+ */
+export type RunJobSummary = Message<"kei.connectors.github.v1.RunJobSummary"> & {
+  /**
+   * @generated from field: int64 id = 1;
+   */
+  id: bigint;
+
+  /**
+   * @generated from field: string name = 2;
+   */
+  name: string;
+
+  /**
+   * @generated from field: string status = 3;
+   */
+  status: string;
+
+  /**
+   * @generated from field: optional string conclusion = 4;
+   */
+  conclusion?: string | undefined;
+
+  /**
+   * @generated from field: string started_at = 5 [json_name = "started_at"];
+   */
+  startedAt: string;
+
+  /**
+   * @generated from field: optional string completed_at = 6 [json_name = "completed_at"];
+   */
+  completedAt?: string | undefined;
+
+  /**
+   * @generated from field: string html_url = 7;
+   */
+  htmlUrl: string;
+
+  /**
+   * The runner that executed the job; null until a runner picks it up.
+   *
+   * @generated from field: optional string runner_name = 8 [json_name = "runner_name"];
+   */
+  runnerName?: string | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.RunJobSummary.
+ * Use `create(RunJobSummarySchema)` to create a new message.
+ */
+export const RunJobSummarySchema: GenMessage<RunJobSummary> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_actions, 8);
+
+/**
+ * ListRunJobsResponse wraps the job entries of a run's job list response.
+ * next_page carries the next page number from the Link header. It is filled
+ * by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.ListRunJobsResponse
+ */
+export type ListRunJobsResponse = Message<"kei.connectors.github.v1.ListRunJobsResponse"> & {
+  /**
+   * @generated from field: repeated kei.connectors.github.v1.RunJobSummary jobs = 1;
+   */
+  jobs: RunJobSummary[];
+
+  /**
+   * @generated from field: optional int64 next_page = 2;
+   */
+  nextPage?: bigint | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ListRunJobsResponse.
+ * Use `create(ListRunJobsResponseSchema)` to create a new message.
+ */
+export const ListRunJobsResponseSchema: GenMessage<ListRunJobsResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_actions, 9);
 

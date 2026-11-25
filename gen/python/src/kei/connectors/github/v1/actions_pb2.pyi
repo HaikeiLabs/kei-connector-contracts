@@ -77,3 +77,77 @@ class ListWorkflowRunsByWorkflowResponse(_message.Message):
     workflow_runs: _containers.RepeatedCompositeFieldContainer[WorkflowRunSummary]
     next_page: int
     def __init__(self, workflow_runs: _Optional[_Iterable[_Union[WorkflowRunSummary, _Mapping]]] = ..., next_page: _Optional[int] = ...) -> None: ...
+
+class GetRunAttemptRequest(_message.Message):
+    __slots__ = ("owner", "repository", "run_id", "attempt_number")
+    OWNER_FIELD_NUMBER: _ClassVar[int]
+    REPOSITORY_FIELD_NUMBER: _ClassVar[int]
+    RUN_ID_FIELD_NUMBER: _ClassVar[int]
+    ATTEMPT_NUMBER_FIELD_NUMBER: _ClassVar[int]
+    owner: str
+    repository: str
+    run_id: int
+    attempt_number: int
+    def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., run_id: _Optional[int] = ..., attempt_number: _Optional[int] = ...) -> None: ...
+
+class GetRunAttemptResponse(_message.Message):
+    __slots__ = ("id", "name", "head_branch", "head_sha", "status", "conclusion", "run_attempt", "html_url")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    HEAD_BRANCH_FIELD_NUMBER: _ClassVar[int]
+    HEAD_SHA_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    CONCLUSION_FIELD_NUMBER: _ClassVar[int]
+    RUN_ATTEMPT_FIELD_NUMBER: _ClassVar[int]
+    HTML_URL_FIELD_NUMBER: _ClassVar[int]
+    id: int
+    name: str
+    head_branch: str
+    head_sha: str
+    status: str
+    conclusion: str
+    run_attempt: int
+    html_url: str
+    def __init__(self, id: _Optional[int] = ..., name: _Optional[str] = ..., head_branch: _Optional[str] = ..., head_sha: _Optional[str] = ..., status: _Optional[str] = ..., conclusion: _Optional[str] = ..., run_attempt: _Optional[int] = ..., html_url: _Optional[str] = ...) -> None: ...
+
+class ListRunJobsRequest(_message.Message):
+    __slots__ = ("owner", "repository", "run_id", "per_page", "page")
+    OWNER_FIELD_NUMBER: _ClassVar[int]
+    REPOSITORY_FIELD_NUMBER: _ClassVar[int]
+    RUN_ID_FIELD_NUMBER: _ClassVar[int]
+    PER_PAGE_FIELD_NUMBER: _ClassVar[int]
+    PAGE_FIELD_NUMBER: _ClassVar[int]
+    owner: str
+    repository: str
+    run_id: int
+    per_page: int
+    page: int
+    def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., run_id: _Optional[int] = ..., per_page: _Optional[int] = ..., page: _Optional[int] = ...) -> None: ...
+
+class RunJobSummary(_message.Message):
+    __slots__ = ("id", "name", "status", "conclusion", "started_at", "completed_at", "html_url", "runner_name")
+    ID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    CONCLUSION_FIELD_NUMBER: _ClassVar[int]
+    STARTED_AT_FIELD_NUMBER: _ClassVar[int]
+    COMPLETED_AT_FIELD_NUMBER: _ClassVar[int]
+    HTML_URL_FIELD_NUMBER: _ClassVar[int]
+    RUNNER_NAME_FIELD_NUMBER: _ClassVar[int]
+    id: int
+    name: str
+    status: str
+    conclusion: str
+    started_at: str
+    completed_at: str
+    html_url: str
+    runner_name: str
+    def __init__(self, id: _Optional[int] = ..., name: _Optional[str] = ..., status: _Optional[str] = ..., conclusion: _Optional[str] = ..., started_at: _Optional[str] = ..., completed_at: _Optional[str] = ..., html_url: _Optional[str] = ..., runner_name: _Optional[str] = ...) -> None: ...
+
+class ListRunJobsResponse(_message.Message):
+    __slots__ = ("jobs", "next_page")
+    JOBS_FIELD_NUMBER: _ClassVar[int]
+    NEXT_PAGE_FIELD_NUMBER: _ClassVar[int]
+    jobs: _containers.RepeatedCompositeFieldContainer[RunJobSummary]
+    next_page: int
+    def __init__(self, jobs: _Optional[_Iterable[_Union[RunJobSummary, _Mapping]]] = ..., next_page: _Optional[int] = ...) -> None: ...

@@ -1,0 +1,109 @@
+// Copyright 2026 Haikei Labs
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+// GitHub connector contract: commits.
+syntax = "proto3";
+
+package kei.connectors.github.v1;
+
+import "kei/contracts/v1/options.proto";
+import "kei/connectors/github/v1/contents.proto";
+import "kei/connectors/github/v1/pulls.proto";
+
+option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;github";
+
+// ListCommitsRequest lists the commits of a GitHub repository.
+message ListCommitsRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  // A commit sha or branch name to list from; defaults to the default branch.
+  optional string sha = 3;
+  optional int32 per_page = 4;
+  optional int32 page = 5;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.repos.commits.list"
+    connector: "github"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/repos/{owner}/{repository}/commits"
+    scopes: ["contents:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListCommits"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    cursor_field: "page"
+    next_cursor_field: "next_page"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "commit" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// ListCommitsResponse wraps the commit entries of a list response. The
+// provider returns a bare JSON array; next_page carries the next page number
+// from the Link header. It is filled by JSON unmarshal of the provider
+// response.
+message ListCommitsResponse {
+  repeated CommitSummary commits = 1;
+  optional int64 next_page = 2;
+}
+
+// GetCommitRequest reads one commit of a GitHub repository by sha or branch
+// name.
+message GetCommitRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  // A commit sha or branch name.
+  string ref = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH multi_segment: true}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.repos.commits.get"
+    connector: "github"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/repos/{owner}/{repository}/commits/{ref}"
+    scopes: ["contents:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetCommit"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "commit" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// CommitDetail models the git commit object the provider nests under
+// "commit".
+message CommitDetail {
+  string message = 1;
+}
+
+// GetCommitResponse models the subset of one commit the contract needs. It
+// is filled by JSON unmarshal of the provider response.
+message GetCommitResponse {
+  string sha = 1;
+  string html_url = 2;
+  CommitDetail commit = 3;
+  User author = 4;
+}

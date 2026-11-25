@@ -35,11 +35,12 @@ use haikeilabs_connector_contracts::kei::connectors::database::v1::{
 use haikeilabs_connector_contracts::kei::connectors::github::v1::{
     CreateBlobResponse, CreateCommitResponse, CreateIssueCommentResponse,
     CreateIssueResponse as GhCreateIssueResponse, CreatePullRequestResponse,
-    CreatePullReviewResponse, CreateRefResponse, CreateTreeResponse, GetIssueResponse,
-    GetPullRequestResponse, GetRefResponse, GetRepositoryResponse, ListCheckRunsResponse,
-    ListIssuesResponse, ListPullReviewsResponse, ListPullsResponse,
-    ListWorkflowRunsByWorkflowResponse, ListWorkflowRunsResponse, PutContentsResponse,
-    UpdateIssueResponse, UpdatePullRequestResponse, UpdateRefResponse,
+    CreatePullReviewResponse, CreateRefResponse, CreateTreeResponse, GetCommitResponse,
+    GetContentsResponse, GetIssueResponse, GetPullRequestResponse, GetRefResponse,
+    GetRepositoryResponse, GetRunAttemptResponse, ListCheckRunsResponse, ListCommitsResponse,
+    ListContentsResponse, ListIssuesResponse, ListPullReviewsResponse, ListPullsResponse,
+    ListRunJobsResponse, ListWorkflowRunsByWorkflowResponse, ListWorkflowRunsResponse,
+    PutContentsResponse, UpdateIssueResponse, UpdatePullRequestResponse, UpdateRefResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::gmail::v1::{
     CreateDraftResponse, GetMessageResponse, ListMessagesResponse,
@@ -188,6 +189,87 @@ fn fixtures_unmarshal() {
     assert_eq!(
         resp.workflow_runs[0].head_sha,
         "synthetic-head-sha-1"
+    );
+
+    // github.repos.contents.get — spot: encoding and the base64 content.
+    let resp: GetContentsResponse = serde_json::from_str(&fixture(
+        "github",
+        "repos.contents.get.response.json",
+    ))
+    .expect("github.repos.contents.get response unmarshals");
+    assert_eq!(resp.encoding, "base64");
+    assert_eq!(resp.content, "c3ludGhldGljLWNvbnRlbnQ=");
+
+    // github.repos.contents.list — spot: two entries, file then dir.
+    let resp: ListContentsResponse = serde_json::from_str(&fixture(
+        "github",
+        "repos.contents.list.response.json",
+    ))
+    .expect("github.repos.contents.list response unmarshals");
+    assert_eq!(resp.entries.len(), 2);
+    assert_eq!(resp.entries[0].r#type, "file");
+    assert_eq!(resp.entries[1].r#type, "dir");
+
+    // github.repos.commits.list — spot: sha and the author login.
+    let resp: ListCommitsResponse = serde_json::from_str(&fixture(
+        "github",
+        "repos.commits.list.response.json",
+    ))
+    .expect("github.repos.commits.list response unmarshals");
+    assert_eq!(resp.commits[0].sha, "synthetic-commit-sha-3");
+    assert_eq!(
+        resp.commits[0]
+            .author
+            .as_ref()
+            .expect("author present")
+            .login,
+        "example-user"
+    );
+
+    // github.repos.commits.get — spot: the nested commit message and author.
+    let resp: GetCommitResponse = serde_json::from_str(&fixture(
+        "github",
+        "repos.commits.get.response.json",
+    ))
+    .expect("github.repos.commits.get response unmarshals");
+    assert_eq!(
+        resp.commit
+            .as_ref()
+            .expect("commit present")
+            .message,
+        "Synthetic commit message"
+    );
+    assert_eq!(
+        resp.author.as_ref().expect("author present").login,
+        "example-user"
+    );
+
+    // github.actions.runs.attempts.get — spot: run_attempt and head_sha.
+    let resp: GetRunAttemptResponse = serde_json::from_str(&fixture(
+        "github",
+        "actions.runs.attempts.get.response.json",
+    ))
+    .expect("github.actions.runs.attempts.get response unmarshals");
+    assert_eq!(resp.run_attempt, 2);
+    assert_eq!(resp.head_sha, "synthetic-head-sha-1");
+
+    // github.actions.runs.jobs.list — spot: the >2^53 job id and runner_name.
+    let resp: ListRunJobsResponse = serde_json::from_str(&fixture(
+        "github",
+        "actions.runs.jobs.list.response.json",
+    ))
+    .expect("github.actions.runs.jobs.list response unmarshals");
+    assert_eq!(
+        resp.jobs[0].id,
+        9007199254741005,
+        "int64 must not go through f64"
+    );
+    assert_eq!(
+        resp.jobs[0]
+            .runner_name
+            .as_ref()
+            .expect("runner_name present"),
+        "synthetic-runner-1"
     );
 
     // github.issues.create — spot: number, author login, labels.

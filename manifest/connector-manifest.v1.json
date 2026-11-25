@@ -427,6 +427,50 @@
       ],
       "capabilities": [
         {
+          "id": "github.actions.runs.attempts.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "actions:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "workflow_run",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.GetRunAttemptRequest",
+          "response": "kei.connectors.github.v1.GetRunAttemptResponse"
+        },
+        {
+          "id": "github.actions.runs.jobs.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "actions:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "workflow_job",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.ListRunJobsRequest",
+          "response": "kei.connectors.github.v1.ListRunJobsResponse"
+        },
+        {
           "id": "github.actions.runs.list",
           "class": "read",
           "destructive": false,
@@ -887,6 +931,94 @@
           },
           "request": "kei.connectors.github.v1.UpdatePullRequestRequest",
           "response": "kei.connectors.github.v1.UpdatePullRequestResponse"
+        },
+        {
+          "id": "github.repos.commits.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "contents:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "commit",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.GetCommitRequest",
+          "response": "kei.connectors.github.v1.GetCommitResponse"
+        },
+        {
+          "id": "github.repos.commits.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "contents:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "commit",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.ListCommitsRequest",
+          "response": "kei.connectors.github.v1.ListCommitsResponse"
+        },
+        {
+          "id": "github.repos.contents.get",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "contents:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "file",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.GetContentsRequest",
+          "response": "kei.connectors.github.v1.GetContentsResponse"
+        },
+        {
+          "id": "github.repos.contents.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "contents:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "directory",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.ListContentsRequest",
+          "response": "kei.connectors.github.v1.ListContentsResponse"
         },
         {
           "id": "github.repos.get",
