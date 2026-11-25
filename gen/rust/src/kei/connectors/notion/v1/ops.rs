@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Path, PathKind, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::notion::v1::{CreatePageRequest, CreatePageResponse, GetPageRequest, GetPageResponse, QueryDatabaseRequest, QueryDatabaseResponse, SearchRequest, SearchResponse, UpdatePageRequest, UpdatePageResponse};
 
@@ -119,6 +119,11 @@ const ERRORS_CREATE_PAGE: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_CREATE_PAGE: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Str },
+    Path { proto: "url", json: "url", kind: PathKind::Str },
+];
+
 const ERRORS_GET_PAGE: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -168,6 +173,11 @@ const ERRORS_UPDATE_PAGE: &[ErrorMapping] = &[
         kind: ErrorKind::RateLimited as i32,
         retryable: true,
     },
+];
+
+const RESULT_REQUIRED_UPDATE_PAGE: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Str },
+    Path { proto: "url", json: "url", kind: PathKind::Str },
 ];
 
 const ERRORS_SEARCH: &[ErrorMapping] = &[
@@ -236,7 +246,7 @@ impl NotionOperations for NotionQueries {
         if let Some(err) = map_error(&OP_QUERY_DATABASE, out.status, &ERRORS_QUERY_DATABASE) {
             return Err(err);
         }
-        let mut resp: QueryDatabaseResponse = decode_response(OP_QUERY_DATABASE.id, &out.body, Some("results"))?;
+        let mut resp: QueryDatabaseResponse = decode_response(OP_QUERY_DATABASE.id, out.status, &out.body, &[], Some("results"))?;
         if resp.next_cursor.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "start_cursor") {
                 resp.next_cursor = Some(cursor);
@@ -267,7 +277,7 @@ impl NotionOperations for NotionQueries {
         if let Some(err) = map_error(&OP_CREATE_PAGE, out.status, &ERRORS_CREATE_PAGE) {
             return Err(err);
         }
-        let resp: CreatePageResponse = decode_response(OP_CREATE_PAGE.id, &out.body, None)?;
+        let resp: CreatePageResponse = decode_response(OP_CREATE_PAGE.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_PAGE, None)?;
         Ok(resp)
     }
     /// get_page runs notion.pages.get (GET /v1/pages/{page_id}).
@@ -288,7 +298,7 @@ impl NotionOperations for NotionQueries {
         if let Some(err) = map_error(&OP_GET_PAGE, out.status, &ERRORS_GET_PAGE) {
             return Err(err);
         }
-        let resp: GetPageResponse = decode_response(OP_GET_PAGE.id, &out.body, None)?;
+        let resp: GetPageResponse = decode_response(OP_GET_PAGE.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// update_page runs notion.pages.update (PATCH /v1/pages/{page_id}).
@@ -314,7 +324,7 @@ impl NotionOperations for NotionQueries {
         if let Some(err) = map_error(&OP_UPDATE_PAGE, out.status, &ERRORS_UPDATE_PAGE) {
             return Err(err);
         }
-        let resp: UpdatePageResponse = decode_response(OP_UPDATE_PAGE.id, &out.body, None)?;
+        let resp: UpdatePageResponse = decode_response(OP_UPDATE_PAGE.id, out.status, &out.body, &RESULT_REQUIRED_UPDATE_PAGE, None)?;
         Ok(resp)
     }
     /// search runs notion.search (POST /v1/search).
@@ -339,7 +349,7 @@ impl NotionOperations for NotionQueries {
         if let Some(err) = map_error(&OP_SEARCH, out.status, &ERRORS_SEARCH) {
             return Err(err);
         }
-        let mut resp: SearchResponse = decode_response(OP_SEARCH.id, &out.body, Some("results"))?;
+        let mut resp: SearchResponse = decode_response(OP_SEARCH.id, out.status, &out.body, &[], Some("results"))?;
         if resp.next_cursor.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "start_cursor") {
                 resp.next_cursor = Some(cursor);

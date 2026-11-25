@@ -40,6 +40,7 @@ _SPEC_UPDATE_ISSUE = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "short_id"],
 }
 
 class SentryOperations(Protocol):

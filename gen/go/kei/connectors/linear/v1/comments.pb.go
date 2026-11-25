@@ -212,10 +212,10 @@ const file_kei_connectors_linear_v1_comments_proto_rawDesc = "" +
 	"'kei/connectors/linear/v1/comments.proto\x12\x18kei.connectors.linear.v1\x1a\x1ekei/contracts/v1/options.proto\"-\n" +
 	"\aComment\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04body\x18\x02 \x01(\tR\x04body\"\x9a\x03\n" +
+	"\x04body\x18\x02 \x01(\tR\x04body\"\xb1\x03\n" +
 	"\x14CreateCommentRequest\x12\x19\n" +
 	"\bissue_id\x18\x01 \x01(\tR\aissueId\x12\x12\n" +
-	"\x04body\x18\x02 \x01(\tR\x04body:\xd2\x02\x92\x82\x19\xcd\x02\n" +
+	"\x04body\x18\x02 \x01(\tR\x04body:\xe9\x02\x92\x82\x19\xe4\x02\n" +
 	"\x16linear.comments.create\x12\x06linear\x18\x02*\x04POST2\b/graphql:\x0ecomments:write@\x01J\rCreateCommentR\n" +
 	"user_oauthR\aapi_keyZ\x11issues/{issue_id}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01z\xa1\x01mutation CommentCreate($issueId: String!, $body: String!) {\n" +
 	"  commentCreate(input: {issueId: $issueId, body: $body}) {\n" +
@@ -223,7 +223,8 @@ const file_kei_connectors_linear_v1_comments_proto_rawDesc = "" +
 	"    comment { id body }\n" +
 	"  }\n" +
 	"}\n" +
-	"\x8a\x01\r\b\x02\x12\acomment\x18\x01\"n\n" +
+	"\x8a\x01\r\b\x02\x12\acomment\x18\x01\xa2\x01\asuccess\xa2\x01\n" +
+	"comment.id\"n\n" +
 	"\x15CreateCommentResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12;\n" +
 	"\acomment\x18\x02 \x01(\v2!.kei.connectors.linear.v1.CommentR\acommentBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/linear/v1;linearb\x06proto3"

@@ -59,6 +59,7 @@ var specCreateContact = &connection.HTTPSpec{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"id", "created_at"},
 }
 
 var specGetContact = &connection.HTTPSpec{
@@ -109,6 +110,7 @@ var specUpdateContact = &connection.HTTPSpec{
 		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"id", "updated_at"},
 }
 
 var specListDeals = &connection.HTTPSpec{

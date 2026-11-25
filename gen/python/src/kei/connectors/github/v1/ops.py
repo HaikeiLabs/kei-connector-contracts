@@ -51,6 +51,7 @@ _SPEC_PUT_CONTENTS = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["content.sha"],
 }
 OP_CREATE_BLOB = Op(id="github.git.blobs.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateBlob", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_BLOB = {
@@ -62,6 +63,7 @@ _SPEC_CREATE_BLOB = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["sha"],
 }
 OP_CREATE_COMMIT = Op(id="github.git.commits.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateCommit", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_COMMIT = {
@@ -73,6 +75,7 @@ _SPEC_CREATE_COMMIT = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["sha"],
 }
 OP_CREATE_REF = Op(id="github.git.refs.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateRef", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_REF = {
@@ -84,6 +87,7 @@ _SPEC_CREATE_REF = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["ref", "object.sha"],
 }
 OP_GET_REF = Op(id="github.git.refs.get", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="GetRef", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_GET_REF = {
@@ -106,6 +110,7 @@ _SPEC_UPDATE_REF = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["ref", "object.sha"],
 }
 OP_CREATE_TREE = Op(id="github.git.trees.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateTree", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_TREE = {
@@ -117,6 +122,7 @@ _SPEC_CREATE_TREE = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["sha"],
 }
 OP_CREATE_ISSUE_COMMENT = Op(id="github.issues.comments.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateIssueComment", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_ISSUE_COMMENT = {
@@ -128,6 +134,7 @@ _SPEC_CREATE_ISSUE_COMMENT = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id"],
 }
 OP_CREATE_ISSUE = Op(id="github.issues.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateIssue", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_ISSUE = {
@@ -139,6 +146,7 @@ _SPEC_CREATE_ISSUE = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "number"],
 }
 OP_GET_ISSUE = Op(id="github.issues.get", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="GetIssue", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_GET_ISSUE = {
@@ -172,6 +180,7 @@ _SPEC_UPDATE_ISSUE = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "number"],
 }
 OP_CREATE_PULL_REQUEST = Op(id="github.pulls.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreatePullRequest", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_PULL_REQUEST = {
@@ -183,6 +192,7 @@ _SPEC_CREATE_PULL_REQUEST = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "number"],
 }
 OP_GET_PULL_REQUEST = Op(id="github.pulls.get", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="GetPullRequest", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_GET_PULL_REQUEST = {
@@ -216,6 +226,7 @@ _SPEC_CREATE_REVIEW = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "state"],
 }
 OP_LIST_REVIEWS = Op(id="github.pulls.reviews.list", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="ListReviews", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_LIST_REVIEWS = {
@@ -238,6 +249,7 @@ _SPEC_UPDATE_PULL_REQUEST = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "number"],
 }
 OP_GET_REPOSITORY = Op(id="github.repos.get", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="GetRepository", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_GET_REPOSITORY = {

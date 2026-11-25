@@ -116,7 +116,7 @@ impl OmniOperations for OmniQueries {
         if let Some(err) = map_error(&OP_LIST_DOCUMENTS, out.status, &ERRORS_LIST_DOCUMENTS) {
             return Err(err);
         }
-        let mut resp: ListDocumentsResponse = decode_response(OP_LIST_DOCUMENTS.id, &out.body, Some("documents"))?;
+        let mut resp: ListDocumentsResponse = decode_response(OP_LIST_DOCUMENTS.id, out.status, &out.body, &[], Some("documents"))?;
         if resp.next_cursor.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "cursor") {
                 resp.next_cursor = Some(cursor);
@@ -144,7 +144,7 @@ impl OmniOperations for OmniQueries {
         if let Some(err) = map_error(&OP_RUN_QUERY, out.status, &ERRORS_RUN_QUERY) {
             return Err(err);
         }
-        let resp: RunQueryResponse = decode_response(OP_RUN_QUERY.id, &out.body, Some("rows"))?;
+        let resp: RunQueryResponse = decode_response(OP_RUN_QUERY.id, out.status, &out.body, &[], Some("rows"))?;
         Ok(resp)
     }
 }

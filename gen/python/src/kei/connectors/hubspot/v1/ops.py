@@ -18,6 +18,7 @@ _SPEC_CREATE_CONTACT = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "created_at"],
 }
 OP_GET_CONTACT = Op(id="hubspot.contacts.get", op_class=OpClass.READ, destructive=False, resource_template="contacts/{contact_id}", method_name="GetContact", connections=("user_oauth", "private_app"), transport=Transport.HTTP)
 _SPEC_GET_CONTACT = {
@@ -51,6 +52,7 @@ _SPEC_UPDATE_CONTACT = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "updated_at"],
 }
 OP_LIST_DEALS = Op(id="hubspot.deals.list", op_class=OpClass.READ, destructive=False, resource_template="deals", method_name="ListDeals", connections=("user_oauth", "private_app"), transport=Transport.HTTP)
 _SPEC_LIST_DEALS = {

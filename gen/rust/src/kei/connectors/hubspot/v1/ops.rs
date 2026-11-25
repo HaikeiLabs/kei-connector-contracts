@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Path, PathKind, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::hubspot::v1::{CreateContactRequest, CreateContactResponse, GetContactRequest, GetContactResponse, ListContactsRequest, ListContactsResponse, ListDealsRequest, ListDealsResponse, UpdateContactRequest, UpdateContactResponse};
 
@@ -101,6 +101,11 @@ const ERRORS_CREATE_CONTACT: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_CREATE_CONTACT: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Str },
+    Path { proto: "created_at", json: "createdAt", kind: PathKind::Str },
+];
+
 const ERRORS_GET_CONTACT: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -175,6 +180,11 @@ const ERRORS_UPDATE_CONTACT: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_UPDATE_CONTACT: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Str },
+    Path { proto: "updated_at", json: "updatedAt", kind: PathKind::Str },
+];
+
 const ERRORS_LIST_DEALS: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -238,7 +248,7 @@ impl HubspotOperations for HubspotQueries {
         if let Some(err) = map_error(&OP_CREATE_CONTACT, out.status, &ERRORS_CREATE_CONTACT) {
             return Err(err);
         }
-        let resp: CreateContactResponse = decode_response(OP_CREATE_CONTACT.id, &out.body, None)?;
+        let resp: CreateContactResponse = decode_response(OP_CREATE_CONTACT.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_CONTACT, None)?;
         Ok(resp)
     }
     /// get_contact runs hubspot.contacts.get (GET /crm/v3/objects/contacts/{contact_id}).
@@ -259,7 +269,7 @@ impl HubspotOperations for HubspotQueries {
         if let Some(err) = map_error(&OP_GET_CONTACT, out.status, &ERRORS_GET_CONTACT) {
             return Err(err);
         }
-        let resp: GetContactResponse = decode_response(OP_GET_CONTACT.id, &out.body, None)?;
+        let resp: GetContactResponse = decode_response(OP_GET_CONTACT.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// list_contacts runs hubspot.contacts.list (GET /crm/v3/objects/contacts).
@@ -281,7 +291,7 @@ impl HubspotOperations for HubspotQueries {
         if let Some(err) = map_error(&OP_LIST_CONTACTS, out.status, &ERRORS_LIST_CONTACTS) {
             return Err(err);
         }
-        let mut resp: ListContactsResponse = decode_response(OP_LIST_CONTACTS.id, &out.body, Some("results"))?;
+        let mut resp: ListContactsResponse = decode_response(OP_LIST_CONTACTS.id, out.status, &out.body, &[], Some("results"))?;
         if resp.next_after.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "after") {
                 resp.next_after = Some(cursor);
@@ -310,7 +320,7 @@ impl HubspotOperations for HubspotQueries {
         if let Some(err) = map_error(&OP_UPDATE_CONTACT, out.status, &ERRORS_UPDATE_CONTACT) {
             return Err(err);
         }
-        let resp: UpdateContactResponse = decode_response(OP_UPDATE_CONTACT.id, &out.body, None)?;
+        let resp: UpdateContactResponse = decode_response(OP_UPDATE_CONTACT.id, out.status, &out.body, &RESULT_REQUIRED_UPDATE_CONTACT, None)?;
         Ok(resp)
     }
     /// list_deals runs hubspot.deals.list (GET /crm/v3/objects/deals).
@@ -332,7 +342,7 @@ impl HubspotOperations for HubspotQueries {
         if let Some(err) = map_error(&OP_LIST_DEALS, out.status, &ERRORS_LIST_DEALS) {
             return Err(err);
         }
-        let mut resp: ListDealsResponse = decode_response(OP_LIST_DEALS.id, &out.body, Some("results"))?;
+        let mut resp: ListDealsResponse = decode_response(OP_LIST_DEALS.id, out.status, &out.body, &[], Some("results"))?;
         if resp.next_after.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "after") {
                 resp.next_after = Some(cursor);

@@ -143,6 +143,7 @@ message CreateEventRequest {
     scopes: ["https://www.googleapis.com/auth/calendar.events"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateEvent"
+    result_required: ["id", "status"]
     connections: ["user_oauth"]
     resource_template: "calendars/{calendar_id}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "event" version: 1}
@@ -189,6 +190,7 @@ message UpdateEventRequest {
     scopes: ["https://www.googleapis.com/auth/calendar.events"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "UpdateEvent"
+    result_required: ["id", "status"]
     connections: ["user_oauth"]
     resource_template: "calendars/{calendar_id}"
     semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "event" version: 1}

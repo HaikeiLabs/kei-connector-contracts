@@ -117,7 +117,7 @@ impl HttpApiOperations for HttpApiQueries {
         if let Some(err) = map_error(&OP_GET_RECORD, out.status, &ERRORS_GET_RECORD) {
             return Err(err);
         }
-        let resp: GetRecordResponse = decode_response(OP_GET_RECORD.id, &out.body, None)?;
+        let resp: GetRecordResponse = decode_response(OP_GET_RECORD.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// list_records runs http_api.records.list (GET /{collection}).
@@ -141,7 +141,7 @@ impl HttpApiOperations for HttpApiQueries {
         if let Some(err) = map_error(&OP_LIST_RECORDS, out.status, &ERRORS_LIST_RECORDS) {
             return Err(err);
         }
-        let resp: ListRecordsResponse = decode_response(OP_LIST_RECORDS.id, &out.body, Some("records"))?;
+        let resp: ListRecordsResponse = decode_response(OP_LIST_RECORDS.id, out.status, &out.body, &[], Some("records"))?;
         Ok(resp)
     }
 }

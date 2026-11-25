@@ -91,6 +91,7 @@ var specUpdateIssue = &connection.HTTPSpec{
 		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"id", "short_id"},
 }
 
 // GetIssue runs sentry.issues.get.

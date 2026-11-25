@@ -1,0 +1,37 @@
+// Invalid: a result_required path does not resolve to a bool, string or
+// message field (here: a list).
+syntax = "proto3";
+
+package kei.invalid.unsupportedresultfield.v1;
+
+import "kei/contracts/v1/options.proto";
+
+option go_package = "example.test/invalid/unsupportedresultfield;unsupportedresultfield";
+option (kei.contracts.v1.connector) = {
+  id: "acme"
+  base_url: "https://api.example.test"
+  connections: [{name: "pat" kind: CONNECTION_KIND_HTTP_BEARER account_model: ACCOUNT_MODEL_SHARED}]
+};
+
+message CreateThingRequest {
+  string name = 1;
+  option (kei.contracts.v1.operation) = {
+    id: "acme.things.create"
+    connector: "acme"
+    class: OPERATION_CLASS_WRITE
+    http_method: "POST"
+    path_template: "/things"
+    scopes: ["things:write"]
+    connections: ["pat"]
+    result_required: ["labels", "id"]
+    semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "thing" version: 1}
+  };
+}
+message CreateThingResponse {
+  string id = 1;
+  repeated Label labels = 2;
+}
+message Label {
+  string id = 1;
+  string name = 2;
+}

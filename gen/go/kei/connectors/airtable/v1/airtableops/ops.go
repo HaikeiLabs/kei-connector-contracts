@@ -58,6 +58,7 @@ var specCreateRecord = &connection.HTTPSpec{
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"id", "created_time"},
 }
 
 var specGetRecord = &connection.HTTPSpec{
@@ -114,6 +115,7 @@ var specUpdateRecord = &connection.HTTPSpec{
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
+	ResultRequired: []string{"id", "created_time"},
 }
 
 // CreateRecord runs airtable.records.create.

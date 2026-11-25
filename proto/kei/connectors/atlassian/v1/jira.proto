@@ -129,6 +129,7 @@ message CreateJiraIssueRequest {
     scopes: ["write:jira-work"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateJiraIssue"
+    result_required: ["id", "key"]
     connections: ["user_oauth", "api_token"]
     resource_template: "jira/issues"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "issue" version: 1}
@@ -166,6 +167,7 @@ message CreateJiraCommentRequest {
     scopes: ["write:jira-work"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateJiraComment"
+    result_required: ["id", "body"]
     connections: ["user_oauth", "api_token"]
     resource_template: "jira/issues/{issue_key}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "comment" version: 1}

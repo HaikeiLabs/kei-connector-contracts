@@ -43,6 +43,9 @@ type rustOperation struct {
 	ErrorsBlock string
 	// ResponseFieldsBlock is the GraphQL response's field-name table.
 	ResponseFieldsBlock string
+	// ResultRequiredBlock is the write operation's result_required path
+	// table, empty when the operation declares none.
+	ResultRequiredBlock string
 	Method, Doc         string
 	// Deprecated is the #[deprecated] attribute line, empty when the
 	// operation is not deprecated.
@@ -121,6 +124,58 @@ func isIntKind(k protoreflect.Kind) bool {
 		return true
 	}
 	return false
+}
+
+// requiredArg is the result-required table a generated op passes to its
+// decode call: the op's table, or an empty slice when it declares no paths.
+func requiredArg(op *model.Operation) string {
+	if len(op.Opt.GetResultRequired()) == 0 {
+		return "&[]"
+	}
+	return "&RESULT_REQUIRED_" + rustSnake(op.MethodName)
+}
+
+// rustResultPath translates one result_required path into a Rust Path
+// literal: the proto-name path as declared, the same path with every
+// segment's JSON name, and the final field's kind. Intermediate fields
+// must be singular messages; the final field proves the write.
+func rustResultPath(resp *protogen.Message, path string) (string, error) {
+	md := resp.Desc
+	segs := strings.Split(path, ".")
+	var fd protoreflect.FieldDescriptor
+	jsonSegs := make([]string, 0, len(segs))
+	for i, seg := range segs {
+		fd = md.Fields().ByName(protoreflect.Name(seg))
+		if fd == nil {
+			return "", fmt.Errorf("result_required path %q: %s has no field %s", path, md.FullName(), seg)
+		}
+		jsonSegs = append(jsonSegs, fd.JSONName())
+		if i == len(segs)-1 {
+			break
+		}
+		if fd.Kind() != protoreflect.MessageKind && fd.Kind() != protoreflect.GroupKind {
+			return "", fmt.Errorf("result_required path %q: %s is not a message", path, fd.FullName())
+		}
+		if fd.IsList() || fd.IsMap() {
+			return "", fmt.Errorf("result_required path %q: %s is repeated", path, fd.FullName())
+		}
+		md = fd.Message()
+	}
+	var kind string
+	switch k := fd.Kind(); {
+	case k == protoreflect.BoolKind:
+		kind = "Bool"
+	case k == protoreflect.StringKind:
+		kind = "Str"
+	case k == protoreflect.MessageKind || k == protoreflect.GroupKind:
+		kind = "Msg"
+	case isIntKind(k), k == protoreflect.FloatKind, k == protoreflect.DoubleKind:
+		kind = "Num"
+	default:
+		return "", fmt.Errorf("result_required path %q: field %s has unsupported kind %s", path, fd.FullName(), k)
+	}
+	return fmt.Sprintf("Path { proto: %s, json: %s, kind: PathKind::%s },",
+		rustQuote(path), rustQuote(strings.Join(jsonSegs, ".")), kind), nil
 }
 
 // rustQuote renders a Rust string literal (ASCII text only).
@@ -204,6 +259,12 @@ func renderRust(gen *protogen.Plugin, c *model.Connector, opts Options) error {
 		d.Ops = append(d.Ops, o)
 	}
 	var conn []string
+	var hasResultRequired bool
+	for _, o := range d.Ops {
+		if o.ResultRequiredBlock != "" {
+			hasResultRequired = true
+		}
+	}
 	if d.SQL {
 		conn = []string{"Class", "Op", "OperationError", "Sql", "Transport", "call_sql"}
 	} else {
@@ -213,6 +274,9 @@ func renderRust(gen *protogen.Plugin, c *model.Connector, opts Options) error {
 		}
 		if hasGraphQL {
 			conn = append(conn, "decode_graphql_response")
+		}
+		if hasResultRequired {
+			conn = append(conn, "Path", "PathKind")
 		}
 		if hasCursor {
 			conn = append(conn, "next_cursor_from_link")
@@ -261,6 +325,9 @@ func renderRust(gen *protogen.Plugin, c *model.Connector, opts Options) error {
 		}
 		if o.ResponseFieldsBlock != "" {
 			constTables = append(constTables, o.ResponseFieldsBlock)
+		}
+		if o.ResultRequiredBlock != "" {
+			constTables = append(constTables, o.ResultRequiredBlock)
 		}
 	}
 	d.Consts = strings.Join(constBlocks, "\n")
@@ -326,6 +393,17 @@ pub const %s: Op = Op {
 			pairs = append(pairs, fmt.Sprintf("(%s, %s)", rustQuote(string(f.Desc.Name())), rustQuote(f.Desc.JSONName())))
 		}
 		o.ResponseFieldsBlock = fmt.Sprintf("const RESPONSE_FIELDS_%s: &[(&str, &str)] = &[%s];\n", rustSnake(op.MethodName), strings.Join(pairs, ", "))
+	}
+	if rr := op.Opt.GetResultRequired(); len(rr) > 0 {
+		var entries []string
+		for _, p := range rr {
+			entry, err := rustResultPath(op.Response, p)
+			if err != nil {
+				return o, fmt.Errorf("protoc-gen-kei-ops: %s: %v", op.ID, err)
+			}
+			entries = append(entries, "    "+entry)
+		}
+		o.ResultRequiredBlock = fmt.Sprintf("const RESULT_REQUIRED_%s: &[Path] = &[\n%s\n];\n", rustSnake(op.MethodName), strings.Join(entries, "\n"))
 	}
 	if op.Transport == model.SQL {
 		// SQL requests are RunQueryRequest-shaped (sql, params, max_rows);
@@ -609,11 +687,11 @@ func rustFnBody(op *model.Operation) (string, error) {
 		respDecl = "let mut resp"
 	}
 	if op.Transport == model.GraphQL {
-		lines = append(lines, fmt.Sprintf("%s: %s = decode_graphql_response(%s.id, out.status, &out.body, &RESPONSE_FIELDS_%s, %s)?;",
-			respDecl, op.Response.GoIdent.GoName, opConst, rustSnake(op.MethodName), arrayArg))
+		lines = append(lines, fmt.Sprintf("%s: %s = decode_graphql_response(%s.id, out.status, &out.body, &RESPONSE_FIELDS_%s, %s, %s)?;",
+			respDecl, op.Response.GoIdent.GoName, opConst, rustSnake(op.MethodName), requiredArg(op), arrayArg))
 	} else {
-		lines = append(lines, fmt.Sprintf("%s: %s = decode_response(%s.id, &out.body, %s)?;",
-			respDecl, op.Response.GoIdent.GoName, opConst, arrayArg))
+		lines = append(lines, fmt.Sprintf("%s: %s = decode_response(%s.id, out.status, &out.body, %s, %s)?;",
+			respDecl, op.Response.GoIdent.GoName, opConst, requiredArg(op), arrayArg))
 	}
 	if cf := op.Opt.GetCursorField(); cf != "" {
 		var wire string

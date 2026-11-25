@@ -81,6 +81,38 @@ not break a release. The nightly drift check runs the same unmarshal strict
 instead, and files a ticket when a provider payload no longer fits the
 declared shape.
 
+## result_required
+
+A write operation declares the response paths that prove the write
+happened, so a 2xx answer that did not create or change the resource is a
+failure, not a success:
+
+```proto
+option (kei.contracts.v1.operation) = {
+  ...
+  result_required: ["success", "issue.id", "issue.identifier"]
+};
+```
+
+- Paths are dot paths in proto field names through the response message
+  (`issue.id`), and every declared path must hold — the check is
+  all-or-nothing.
+- A path proves the write when its final field holds: a bool `true`, a
+  non-empty string, a non-zero plain numeric scalar, or a set message.
+- A plain numeric scalar is a non-optional int/float: proto3 plain scalars
+  have no presence, so zero means absent. Optional numerics, enums, bytes,
+  lists and maps cannot prove a write and are rejected at generation time.
+- A write whose response message has no fields is exempt (nothing in the
+  response could carry a proof), and SQL writes are exempt too (their
+  responses carry row/column metadata, not the resource).
+- A 2xx response missing a declared path fails with the
+  `ERROR_KIND_CONTRACT_VIOLATION` error kind in every generated language
+  (Go, TypeScript, Python, Rust), never mapped from a provider status.
+  GraphQL operations check the unwrapped payload.
+
+The cross-language parity test (`KEI_PARITY=1`) proves all four languages
+reject the same broken responses and accept the same good one.
+
 ## Versioning
 
 Within v1, changes are additive only, enforced mechanically by

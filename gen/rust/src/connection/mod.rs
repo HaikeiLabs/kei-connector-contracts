@@ -41,6 +41,8 @@ use base64::Engine as _;
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 
+use crate::kei::contracts::v1::ErrorKind;
+
 /// Class is an operation's class. Unspecified is neither Read nor Write, so
 /// an unset descriptor is never mistaken for a read.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -222,9 +224,16 @@ fn sql_cell(v: Value) -> Value {
 /// fills T's only repeated field, named by `array_field`'s JSON name.
 /// An empty body yields T::default(). Decoding errors never include the
 /// response body.
+///
+/// Before decoding, every path in `required` must hold on the JSON payload
+/// (see holdsPath): a response missing one fails with
+/// ErrorKind::ContractViolation — the provider answered 2xx, but the
+/// contract cannot confirm the write happened.
 pub fn decode_response<T: DeserializeOwned + Default>(
     op_id: &str,
+    status: u16,
     body: &[u8],
+    required: &[Path],
     array_field: Option<&str>,
 ) -> Result<T, OperationError> {
     let body: &[u8] = trim(body);
@@ -232,6 +241,7 @@ pub fn decode_response<T: DeserializeOwned + Default>(
         return Ok(T::default());
     }
     let value: Value = serde_json::from_slice(body).map_err(|_| decode_error(op_id))?;
+    check_required(op_id, status, &value, required)?;
     decode_value(op_id, value, array_field)
 }
 
@@ -239,12 +249,13 @@ pub fn decode_response<T: DeserializeOwned + Default>(
 /// extensions.code to an error kind (see graph_ql_kind); when data has one
 /// key that is not a field of the response (named by `response_fields`, as
 /// (proto name, JSON name) pairs), that key's value is decoded; otherwise
-/// data itself is.
+/// data itself is. The result-required check runs on the unwrapped payload.
 pub fn decode_graphql_response<T: DeserializeOwned + Default>(
     op_id: &str,
     status: u16,
     body: &[u8],
     response_fields: &[(&str, &str)],
+    required: &[Path],
     array_field: Option<&str>,
 ) -> Result<T, OperationError> {
     let env: Value = serde_json::from_slice(body).map_err(|_| decode_error(op_id))?;
@@ -282,7 +293,90 @@ pub fn decode_graphql_response<T: DeserializeOwned + Default>(
             }
         }
     }
+    check_required(op_id, status, &data, required)?;
     decode_value(op_id, data, array_field)
+}
+
+/// Path is one result_required path of a write operation: the dot path in
+/// proto field names, the same path with every segment's JSON (lowerCamel)
+/// name, and the final field's kind. pbjson accepts both names at every
+/// level, so holdsPath tries both per segment.
+#[derive(Debug, Clone, Copy)]
+pub struct Path {
+    pub proto: &'static str,
+    pub json: &'static str,
+    pub kind: PathKind,
+}
+
+/// PathKind is what a result_required path's final field must be, and so
+/// what proves the write: a bool true, a string non-empty, a plain number
+/// non-zero, a message present.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PathKind {
+    Bool,
+    Str,
+    Num,
+    Msg,
+}
+
+/// checkRequired verifies that the JSON payload holds every result_required
+/// path, before decoding. A missing path is ErrorKind::ContractViolation:
+/// the provider answered 2xx, but the contract cannot confirm the write.
+fn check_required(op_id: &str, status: u16, value: &Value, required: &[Path]) -> Result<(), OperationError> {
+    for path in required {
+        if !holds_path(value, path) {
+            return Err(OperationError {
+                kind: ErrorKind::ContractViolation,
+                status,
+                retryable: false,
+                op_id: op_id.to_string(),
+                detail: None,
+            });
+        }
+    }
+    Ok(())
+}
+
+/// holdsPath reports whether the JSON value holds one result_required path:
+/// every segment names a field (proto name first, then the JSON name), an
+/// intermediate value is a JSON object, and the final value proves the
+/// write for its kind.
+fn holds_path(value: &Value, path: &Path) -> bool {
+    let proto_segs: Vec<&str> = path.proto.split('.').collect();
+    let json_segs: Vec<&str> = path.json.split('.').collect();
+    let mut here = value;
+    for (i, seg) in proto_segs.iter().enumerate() {
+        let Some(obj) = here.as_object() else {
+            return false;
+        };
+        let Some(v) = obj.get(*seg).or_else(|| obj.get(json_segs[i])) else {
+            return false;
+        };
+        if i == proto_segs.len() - 1 {
+            return proves_write(v, path.kind);
+        }
+        if !v.is_object() {
+            return false;
+        }
+        here = v;
+    }
+    false
+}
+
+/// provesWrite: a bool must be true, a string non-empty, a plain number
+/// non-zero (pbjson also accepts int64 as a string, which must parse to
+/// non-zero), a message a JSON object. Anything else cannot prove a write.
+fn proves_write(v: &Value, kind: PathKind) -> bool {
+    match kind {
+        PathKind::Bool => v.as_bool() == Some(true),
+        PathKind::Str => v.as_str().is_some_and(|s| !s.is_empty()),
+        PathKind::Num => match v {
+            Value::Number(n) => n.as_f64().is_some_and(|f| f != 0.0),
+            Value::String(s) => s.parse::<f64>().is_ok_and(|f| f != 0.0),
+            _ => false,
+        },
+        PathKind::Msg => v.is_object(),
+    }
 }
 
 fn decode_value<T: DeserializeOwned + Default>(
