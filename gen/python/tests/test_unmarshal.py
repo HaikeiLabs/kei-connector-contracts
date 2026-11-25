@@ -221,6 +221,13 @@ def _spot_github_git_commits_create(response):
     assert len(response.parents) == 1
 
 
+def _spot_github_git_commits_get(response):
+    assert response.sha == "synthetic-commit-sha-3"
+    assert response.message == "Synthetic commit message"
+    assert response.tree.sha == "synthetic-tree-sha-4"
+    assert response.parents[0].sha == "synthetic-commit-sha-2"
+
+
 def _spot_linear_issues_get(response):
     assert response.issue.identifier == "ENG-101"
     assert response.issue.labels[0].name == "synthetic-label"
@@ -671,6 +678,7 @@ OPS = [
     ("github.git.blobs.create", "github", git_pb2.CreateBlobRequest, git_pb2.CreateBlobResponse, _spot_github_git_blobs_create),
     ("github.git.trees.create", "github", git_pb2.CreateTreeRequest, git_pb2.CreateTreeResponse, _spot_github_git_trees_create),
     ("github.git.commits.create", "github", git_pb2.CreateCommitRequest, git_pb2.CreateCommitResponse, _spot_github_git_commits_create),
+    ("github.git.commits.get", "github", git_pb2.GetGitCommitRequest, git_pb2.GetGitCommitResponse, _spot_github_git_commits_get),
     ("linear.issues.get", "linear", linear_issues_pb2.GetIssueRequest, linear_issues_pb2.GetIssueResponse, _spot_linear_issues_get),
     ("linear.issues.create", "linear", linear_issues_pb2.CreateIssueRequest, linear_issues_pb2.CreateIssueResponse, _spot_linear_issues_create),
     ("linear.issues.search", "linear", linear_issues_pb2.SearchIssuesRequest, linear_issues_pb2.SearchIssuesResponse, _spot_linear_issues_search),

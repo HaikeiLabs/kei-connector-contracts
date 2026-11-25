@@ -72,18 +72,22 @@ class Label(_message.Message):
     def __init__(self, id: _Optional[int] = ..., name: _Optional[str] = ...) -> None: ...
 
 class ListPullsRequest(_message.Message):
-    __slots__ = ("owner", "repository", "per_page", "page", "state")
+    __slots__ = ("owner", "repository", "per_page", "page", "state", "head", "base")
     OWNER_FIELD_NUMBER: _ClassVar[int]
     REPOSITORY_FIELD_NUMBER: _ClassVar[int]
     PER_PAGE_FIELD_NUMBER: _ClassVar[int]
     PAGE_FIELD_NUMBER: _ClassVar[int]
     STATE_FIELD_NUMBER: _ClassVar[int]
+    HEAD_FIELD_NUMBER: _ClassVar[int]
+    BASE_FIELD_NUMBER: _ClassVar[int]
     owner: str
     repository: str
     per_page: int
     page: int
     state: str
-    def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., per_page: _Optional[int] = ..., page: _Optional[int] = ..., state: _Optional[str] = ...) -> None: ...
+    head: str
+    base: str
+    def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., per_page: _Optional[int] = ..., page: _Optional[int] = ..., state: _Optional[str] = ..., head: _Optional[str] = ..., base: _Optional[str] = ...) -> None: ...
 
 class PullRequestSummary(_message.Message):
     __slots__ = ("id", "number", "title", "state", "body", "html_url", "draft", "head", "base", "author", "labels")

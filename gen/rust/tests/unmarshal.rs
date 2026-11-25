@@ -36,11 +36,12 @@ use haikeilabs_connector_contracts::kei::connectors::github::v1::{
     CreateBlobResponse, CreateCommitResponse, CreateIssueCommentResponse,
     CreateIssueResponse as GhCreateIssueResponse, CreatePullRequestResponse,
     CreatePullReviewResponse, CreateRefResponse, CreateTreeResponse, GetCommitResponse,
-    GetContentsResponse, GetIssueResponse, GetPullRequestResponse, GetRefResponse,
-    GetRepositoryResponse, GetRunAttemptResponse, ListCheckRunsResponse, ListCommitsResponse,
-    ListContentsResponse, ListIssuesResponse, ListPullReviewsResponse, ListPullsResponse,
-    ListRunJobsResponse, ListWorkflowRunsByWorkflowResponse, ListWorkflowRunsResponse,
-    PutContentsResponse, UpdateIssueResponse, UpdatePullRequestResponse, UpdateRefResponse,
+    GetContentsResponse, GetGitCommitResponse, GetIssueResponse, GetPullRequestResponse,
+    GetRefResponse, GetRepositoryResponse, GetRunAttemptResponse, ListCheckRunsResponse,
+    ListCommitsResponse, ListContentsResponse, ListIssuesResponse, ListPullReviewsResponse,
+    ListPullsResponse, ListRunJobsResponse, ListWorkflowRunsByWorkflowResponse,
+    ListWorkflowRunsResponse, PutContentsResponse, UpdateIssueResponse,
+    UpdatePullRequestResponse, UpdateRefResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::gmail::v1::{
     CreateDraftResponse, GetMessageResponse, ListMessagesResponse,
@@ -378,6 +379,16 @@ fn fixtures_unmarshal() {
             .expect("github.git.commits.create response unmarshals");
     assert_eq!(resp.sha, "synthetic-commit-sha-2");
     assert_eq!(resp.parents.len(), 1);
+
+    // github.git.commits.get — spot: sha, message, tree and parents.
+    let resp: GetGitCommitResponse =
+        serde_json::from_str(&fixture("github", "git.commits.get.response.json"))
+            .expect("github.git.commits.get response unmarshals");
+    assert_eq!(resp.sha, "synthetic-commit-sha-3");
+    assert_eq!(resp.message, "Synthetic commit message");
+    let tree = resp.tree.as_ref().expect("tree present");
+    assert_eq!(tree.sha, "synthetic-tree-sha-4");
+    assert_eq!(resp.parents[0].sha, "synthetic-commit-sha-2");
 
     // linear.issues.get — spot: issue.identifier and labels[0].name.
     let resp: LinearGetIssueResponse =

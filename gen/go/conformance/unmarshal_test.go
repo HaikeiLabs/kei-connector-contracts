@@ -496,6 +496,24 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "github.git.commits.get",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.GetGitCommitRequest{} },
+		response:  func() proto.Message { return &githubv1.GetGitCommitResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			commit := resp.(*githubv1.GetGitCommitResponse)
+			if got := commit.GetSha(); got != "synthetic-commit-sha-3" {
+				t.Errorf("sha = %q, want the synthetic commit sha", got)
+			}
+			if got := commit.GetMessage(); got != "Synthetic commit message" {
+				t.Errorf("message = %q, want the synthetic commit message", got)
+			}
+			if got := len(commit.GetParents()); got != 1 {
+				t.Errorf("len(parents) = %d, want 1", got)
+			}
+		},
+	},
+	{
 		op:        "linear.issues.get",
 		connector: "linear",
 		request:   func() proto.Message { return &linearv1.GetIssueRequest{} },

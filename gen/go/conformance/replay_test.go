@@ -188,7 +188,7 @@ func TestGeneratedHTTP_Replay(t *testing.T) {
 			op: "github.pulls.list", connector: "github",
 			serve:  unwrapArray("pulls"), // GitHub returns a bare JSON array
 			method: "GET", path: "/repos/example-org/example-repo/pulls",
-			query: url.Values{"state": {"open"}, "per_page": {"30"}, "page": {"1"}},
+			query: url.Values{"base": {"main"}, "head": {"example-org:feature/x"}, "page": {"1"}, "per_page": {"30"}, "state": {"open"}},
 			call: func(ctx context.Context, conn connection.HTTP, t *testing.T) (proto.Message, error) {
 				req := &githubv1.ListPullsRequest{}
 				loadRequest(t, "github", "github.pulls.list", req)
@@ -197,6 +197,24 @@ func TestGeneratedHTTP_Replay(t *testing.T) {
 			check: func(t *testing.T, m proto.Message) {
 				if n := len(m.(*githubv1.ListPullsResponse).GetPulls()); n != 1 {
 					t.Fatalf("pulls = %d, want 1", n)
+				}
+			},
+		},
+		{
+			op: "github.git.commits.get", connector: "github",
+			method: "GET", path: "/repos/example-org/example-repo/git/commits/synthetic-commit-sha-3",
+			call: func(ctx context.Context, conn connection.HTTP, t *testing.T) (proto.Message, error) {
+				req := &githubv1.GetGitCommitRequest{}
+				loadRequest(t, "github", "github.git.commits.get", req)
+				return githubops.New(conn).GetGitCommit(ctx, req)
+			},
+			check: func(t *testing.T, m proto.Message) {
+				commit := m.(*githubv1.GetGitCommitResponse)
+				if got := commit.GetMessage(); got != "Synthetic commit message" {
+					t.Fatalf("message = %q, want the synthetic commit message", got)
+				}
+				if got := len(commit.GetParents()); got != 1 {
+					t.Fatalf("len(parents) = %d, want 1", got)
 				}
 			},
 		},

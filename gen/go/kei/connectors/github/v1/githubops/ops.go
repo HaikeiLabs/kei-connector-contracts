@@ -31,6 +31,8 @@ type Operations interface {
 	CreateBlob(ctx context.Context, req *github.CreateBlobRequest) (*github.CreateBlobResponse, error)
 	// CreateCommit runs github.git.commits.create (POST /repos/{owner}/{repository}/git/commits).
 	CreateCommit(ctx context.Context, req *github.CreateCommitRequest) (*github.CreateCommitResponse, error)
+	// GetGitCommit runs github.git.commits.get (GET /repos/{owner}/{repository}/git/commits/{commit_sha}).
+	GetGitCommit(ctx context.Context, req *github.GetGitCommitRequest) (*github.GetGitCommitResponse, error)
 	// CreateRef runs github.git.refs.create (POST /repos/{owner}/{repository}/git/refs).
 	CreateRef(ctx context.Context, req *github.CreateRefRequest) (*github.CreateRefResponse, error)
 	// GetRef runs github.git.refs.get (GET /repos/{owner}/{repository}/git/ref/{ref}).
@@ -84,6 +86,7 @@ var (
 	OpPutContents                = connection.Op{ID: "github.contents.put", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "PutContents", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
 	OpCreateBlob                 = connection.Op{ID: "github.git.blobs.create", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "CreateBlob", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
 	OpCreateCommit               = connection.Op{ID: "github.git.commits.create", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "CreateCommit", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
+	OpGetGitCommit               = connection.Op{ID: "github.git.commits.get", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "GetGitCommit", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
 	OpCreateRef                  = connection.Op{ID: "github.git.refs.create", Class: connection.Write, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "CreateRef", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
 	OpGetRef                     = connection.Op{ID: "github.git.refs.get", Class: connection.Read, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "GetRef", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
 	OpUpdateRef                  = connection.Op{ID: "github.git.refs.update", Class: connection.Write, Destructive: true, ResourceTemplate: "repos/{owner}/{repository}", MethodName: "UpdateRef", Connections: []string{"user_oauth", "pat"}, Transport: connection.TransportHTTP}
@@ -280,6 +283,23 @@ var specCreateCommit = &connection.HTTPSpec{
 		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
+	},
+}
+
+var specGetGitCommit = &connection.HTTPSpec{
+	Op:           OpGetGitCommit,
+	Method:       "GET",
+	PathTemplate: "/repos/{owner}/{repository}/git/commits/{commit_sha}",
+	Params: []connection.Param{
+		{Field: "owner", In: connection.InPath, Wire: "owner"},
+		{Field: "repository", In: connection.InPath, Wire: "repository"},
+		{Field: "commit_sha", In: connection.InPath, Wire: "commit_sha"},
+	},
+	Errors: []*contracts.ErrorMapping{
+		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
+		{Status: 403, Kind: contracts.ErrorKind_ERROR_KIND_FORBIDDEN},
+		{Status: 404, Kind: contracts.ErrorKind_ERROR_KIND_NOT_FOUND},
+		{Status: 429, Kind: contracts.ErrorKind_ERROR_KIND_RATE_LIMITED, Retryable: true},
 	},
 }
 
@@ -509,6 +529,8 @@ var specListPulls = &connection.HTTPSpec{
 		{Field: "per_page", In: connection.InQuery, Wire: "per_page"},
 		{Field: "page", In: connection.InQuery, Wire: "page"},
 		{Field: "state", In: connection.InQuery, Wire: "state"},
+		{Field: "head", In: connection.InQuery, Wire: "head"},
+		{Field: "base", In: connection.InQuery, Wire: "base"},
 	},
 	Errors: []*contracts.ErrorMapping{
 		{Status: 401, Kind: contracts.ErrorKind_ERROR_KIND_UNAUTHORIZED},
@@ -742,6 +764,15 @@ func (q *Queries) CreateBlob(ctx context.Context, req *github.CreateBlobRequest)
 func (q *Queries) CreateCommit(ctx context.Context, req *github.CreateCommitRequest) (*github.CreateCommitResponse, error) {
 	resp := &github.CreateCommitResponse{}
 	if err := connection.CallHTTP(ctx, q.conn, specCreateCommit, req, resp); err != nil {
+		return nil, err
+	}
+	return resp, nil
+}
+
+// GetGitCommit runs github.git.commits.get.
+func (q *Queries) GetGitCommit(ctx context.Context, req *github.GetGitCommitRequest) (*github.GetGitCommitResponse, error) {
+	resp := &github.GetGitCommitResponse{}
+	if err := connection.CallHTTP(ctx, q.conn, specGetGitCommit, req, resp); err != nil {
 		return nil, err
 	}
 	return resp, nil

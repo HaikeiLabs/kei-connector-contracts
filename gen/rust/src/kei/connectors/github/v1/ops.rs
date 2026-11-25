@@ -11,7 +11,7 @@
 
 use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
-use crate::kei::connectors::github::v1::{CreateBlobRequest, CreateBlobResponse, CreateCommitRequest, CreateCommitResponse, CreateIssueCommentRequest, CreateIssueCommentResponse, CreateIssueRequest, CreateIssueResponse, CreatePullRequestRequest, CreatePullRequestResponse, CreatePullReviewRequest, CreatePullReviewResponse, CreateRefRequest, CreateRefResponse, CreateTreeRequest, CreateTreeResponse, GetCommitRequest, GetCommitResponse, GetContentsRequest, GetContentsResponse, GetIssueRequest, GetIssueResponse, GetPullRequestRequest, GetPullRequestResponse, GetRefRequest, GetRefResponse, GetRepositoryRequest, GetRepositoryResponse, GetRunAttemptRequest, GetRunAttemptResponse, ListCheckRunsRequest, ListCheckRunsResponse, ListCommitsRequest, ListCommitsResponse, ListContentsRequest, ListContentsResponse, ListIssuesRequest, ListIssuesResponse, ListPullReviewsRequest, ListPullReviewsResponse, ListPullsRequest, ListPullsResponse, ListRunJobsRequest, ListRunJobsResponse, ListWorkflowRunsByWorkflowRequest, ListWorkflowRunsByWorkflowResponse, ListWorkflowRunsRequest, ListWorkflowRunsResponse, PutContentsRequest, PutContentsResponse, UpdateIssueRequest, UpdateIssueResponse, UpdatePullRequestRequest, UpdatePullRequestResponse, UpdateRefRequest, UpdateRefResponse};
+use crate::kei::connectors::github::v1::{CreateBlobRequest, CreateBlobResponse, CreateCommitRequest, CreateCommitResponse, CreateIssueCommentRequest, CreateIssueCommentResponse, CreateIssueRequest, CreateIssueResponse, CreatePullRequestRequest, CreatePullRequestResponse, CreatePullReviewRequest, CreatePullReviewResponse, CreateRefRequest, CreateRefResponse, CreateTreeRequest, CreateTreeResponse, GetCommitRequest, GetCommitResponse, GetContentsRequest, GetContentsResponse, GetGitCommitRequest, GetGitCommitResponse, GetIssueRequest, GetIssueResponse, GetPullRequestRequest, GetPullRequestResponse, GetRefRequest, GetRefResponse, GetRepositoryRequest, GetRepositoryResponse, GetRunAttemptRequest, GetRunAttemptResponse, ListCheckRunsRequest, ListCheckRunsResponse, ListCommitsRequest, ListCommitsResponse, ListContentsRequest, ListContentsResponse, ListIssuesRequest, ListIssuesResponse, ListPullReviewsRequest, ListPullReviewsResponse, ListPullsRequest, ListPullsResponse, ListRunJobsRequest, ListRunJobsResponse, ListWorkflowRunsByWorkflowRequest, ListWorkflowRunsByWorkflowResponse, ListWorkflowRunsRequest, ListWorkflowRunsResponse, PutContentsRequest, PutContentsResponse, UpdateIssueRequest, UpdateIssueResponse, UpdatePullRequestRequest, UpdatePullRequestResponse, UpdateRefRequest, UpdateRefResponse};
 
 /// Operation descriptor for github.actions.runs.attempts.get, for authorization and audit: the
 /// capability a policy grants is connector:github.actions.runs.attempts.get.
@@ -105,6 +105,18 @@ pub const OP_CREATE_COMMIT: Op = Op {
     destructive: false,
     resource_template: "repos/{owner}/{repository}",
     method_name: "CreateCommit",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
+};
+
+/// Operation descriptor for github.git.commits.get, for authorization and audit: the
+/// capability a policy grants is connector:github.git.commits.get.
+pub const OP_GET_GIT_COMMIT: Op = Op {
+    id: "github.git.commits.get",
+    class: Class::Read,
+    destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "GetGitCommit",
     connections: &["user_oauth", "pat"],
     transport: Transport::Http,
 };
@@ -560,6 +572,29 @@ const ERRORS_CREATE_COMMIT: &[ErrorMapping] = &[
         status: 422,
         kind: ErrorKind::Invalid as i32,
         retryable: false,
+    },
+];
+
+const ERRORS_GET_GIT_COMMIT: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 404,
+        kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
     },
 ];
 
@@ -1133,6 +1168,8 @@ pub trait GithubOperations {
     async fn create_blob(&self, req: CreateBlobRequest) -> Result<CreateBlobResponse, OperationError>;
     /// create_commit runs github.git.commits.create (POST /repos/{owner}/{repository}/git/commits).
     async fn create_commit(&self, req: CreateCommitRequest) -> Result<CreateCommitResponse, OperationError>;
+    /// get_git_commit runs github.git.commits.get (GET /repos/{owner}/{repository}/git/commits/{commit_sha}).
+    async fn get_git_commit(&self, req: GetGitCommitRequest) -> Result<GetGitCommitResponse, OperationError>;
     /// create_ref runs github.git.refs.create (POST /repos/{owner}/{repository}/git/refs).
     async fn create_ref(&self, req: CreateRefRequest) -> Result<CreateRefResponse, OperationError>;
     /// get_ref runs github.git.refs.get (GET /repos/{owner}/{repository}/git/ref/{ref}).
@@ -1414,6 +1451,29 @@ impl GithubOperations for GithubQueries {
             return Err(err);
         }
         let resp: CreateCommitResponse = decode_response(OP_CREATE_COMMIT.id, &out.body, Some("parents"))?;
+        Ok(resp)
+    }
+    /// get_git_commit runs github.git.commits.get (GET /repos/{owner}/{repository}/git/commits/{commit_sha}).
+    async fn get_git_commit(&self, req: GetGitCommitRequest) -> Result<GetGitCommitResponse, OperationError> {
+        let mut path_values: Vec<(&str, &str)> = Vec::new();
+        path_values.push(("owner", req.owner.as_str()));
+        path_values.push(("repository", req.repository.as_str()));
+        path_values.push(("commit_sha", req.commit_sha.as_str()));
+        let path = render_path(
+            "/repos/{owner}/{repository}/git/commits/{commit_sha}",
+            &path_values,
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_GET_GIT_COMMIT.id, format!("render path: {e}")))?;
+        let out = self
+            .conn
+            .do_request("GET", &path, &[], None)
+            .await
+            .map_err(|e| OperationError::wrap(OP_GET_GIT_COMMIT.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_GET_GIT_COMMIT, out.status, &ERRORS_GET_GIT_COMMIT) {
+            return Err(err);
+        }
+        let resp: GetGitCommitResponse = decode_response(OP_GET_GIT_COMMIT.id, &out.body, Some("parents"))?;
         Ok(resp)
     }
     /// create_ref runs github.git.refs.create (POST /repos/{owner}/{repository}/git/refs).
@@ -1718,6 +1778,8 @@ impl GithubOperations for GithubQueries {
         if let Some(v) = req.per_page { query_values.push(("per_page".to_string(), v.to_string())); }
         if let Some(v) = req.page { query_values.push(("page".to_string(), v.to_string())); }
         if let Some(v) = &req.state { query_values.push(("state".to_string(), v.clone())); }
+        if let Some(v) = &req.head { query_values.push(("head".to_string(), v.clone())); }
+        if let Some(v) = &req.base { query_values.push(("base".to_string(), v.clone())); }
         let out = self
             .conn
             .do_request("GET", &path, &query_values, None)

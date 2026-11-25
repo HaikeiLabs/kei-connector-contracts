@@ -82,6 +82,12 @@ pub struct ListPullsRequest {
     /// open, closed or all.
     #[prost(string, optional, tag="5")]
     pub state: ::core::option::Option<::prost::alloc::string::String>,
+    /// Filter by head branch, as owner:branch.
+    #[prost(string, optional, tag="6")]
+    pub head: ::core::option::Option<::prost::alloc::string::String>,
+    /// Filter by base branch.
+    #[prost(string, optional, tag="7")]
+    pub base: ::core::option::Option<::prost::alloc::string::String>,
 }
 /// PullRequestSummary models the subset of each pull request entry a list
 /// response carries. It is filled by JSON unmarshal of the provider response.
@@ -883,6 +889,35 @@ pub struct CreateCommitRequest {
 /// parents. It is filled by JSON unmarshal of the provider response.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CreateCommitResponse {
+    #[prost(string, tag="1")]
+    pub sha: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub html_url: ::prost::alloc::string::String,
+    #[prost(string, tag="3")]
+    pub message: ::prost::alloc::string::String,
+    #[prost(message, optional, tag="4")]
+    pub tree: ::core::option::Option<GitObject>,
+    #[prost(message, repeated, tag="5")]
+    pub parents: ::prost::alloc::vec::Vec<GitObject>,
+}
+/// GetGitCommitRequest reads one git commit object from a GitHub repository
+/// by sha. The sibling github.repos.commits.get reads the same commit in its
+/// list form (with the GitHub account it is attributed to).
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetGitCommitRequest {
+    #[prost(string, tag="1")]
+    pub owner: ::prost::alloc::string::String,
+    #[prost(string, tag="2")]
+    pub repository: ::prost::alloc::string::String,
+    /// The commit sha.
+    #[prost(string, tag="3")]
+    pub commit_sha: ::prost::alloc::string::String,
+}
+/// GetGitCommitResponse models the git commit object: its sha, its message,
+/// the tree it points at and its parents. It is filled by JSON unmarshal of
+/// the provider response.
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GetGitCommitResponse {
     #[prost(string, tag="1")]
     pub sha: ::prost::alloc::string::String,
     #[prost(string, tag="2")]

@@ -1,0 +1,19 @@
+{
+  "sha": "synthetic-commit-sha-3",
+  "node_id": "synthetic-node-id-12",
+  "html_url": "https://example.invalid/example-org/example-repo/git/commits/synthetic-commit-sha-3",
+  "message": "Synthetic commit message",
+  "tree": {
+    "sha": "synthetic-tree-sha-4",
+    "url": "https://example.invalid/api/v3/repos/example-org/example-repo/git/trees/synthetic-tree-sha-4"
+  },
+  "parents": [
+    {
+      "sha": "synthetic-commit-sha-2",
+      "url": "https://example.invalid/api/v3/repos/example-org/example-repo/git/commits/synthetic-commit-sha-2"
+    }
+  ],
+  "verification": {
+    "verified": false
+  }
+}

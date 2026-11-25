@@ -96,6 +96,17 @@ _SPEC_CREATE_COMMIT = {
     "cursor_field": "",
     "next_cursor_field": "",
 }
+OP_GET_GIT_COMMIT = Op(id="github.git.commits.get", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="GetGitCommit", connections=("user_oauth", "pat"), transport=Transport.HTTP)
+_SPEC_GET_GIT_COMMIT = {
+    "op": OP_GET_GIT_COMMIT,
+    "method": "GET",
+    "path_template": "/repos/{owner}/{repository}/git/commits/{commit_sha}",
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "commit_sha", "in": "path", "multi_segment": False, "wire": "commit_sha"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 OP_CREATE_REF = Op(id="github.git.refs.create", op_class=OpClass.WRITE, destructive=False, resource_template="repos/{owner}/{repository}", method_name="CreateRef", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_CREATE_REF = {
     "op": OP_CREATE_REF,
@@ -222,7 +233,7 @@ _SPEC_LIST_PULLS = {
     "op": OP_LIST_PULLS,
     "method": "GET",
     "path_template": "/repos/{owner}/{repository}/pulls",
-    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "per_page", "in": "query", "multi_segment": False, "wire": "per_page"}, {"field": "page", "in": "query", "multi_segment": False, "wire": "page"}, {"field": "state", "in": "query", "multi_segment": False, "wire": "state"}],
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "per_page", "in": "query", "multi_segment": False, "wire": "per_page"}, {"field": "page", "in": "query", "multi_segment": False, "wire": "page"}, {"field": "state", "in": "query", "multi_segment": False, "wire": "state"}, {"field": "head", "in": "query", "multi_segment": False, "wire": "head"}, {"field": "base", "in": "query", "multi_segment": False, "wire": "base"}],
     "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
     "graphql_document": "",
     "cursor_field": "page",
@@ -334,6 +345,8 @@ class GithubOperations(Protocol):
         ...
     async def create_commit(self, req: git_pb2.CreateCommitRequest) -> git_pb2.CreateCommitResponse:
         ...
+    async def get_git_commit(self, req: git_pb2.GetGitCommitRequest) -> git_pb2.GetGitCommitResponse:
+        ...
     async def create_ref(self, req: git_pb2.CreateRefRequest) -> git_pb2.CreateRefResponse:
         ...
     async def get_ref(self, req: git_pb2.GetRefRequest) -> git_pb2.GetRefResponse:
@@ -404,6 +417,9 @@ class GithubQueries:
 
     async def create_commit(self, req: git_pb2.CreateCommitRequest) -> git_pb2.CreateCommitResponse:
         return await call_http(self._conn, _SPEC_CREATE_COMMIT, req, git_pb2.CreateCommitResponse)
+
+    async def get_git_commit(self, req: git_pb2.GetGitCommitRequest) -> git_pb2.GetGitCommitResponse:
+        return await call_http(self._conn, _SPEC_GET_GIT_COMMIT, req, git_pb2.GetGitCommitResponse)
 
     async def create_ref(self, req: git_pb2.CreateRefRequest) -> git_pb2.CreateRefResponse:
         return await call_http(self._conn, _SPEC_CREATE_REF, req, git_pb2.CreateRefResponse)

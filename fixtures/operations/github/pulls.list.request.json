@@ -2,6 +2,8 @@
   "owner": "example-org",
   "repository": "example-repo",
   "state": "open",
+  "head": "example-org:feature/x",
+  "base": "main",
   "per_page": 30,
   "page": 1
 }

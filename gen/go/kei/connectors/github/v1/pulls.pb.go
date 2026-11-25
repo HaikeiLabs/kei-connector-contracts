@@ -411,7 +411,11 @@ type ListPullsRequest struct {
 	PerPage    *int32                 `protobuf:"varint,3,opt,name=per_page,json=perPage,proto3,oneof" json:"per_page,omitempty"`
 	Page       *int32                 `protobuf:"varint,4,opt,name=page,proto3,oneof" json:"page,omitempty"`
 	// open, closed or all.
-	State         *string `protobuf:"bytes,5,opt,name=state,proto3,oneof" json:"state,omitempty"`
+	State *string `protobuf:"bytes,5,opt,name=state,proto3,oneof" json:"state,omitempty"`
+	// Filter by head branch, as owner:branch.
+	Head *string `protobuf:"bytes,6,opt,name=head,proto3,oneof" json:"head,omitempty"`
+	// Filter by base branch.
+	Base          *string `protobuf:"bytes,7,opt,name=base,proto3,oneof" json:"base,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -477,6 +481,20 @@ func (x *ListPullsRequest) GetPage() int32 {
 func (x *ListPullsRequest) GetState() string {
 	if x != nil && x.State != nil {
 		return *x.State
+	}
+	return ""
+}
+
+func (x *ListPullsRequest) GetHead() string {
+	if x != nil && x.Head != nil {
+		return *x.Head
+	}
+	return ""
+}
+
+func (x *ListPullsRequest) GetBase() string {
+	if x != nil && x.Base != nil {
+		return *x.Base
 	}
 	return ""
 }
@@ -1568,7 +1586,7 @@ const file_kei_connectors_github_v1_pulls_proto_rawDesc = "" +
 	"\x05login\x18\x02 \x01(\tR\x05login\"+\n" +
 	"\x05Label\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\xa5\x03\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xe9\x03\n" +
 	"\x10ListPullsRequest\x12\x1c\n" +
 	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
 	"\n" +
@@ -1576,13 +1594,17 @@ const file_kei_connectors_github_v1_pulls_proto_rawDesc = "" +
 	"repository\x12\x1e\n" +
 	"\bper_page\x18\x03 \x01(\x05H\x00R\aperPage\x88\x01\x01\x12\x17\n" +
 	"\x04page\x18\x04 \x01(\x05H\x01R\x04page\x88\x01\x01\x12\x19\n" +
-	"\x05state\x18\x05 \x01(\tH\x02R\x05state\x88\x01\x01:\xd6\x01\x92\x82\x19\xd1\x01\n" +
+	"\x05state\x18\x05 \x01(\tH\x02R\x05state\x88\x01\x01\x12\x17\n" +
+	"\x04head\x18\x06 \x01(\tH\x03R\x04head\x88\x01\x01\x12\x17\n" +
+	"\x04base\x18\a \x01(\tH\x04R\x04base\x88\x01\x01:\xd6\x01\x92\x82\x19\xd1\x01\n" +
 	"\x11github.pulls.list\x12\x06github\x18\x01*\x03GET2!/repos/{owner}/{repository}/pulls:\n" +
 	"pulls:read@\x01J\tListPullsR\n" +
 	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x12\b\x01\x12\fpull_request\x18\x01\x92\x01\x04page\x9a\x01\tnext_pageB\v\n" +
 	"\t_per_pageB\a\n" +
 	"\x05_pageB\b\n" +
-	"\x06_state\"\x98\x03\n" +
+	"\x06_stateB\a\n" +
+	"\x05_headB\a\n" +
+	"\x05_base\"\x98\x03\n" +
 	"\x12PullRequestSummary\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
