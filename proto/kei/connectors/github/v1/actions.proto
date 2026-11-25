@@ -129,3 +129,103 @@ message ListWorkflowRunsByWorkflowResponse {
   repeated WorkflowRunSummary workflow_runs = 1;
   optional int64 next_page = 2;
 }
+
+// GetRunAttemptRequest reads one attempt of a workflow run.
+message GetRunAttemptRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  // The run's id.
+  int64 run_id = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  // The attempt number, starting at 1.
+  int32 attempt_number = 4 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.actions.runs.attempts.get"
+    connector: "github"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/repos/{owner}/{repository}/actions/runs/{run_id}/attempts/{attempt_number}"
+    scopes: ["actions:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "GetRunAttempt"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "workflow_run" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// GetRunAttemptResponse models the subset of one run attempt the contract
+// needs. conclusion is null until the attempt finishes. It is filled by JSON
+// unmarshal of the provider response.
+message GetRunAttemptResponse {
+  int64 id = 1;
+  string name = 2;
+  string head_branch = 3 [json_name = "head_branch"];
+  string head_sha = 4 [json_name = "head_sha"];
+  string status = 5;
+  optional string conclusion = 6;
+  int32 run_attempt = 7 [json_name = "run_attempt"];
+  string html_url = 8;
+}
+
+// ListRunJobsRequest lists the jobs of one workflow run.
+message ListRunJobsRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  // The run's id.
+  int64 run_id = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional int32 per_page = 4;
+  optional int32 page = 5;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.actions.runs.jobs.list"
+    connector: "github"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/repos/{owner}/{repository}/actions/runs/{run_id}/jobs"
+    scopes: ["actions:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListRunJobs"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    cursor_field: "page"
+    next_cursor_field: "next_page"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "workflow_job" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// RunJobSummary models the subset of each job entry a run's job list
+// carries. started_at and completed_at are provider timestamps; completed_at
+// is null while the job runs. It is filled by JSON unmarshal of the provider
+// response.
+message RunJobSummary {
+  int64 id = 1;
+  string name = 2;
+  string status = 3;
+  optional string conclusion = 4;
+  string started_at = 5 [json_name = "started_at"];
+  optional string completed_at = 6 [json_name = "completed_at"];
+  string html_url = 7;
+  // The runner that executed the job; null until a runner picks it up.
+  optional string runner_name = 8 [json_name = "runner_name"];
+}
+
+// ListRunJobsResponse wraps the job entries of a run's job list response.
+// next_page carries the next page number from the Link header. It is filled
+// by JSON unmarshal of the provider response.
+message ListRunJobsResponse {
+  repeated RunJobSummary jobs = 1;
+  optional int64 next_page = 2;
+}

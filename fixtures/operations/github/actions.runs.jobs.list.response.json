@@ -1,0 +1,16 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 9007199254741005,
+      "name": "synthetic-ci / build",
+      "status": "completed",
+      "conclusion": "success",
+      "started_at": "2026-11-25T12:00:00Z",
+      "completed_at": "2026-11-25T12:05:00Z",
+      "html_url": "https://example.invalid/example-org/example-repo/actions/runs/9007199254741001/job/9007199254741005",
+      "runner_name": "synthetic-runner-1",
+      "node_id": "synthetic-node-id-11"
+    }
+  ]
+}

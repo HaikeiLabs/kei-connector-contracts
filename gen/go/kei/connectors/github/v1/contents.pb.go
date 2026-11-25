@@ -211,11 +211,15 @@ func (x *ContentFile) GetDownloadUrl() string {
 	return ""
 }
 
-// CommitSummary models the commit a put created.
+// CommitSummary models the commit-level subset shared by the Contents put
+// response and the commits list. author is the GitHub account the commit is
+// attributed to; absent when the account is gone or when the response does
+// not carry it (the put response does not).
 type CommitSummary struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Sha           string                 `protobuf:"bytes,1,opt,name=sha,proto3" json:"sha,omitempty"`
 	HtmlUrl       string                 `protobuf:"bytes,2,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	Author        *User                  `protobuf:"bytes,3,opt,name=author,proto3" json:"author,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -262,6 +266,13 @@ func (x *CommitSummary) GetHtmlUrl() string {
 		return x.HtmlUrl
 	}
 	return ""
+}
+
+func (x *CommitSummary) GetAuthor() *User {
+	if x != nil {
+		return x.Author
+	}
+	return nil
 }
 
 // PutContentsResponse models the subset of the Contents API put response the
@@ -318,11 +329,409 @@ func (x *PutContentsResponse) GetCommit() *CommitSummary {
 	return nil
 }
 
+// GetContentsRequest reads one file from a GitHub repository via the
+// Contents API. A directory path belongs to github.repos.contents.list, the
+// sibling operation on the same path.
+type GetContentsRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Owner      string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	// A file path such as docs/notes.md: its slashes are kept.
+	Path string `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty"`
+	// A branch, tag or commit sha to read from; defaults to the default branch.
+	Ref           *string `protobuf:"bytes,4,opt,name=ref,proto3,oneof" json:"ref,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetContentsRequest) Reset() {
+	*x = GetContentsRequest{}
+	mi := &file_kei_connectors_github_v1_contents_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetContentsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetContentsRequest) ProtoMessage() {}
+
+func (x *GetContentsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_contents_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetContentsRequest.ProtoReflect.Descriptor instead.
+func (*GetContentsRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_contents_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetContentsRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *GetContentsRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *GetContentsRequest) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *GetContentsRequest) GetRef() string {
+	if x != nil && x.Ref != nil {
+		return *x.Ref
+	}
+	return ""
+}
+
+// GetContentsResponse models one file entry. content carries the
+// base64-encoded file bytes under encoding base64; the contract never
+// decodes it. It is filled by JSON unmarshal of the provider response.
+type GetContentsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Encoding      string                 `protobuf:"bytes,2,opt,name=encoding,proto3" json:"encoding,omitempty"`
+	Content       string                 `protobuf:"bytes,3,opt,name=content,proto3" json:"content,omitempty"`
+	Sha           string                 `protobuf:"bytes,4,opt,name=sha,proto3" json:"sha,omitempty"`
+	Size          int64                  `protobuf:"varint,5,opt,name=size,proto3" json:"size,omitempty"`
+	Path          string                 `protobuf:"bytes,6,opt,name=path,proto3" json:"path,omitempty"`
+	Name          string                 `protobuf:"bytes,7,opt,name=name,proto3" json:"name,omitempty"`
+	HtmlUrl       string                 `protobuf:"bytes,8,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	DownloadUrl   *string                `protobuf:"bytes,9,opt,name=download_url,json=downloadUrl,proto3,oneof" json:"download_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetContentsResponse) Reset() {
+	*x = GetContentsResponse{}
+	mi := &file_kei_connectors_github_v1_contents_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetContentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetContentsResponse) ProtoMessage() {}
+
+func (x *GetContentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_contents_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetContentsResponse.ProtoReflect.Descriptor instead.
+func (*GetContentsResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_contents_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetContentsResponse) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *GetContentsResponse) GetEncoding() string {
+	if x != nil {
+		return x.Encoding
+	}
+	return ""
+}
+
+func (x *GetContentsResponse) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
+func (x *GetContentsResponse) GetSha() string {
+	if x != nil {
+		return x.Sha
+	}
+	return ""
+}
+
+func (x *GetContentsResponse) GetSize() int64 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
+}
+
+func (x *GetContentsResponse) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *GetContentsResponse) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *GetContentsResponse) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+func (x *GetContentsResponse) GetDownloadUrl() string {
+	if x != nil && x.DownloadUrl != nil {
+		return *x.DownloadUrl
+	}
+	return ""
+}
+
+// ListContentsRequest lists one directory of a GitHub repository via the
+// Contents API. A file path belongs to github.repos.contents.get, the
+// sibling operation on the same path.
+type ListContentsRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Owner      string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	// A directory path such as docs: its slashes are kept.
+	Path string `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty"`
+	// A branch, tag or commit sha to read from; defaults to the default branch.
+	Ref           *string `protobuf:"bytes,4,opt,name=ref,proto3,oneof" json:"ref,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListContentsRequest) Reset() {
+	*x = ListContentsRequest{}
+	mi := &file_kei_connectors_github_v1_contents_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListContentsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListContentsRequest) ProtoMessage() {}
+
+func (x *ListContentsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_contents_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListContentsRequest.ProtoReflect.Descriptor instead.
+func (*ListContentsRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_contents_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *ListContentsRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *ListContentsRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *ListContentsRequest) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *ListContentsRequest) GetRef() string {
+	if x != nil && x.Ref != nil {
+		return *x.Ref
+	}
+	return ""
+}
+
+// ContentsEntry models one entry of a directory listing. type is file, dir,
+// symlink or submodule; a dir entry has no download_url.
+type ContentsEntry struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Type          string                 `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Path          string                 `protobuf:"bytes,3,opt,name=path,proto3" json:"path,omitempty"`
+	Sha           string                 `protobuf:"bytes,4,opt,name=sha,proto3" json:"sha,omitempty"`
+	Size          int64                  `protobuf:"varint,5,opt,name=size,proto3" json:"size,omitempty"`
+	HtmlUrl       string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	DownloadUrl   *string                `protobuf:"bytes,7,opt,name=download_url,json=downloadUrl,proto3,oneof" json:"download_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ContentsEntry) Reset() {
+	*x = ContentsEntry{}
+	mi := &file_kei_connectors_github_v1_contents_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ContentsEntry) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContentsEntry) ProtoMessage() {}
+
+func (x *ContentsEntry) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_contents_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContentsEntry.ProtoReflect.Descriptor instead.
+func (*ContentsEntry) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_contents_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ContentsEntry) GetType() string {
+	if x != nil {
+		return x.Type
+	}
+	return ""
+}
+
+func (x *ContentsEntry) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ContentsEntry) GetPath() string {
+	if x != nil {
+		return x.Path
+	}
+	return ""
+}
+
+func (x *ContentsEntry) GetSha() string {
+	if x != nil {
+		return x.Sha
+	}
+	return ""
+}
+
+func (x *ContentsEntry) GetSize() int64 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
+}
+
+func (x *ContentsEntry) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+func (x *ContentsEntry) GetDownloadUrl() string {
+	if x != nil && x.DownloadUrl != nil {
+		return *x.DownloadUrl
+	}
+	return ""
+}
+
+// ListContentsResponse wraps the entries of a directory listing. The
+// provider returns a bare JSON array and no pagination. It is filled by JSON
+// unmarshal of the provider response.
+type ListContentsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Entries       []*ContentsEntry       `protobuf:"bytes,1,rep,name=entries,proto3" json:"entries,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListContentsResponse) Reset() {
+	*x = ListContentsResponse{}
+	mi := &file_kei_connectors_github_v1_contents_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListContentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListContentsResponse) ProtoMessage() {}
+
+func (x *ListContentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_contents_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListContentsResponse.ProtoReflect.Descriptor instead.
+func (*ListContentsResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_contents_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *ListContentsResponse) GetEntries() []*ContentsEntry {
+	if x != nil {
+		return x.Entries
+	}
+	return nil
+}
+
 var File_kei_connectors_github_v1_contents_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_github_v1_contents_proto_rawDesc = "" +
 	"\n" +
-	"'kei/connectors/github/v1/contents.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xdf\x03\n" +
+	"'kei/connectors/github/v1/contents.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\x1a$kei/connectors/github/v1/pulls.proto\"\xdf\x03\n" +
 	"\x12PutContentsRequest\x12\x1c\n" +
 	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
 	"\n" +
@@ -344,13 +753,57 @@ const file_kei_connectors_github_v1_contents_proto_rawDesc = "" +
 	"\x03sha\x18\x03 \x01(\tR\x03sha\x12\x19\n" +
 	"\bhtml_url\x18\x04 \x01(\tR\ahtmlUrl\x12&\n" +
 	"\fdownload_url\x18\x05 \x01(\tH\x00R\vdownloadUrl\x88\x01\x01B\x0f\n" +
-	"\r_download_url\"<\n" +
+	"\r_download_url\"t\n" +
 	"\rCommitSummary\x12\x10\n" +
 	"\x03sha\x18\x01 \x01(\tR\x03sha\x12\x19\n" +
-	"\bhtml_url\x18\x02 \x01(\tR\ahtmlUrl\"\x97\x01\n" +
+	"\bhtml_url\x18\x02 \x01(\tR\ahtmlUrl\x126\n" +
+	"\x06author\x18\x03 \x01(\v2\x1e.kei.connectors.github.v1.UserR\x06author\"\x97\x01\n" +
 	"\x13PutContentsResponse\x12?\n" +
 	"\acontent\x18\x01 \x01(\v2%.kei.connectors.github.v1.ContentFileR\acontent\x12?\n" +
-	"\x06commit\x18\x02 \x01(\v2'.kei.connectors.github.v1.CommitSummaryR\x06commitBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3"
+	"\x06commit\x18\x02 \x01(\v2'.kei.connectors.github.v1.CommitSummaryR\x06commit\"\xec\x02\n" +
+	"\x12GetContentsRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12\x1c\n" +
+	"\x04path\x18\x03 \x01(\tB\b\xa2\x82\x19\x04\b\x01\x18\x01R\x04path\x12\x15\n" +
+	"\x03ref\x18\x04 \x01(\tH\x00R\x03ref\x88\x01\x01:\xd2\x01\x92\x82\x19\xcd\x01\n" +
+	"\x19github.repos.contents.get\x12\x06github\x18\x01*\x03GET2+/repos/{owner}/{repository}/contents/{path}:\rcontents:read@\x01J\vGetContentsR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\n" +
+	"\b\x01\x12\x04file\x18\x01B\x06\n" +
+	"\x04_ref\"\x81\x02\n" +
+	"\x13GetContentsResponse\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x1a\n" +
+	"\bencoding\x18\x02 \x01(\tR\bencoding\x12\x18\n" +
+	"\acontent\x18\x03 \x01(\tR\acontent\x12\x10\n" +
+	"\x03sha\x18\x04 \x01(\tR\x03sha\x12\x12\n" +
+	"\x04size\x18\x05 \x01(\x03R\x04size\x12\x12\n" +
+	"\x04path\x18\x06 \x01(\tR\x04path\x12\x12\n" +
+	"\x04name\x18\a \x01(\tR\x04name\x12\x19\n" +
+	"\bhtml_url\x18\b \x01(\tR\ahtmlUrl\x12&\n" +
+	"\fdownload_url\x18\t \x01(\tH\x00R\vdownloadUrl\x88\x01\x01B\x0f\n" +
+	"\r_download_url\"\xf4\x02\n" +
+	"\x13ListContentsRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12\x1c\n" +
+	"\x04path\x18\x03 \x01(\tB\b\xa2\x82\x19\x04\b\x01\x18\x01R\x04path\x12\x15\n" +
+	"\x03ref\x18\x04 \x01(\tH\x00R\x03ref\x88\x01\x01:\xd9\x01\x92\x82\x19\xd4\x01\n" +
+	"\x1agithub.repos.contents.list\x12\x06github\x18\x01*\x03GET2+/repos/{owner}/{repository}/contents/{path}:\rcontents:read@\x01J\fListContentsR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x0f\b\x01\x12\tdirectory\x18\x01B\x06\n" +
+	"\x04_ref\"\xc5\x01\n" +
+	"\rContentsEntry\x12\x12\n" +
+	"\x04type\x18\x01 \x01(\tR\x04type\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x12\n" +
+	"\x04path\x18\x03 \x01(\tR\x04path\x12\x10\n" +
+	"\x03sha\x18\x04 \x01(\tR\x03sha\x12\x12\n" +
+	"\x04size\x18\x05 \x01(\x03R\x04size\x12\x19\n" +
+	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrl\x12&\n" +
+	"\fdownload_url\x18\a \x01(\tH\x00R\vdownloadUrl\x88\x01\x01B\x0f\n" +
+	"\r_download_url\"Y\n" +
+	"\x14ListContentsResponse\x12A\n" +
+	"\aentries\x18\x01 \x03(\v2'.kei.connectors.github.v1.ContentsEntryR\aentriesBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3"
 
 var (
 	file_kei_connectors_github_v1_contents_proto_rawDescOnce sync.Once
@@ -364,21 +817,29 @@ func file_kei_connectors_github_v1_contents_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_github_v1_contents_proto_rawDescData
 }
 
-var file_kei_connectors_github_v1_contents_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_kei_connectors_github_v1_contents_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_kei_connectors_github_v1_contents_proto_goTypes = []any{
-	(*PutContentsRequest)(nil),  // 0: kei.connectors.github.v1.PutContentsRequest
-	(*ContentFile)(nil),         // 1: kei.connectors.github.v1.ContentFile
-	(*CommitSummary)(nil),       // 2: kei.connectors.github.v1.CommitSummary
-	(*PutContentsResponse)(nil), // 3: kei.connectors.github.v1.PutContentsResponse
+	(*PutContentsRequest)(nil),   // 0: kei.connectors.github.v1.PutContentsRequest
+	(*ContentFile)(nil),          // 1: kei.connectors.github.v1.ContentFile
+	(*CommitSummary)(nil),        // 2: kei.connectors.github.v1.CommitSummary
+	(*PutContentsResponse)(nil),  // 3: kei.connectors.github.v1.PutContentsResponse
+	(*GetContentsRequest)(nil),   // 4: kei.connectors.github.v1.GetContentsRequest
+	(*GetContentsResponse)(nil),  // 5: kei.connectors.github.v1.GetContentsResponse
+	(*ListContentsRequest)(nil),  // 6: kei.connectors.github.v1.ListContentsRequest
+	(*ContentsEntry)(nil),        // 7: kei.connectors.github.v1.ContentsEntry
+	(*ListContentsResponse)(nil), // 8: kei.connectors.github.v1.ListContentsResponse
+	(*User)(nil),                 // 9: kei.connectors.github.v1.User
 }
 var file_kei_connectors_github_v1_contents_proto_depIdxs = []int32{
-	1, // 0: kei.connectors.github.v1.PutContentsResponse.content:type_name -> kei.connectors.github.v1.ContentFile
-	2, // 1: kei.connectors.github.v1.PutContentsResponse.commit:type_name -> kei.connectors.github.v1.CommitSummary
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	9, // 0: kei.connectors.github.v1.CommitSummary.author:type_name -> kei.connectors.github.v1.User
+	1, // 1: kei.connectors.github.v1.PutContentsResponse.content:type_name -> kei.connectors.github.v1.ContentFile
+	2, // 2: kei.connectors.github.v1.PutContentsResponse.commit:type_name -> kei.connectors.github.v1.CommitSummary
+	7, // 3: kei.connectors.github.v1.ListContentsResponse.entries:type_name -> kei.connectors.github.v1.ContentsEntry
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_github_v1_contents_proto_init() }
@@ -386,15 +847,20 @@ func file_kei_connectors_github_v1_contents_proto_init() {
 	if File_kei_connectors_github_v1_contents_proto != nil {
 		return
 	}
+	file_kei_connectors_github_v1_pulls_proto_init()
 	file_kei_connectors_github_v1_contents_proto_msgTypes[0].OneofWrappers = []any{}
 	file_kei_connectors_github_v1_contents_proto_msgTypes[1].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_contents_proto_msgTypes[4].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_contents_proto_msgTypes[5].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_contents_proto_msgTypes[6].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_contents_proto_msgTypes[7].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_github_v1_contents_proto_rawDesc), len(file_kei_connectors_github_v1_contents_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

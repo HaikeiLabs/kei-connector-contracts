@@ -6,8 +6,30 @@ from typing import Protocol
 
 from kei.connection import HttpConnection, Op, OpClass, Transport, call_http
 
-from kei.connectors.github.v1 import actions_pb2, checks_pb2, contents_pb2, git_pb2, issues_pb2, pulls_pb2, repos_pb2
+from kei.connectors.github.v1 import actions_pb2, checks_pb2, commits_pb2, contents_pb2, git_pb2, issues_pb2, pulls_pb2, repos_pb2
 
+OP_GET_RUN_ATTEMPT = Op(id="github.actions.runs.attempts.get", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="GetRunAttempt", connections=("user_oauth", "pat"), transport=Transport.HTTP)
+_SPEC_GET_RUN_ATTEMPT = {
+    "op": OP_GET_RUN_ATTEMPT,
+    "method": "GET",
+    "path_template": "/repos/{owner}/{repository}/actions/runs/{run_id}/attempts/{attempt_number}",
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "run_id", "in": "path", "multi_segment": False, "wire": "run_id"}, {"field": "attempt_number", "in": "path", "multi_segment": False, "wire": "attempt_number"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
+OP_LIST_RUN_JOBS = Op(id="github.actions.runs.jobs.list", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="ListRunJobs", connections=("user_oauth", "pat"), transport=Transport.HTTP)
+_SPEC_LIST_RUN_JOBS = {
+    "op": OP_LIST_RUN_JOBS,
+    "method": "GET",
+    "path_template": "/repos/{owner}/{repository}/actions/runs/{run_id}/jobs",
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "run_id", "in": "path", "multi_segment": False, "wire": "run_id"}, {"field": "per_page", "in": "query", "multi_segment": False, "wire": "per_page"}, {"field": "page", "in": "query", "multi_segment": False, "wire": "page"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "page",
+    "next_cursor_field": "next_page",
+}
 OP_LIST_WORKFLOW_RUNS = Op(id="github.actions.runs.list", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="ListWorkflowRuns", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_LIST_WORKFLOW_RUNS = {
     "op": OP_LIST_WORKFLOW_RUNS,
@@ -251,6 +273,50 @@ _SPEC_UPDATE_PULL_REQUEST = {
     "next_cursor_field": "",
     "result_required": ["id", "number"],
 }
+OP_GET_COMMIT = Op(id="github.repos.commits.get", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="GetCommit", connections=("user_oauth", "pat"), transport=Transport.HTTP)
+_SPEC_GET_COMMIT = {
+    "op": OP_GET_COMMIT,
+    "method": "GET",
+    "path_template": "/repos/{owner}/{repository}/commits/{ref}",
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "ref", "in": "path", "multi_segment": True, "wire": "ref"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
+OP_LIST_COMMITS = Op(id="github.repos.commits.list", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="ListCommits", connections=("user_oauth", "pat"), transport=Transport.HTTP)
+_SPEC_LIST_COMMITS = {
+    "op": OP_LIST_COMMITS,
+    "method": "GET",
+    "path_template": "/repos/{owner}/{repository}/commits",
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "sha", "in": "query", "multi_segment": False, "wire": "sha"}, {"field": "per_page", "in": "query", "multi_segment": False, "wire": "per_page"}, {"field": "page", "in": "query", "multi_segment": False, "wire": "page"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "page",
+    "next_cursor_field": "next_page",
+}
+OP_GET_CONTENTS = Op(id="github.repos.contents.get", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="GetContents", connections=("user_oauth", "pat"), transport=Transport.HTTP)
+_SPEC_GET_CONTENTS = {
+    "op": OP_GET_CONTENTS,
+    "method": "GET",
+    "path_template": "/repos/{owner}/{repository}/contents/{path}",
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "path", "in": "path", "multi_segment": True, "wire": "path"}, {"field": "ref", "in": "query", "multi_segment": False, "wire": "ref"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
+OP_LIST_CONTENTS = Op(id="github.repos.contents.list", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="ListContents", connections=("user_oauth", "pat"), transport=Transport.HTTP)
+_SPEC_LIST_CONTENTS = {
+    "op": OP_LIST_CONTENTS,
+    "method": "GET",
+    "path_template": "/repos/{owner}/{repository}/contents/{path}",
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "path", "in": "path", "multi_segment": True, "wire": "path"}, {"field": "ref", "in": "query", "multi_segment": False, "wire": "ref"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "",
+    "next_cursor_field": "",
+}
 OP_GET_REPOSITORY = Op(id="github.repos.get", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="GetRepository", connections=("user_oauth", "pat"), transport=Transport.HTTP)
 _SPEC_GET_REPOSITORY = {
     "op": OP_GET_REPOSITORY,
@@ -264,6 +330,10 @@ _SPEC_GET_REPOSITORY = {
 }
 
 class GithubOperations(Protocol):
+    async def get_run_attempt(self, req: actions_pb2.GetRunAttemptRequest) -> actions_pb2.GetRunAttemptResponse:
+        ...
+    async def list_run_jobs(self, req: actions_pb2.ListRunJobsRequest) -> actions_pb2.ListRunJobsResponse:
+        ...
     async def list_workflow_runs(self, req: actions_pb2.ListWorkflowRunsRequest) -> actions_pb2.ListWorkflowRunsResponse:
         ...
     async def list_workflow_runs_by_workflow(self, req: actions_pb2.ListWorkflowRunsByWorkflowRequest) -> actions_pb2.ListWorkflowRunsByWorkflowResponse:
@@ -306,6 +376,14 @@ class GithubOperations(Protocol):
         ...
     async def update_pull_request(self, req: pulls_pb2.UpdatePullRequestRequest) -> pulls_pb2.UpdatePullRequestResponse:
         ...
+    async def get_commit(self, req: commits_pb2.GetCommitRequest) -> commits_pb2.GetCommitResponse:
+        ...
+    async def list_commits(self, req: commits_pb2.ListCommitsRequest) -> commits_pb2.ListCommitsResponse:
+        ...
+    async def get_contents(self, req: contents_pb2.GetContentsRequest) -> contents_pb2.GetContentsResponse:
+        ...
+    async def list_contents(self, req: contents_pb2.ListContentsRequest) -> contents_pb2.ListContentsResponse:
+        ...
     async def get_repository(self, req: repos_pb2.GetRepositoryRequest) -> repos_pb2.GetRepositoryResponse:
         ...
 
@@ -314,6 +392,12 @@ class GithubQueries:
 
     def __init__(self, conn: HttpConnection) -> None:
         self._conn = conn
+
+    async def get_run_attempt(self, req: actions_pb2.GetRunAttemptRequest) -> actions_pb2.GetRunAttemptResponse:
+        return await call_http(self._conn, _SPEC_GET_RUN_ATTEMPT, req, actions_pb2.GetRunAttemptResponse)
+
+    async def list_run_jobs(self, req: actions_pb2.ListRunJobsRequest) -> actions_pb2.ListRunJobsResponse:
+        return await call_http(self._conn, _SPEC_LIST_RUN_JOBS, req, actions_pb2.ListRunJobsResponse)
 
     async def list_workflow_runs(self, req: actions_pb2.ListWorkflowRunsRequest) -> actions_pb2.ListWorkflowRunsResponse:
         return await call_http(self._conn, _SPEC_LIST_WORKFLOW_RUNS, req, actions_pb2.ListWorkflowRunsResponse)
@@ -377,6 +461,18 @@ class GithubQueries:
 
     async def update_pull_request(self, req: pulls_pb2.UpdatePullRequestRequest) -> pulls_pb2.UpdatePullRequestResponse:
         return await call_http(self._conn, _SPEC_UPDATE_PULL_REQUEST, req, pulls_pb2.UpdatePullRequestResponse)
+
+    async def get_commit(self, req: commits_pb2.GetCommitRequest) -> commits_pb2.GetCommitResponse:
+        return await call_http(self._conn, _SPEC_GET_COMMIT, req, commits_pb2.GetCommitResponse)
+
+    async def list_commits(self, req: commits_pb2.ListCommitsRequest) -> commits_pb2.ListCommitsResponse:
+        return await call_http(self._conn, _SPEC_LIST_COMMITS, req, commits_pb2.ListCommitsResponse)
+
+    async def get_contents(self, req: contents_pb2.GetContentsRequest) -> contents_pb2.GetContentsResponse:
+        return await call_http(self._conn, _SPEC_GET_CONTENTS, req, contents_pb2.GetContentsResponse)
+
+    async def list_contents(self, req: contents_pb2.ListContentsRequest) -> contents_pb2.ListContentsResponse:
+        return await call_http(self._conn, _SPEC_LIST_CONTENTS, req, contents_pb2.ListContentsResponse)
 
     async def get_repository(self, req: repos_pb2.GetRepositoryRequest) -> repos_pb2.GetRepositoryResponse:
         return await call_http(self._conn, _SPEC_GET_REPOSITORY, req, repos_pb2.GetRepositoryResponse)

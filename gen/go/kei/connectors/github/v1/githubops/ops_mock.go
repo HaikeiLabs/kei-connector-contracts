@@ -12,6 +12,8 @@ import (
 // Mock implements Operations with one function field per operation, for
 // tests. Calling an operation whose field is nil returns an error.
 type Mock struct {
+	GetRunAttemptFunc              func(ctx context.Context, req *github.GetRunAttemptRequest) (*github.GetRunAttemptResponse, error)
+	ListRunJobsFunc                func(ctx context.Context, req *github.ListRunJobsRequest) (*github.ListRunJobsResponse, error)
 	ListWorkflowRunsFunc           func(ctx context.Context, req *github.ListWorkflowRunsRequest) (*github.ListWorkflowRunsResponse, error)
 	ListWorkflowRunsByWorkflowFunc func(ctx context.Context, req *github.ListWorkflowRunsByWorkflowRequest) (*github.ListWorkflowRunsByWorkflowResponse, error)
 	ListCheckRunsFunc              func(ctx context.Context, req *github.ListCheckRunsRequest) (*github.ListCheckRunsResponse, error)
@@ -33,10 +35,30 @@ type Mock struct {
 	CreateReviewFunc               func(ctx context.Context, req *github.CreatePullReviewRequest) (*github.CreatePullReviewResponse, error)
 	ListReviewsFunc                func(ctx context.Context, req *github.ListPullReviewsRequest) (*github.ListPullReviewsResponse, error)
 	UpdatePullRequestFunc          func(ctx context.Context, req *github.UpdatePullRequestRequest) (*github.UpdatePullRequestResponse, error)
+	GetCommitFunc                  func(ctx context.Context, req *github.GetCommitRequest) (*github.GetCommitResponse, error)
+	ListCommitsFunc                func(ctx context.Context, req *github.ListCommitsRequest) (*github.ListCommitsResponse, error)
+	GetContentsFunc                func(ctx context.Context, req *github.GetContentsRequest) (*github.GetContentsResponse, error)
+	ListContentsFunc               func(ctx context.Context, req *github.ListContentsRequest) (*github.ListContentsResponse, error)
 	GetRepositoryFunc              func(ctx context.Context, req *github.GetRepositoryRequest) (*github.GetRepositoryResponse, error)
 }
 
 var _ Operations = (*Mock)(nil)
+
+// GetRunAttempt calls m.GetRunAttemptFunc.
+func (m *Mock) GetRunAttempt(ctx context.Context, req *github.GetRunAttemptRequest) (*github.GetRunAttemptResponse, error) {
+	if m.GetRunAttemptFunc == nil {
+		return nil, errors.New("githubops.Mock: GetRunAttemptFunc is not set")
+	}
+	return m.GetRunAttemptFunc(ctx, req)
+}
+
+// ListRunJobs calls m.ListRunJobsFunc.
+func (m *Mock) ListRunJobs(ctx context.Context, req *github.ListRunJobsRequest) (*github.ListRunJobsResponse, error) {
+	if m.ListRunJobsFunc == nil {
+		return nil, errors.New("githubops.Mock: ListRunJobsFunc is not set")
+	}
+	return m.ListRunJobsFunc(ctx, req)
+}
 
 // ListWorkflowRuns calls m.ListWorkflowRunsFunc.
 func (m *Mock) ListWorkflowRuns(ctx context.Context, req *github.ListWorkflowRunsRequest) (*github.ListWorkflowRunsResponse, error) {
@@ -204,6 +226,38 @@ func (m *Mock) UpdatePullRequest(ctx context.Context, req *github.UpdatePullRequ
 		return nil, errors.New("githubops.Mock: UpdatePullRequestFunc is not set")
 	}
 	return m.UpdatePullRequestFunc(ctx, req)
+}
+
+// GetCommit calls m.GetCommitFunc.
+func (m *Mock) GetCommit(ctx context.Context, req *github.GetCommitRequest) (*github.GetCommitResponse, error) {
+	if m.GetCommitFunc == nil {
+		return nil, errors.New("githubops.Mock: GetCommitFunc is not set")
+	}
+	return m.GetCommitFunc(ctx, req)
+}
+
+// ListCommits calls m.ListCommitsFunc.
+func (m *Mock) ListCommits(ctx context.Context, req *github.ListCommitsRequest) (*github.ListCommitsResponse, error) {
+	if m.ListCommitsFunc == nil {
+		return nil, errors.New("githubops.Mock: ListCommitsFunc is not set")
+	}
+	return m.ListCommitsFunc(ctx, req)
+}
+
+// GetContents calls m.GetContentsFunc.
+func (m *Mock) GetContents(ctx context.Context, req *github.GetContentsRequest) (*github.GetContentsResponse, error) {
+	if m.GetContentsFunc == nil {
+		return nil, errors.New("githubops.Mock: GetContentsFunc is not set")
+	}
+	return m.GetContentsFunc(ctx, req)
+}
+
+// ListContents calls m.ListContentsFunc.
+func (m *Mock) ListContents(ctx context.Context, req *github.ListContentsRequest) (*github.ListContentsResponse, error) {
+	if m.ListContentsFunc == nil {
+		return nil, errors.New("githubops.Mock: ListContentsFunc is not set")
+	}
+	return m.ListContentsFunc(ctx, req)
 }
 
 // GetRepository calls m.GetRepositoryFunc.

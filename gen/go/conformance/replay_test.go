@@ -239,6 +239,102 @@ func TestGeneratedHTTP_Replay(t *testing.T) {
 			},
 		},
 		{
+			op: "github.repos.contents.get", connector: "github",
+			// path is multi_segment: its "/" is kept, each segment escaped.
+			method: "GET", path: "/repos/example-org/example-repo/contents/docs/notes.md",
+			query: url.Values{"ref": {"main"}},
+			call: func(ctx context.Context, conn connection.HTTP, t *testing.T) (proto.Message, error) {
+				req := &githubv1.GetContentsRequest{}
+				loadRequest(t, "github", "github.repos.contents.get", req)
+				return githubops.New(conn).GetContents(ctx, req)
+			},
+			check: func(t *testing.T, m proto.Message) {
+				if got := m.(*githubv1.GetContentsResponse).GetEncoding(); got != "base64" {
+					t.Fatalf("encoding = %q, want base64", got)
+				}
+			},
+		},
+		{
+			op: "github.repos.contents.list", connector: "github",
+			serve:  unwrapArray("entries"), // GitHub returns a bare JSON array
+			method: "GET", path: "/repos/example-org/example-repo/contents/docs",
+			query: url.Values{"ref": {"main"}},
+			call: func(ctx context.Context, conn connection.HTTP, t *testing.T) (proto.Message, error) {
+				req := &githubv1.ListContentsRequest{}
+				loadRequest(t, "github", "github.repos.contents.list", req)
+				return githubops.New(conn).ListContents(ctx, req)
+			},
+			check: func(t *testing.T, m proto.Message) {
+				if n := len(m.(*githubv1.ListContentsResponse).GetEntries()); n != 2 {
+					t.Fatalf("entries = %d, want 2", n)
+				}
+			},
+		},
+		{
+			op: "github.repos.commits.list", connector: "github",
+			serve:  unwrapArray("commits"), // GitHub returns a bare JSON array
+			method: "GET", path: "/repos/example-org/example-repo/commits",
+			query: url.Values{"sha": {"main"}, "per_page": {"30"}, "page": {"1"}},
+			call: func(ctx context.Context, conn connection.HTTP, t *testing.T) (proto.Message, error) {
+				req := &githubv1.ListCommitsRequest{}
+				loadRequest(t, "github", "github.repos.commits.list", req)
+				return githubops.New(conn).ListCommits(ctx, req)
+			},
+			check: func(t *testing.T, m proto.Message) {
+				commits := m.(*githubv1.ListCommitsResponse).GetCommits()
+				if len(commits) != 1 {
+					t.Fatalf("commits = %d, want 1", len(commits))
+				}
+				if got := commits[0].GetAuthor().GetLogin(); got != "example-user" {
+					t.Fatalf("commits[0].author.login = %q, want example-user", got)
+				}
+			},
+		},
+		{
+			op: "github.repos.commits.get", connector: "github",
+			// ref is multi_segment: a sha or branch name.
+			method: "GET", path: "/repos/example-org/example-repo/commits/synthetic-commit-sha-3",
+			call: func(ctx context.Context, conn connection.HTTP, t *testing.T) (proto.Message, error) {
+				req := &githubv1.GetCommitRequest{}
+				loadRequest(t, "github", "github.repos.commits.get", req)
+				return githubops.New(conn).GetCommit(ctx, req)
+			},
+			check: func(t *testing.T, m proto.Message) {
+				if got := m.(*githubv1.GetCommitResponse).GetCommit().GetMessage(); got != "Synthetic commit message" {
+					t.Fatalf("commit.message = %q, want Synthetic commit message", got)
+				}
+			},
+		},
+		{
+			op: "github.actions.runs.attempts.get", connector: "github",
+			method: "GET", path: "/repos/example-org/example-repo/actions/runs/9007199254741001/attempts/2",
+			call: func(ctx context.Context, conn connection.HTTP, t *testing.T) (proto.Message, error) {
+				req := &githubv1.GetRunAttemptRequest{}
+				loadRequest(t, "github", "github.actions.runs.attempts.get", req)
+				return githubops.New(conn).GetRunAttempt(ctx, req)
+			},
+			check: func(t *testing.T, m proto.Message) {
+				if got := m.(*githubv1.GetRunAttemptResponse).GetRunAttempt(); got != 2 {
+					t.Fatalf("run_attempt = %d, want 2", got)
+				}
+			},
+		},
+		{
+			op: "github.actions.runs.jobs.list", connector: "github",
+			method: "GET", path: "/repos/example-org/example-repo/actions/runs/9007199254741001/jobs",
+			query: url.Values{"per_page": {"30"}, "page": {"1"}},
+			call: func(ctx context.Context, conn connection.HTTP, t *testing.T) (proto.Message, error) {
+				req := &githubv1.ListRunJobsRequest{}
+				loadRequest(t, "github", "github.actions.runs.jobs.list", req)
+				return githubops.New(conn).ListRunJobs(ctx, req)
+			},
+			check: func(t *testing.T, m proto.Message) {
+				if n := len(m.(*githubv1.ListRunJobsResponse).GetJobs()); n != 1 {
+					t.Fatalf("jobs = %d, want 1", n)
+				}
+			},
+		},
+		{
 			op: "http_api.records.list", connector: "http_api",
 			method: "GET", path: "/contacts", query: url.Values{"limit": {"2"}},
 			call: func(ctx context.Context, conn connection.HTTP, t *testing.T) (proto.Message, error) {

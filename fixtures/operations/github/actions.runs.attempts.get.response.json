@@ -1,0 +1,11 @@
+{
+  "id": 9007199254741001,
+  "name": "synthetic-ci",
+  "head_branch": "feature/x",
+  "head_sha": "synthetic-head-sha-1",
+  "status": "completed",
+  "conclusion": "success",
+  "run_attempt": 2,
+  "html_url": "https://example.invalid/example-org/example-repo/actions/runs/9007199254741001/attempts/2",
+  "node_id": "synthetic-node-id-10"
+}

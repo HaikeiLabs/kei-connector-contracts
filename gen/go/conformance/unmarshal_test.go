@@ -175,6 +175,99 @@ var fixtureCases = []fixtureCase{
 		},
 	},
 	{
+		op:        "github.repos.contents.get",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.GetContentsRequest{} },
+		response:  func() proto.Message { return &githubv1.GetContentsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			file := resp.(*githubv1.GetContentsResponse)
+			if got := file.GetEncoding(); got != "base64" {
+				t.Errorf("encoding = %q, want base64", got)
+			}
+			if got := file.GetContent(); got != "c3ludGhldGljLWNvbnRlbnQ=" {
+				t.Errorf("content = %q, want the synthetic base64", got)
+			}
+		},
+	},
+	{
+		op:        "github.repos.contents.list",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.ListContentsRequest{} },
+		response:  func() proto.Message { return &githubv1.ListContentsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			entries := resp.(*githubv1.ListContentsResponse)
+			if got := len(entries.GetEntries()); got != 2 {
+				t.Errorf("len(entries) = %d, want 2", got)
+			}
+			if got := entries.GetEntries()[0].GetType(); got != "file" {
+				t.Errorf("entries[0].type = %q, want file", got)
+			}
+			if got := entries.GetEntries()[1].GetType(); got != "dir" {
+				t.Errorf("entries[1].type = %q, want dir", got)
+			}
+		},
+	},
+	{
+		op:        "github.repos.commits.list",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.ListCommitsRequest{} },
+		response:  func() proto.Message { return &githubv1.ListCommitsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			commits := resp.(*githubv1.ListCommitsResponse)
+			if got := commits.GetCommits()[0].GetSha(); got != "synthetic-commit-sha-3" {
+				t.Errorf("commits[0].sha = %q, want synthetic-commit-sha-3", got)
+			}
+			if got := commits.GetCommits()[0].GetAuthor().GetLogin(); got != "example-user" {
+				t.Errorf("commits[0].author.login = %q, want example-user", got)
+			}
+		},
+	},
+	{
+		op:        "github.repos.commits.get",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.GetCommitRequest{} },
+		response:  func() proto.Message { return &githubv1.GetCommitResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			commit := resp.(*githubv1.GetCommitResponse)
+			if got := commit.GetCommit().GetMessage(); got != "Synthetic commit message" {
+				t.Errorf("commit.message = %q, want Synthetic commit message", got)
+			}
+			if got := commit.GetAuthor().GetLogin(); got != "example-user" {
+				t.Errorf("author.login = %q, want example-user", got)
+			}
+		},
+	},
+	{
+		op:        "github.actions.runs.attempts.get",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.GetRunAttemptRequest{} },
+		response:  func() proto.Message { return &githubv1.GetRunAttemptResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			run := resp.(*githubv1.GetRunAttemptResponse)
+			if got := run.GetRunAttempt(); got != 2 {
+				t.Errorf("run_attempt = %d, want 2", got)
+			}
+			if got := run.GetHeadSha(); got != "synthetic-head-sha-1" {
+				t.Errorf("head_sha = %q, want the synthetic sha", got)
+			}
+		},
+	},
+	{
+		op:        "github.actions.runs.jobs.list",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.ListRunJobsRequest{} },
+		response:  func() proto.Message { return &githubv1.ListRunJobsResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			jobs := resp.(*githubv1.ListRunJobsResponse)
+			if got := jobs.GetJobs()[0].GetId(); got != 9007199254741005 {
+				t.Errorf("jobs[0].id = %d, want 9007199254741005 (int64 must not go through float64)", got)
+			}
+			if got := jobs.GetJobs()[0].GetRunnerName(); got != "synthetic-runner-1" {
+				t.Errorf("jobs[0].runner_name = %q, want synthetic-runner-1", got)
+			}
+		},
+	},
+	{
 		op:        "github.issues.create",
 		connector: "github",
 		request:   func() proto.Message { return &githubv1.CreateIssueRequest{} },

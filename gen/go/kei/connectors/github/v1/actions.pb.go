@@ -442,6 +442,418 @@ func (x *ListWorkflowRunsByWorkflowResponse) GetNextPage() int64 {
 	return 0
 }
 
+// GetRunAttemptRequest reads one attempt of a workflow run.
+type GetRunAttemptRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Owner      string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	// The run's id.
+	RunId int64 `protobuf:"varint,3,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	// The attempt number, starting at 1.
+	AttemptNumber int32 `protobuf:"varint,4,opt,name=attempt_number,json=attemptNumber,proto3" json:"attempt_number,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetRunAttemptRequest) Reset() {
+	*x = GetRunAttemptRequest{}
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetRunAttemptRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRunAttemptRequest) ProtoMessage() {}
+
+func (x *GetRunAttemptRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRunAttemptRequest.ProtoReflect.Descriptor instead.
+func (*GetRunAttemptRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_actions_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetRunAttemptRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *GetRunAttemptRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *GetRunAttemptRequest) GetRunId() int64 {
+	if x != nil {
+		return x.RunId
+	}
+	return 0
+}
+
+func (x *GetRunAttemptRequest) GetAttemptNumber() int32 {
+	if x != nil {
+		return x.AttemptNumber
+	}
+	return 0
+}
+
+// GetRunAttemptResponse models the subset of one run attempt the contract
+// needs. conclusion is null until the attempt finishes. It is filled by JSON
+// unmarshal of the provider response.
+type GetRunAttemptResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	HeadBranch    string                 `protobuf:"bytes,3,opt,name=head_branch,proto3" json:"head_branch,omitempty"`
+	HeadSha       string                 `protobuf:"bytes,4,opt,name=head_sha,proto3" json:"head_sha,omitempty"`
+	Status        string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	Conclusion    *string                `protobuf:"bytes,6,opt,name=conclusion,proto3,oneof" json:"conclusion,omitempty"`
+	RunAttempt    int32                  `protobuf:"varint,7,opt,name=run_attempt,proto3" json:"run_attempt,omitempty"`
+	HtmlUrl       string                 `protobuf:"bytes,8,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetRunAttemptResponse) Reset() {
+	*x = GetRunAttemptResponse{}
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetRunAttemptResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetRunAttemptResponse) ProtoMessage() {}
+
+func (x *GetRunAttemptResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetRunAttemptResponse.ProtoReflect.Descriptor instead.
+func (*GetRunAttemptResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_actions_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *GetRunAttemptResponse) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *GetRunAttemptResponse) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *GetRunAttemptResponse) GetHeadBranch() string {
+	if x != nil {
+		return x.HeadBranch
+	}
+	return ""
+}
+
+func (x *GetRunAttemptResponse) GetHeadSha() string {
+	if x != nil {
+		return x.HeadSha
+	}
+	return ""
+}
+
+func (x *GetRunAttemptResponse) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *GetRunAttemptResponse) GetConclusion() string {
+	if x != nil && x.Conclusion != nil {
+		return *x.Conclusion
+	}
+	return ""
+}
+
+func (x *GetRunAttemptResponse) GetRunAttempt() int32 {
+	if x != nil {
+		return x.RunAttempt
+	}
+	return 0
+}
+
+func (x *GetRunAttemptResponse) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+// ListRunJobsRequest lists the jobs of one workflow run.
+type ListRunJobsRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Owner      string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	// The run's id.
+	RunId         int64  `protobuf:"varint,3,opt,name=run_id,json=runId,proto3" json:"run_id,omitempty"`
+	PerPage       *int32 `protobuf:"varint,4,opt,name=per_page,json=perPage,proto3,oneof" json:"per_page,omitempty"`
+	Page          *int32 `protobuf:"varint,5,opt,name=page,proto3,oneof" json:"page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRunJobsRequest) Reset() {
+	*x = ListRunJobsRequest{}
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRunJobsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRunJobsRequest) ProtoMessage() {}
+
+func (x *ListRunJobsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRunJobsRequest.ProtoReflect.Descriptor instead.
+func (*ListRunJobsRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_actions_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ListRunJobsRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *ListRunJobsRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *ListRunJobsRequest) GetRunId() int64 {
+	if x != nil {
+		return x.RunId
+	}
+	return 0
+}
+
+func (x *ListRunJobsRequest) GetPerPage() int32 {
+	if x != nil && x.PerPage != nil {
+		return *x.PerPage
+	}
+	return 0
+}
+
+func (x *ListRunJobsRequest) GetPage() int32 {
+	if x != nil && x.Page != nil {
+		return *x.Page
+	}
+	return 0
+}
+
+// RunJobSummary models the subset of each job entry a run's job list
+// carries. started_at and completed_at are provider timestamps; completed_at
+// is null while the job runs. It is filled by JSON unmarshal of the provider
+// response.
+type RunJobSummary struct {
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	Id          int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name        string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Status      string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	Conclusion  *string                `protobuf:"bytes,4,opt,name=conclusion,proto3,oneof" json:"conclusion,omitempty"`
+	StartedAt   string                 `protobuf:"bytes,5,opt,name=started_at,proto3" json:"started_at,omitempty"`
+	CompletedAt *string                `protobuf:"bytes,6,opt,name=completed_at,proto3,oneof" json:"completed_at,omitempty"`
+	HtmlUrl     string                 `protobuf:"bytes,7,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	// The runner that executed the job; null until a runner picks it up.
+	RunnerName    *string `protobuf:"bytes,8,opt,name=runner_name,proto3,oneof" json:"runner_name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *RunJobSummary) Reset() {
+	*x = RunJobSummary{}
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RunJobSummary) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RunJobSummary) ProtoMessage() {}
+
+func (x *RunJobSummary) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RunJobSummary.ProtoReflect.Descriptor instead.
+func (*RunJobSummary) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_actions_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *RunJobSummary) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *RunJobSummary) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *RunJobSummary) GetStatus() string {
+	if x != nil {
+		return x.Status
+	}
+	return ""
+}
+
+func (x *RunJobSummary) GetConclusion() string {
+	if x != nil && x.Conclusion != nil {
+		return *x.Conclusion
+	}
+	return ""
+}
+
+func (x *RunJobSummary) GetStartedAt() string {
+	if x != nil {
+		return x.StartedAt
+	}
+	return ""
+}
+
+func (x *RunJobSummary) GetCompletedAt() string {
+	if x != nil && x.CompletedAt != nil {
+		return *x.CompletedAt
+	}
+	return ""
+}
+
+func (x *RunJobSummary) GetHtmlUrl() string {
+	if x != nil {
+		return x.HtmlUrl
+	}
+	return ""
+}
+
+func (x *RunJobSummary) GetRunnerName() string {
+	if x != nil && x.RunnerName != nil {
+		return *x.RunnerName
+	}
+	return ""
+}
+
+// ListRunJobsResponse wraps the job entries of a run's job list response.
+// next_page carries the next page number from the Link header. It is filled
+// by JSON unmarshal of the provider response.
+type ListRunJobsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Jobs          []*RunJobSummary       `protobuf:"bytes,1,rep,name=jobs,proto3" json:"jobs,omitempty"`
+	NextPage      *int64                 `protobuf:"varint,2,opt,name=next_page,json=nextPage,proto3,oneof" json:"next_page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListRunJobsResponse) Reset() {
+	*x = ListRunJobsResponse{}
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListRunJobsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListRunJobsResponse) ProtoMessage() {}
+
+func (x *ListRunJobsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListRunJobsResponse.ProtoReflect.Descriptor instead.
+func (*ListRunJobsResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_actions_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ListRunJobsResponse) GetJobs() []*RunJobSummary {
+	if x != nil {
+		return x.Jobs
+	}
+	return nil
+}
+
+func (x *ListRunJobsResponse) GetNextPage() int64 {
+	if x != nil && x.NextPage != nil {
+		return *x.NextPage
+	}
+	return 0
+}
+
 var File_kei_connectors_github_v1_actions_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_github_v1_actions_proto_rawDesc = "" +
@@ -501,6 +913,60 @@ const file_kei_connectors_github_v1_actions_proto_rawDesc = "" +
 	"\rworkflow_runs\x18\x01 \x03(\v2,.kei.connectors.github.v1.WorkflowRunSummaryR\fworkflowRuns\x12 \n" +
 	"\tnext_page\x18\x02 \x01(\x03H\x00R\bnextPage\x88\x01\x01B\f\n" +
 	"\n" +
+	"_next_page\"\xaf\x03\n" +
+	"\x14GetRunAttemptRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12\x1d\n" +
+	"\x06run_id\x18\x03 \x01(\x03B\x06\xa2\x82\x19\x02\b\x01R\x05runId\x12-\n" +
+	"\x0eattempt_number\x18\x04 \x01(\x05B\x06\xa2\x82\x19\x02\b\x01R\rattemptNumber:\x82\x02\x92\x82\x19\xfd\x01\n" +
+	" github.actions.runs.attempts.get\x12\x06github\x18\x01*\x03GET2K/repos/{owner}/{repository}/actions/runs/{run_id}/attempts/{attempt_number}:\factions:read@\x01J\rGetRunAttemptR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x12\b\x01\x12\fworkflow_run\x18\x01\"\x82\x02\n" +
+	"\x15GetRunAttemptResponse\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
+	"\vhead_branch\x18\x03 \x01(\tR\vhead_branch\x12\x1a\n" +
+	"\bhead_sha\x18\x04 \x01(\tR\bhead_sha\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\x12#\n" +
+	"\n" +
+	"conclusion\x18\x06 \x01(\tH\x00R\n" +
+	"conclusion\x88\x01\x01\x12 \n" +
+	"\vrun_attempt\x18\a \x01(\x05R\vrun_attempt\x12\x19\n" +
+	"\bhtml_url\x18\b \x01(\tR\ahtmlUrlB\r\n" +
+	"\v_conclusion\"\xc6\x03\n" +
+	"\x12ListRunJobsRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12\x1d\n" +
+	"\x06run_id\x18\x03 \x01(\x03B\x06\xa2\x82\x19\x02\b\x01R\x05runId\x12\x1e\n" +
+	"\bper_page\x18\x04 \x01(\x05H\x00R\aperPage\x88\x01\x01\x12\x17\n" +
+	"\x04page\x18\x05 \x01(\x05H\x01R\x04page\x88\x01\x01:\xfb\x01\x92\x82\x19\xf6\x01\n" +
+	"\x1dgithub.actions.runs.jobs.list\x12\x06github\x18\x01*\x03GET26/repos/{owner}/{repository}/actions/runs/{run_id}/jobs:\factions:read@\x01J\vListRunJobsR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x12\b\x01\x12\fworkflow_job\x18\x01\x92\x01\x04page\x9a\x01\tnext_pageB\v\n" +
+	"\t_per_pageB\a\n" +
+	"\x05_page\"\xab\x02\n" +
+	"\rRunJobSummary\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12\x16\n" +
+	"\x06status\x18\x03 \x01(\tR\x06status\x12#\n" +
+	"\n" +
+	"conclusion\x18\x04 \x01(\tH\x00R\n" +
+	"conclusion\x88\x01\x01\x12\x1e\n" +
+	"\n" +
+	"started_at\x18\x05 \x01(\tR\n" +
+	"started_at\x12'\n" +
+	"\fcompleted_at\x18\x06 \x01(\tH\x01R\fcompleted_at\x88\x01\x01\x12\x19\n" +
+	"\bhtml_url\x18\a \x01(\tR\ahtmlUrl\x12%\n" +
+	"\vrunner_name\x18\b \x01(\tH\x02R\vrunner_name\x88\x01\x01B\r\n" +
+	"\v_conclusionB\x0f\n" +
+	"\r_completed_atB\x0e\n" +
+	"\f_runner_name\"\x82\x01\n" +
+	"\x13ListRunJobsResponse\x12;\n" +
+	"\x04jobs\x18\x01 \x03(\v2'.kei.connectors.github.v1.RunJobSummaryR\x04jobs\x12 \n" +
+	"\tnext_page\x18\x02 \x01(\x03H\x00R\bnextPage\x88\x01\x01B\f\n" +
+	"\n" +
 	"_next_pageBVZTgithub.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;githubb\x06proto3"
 
 var (
@@ -515,24 +981,30 @@ func file_kei_connectors_github_v1_actions_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_github_v1_actions_proto_rawDescData
 }
 
-var file_kei_connectors_github_v1_actions_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_kei_connectors_github_v1_actions_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
 var file_kei_connectors_github_v1_actions_proto_goTypes = []any{
 	(*ListWorkflowRunsRequest)(nil),            // 0: kei.connectors.github.v1.ListWorkflowRunsRequest
 	(*WorkflowRunSummary)(nil),                 // 1: kei.connectors.github.v1.WorkflowRunSummary
 	(*ListWorkflowRunsResponse)(nil),           // 2: kei.connectors.github.v1.ListWorkflowRunsResponse
 	(*ListWorkflowRunsByWorkflowRequest)(nil),  // 3: kei.connectors.github.v1.ListWorkflowRunsByWorkflowRequest
 	(*ListWorkflowRunsByWorkflowResponse)(nil), // 4: kei.connectors.github.v1.ListWorkflowRunsByWorkflowResponse
-	(*User)(nil), // 5: kei.connectors.github.v1.User
+	(*GetRunAttemptRequest)(nil),               // 5: kei.connectors.github.v1.GetRunAttemptRequest
+	(*GetRunAttemptResponse)(nil),              // 6: kei.connectors.github.v1.GetRunAttemptResponse
+	(*ListRunJobsRequest)(nil),                 // 7: kei.connectors.github.v1.ListRunJobsRequest
+	(*RunJobSummary)(nil),                      // 8: kei.connectors.github.v1.RunJobSummary
+	(*ListRunJobsResponse)(nil),                // 9: kei.connectors.github.v1.ListRunJobsResponse
+	(*User)(nil),                               // 10: kei.connectors.github.v1.User
 }
 var file_kei_connectors_github_v1_actions_proto_depIdxs = []int32{
-	5, // 0: kei.connectors.github.v1.WorkflowRunSummary.actor:type_name -> kei.connectors.github.v1.User
-	1, // 1: kei.connectors.github.v1.ListWorkflowRunsResponse.workflow_runs:type_name -> kei.connectors.github.v1.WorkflowRunSummary
-	1, // 2: kei.connectors.github.v1.ListWorkflowRunsByWorkflowResponse.workflow_runs:type_name -> kei.connectors.github.v1.WorkflowRunSummary
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	10, // 0: kei.connectors.github.v1.WorkflowRunSummary.actor:type_name -> kei.connectors.github.v1.User
+	1,  // 1: kei.connectors.github.v1.ListWorkflowRunsResponse.workflow_runs:type_name -> kei.connectors.github.v1.WorkflowRunSummary
+	1,  // 2: kei.connectors.github.v1.ListWorkflowRunsByWorkflowResponse.workflow_runs:type_name -> kei.connectors.github.v1.WorkflowRunSummary
+	8,  // 3: kei.connectors.github.v1.ListRunJobsResponse.jobs:type_name -> kei.connectors.github.v1.RunJobSummary
+	4,  // [4:4] is the sub-list for method output_type
+	4,  // [4:4] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_github_v1_actions_proto_init() }
@@ -546,13 +1018,17 @@ func file_kei_connectors_github_v1_actions_proto_init() {
 	file_kei_connectors_github_v1_actions_proto_msgTypes[2].OneofWrappers = []any{}
 	file_kei_connectors_github_v1_actions_proto_msgTypes[3].OneofWrappers = []any{}
 	file_kei_connectors_github_v1_actions_proto_msgTypes[4].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_actions_proto_msgTypes[6].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_actions_proto_msgTypes[7].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_actions_proto_msgTypes[8].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_actions_proto_msgTypes[9].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_github_v1_actions_proto_rawDesc), len(file_kei_connectors_github_v1_actions_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   10,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -21,7 +21,12 @@ if (!token) {
 
 // Resolve the protobuf runtime from gen/ts, where it is installed.
 const { createRegistry, fromJson, toJson } = await req(join(root, 'gen', 'ts', 'node_modules', '@bufbuild', 'protobuf', 'dist', 'esm', 'index.js'));
+const { isInteger, parse: losslessParseRaw } = await req(join(root, 'gen', 'ts', 'node_modules', 'lossless-json', 'lib', 'esm', 'index.js'));
 const { newHTTP } = await req(join(dist, 'connection', 'index.js'));
+
+// Parse with integers above the double-precision range kept as strings, so
+// int64 values survive; fromJson accepts both shapes for 64-bit fields.
+const losslessParse = (raw) => losslessParseRaw(raw, undefined, { parseNumber: (v) => isInteger(v) && (BigInt(v) > BigInt(Number.MAX_SAFE_INTEGER) || BigInt(v) < BigInt(Number.MIN_SAFE_INTEGER)) ? v : Number(v) });
 
 const connectors = new Map();
 async function connector(id) {
@@ -41,7 +46,7 @@ async function connector(id) {
 
 const lcfirst = (s) => s.charAt(0).toLowerCase() + s.slice(1);
 
-for (const c of JSON.parse(readFileSync(casesPath, 'utf8'))) {
+for (const c of losslessParse(readFileSync(casesPath, 'utf8'))) {
   let line;
   try {
     const { registry, Queries } = await connector(c.connector);

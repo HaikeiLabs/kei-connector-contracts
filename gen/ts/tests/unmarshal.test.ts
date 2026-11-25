@@ -12,6 +12,7 @@ import * as ghIssues from "../src/kei/connectors/github/v1/issues_pb.js";
 import * as ghContents from "../src/kei/connectors/github/v1/contents_pb.js";
 import * as ghPulls from "../src/kei/connectors/github/v1/pulls_pb.js";
 import * as ghActions from "../src/kei/connectors/github/v1/actions_pb.js";
+import * as ghCommits from "../src/kei/connectors/github/v1/commits_pb.js";
 import * as ghGit from "../src/kei/connectors/github/v1/git_pb.js";
 import * as ghRepos from "../src/kei/connectors/github/v1/repos_pb.js";
 import * as ghChecks from "../src/kei/connectors/github/v1/checks_pb.js";
@@ -80,6 +81,12 @@ const ops = [
   ["github.pulls.list", ghPulls.ListPullsRequestSchema, ghPulls.ListPullsResponseSchema, (r: any) => { expect(r.pulls[0].head.ref).toBe("feature/x"); expect(r.pulls[0].base.ref).toBe("main"); expect(r.pulls[0].author.login).toBe("example-user"); expect(r.pulls[0].labels[0].name).toBe("synthetic-label"); expect(r.pulls[0].id).toBe(9007199254740999n); expect(r.nextPage).toBe(2n); }],
   ["github.actions.runs.list", ghActions.ListWorkflowRunsRequestSchema, ghActions.ListWorkflowRunsResponseSchema, (r: any) => { expect(r.workflowRuns[0].headBranch).toBe("feature/x"); expect(r.workflowRuns[0].id).toBe(9007199254741001n); expect(r.workflowRuns[0].actor.login).toBe("example-user"); expect(r.workflowRuns[0].headSha).toBe("synthetic-head-sha-1"); }],
   ["github.actions.workflows.runs.list", ghActions.ListWorkflowRunsByWorkflowRequestSchema, ghActions.ListWorkflowRunsByWorkflowResponseSchema, (r: any) => { expect(r.workflowRuns).toHaveLength(1); expect(r.workflowRuns[0].actor.login).toBe("example-user"); expect(r.workflowRuns[0].headSha).toBe("synthetic-head-sha-1"); }],
+  ["github.repos.contents.get", ghContents.GetContentsRequestSchema, ghContents.GetContentsResponseSchema, (r: any) => { expect(r.encoding).toBe("base64"); expect(r.content).toBe("c3ludGhldGljLWNvbnRlbnQ="); }],
+  ["github.repos.contents.list", ghContents.ListContentsRequestSchema, ghContents.ListContentsResponseSchema, (r: any) => { expect(r.entries).toHaveLength(2); expect(r.entries[0].type).toBe("file"); expect(r.entries[1].type).toBe("dir"); }],
+  ["github.repos.commits.list", ghCommits.ListCommitsRequestSchema, ghCommits.ListCommitsResponseSchema, (r: any) => { expect(r.commits[0].sha).toBe("synthetic-commit-sha-3"); expect(r.commits[0].author.login).toBe("example-user"); expect(r.nextPage).toBe(2n); }],
+  ["github.repos.commits.get", ghCommits.GetCommitRequestSchema, ghCommits.GetCommitResponseSchema, (r: any) => { expect(r.commit.message).toBe("Synthetic commit message"); expect(r.author.login).toBe("example-user"); }],
+  ["github.actions.runs.attempts.get", ghActions.GetRunAttemptRequestSchema, ghActions.GetRunAttemptResponseSchema, (r: any) => { expect(r.runAttempt).toBe(2); expect(r.headSha).toBe("synthetic-head-sha-1"); }],
+  ["github.actions.runs.jobs.list", ghActions.ListRunJobsRequestSchema, ghActions.ListRunJobsResponseSchema, (r: any) => { expect(r.jobs[0].id).toBe(9007199254741005n); expect(r.jobs[0].runnerName).toBe("synthetic-runner-1"); }],
   ["github.issues.create", ghIssues.CreateIssueRequestSchema, ghIssues.CreateIssueResponseSchema, (r: any) => { expect(r.number).toBe(42n); expect(r.author.login).toBe("example-user"); expect(r.labels[0].name).toBe("synthetic-label"); }],
   ["github.issues.comments.create", ghIssues.CreateIssueCommentRequestSchema, ghIssues.CreateIssueCommentResponseSchema, (r: any) => { expect(r.body).toBe("Synthetic comment"); expect(r.author.login).toBe("example-user"); }],
   ["github.repos.get", ghRepos.GetRepositoryRequestSchema, ghRepos.GetRepositoryResponseSchema, (r: any) => { expect(r.id).toBe(9007199254741011n); expect(r.fullName).toBe("example-org/example-repo"); expect(r.owner.login).toBe("example-user"); }],
