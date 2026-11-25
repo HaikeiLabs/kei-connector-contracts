@@ -124,6 +124,7 @@ message CreateDraftRequest {
     scopes: ["https://www.googleapis.com/auth/gmail.compose"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateDraft"
+    result_required: ["id"]
     connections: ["user_oauth", "domain_delegation"]
     resource_template: "users/{user_id}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "draft" version: 1}

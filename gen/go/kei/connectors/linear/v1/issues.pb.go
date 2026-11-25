@@ -725,12 +725,12 @@ const file_kei_connectors_linear_v1_issues_proto_rawDesc = "" +
 	"}\n" +
 	"\x8a\x01\v\b\x01\x12\x05issue\x18\x01\"I\n" +
 	"\x10GetIssueResponse\x125\n" +
-	"\x05issue\x18\x01 \x01(\v2\x1f.kei.connectors.linear.v1.IssueR\x05issue\"\xf3\x04\n" +
+	"\x05issue\x18\x01 \x01(\v2\x1f.kei.connectors.linear.v1.IssueR\x05issue\"\x9b\x05\n" +
 	"\x12CreateIssueRequest\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12\x17\n" +
 	"\ateam_id\x18\x02 \x01(\tR\x06teamId\x12%\n" +
 	"\vdescription\x18\x03 \x01(\tH\x00R\vdescription\x88\x01\x01\x12\x1f\n" +
-	"\bpriority\x18\x04 \x01(\x05H\x01R\bpriority\x88\x01\x01:\xc8\x03\x92\x82\x19\xc3\x03\n" +
+	"\bpriority\x18\x04 \x01(\x05H\x01R\bpriority\x88\x01\x01:\xf0\x03\x92\x82\x19\xeb\x03\n" +
 	"\x14linear.issues.create\x12\x06linear\x18\x02*\x04POST2\b/graphql:\fissues:write@\x01J\vCreateIssueR\n" +
 	"user_oauthR\aapi_keyZ\x0fteams/{team_id}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01z\xa1\x02mutation CreateIssue($title: String!, $teamId: String!, $description: String, $priority: Int) {\n" +
 	"  issueCreate(input: {title: $title, teamId: $teamId, description: $description, priority: $priority}) {\n" +
@@ -738,7 +738,7 @@ const file_kei_connectors_linear_v1_issues_proto_rawDesc = "" +
 	"    issue { id identifier title description url createdAt updatedAt }\n" +
 	"  }\n" +
 	"}\n" +
-	"\x8a\x01\v\b\x02\x12\x05issue\x18\x01B\x0e\n" +
+	"\x8a\x01\v\b\x02\x12\x05issue\x18\x01\xa2\x01\asuccess\xa2\x01\bissue.id\xa2\x01\x10issue.identifierB\x0e\n" +
 	"\f_descriptionB\v\n" +
 	"\t_priority\"f\n" +
 	"\x13CreateIssueResponse\x12\x18\n" +
@@ -765,11 +765,11 @@ const file_kei_connectors_linear_v1_issues_proto_rawDesc = "" +
 	"\v_end_cursor\"\x8e\x01\n" +
 	"\x14SearchIssuesResponse\x125\n" +
 	"\x05nodes\x18\x01 \x03(\v2\x1f.kei.connectors.linear.v1.IssueR\x05nodes\x12?\n" +
-	"\tpage_info\x18\x02 \x01(\v2\".kei.connectors.linear.v1.PageInfoR\bpageInfo\"\x95\x04\n" +
+	"\tpage_info\x18\x02 \x01(\v2\".kei.connectors.linear.v1.PageInfoR\bpageInfo\"\xbd\x04\n" +
 	"\x12UpdateIssueRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x19\n" +
 	"\x05title\x18\x02 \x01(\tH\x00R\x05title\x88\x01\x01\x12%\n" +
-	"\vdescription\x18\x03 \x01(\tH\x01R\vdescription\x88\x01\x01:\x92\x03\x92\x82\x19\x8d\x03\n" +
+	"\vdescription\x18\x03 \x01(\tH\x01R\vdescription\x88\x01\x01:\xba\x03\x92\x82\x19\xb5\x03\n" +
 	"\x14linear.issues.update\x12\x06linear\x18\x02*\x04POST2\b/graphql:\fissues:write@\x01J\vUpdateIssueR\n" +
 	"user_oauthR\aapi_keyZ\vissues/{id}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01z\xef\x01mutation UpdateIssue($id: String!, $title: String, $description: String) {\n" +
 	"  issueUpdate(id: $id, input: {title: $title, description: $description}) {\n" +
@@ -777,7 +777,7 @@ const file_kei_connectors_linear_v1_issues_proto_rawDesc = "" +
 	"    issue { id identifier title description url createdAt updatedAt }\n" +
 	"  }\n" +
 	"}\n" +
-	"\x8a\x01\v\b\x03\x12\x05issue\x18\x01B\b\n" +
+	"\x8a\x01\v\b\x03\x12\x05issue\x18\x01\xa2\x01\asuccess\xa2\x01\bissue.id\xa2\x01\x10issue.identifierB\b\n" +
 	"\x06_titleB\x0e\n" +
 	"\f_description\"f\n" +
 	"\x13UpdateIssueResponse\x12\x18\n" +

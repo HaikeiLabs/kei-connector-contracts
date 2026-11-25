@@ -82,6 +82,7 @@ message CreatePageRequest {
     scopes: ["pages:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreatePage"
+    result_required: ["id", "url"]
     connections: ["user_oauth", "integration_token"]
     resource_template: "pages"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "page" version: 1}
@@ -125,6 +126,7 @@ message UpdatePageRequest {
     scopes: ["pages:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "UpdatePage"
+    result_required: ["id", "url"]
     connections: ["user_oauth", "integration_token"]
     resource_template: "pages/{page_id}"
     semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "page" version: 1}

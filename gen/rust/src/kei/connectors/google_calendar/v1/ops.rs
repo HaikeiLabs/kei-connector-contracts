@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Path, PathKind, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::google_calendar::v1::{CreateEventRequest, CreateEventResponse, GetEventRequest, GetEventResponse, ListCalendarsRequest, ListCalendarsResponse, ListEventsRequest, ListEventsResponse, UpdateEventRequest, UpdateEventResponse};
 
@@ -114,6 +114,11 @@ const ERRORS_CREATE_EVENT: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_CREATE_EVENT: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Str },
+    Path { proto: "status", json: "status", kind: PathKind::Str },
+];
+
 const ERRORS_GET_EVENT: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -193,6 +198,11 @@ const ERRORS_UPDATE_EVENT: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_UPDATE_EVENT: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Str },
+    Path { proto: "status", json: "status", kind: PathKind::Str },
+];
+
 // The generated queries run inside one caller's task, so the
 // async-fn-in-trait auto-trait bounds do not matter here.
 #[allow(async_fn_in_trait)]
@@ -233,7 +243,7 @@ impl GoogleCalendarOperations for GoogleCalendarQueries {
         if let Some(err) = map_error(&OP_LIST_CALENDARS, out.status, &ERRORS_LIST_CALENDARS) {
             return Err(err);
         }
-        let mut resp: ListCalendarsResponse = decode_response(OP_LIST_CALENDARS.id, &out.body, Some("items"))?;
+        let mut resp: ListCalendarsResponse = decode_response(OP_LIST_CALENDARS.id, out.status, &out.body, &[], Some("items"))?;
         if resp.next_page_token.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "page_token") {
                 resp.next_page_token = Some(cursor);
@@ -266,7 +276,7 @@ impl GoogleCalendarOperations for GoogleCalendarQueries {
         if let Some(err) = map_error(&OP_CREATE_EVENT, out.status, &ERRORS_CREATE_EVENT) {
             return Err(err);
         }
-        let resp: CreateEventResponse = decode_response(OP_CREATE_EVENT.id, &out.body, None)?;
+        let resp: CreateEventResponse = decode_response(OP_CREATE_EVENT.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_EVENT, None)?;
         Ok(resp)
     }
     /// get_event runs google_calendar.events.get (GET /calendar/v3/calendars/{calendar_id}/events/{event_id}).
@@ -288,7 +298,7 @@ impl GoogleCalendarOperations for GoogleCalendarQueries {
         if let Some(err) = map_error(&OP_GET_EVENT, out.status, &ERRORS_GET_EVENT) {
             return Err(err);
         }
-        let resp: GetEventResponse = decode_response(OP_GET_EVENT.id, &out.body, None)?;
+        let resp: GetEventResponse = decode_response(OP_GET_EVENT.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// list_events runs google_calendar.events.list (GET /calendar/v3/calendars/{calendar_id}/events).
@@ -315,7 +325,7 @@ impl GoogleCalendarOperations for GoogleCalendarQueries {
         if let Some(err) = map_error(&OP_LIST_EVENTS, out.status, &ERRORS_LIST_EVENTS) {
             return Err(err);
         }
-        let mut resp: ListEventsResponse = decode_response(OP_LIST_EVENTS.id, &out.body, Some("items"))?;
+        let mut resp: ListEventsResponse = decode_response(OP_LIST_EVENTS.id, out.status, &out.body, &[], Some("items"))?;
         if resp.next_page_token.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "page_token") {
                 resp.next_page_token = Some(cursor);
@@ -349,7 +359,7 @@ impl GoogleCalendarOperations for GoogleCalendarQueries {
         if let Some(err) = map_error(&OP_UPDATE_EVENT, out.status, &ERRORS_UPDATE_EVENT) {
             return Err(err);
         }
-        let resp: UpdateEventResponse = decode_response(OP_UPDATE_EVENT.id, &out.body, None)?;
+        let resp: UpdateEventResponse = decode_response(OP_UPDATE_EVENT.id, out.status, &out.body, &RESULT_REQUIRED_UPDATE_EVENT, None)?;
         Ok(resp)
     }
 }

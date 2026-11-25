@@ -31,6 +31,7 @@ _SPEC_CREATE_THING = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "name"],
 }
 OP_GET_THING = Op(id="testconn.things.get", op_class=OpClass.READ, destructive=False, resource_template="spaces/{space}", method_name="GetThing", connections=("user_oauth", "api_key"), transport=Transport.HTTP)
 _SPEC_GET_THING = {

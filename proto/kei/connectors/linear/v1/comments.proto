@@ -49,6 +49,7 @@ message CreateCommentRequest {
     scopes: ["comments:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateComment"
+    result_required: ["success", "comment.id"]
     connections: ["user_oauth", "api_key"]
     resource_template: "issues/{issue_id}"
     graphql_document:

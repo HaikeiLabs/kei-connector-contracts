@@ -18,6 +18,7 @@ _SPEC_CREATE_CONFLUENCE_PAGE = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "space_id"],
 }
 OP_GET_CONFLUENCE_PAGE = Op(id="atlassian.confluence.pages.get", op_class=OpClass.READ, destructive=False, resource_template="confluence/pages/{page_id}", method_name="GetConfluencePage", connections=("user_oauth", "api_token"), transport=Transport.HTTP)
 _SPEC_GET_CONFLUENCE_PAGE = {
@@ -51,6 +52,7 @@ _SPEC_CREATE_JIRA_COMMENT = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "body"],
 }
 OP_CREATE_JIRA_ISSUE = Op(id="atlassian.jira.issues.create", op_class=OpClass.WRITE, destructive=False, resource_template="jira/issues", method_name="CreateJiraIssue", connections=("user_oauth", "api_token"), transport=Transport.HTTP)
 _SPEC_CREATE_JIRA_ISSUE = {
@@ -62,6 +64,7 @@ _SPEC_CREATE_JIRA_ISSUE = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "key"],
 }
 OP_GET_JIRA_ISSUE = Op(id="atlassian.jira.issues.get", op_class=OpClass.READ, destructive=False, resource_template="jira/issues/{issue_key}", method_name="GetJiraIssue", connections=("user_oauth", "api_token"), transport=Transport.HTTP)
 _SPEC_GET_JIRA_ISSUE = {

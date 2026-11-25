@@ -67,7 +67,7 @@ export interface Op {
   transport: 'http' | 'graphql' | 'sql' | 'mcp';
 }
 export interface Param { field: string; in: 'path' | 'query' | 'body'; wire: string; multiSegment: boolean }
-export interface HTTPSpec { op: Op; method: string; pathTemplate: string; params: Param[]; errors: ErrorMapping[]; graphqlDocument: string; cursorField: string; nextCursorField: string }
+export interface HTTPSpec { op: Op; method: string; pathTemplate: string; params: Param[]; errors: ErrorMapping[]; graphqlDocument: string; cursorField: string; nextCursorField: string; resultRequired?: readonly string[] }
 export interface HTTPResponse { status: number; headers: Headers; body: string }
 export interface HTTP { do(method: string, path: string, query: URLSearchParams, body?: string): Promise<HTTPResponse> }
 export interface SQL { query(sql: string, args: JsonValue[], maxRows: bigint): Promise<{ columns: { name: string; type: string }[]; rows: unknown[][]; truncated: boolean }> }
@@ -173,8 +173,37 @@ export async function callHTTP<Req extends DescMessage, Resp extends DescMessage
       const link = res.headers.get('link')?.match(/<([^>]+)>\s*;\s*rel="?next"?/i)?.[1];
       if (link && data[next.jsonName] === undefined) { const value = new URL(link).searchParams.get(cursor); if (value) data[next.jsonName] = next.scalar === 9 ? value : Number(value); }
     }
-    return fromJson(response, data, { ignoreUnknownFields: true });
+    const resp = fromJson(response, data, { ignoreUnknownFields: true });
+    for (const path of spec.resultRequired ?? []) {
+      if (!holdsResult(response, resp, path.split('.'))) throw new ConnectionError(spec.op.id, res.status, 'contract_violation');
+    }
+    return resp;
   } catch (e) { if (e instanceof ConnectionError) throw e; throw new Error(`connection: ${spec.op.id}: response does not match the contract`); }
+}
+
+/** holdsResult reports whether the decoded response holds one result_required
+ * path: every segment names a field, an intermediate message is set, and the
+ * final field proves the write — a bool true, a string non-empty, a plain
+ * number non-zero, a message set. Repeated and map fields prove nothing. */
+function holdsResult(schema: DescMessage, msg: unknown, segs: string[]): boolean {
+  for (let i = 0; i < segs.length; i++) {
+    const f = schema.fields.find(f => f.name === segs[i]);
+    if (!f) return false;
+    const v = (msg as any)[f.localName];
+    if (i === segs.length - 1) {
+      if (f.fieldKind === 'message') return v !== undefined;
+      if (f.fieldKind !== 'scalar') return false;
+      if (f.scalar === 8) return v === true;
+      if (f.scalar === 9) return typeof v === 'string' && v !== '';
+      if (typeof v === 'number') return v !== 0;
+      if (typeof v === 'bigint') return v !== 0n;
+      return false;
+    }
+    if (f.fieldKind !== 'message' || v === undefined) return false;
+    schema = f.message;
+    msg = v;
+  }
+  return false;
 }
 export async function callSQL<Resp extends DescMessage>(conn: SQL, op: Op, req: { sql: string; params: any[]; maxRows?: bigint }, response: Resp): Promise<MessageShape<Resp>> {
   const { ValueSchema } = await import('@bufbuild/protobuf/wkt');

@@ -13,6 +13,10 @@ NOT_FOUND = "not_found"
 CONFLICT = "conflict"
 RATE_LIMITED = "rate_limited"
 UNAVAILABLE = "unavailable"
+# Raised only by the runtime's response check: a 2xx response missed a
+# result_required path, so the contract cannot confirm the write happened.
+# Never mapped from a provider status.
+CONTRACT_VIOLATION = "contract_violation"
 
 
 class OperationError(Exception):

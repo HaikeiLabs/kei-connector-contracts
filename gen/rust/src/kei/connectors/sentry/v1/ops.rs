@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Path, PathKind, Transport, decode_response, map_error, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::sentry::v1::{GetIssueRequest, GetIssueResponse, ListIssuesRequest, ListIssuesResponse, UpdateIssueRequest, UpdateIssueResponse};
 
@@ -123,6 +123,11 @@ const ERRORS_UPDATE_ISSUE: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_UPDATE_ISSUE: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Str },
+    Path { proto: "short_id", json: "shortId", kind: PathKind::Str },
+];
+
 // The generated queries run inside one caller's task, so the
 // async-fn-in-trait auto-trait bounds do not matter here.
 #[allow(async_fn_in_trait)]
@@ -159,7 +164,7 @@ impl SentryOperations for SentryQueries {
         if let Some(err) = map_error(&OP_GET_ISSUE, out.status, &ERRORS_GET_ISSUE) {
             return Err(err);
         }
-        let resp: GetIssueResponse = decode_response(OP_GET_ISSUE.id, &out.body, None)?;
+        let resp: GetIssueResponse = decode_response(OP_GET_ISSUE.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// list_issues runs sentry.issues.list (GET /api/0/organizations/{organization_slug}/issues/).
@@ -183,7 +188,7 @@ impl SentryOperations for SentryQueries {
         if let Some(err) = map_error(&OP_LIST_ISSUES, out.status, &ERRORS_LIST_ISSUES) {
             return Err(err);
         }
-        let resp: ListIssuesResponse = decode_response(OP_LIST_ISSUES.id, &out.body, Some("issues"))?;
+        let resp: ListIssuesResponse = decode_response(OP_LIST_ISSUES.id, out.status, &out.body, &[], Some("issues"))?;
         Ok(resp)
     }
     /// update_issue runs sentry.issues.update (PUT /api/0/organizations/{organization_slug}/issues/{issue_id}/).
@@ -211,7 +216,7 @@ impl SentryOperations for SentryQueries {
         if let Some(err) = map_error(&OP_UPDATE_ISSUE, out.status, &ERRORS_UPDATE_ISSUE) {
             return Err(err);
         }
-        let resp: UpdateIssueResponse = decode_response(OP_UPDATE_ISSUE.id, &out.body, None)?;
+        let resp: UpdateIssueResponse = decode_response(OP_UPDATE_ISSUE.id, out.status, &out.body, &RESULT_REQUIRED_UPDATE_ISSUE, None)?;
         Ok(resp)
     }
 }

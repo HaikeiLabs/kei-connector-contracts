@@ -18,6 +18,9 @@ _SPEC_{{.Snake}} = {
     "graphql_document": {{.GraphQL}},
     "cursor_field": {{.CursorField}},
     "next_cursor_field": {{.NextCursorField}},
+{{- if .ResultRequired}}
+    "result_required": {{.ResultRequired}},
+{{- end}}
 }
 {{end}}
 class {{.Name}}Operations(Protocol):

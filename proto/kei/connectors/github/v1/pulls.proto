@@ -160,6 +160,7 @@ message CreatePullRequestRequest {
     scopes: ["pulls:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreatePullRequest"
+    result_required: ["id", "number"]
     connections: ["user_oauth", "pat"]
     resource_template: "repos/{owner}/{repository}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "pull_request" version: 1}
@@ -211,6 +212,7 @@ message UpdatePullRequestRequest {
     scopes: ["pulls:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "UpdatePullRequest"
+    result_required: ["id", "number"]
     connections: ["user_oauth", "pat"]
     resource_template: "repos/{owner}/{repository}"
     semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "pull_request" version: 1}
@@ -314,6 +316,7 @@ message CreatePullReviewRequest {
     scopes: ["pulls:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateReview"
+    result_required: ["id", "state"]
     connections: ["user_oauth", "pat"]
     resource_template: "repos/{owner}/{repository}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "pull_request_review" version: 1}

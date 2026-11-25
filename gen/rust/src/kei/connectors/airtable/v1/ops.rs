@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Path, PathKind, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::airtable::v1::{CreateRecordRequest, CreateRecordResponse, GetRecordRequest, GetRecordResponse, ListRecordsRequest, ListRecordsResponse, UpdateRecordRequest, UpdateRecordResponse};
 
@@ -89,6 +89,11 @@ const ERRORS_CREATE_RECORD: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_CREATE_RECORD: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Str },
+    Path { proto: "created_time", json: "createdTime", kind: PathKind::Str },
+];
+
 const ERRORS_GET_RECORD: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -163,6 +168,11 @@ const ERRORS_UPDATE_RECORD: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_UPDATE_RECORD: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Str },
+    Path { proto: "created_time", json: "createdTime", kind: PathKind::Str },
+];
+
 // The generated queries run inside one caller's task, so the
 // async-fn-in-trait auto-trait bounds do not matter here.
 #[allow(async_fn_in_trait)]
@@ -204,7 +214,7 @@ impl AirtableOperations for AirtableQueries {
         if let Some(err) = map_error(&OP_CREATE_RECORD, out.status, &ERRORS_CREATE_RECORD) {
             return Err(err);
         }
-        let resp: CreateRecordResponse = decode_response(OP_CREATE_RECORD.id, &out.body, None)?;
+        let resp: CreateRecordResponse = decode_response(OP_CREATE_RECORD.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_RECORD, None)?;
         Ok(resp)
     }
     /// get_record runs airtable.records.get (GET /v0/{base_id}/{table_id_or_name}/{record_id}).
@@ -227,7 +237,7 @@ impl AirtableOperations for AirtableQueries {
         if let Some(err) = map_error(&OP_GET_RECORD, out.status, &ERRORS_GET_RECORD) {
             return Err(err);
         }
-        let resp: GetRecordResponse = decode_response(OP_GET_RECORD.id, &out.body, None)?;
+        let resp: GetRecordResponse = decode_response(OP_GET_RECORD.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// list_records runs airtable.records.list (GET /v0/{base_id}/{table_id_or_name}).
@@ -252,7 +262,7 @@ impl AirtableOperations for AirtableQueries {
         if let Some(err) = map_error(&OP_LIST_RECORDS, out.status, &ERRORS_LIST_RECORDS) {
             return Err(err);
         }
-        let mut resp: ListRecordsResponse = decode_response(OP_LIST_RECORDS.id, &out.body, Some("records"))?;
+        let mut resp: ListRecordsResponse = decode_response(OP_LIST_RECORDS.id, out.status, &out.body, &[], Some("records"))?;
         if resp.offset.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "offset") {
                 resp.offset = Some(cursor);
@@ -283,7 +293,7 @@ impl AirtableOperations for AirtableQueries {
         if let Some(err) = map_error(&OP_UPDATE_RECORD, out.status, &ERRORS_UPDATE_RECORD) {
             return Err(err);
         }
-        let resp: UpdateRecordResponse = decode_response(OP_UPDATE_RECORD.id, &out.body, None)?;
+        let resp: UpdateRecordResponse = decode_response(OP_UPDATE_RECORD.id, out.status, &out.body, &RESULT_REQUIRED_UPDATE_RECORD, None)?;
         Ok(resp)
     }
 }

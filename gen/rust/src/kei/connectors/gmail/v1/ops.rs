@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Path, PathKind, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::gmail::v1::{CreateDraftRequest, CreateDraftResponse, GetMessageRequest, GetMessageResponse, ListMessagesRequest, ListMessagesResponse};
 
@@ -70,6 +70,10 @@ const ERRORS_CREATE_DRAFT: &[ErrorMapping] = &[
         kind: ErrorKind::RateLimited as i32,
         retryable: true,
     },
+];
+
+const RESULT_REQUIRED_CREATE_DRAFT: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Str },
 ];
 
 const ERRORS_GET_MESSAGE: &[ErrorMapping] = &[
@@ -156,7 +160,7 @@ impl GmailOperations for GmailQueries {
         if let Some(err) = map_error(&OP_CREATE_DRAFT, out.status, &ERRORS_CREATE_DRAFT) {
             return Err(err);
         }
-        let resp: CreateDraftResponse = decode_response(OP_CREATE_DRAFT.id, &out.body, None)?;
+        let resp: CreateDraftResponse = decode_response(OP_CREATE_DRAFT.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_DRAFT, None)?;
         Ok(resp)
     }
     /// get_message runs gmail.messages.get (GET /gmail/v1/users/{user_id}/messages/{message_id}).
@@ -178,7 +182,7 @@ impl GmailOperations for GmailQueries {
         if let Some(err) = map_error(&OP_GET_MESSAGE, out.status, &ERRORS_GET_MESSAGE) {
             return Err(err);
         }
-        let resp: GetMessageResponse = decode_response(OP_GET_MESSAGE.id, &out.body, None)?;
+        let resp: GetMessageResponse = decode_response(OP_GET_MESSAGE.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// list_messages runs gmail.messages.list (GET /gmail/v1/users/{user_id}/messages).
@@ -203,7 +207,7 @@ impl GmailOperations for GmailQueries {
         if let Some(err) = map_error(&OP_LIST_MESSAGES, out.status, &ERRORS_LIST_MESSAGES) {
             return Err(err);
         }
-        let mut resp: ListMessagesResponse = decode_response(OP_LIST_MESSAGES.id, &out.body, Some("messages"))?;
+        let mut resp: ListMessagesResponse = decode_response(OP_LIST_MESSAGES.id, out.status, &out.body, &[], Some("messages"))?;
         if resp.next_page_token.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "page_token") {
                 resp.next_page_token = Some(cursor);

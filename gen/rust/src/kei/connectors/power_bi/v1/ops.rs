@@ -120,7 +120,7 @@ impl PowerBiOperations for PowerBiQueries {
         if let Some(err) = map_error(&OP_EXECUTE_QUERIES, out.status, &ERRORS_EXECUTE_QUERIES) {
             return Err(err);
         }
-        let resp: ExecuteQueriesResponse = decode_response(OP_EXECUTE_QUERIES.id, &out.body, Some("results"))?;
+        let resp: ExecuteQueriesResponse = decode_response(OP_EXECUTE_QUERIES.id, out.status, &out.body, &[], Some("results"))?;
         Ok(resp)
     }
     /// list_datasets runs power_bi.datasets.list (GET /v1.0/myorg/groups/{group_id}/datasets).
@@ -141,7 +141,7 @@ impl PowerBiOperations for PowerBiQueries {
         if let Some(err) = map_error(&OP_LIST_DATASETS, out.status, &ERRORS_LIST_DATASETS) {
             return Err(err);
         }
-        let resp: ListDatasetsResponse = decode_response(OP_LIST_DATASETS.id, &out.body, Some("value"))?;
+        let resp: ListDatasetsResponse = decode_response(OP_LIST_DATASETS.id, out.status, &out.body, &[], Some("value"))?;
         Ok(resp)
     }
 }

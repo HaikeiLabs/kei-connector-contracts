@@ -29,6 +29,7 @@ _SPEC_APPEND_VALUES = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["updates.updated_range"],
 }
 OP_GET_VALUES = Op(id="google_sheets.values.get", op_class=OpClass.READ, destructive=False, resource_template="spreadsheets/{spreadsheet_id}", method_name="GetValues", connections=("user_oauth", "domain_delegation"), transport=Transport.HTTP)
 _SPEC_GET_VALUES = {
@@ -51,6 +52,7 @@ _SPEC_UPDATE_VALUES = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["updated_range"],
 }
 
 class GoogleSheetsOperations(Protocol):
