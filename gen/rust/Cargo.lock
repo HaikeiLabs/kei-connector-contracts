@@ -346,7 +346,7 @@ dependencies = [
 
 [[package]]
 name = "haikeilabs-connector-contracts"
-version = "0.21.0"
+version = "0.21.1"
 dependencies = [
  "base64 0.22.1",
  "pbjson",
