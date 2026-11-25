@@ -292,6 +292,11 @@ const (
 	ErrorKind_ERROR_KIND_CONFLICT     ErrorKind = 5
 	ErrorKind_ERROR_KIND_INVALID      ErrorKind = 6
 	ErrorKind_ERROR_KIND_UNAVAILABLE  ErrorKind = 7
+	// The provider answered 2xx but the response is missing a field the
+	// operation's result_required contract demands, so no write happened as
+	// far as the contract can tell. Never mapped from a provider status: it
+	// is only raised by the runtime's own response check.
+	ErrorKind_ERROR_KIND_CONTRACT_VIOLATION ErrorKind = 8
 )
 
 // Enum value maps for ErrorKind.
@@ -305,16 +310,18 @@ var (
 		5: "ERROR_KIND_CONFLICT",
 		6: "ERROR_KIND_INVALID",
 		7: "ERROR_KIND_UNAVAILABLE",
+		8: "ERROR_KIND_CONTRACT_VIOLATION",
 	}
 	ErrorKind_value = map[string]int32{
-		"ERROR_KIND_UNSPECIFIED":  0,
-		"ERROR_KIND_NOT_FOUND":    1,
-		"ERROR_KIND_UNAUTHORIZED": 2,
-		"ERROR_KIND_FORBIDDEN":    3,
-		"ERROR_KIND_RATE_LIMITED": 4,
-		"ERROR_KIND_CONFLICT":     5,
-		"ERROR_KIND_INVALID":      6,
-		"ERROR_KIND_UNAVAILABLE":  7,
+		"ERROR_KIND_UNSPECIFIED":        0,
+		"ERROR_KIND_NOT_FOUND":          1,
+		"ERROR_KIND_UNAUTHORIZED":       2,
+		"ERROR_KIND_FORBIDDEN":          3,
+		"ERROR_KIND_RATE_LIMITED":       4,
+		"ERROR_KIND_CONFLICT":           5,
+		"ERROR_KIND_INVALID":            6,
+		"ERROR_KIND_UNAVAILABLE":        7,
+		"ERROR_KIND_CONTRACT_VIOLATION": 8,
 	}
 )
 
@@ -958,8 +965,16 @@ type Operation struct {
 	CursorField string `protobuf:"bytes,18,opt,name=cursor_field,json=cursorField,proto3" json:"cursor_field,omitempty"`
 	// Response field that returns the next cursor, empty on the last page.
 	NextCursorField string `protobuf:"bytes,19,opt,name=next_cursor_field,json=nextCursorField,proto3" json:"next_cursor_field,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Dot paths into the response that must hold a value for the write to
+	// count as done: a bool path must be true, a string path non-empty and a
+	// message path present. Only write operations set it, and only to fields
+	// that are bool, string or message (no lists, maps, enums or bytes). The
+	// runtime raises ERROR_KIND_CONTRACT_VIOLATION on any 2xx response that
+	// misses one. Paths use proto field names; they are matched against the
+	// provider's JSON by field name as the decoder accepts it.
+	ResultRequired []string `protobuf:"bytes,20,rep,name=result_required,json=resultRequired,proto3" json:"result_required,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *Operation) Reset() {
@@ -1125,6 +1140,13 @@ func (x *Operation) GetNextCursorField() string {
 	return ""
 }
 
+func (x *Operation) GetResultRequired() []string {
+	if x != nil {
+		return x.ResultRequired
+	}
+	return nil
+}
+
 var file_kei_contracts_v1_options_proto_extTypes = []protoimpl.ExtensionInfo{
 	{
 		ExtendedType:  (*descriptorpb.MessageOptions)(nil),
@@ -1211,7 +1233,7 @@ const file_kei_contracts_v1_options_proto_rawDesc = "" +
 	"\tSemantics\x128\n" +
 	"\x06action\x18\x01 \x01(\x0e2 .kei.contracts.v1.SemanticActionR\x06action\x12#\n" +
 	"\rresource_type\x18\x02 \x01(\tR\fresourceType\x12\x18\n" +
-	"\aversion\x18\x03 \x01(\rR\aversion\"\x96\x06\n" +
+	"\aversion\x18\x03 \x01(\rR\aversion\"\xbf\x06\n" +
 	"\tOperation\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x1c\n" +
 	"\tconnector\x18\x02 \x01(\tR\tconnector\x126\n" +
@@ -1237,7 +1259,8 @@ const file_kei_contracts_v1_options_proto_rawDesc = "" +
 	"\x11positional_helper\x18\x10 \x01(\bR\x10positionalHelper\x129\n" +
 	"\tsemantics\x18\x11 \x01(\v2\x1b.kei.contracts.v1.SemanticsR\tsemantics\x12!\n" +
 	"\fcursor_field\x18\x12 \x01(\tR\vcursorField\x12*\n" +
-	"\x11next_cursor_field\x18\x13 \x01(\tR\x0fnextCursorField*f\n" +
+	"\x11next_cursor_field\x18\x13 \x01(\tR\x0fnextCursorField\x12'\n" +
+	"\x0fresult_required\x18\x14 \x03(\tR\x0eresultRequired*f\n" +
 	"\x0eOperationClass\x12\x1f\n" +
 	"\x1bOPERATION_CLASS_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14OPERATION_CLASS_READ\x10\x01\x12\x19\n" +
@@ -1260,7 +1283,7 @@ const file_kei_contracts_v1_options_proto_rawDesc = "" +
 	"\fAccountModel\x12\x1d\n" +
 	"\x19ACCOUNT_MODEL_UNSPECIFIED\x10\x00\x12\x1a\n" +
 	"\x16ACCOUNT_MODEL_PER_USER\x10\x01\x12\x18\n" +
-	"\x14ACCOUNT_MODEL_SHARED\x10\x02*\xe2\x01\n" +
+	"\x14ACCOUNT_MODEL_SHARED\x10\x02*\x85\x02\n" +
 	"\tErrorKind\x12\x1a\n" +
 	"\x16ERROR_KIND_UNSPECIFIED\x10\x00\x12\x18\n" +
 	"\x14ERROR_KIND_NOT_FOUND\x10\x01\x12\x1b\n" +
@@ -1269,7 +1292,8 @@ const file_kei_contracts_v1_options_proto_rawDesc = "" +
 	"\x17ERROR_KIND_RATE_LIMITED\x10\x04\x12\x17\n" +
 	"\x13ERROR_KIND_CONFLICT\x10\x05\x12\x16\n" +
 	"\x12ERROR_KIND_INVALID\x10\x06\x12\x1a\n" +
-	"\x16ERROR_KIND_UNAVAILABLE\x10\a*r\n" +
+	"\x16ERROR_KIND_UNAVAILABLE\x10\a\x12!\n" +
+	"\x1dERROR_KIND_CONTRACT_VIOLATION\x10\b*r\n" +
 	"\aParamIn\x12\x18\n" +
 	"\x14PARAM_IN_UNSPECIFIED\x10\x00\x12\x11\n" +
 	"\rPARAM_IN_PATH\x10\x01\x12\x12\n" +

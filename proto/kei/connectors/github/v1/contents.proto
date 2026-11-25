@@ -43,6 +43,7 @@ message PutContentsRequest {
     scopes: ["contents:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "PutContents"
+    result_required: ["content.sha"]
     connections: ["user_oauth", "pat"]
     resource_template: "repos/{owner}/{repository}"
     semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "file" version: 1}

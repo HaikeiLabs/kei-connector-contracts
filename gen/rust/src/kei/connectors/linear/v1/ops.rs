@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_graphql_response, map_error, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Path, PathKind, Transport, decode_graphql_response, map_error, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::linear::v1::{CreateCommentRequest, CreateCommentResponse, CreateIssueRequest, CreateIssueResponse, GetIssueRequest, GetIssueResponse, GetTeamRequest, GetTeamResponse, ListCyclesRequest, ListCyclesResponse, ListProjectsRequest, ListProjectsResponse, SearchIssuesRequest, SearchIssuesResponse, UpdateIssueRequest, UpdateIssueResponse};
 
@@ -134,6 +134,11 @@ const ERRORS_CREATE_COMMENT: &[ErrorMapping] = &[
 
 const RESPONSE_FIELDS_CREATE_COMMENT: &[(&str, &str)] = &[("success", "success"), ("comment", "comment")];
 
+const RESULT_REQUIRED_CREATE_COMMENT: &[Path] = &[
+    Path { proto: "success", json: "success", kind: PathKind::Bool },
+    Path { proto: "comment.id", json: "comment.id", kind: PathKind::Str },
+];
+
 const ERRORS_LIST_CYCLES: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -183,6 +188,12 @@ const ERRORS_CREATE_ISSUE: &[ErrorMapping] = &[
 ];
 
 const RESPONSE_FIELDS_CREATE_ISSUE: &[(&str, &str)] = &[("success", "success"), ("issue", "issue")];
+
+const RESULT_REQUIRED_CREATE_ISSUE: &[Path] = &[
+    Path { proto: "success", json: "success", kind: PathKind::Bool },
+    Path { proto: "issue.id", json: "issue.id", kind: PathKind::Str },
+    Path { proto: "issue.identifier", json: "issue.identifier", kind: PathKind::Str },
+];
 
 const ERRORS_GET_ISSUE: &[ErrorMapping] = &[
     ErrorMapping {
@@ -258,6 +269,12 @@ const ERRORS_UPDATE_ISSUE: &[ErrorMapping] = &[
 ];
 
 const RESPONSE_FIELDS_UPDATE_ISSUE: &[(&str, &str)] = &[("success", "success"), ("issue", "issue")];
+
+const RESULT_REQUIRED_UPDATE_ISSUE: &[Path] = &[
+    Path { proto: "success", json: "success", kind: PathKind::Bool },
+    Path { proto: "issue.id", json: "issue.id", kind: PathKind::Str },
+    Path { proto: "issue.identifier", json: "issue.identifier", kind: PathKind::Str },
+];
 
 const ERRORS_LIST_PROJECTS: &[ErrorMapping] = &[
     ErrorMapping {
@@ -357,7 +374,7 @@ impl LinearOperations for LinearQueries {
         if let Some(err) = map_error(&OP_CREATE_COMMENT, out.status, &ERRORS_CREATE_COMMENT) {
             return Err(err);
         }
-        let resp: CreateCommentResponse = decode_graphql_response(OP_CREATE_COMMENT.id, out.status, &out.body, &RESPONSE_FIELDS_CREATE_COMMENT, None)?;
+        let resp: CreateCommentResponse = decode_graphql_response(OP_CREATE_COMMENT.id, out.status, &out.body, &RESPONSE_FIELDS_CREATE_COMMENT, &RESULT_REQUIRED_CREATE_COMMENT, None)?;
         Ok(resp)
     }
     /// list_cycles runs linear.cycles.list (GraphQL POST /graphql).
@@ -382,7 +399,7 @@ impl LinearOperations for LinearQueries {
         if let Some(err) = map_error(&OP_LIST_CYCLES, out.status, &ERRORS_LIST_CYCLES) {
             return Err(err);
         }
-        let resp: ListCyclesResponse = decode_graphql_response(OP_LIST_CYCLES.id, out.status, &out.body, &RESPONSE_FIELDS_LIST_CYCLES, Some("nodes"))?;
+        let resp: ListCyclesResponse = decode_graphql_response(OP_LIST_CYCLES.id, out.status, &out.body, &RESPONSE_FIELDS_LIST_CYCLES, &[], Some("nodes"))?;
         Ok(resp)
     }
     /// create_issue runs linear.issues.create (GraphQL POST /graphql).
@@ -408,7 +425,7 @@ impl LinearOperations for LinearQueries {
         if let Some(err) = map_error(&OP_CREATE_ISSUE, out.status, &ERRORS_CREATE_ISSUE) {
             return Err(err);
         }
-        let resp: CreateIssueResponse = decode_graphql_response(OP_CREATE_ISSUE.id, out.status, &out.body, &RESPONSE_FIELDS_CREATE_ISSUE, None)?;
+        let resp: CreateIssueResponse = decode_graphql_response(OP_CREATE_ISSUE.id, out.status, &out.body, &RESPONSE_FIELDS_CREATE_ISSUE, &RESULT_REQUIRED_CREATE_ISSUE, None)?;
         Ok(resp)
     }
     /// get_issue runs linear.issues.get (GraphQL POST /graphql).
@@ -431,7 +448,7 @@ impl LinearOperations for LinearQueries {
         if let Some(err) = map_error(&OP_GET_ISSUE, out.status, &ERRORS_GET_ISSUE) {
             return Err(err);
         }
-        let resp: GetIssueResponse = decode_graphql_response(OP_GET_ISSUE.id, out.status, &out.body, &RESPONSE_FIELDS_GET_ISSUE, None)?;
+        let resp: GetIssueResponse = decode_graphql_response(OP_GET_ISSUE.id, out.status, &out.body, &RESPONSE_FIELDS_GET_ISSUE, &[], None)?;
         Ok(resp)
     }
     /// search_issues runs linear.issues.search (GraphQL POST /graphql).
@@ -456,7 +473,7 @@ impl LinearOperations for LinearQueries {
         if let Some(err) = map_error(&OP_SEARCH_ISSUES, out.status, &ERRORS_SEARCH_ISSUES) {
             return Err(err);
         }
-        let resp: SearchIssuesResponse = decode_graphql_response(OP_SEARCH_ISSUES.id, out.status, &out.body, &RESPONSE_FIELDS_SEARCH_ISSUES, Some("nodes"))?;
+        let resp: SearchIssuesResponse = decode_graphql_response(OP_SEARCH_ISSUES.id, out.status, &out.body, &RESPONSE_FIELDS_SEARCH_ISSUES, &[], Some("nodes"))?;
         Ok(resp)
     }
     /// update_issue runs linear.issues.update (GraphQL POST /graphql).
@@ -481,7 +498,7 @@ impl LinearOperations for LinearQueries {
         if let Some(err) = map_error(&OP_UPDATE_ISSUE, out.status, &ERRORS_UPDATE_ISSUE) {
             return Err(err);
         }
-        let resp: UpdateIssueResponse = decode_graphql_response(OP_UPDATE_ISSUE.id, out.status, &out.body, &RESPONSE_FIELDS_UPDATE_ISSUE, None)?;
+        let resp: UpdateIssueResponse = decode_graphql_response(OP_UPDATE_ISSUE.id, out.status, &out.body, &RESPONSE_FIELDS_UPDATE_ISSUE, &RESULT_REQUIRED_UPDATE_ISSUE, None)?;
         Ok(resp)
     }
     /// list_projects runs linear.projects.list (GraphQL POST /graphql).
@@ -505,7 +522,7 @@ impl LinearOperations for LinearQueries {
         if let Some(err) = map_error(&OP_LIST_PROJECTS, out.status, &ERRORS_LIST_PROJECTS) {
             return Err(err);
         }
-        let resp: ListProjectsResponse = decode_graphql_response(OP_LIST_PROJECTS.id, out.status, &out.body, &RESPONSE_FIELDS_LIST_PROJECTS, Some("nodes"))?;
+        let resp: ListProjectsResponse = decode_graphql_response(OP_LIST_PROJECTS.id, out.status, &out.body, &RESPONSE_FIELDS_LIST_PROJECTS, &[], Some("nodes"))?;
         Ok(resp)
     }
     /// get_team runs linear.teams.get (GraphQL POST /graphql).
@@ -528,7 +545,7 @@ impl LinearOperations for LinearQueries {
         if let Some(err) = map_error(&OP_GET_TEAM, out.status, &ERRORS_GET_TEAM) {
             return Err(err);
         }
-        let resp: GetTeamResponse = decode_graphql_response(OP_GET_TEAM.id, out.status, &out.body, &RESPONSE_FIELDS_GET_TEAM, None)?;
+        let resp: GetTeamResponse = decode_graphql_response(OP_GET_TEAM.id, out.status, &out.body, &RESPONSE_FIELDS_GET_TEAM, &[], None)?;
         Ok(resp)
     }
 }

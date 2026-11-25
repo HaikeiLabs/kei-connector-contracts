@@ -18,6 +18,7 @@ _SPEC_CREATE_COMMENT = {
     "graphql_document": "mutation CommentCreate($issueId: String!, $body: String!) {\n  commentCreate(input: {issueId: $issueId, body: $body}) {\n    success\n    comment { id body }\n  }\n}\n",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["success", "comment.id"],
 }
 OP_LIST_CYCLES = Op(id="linear.cycles.list", op_class=OpClass.READ, destructive=False, resource_template="teams/{team_id}", method_name="ListCycles", connections=("user_oauth", "api_key"), transport=Transport.GRAPHQL)
 _SPEC_LIST_CYCLES = {
@@ -40,6 +41,7 @@ _SPEC_CREATE_ISSUE = {
     "graphql_document": "mutation CreateIssue($title: String!, $teamId: String!, $description: String, $priority: Int) {\n  issueCreate(input: {title: $title, teamId: $teamId, description: $description, priority: $priority}) {\n    success\n    issue { id identifier title description url createdAt updatedAt }\n  }\n}\n",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["success", "issue.id", "issue.identifier"],
 }
 OP_GET_ISSUE = Op(id="linear.issues.get", op_class=OpClass.READ, destructive=False, resource_template="issues/{id}", method_name="GetIssue", connections=("user_oauth", "api_key"), transport=Transport.GRAPHQL)
 _SPEC_GET_ISSUE = {
@@ -73,6 +75,7 @@ _SPEC_UPDATE_ISSUE = {
     "graphql_document": "mutation UpdateIssue($id: String!, $title: String, $description: String) {\n  issueUpdate(id: $id, input: {title: $title, description: $description}) {\n    success\n    issue { id identifier title description url createdAt updatedAt }\n  }\n}\n",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["success", "issue.id", "issue.identifier"],
 }
 OP_LIST_PROJECTS = Op(id="linear.projects.list", op_class=OpClass.READ, destructive=False, resource_template="projects", method_name="ListProjects", connections=("user_oauth", "api_key"), transport=Transport.GRAPHQL)
 _SPEC_LIST_PROJECTS = {

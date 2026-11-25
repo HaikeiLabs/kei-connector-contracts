@@ -322,7 +322,7 @@ var File_kei_connectors_github_v1_contents_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_github_v1_contents_proto_rawDesc = "" +
 	"\n" +
-	"'kei/connectors/github/v1/contents.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xd1\x03\n" +
+	"'kei/connectors/github/v1/contents.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\xdf\x03\n" +
 	"\x12PutContentsRequest\x12\x1c\n" +
 	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
 	"\n" +
@@ -332,10 +332,10 @@ const file_kei_connectors_github_v1_contents_proto_rawDesc = "" +
 	"\amessage\x18\x04 \x01(\tR\amessage\x12\x18\n" +
 	"\acontent\x18\x05 \x01(\tR\acontent\x12\x1b\n" +
 	"\x06branch\x18\x06 \x01(\tH\x00R\x06branch\x88\x01\x01\x12\x15\n" +
-	"\x03sha\x18\a \x01(\tH\x01R\x03sha\x88\x01\x01:\xdb\x01\x92\x82\x19\xd6\x01\n" +
+	"\x03sha\x18\a \x01(\tH\x01R\x03sha\x88\x01\x01:\xe9\x01\x92\x82\x19\xe4\x01\n" +
 	"\x13github.contents.put\x12\x06github\x18\x02*\x03PUT2+/repos/{owner}/{repository}/contents/{path}:\x0econtents:write@\x01J\vPutContentsR\n" +
 	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01b\x05\b\x99\x03\x10\x05b\x05\b\xa6\x03\x10\x06\x8a\x01\n" +
-	"\b\x03\x12\x04file\x18\x01B\t\n" +
+	"\b\x03\x12\x04file\x18\x01\xa2\x01\vcontent.shaB\t\n" +
 	"\a_branchB\x06\n" +
 	"\x04_sha\"\x9b\x01\n" +
 	"\vContentFile\x12\x12\n" +

@@ -134,6 +134,7 @@ message CreateIssueRequest {
     scopes: ["issues:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateIssue"
+    result_required: ["id", "number"]
     connections: ["user_oauth", "pat"]
     resource_template: "repos/{owner}/{repository}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "issue" version: 1}
@@ -177,6 +178,7 @@ message CreateIssueCommentRequest {
     scopes: ["issues:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "CreateIssueComment"
+    result_required: ["id"]
     connections: ["user_oauth", "pat"]
     resource_template: "repos/{owner}/{repository}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "issue_comment" version: 1}
@@ -219,6 +221,7 @@ message UpdateIssueRequest {
     scopes: ["issues:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "UpdateIssue"
+    result_required: ["id", "number"]
     connections: ["user_oauth", "pat"]
     resource_template: "repos/{owner}/{repository}"
     semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "issue" version: 1}

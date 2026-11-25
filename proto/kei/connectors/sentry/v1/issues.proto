@@ -131,6 +131,7 @@ message UpdateIssueRequest {
     scopes: ["issue:write"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "UpdateIssue"
+    result_required: ["id", "short_id"]
     connections: ["auth_token"]
     resource_template: "organizations/{organization_slug}"
     semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "issue" version: 1}

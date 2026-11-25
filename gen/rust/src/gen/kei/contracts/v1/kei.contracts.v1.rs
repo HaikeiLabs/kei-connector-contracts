@@ -165,6 +165,15 @@ pub struct Operation {
     /// Response field that returns the next cursor, empty on the last page.
     #[prost(string, tag="19")]
     pub next_cursor_field: ::prost::alloc::string::String,
+    /// Dot paths into the response that must hold a value for the write to
+    /// count as done: a bool path must be true, a string path non-empty and a
+    /// message path present. Only write operations set it, and only to fields
+    /// that are bool, string or message (no lists, maps, enums or bytes). The
+    /// runtime raises ERROR_KIND_CONTRACT_VIOLATION on any 2xx response that
+    /// misses one. Paths use proto field names; they are matched against the
+    /// provider's JSON by field name as the decoder accepts it.
+    #[prost(string, repeated, tag="20")]
+    pub result_required: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// OperationClass classifies what an operation does to the connector's
 /// backing resource. Reads are safe to retry and never change state; writes
@@ -334,6 +343,11 @@ pub enum ErrorKind {
     Conflict = 5,
     Invalid = 6,
     Unavailable = 7,
+    /// The provider answered 2xx but the response is missing a field the
+    /// operation's result_required contract demands, so no write happened as
+    /// far as the contract can tell. Never mapped from a provider status: it
+    /// is only raised by the runtime's own response check.
+    ContractViolation = 8,
 }
 impl ErrorKind {
     /// String value of the enum field names used in the ProtoBuf definition.
@@ -350,6 +364,7 @@ impl ErrorKind {
             Self::Conflict => "ERROR_KIND_CONFLICT",
             Self::Invalid => "ERROR_KIND_INVALID",
             Self::Unavailable => "ERROR_KIND_UNAVAILABLE",
+            Self::ContractViolation => "ERROR_KIND_CONTRACT_VIOLATION",
         }
     }
     /// Creates an enum from field names used in the ProtoBuf definition.
@@ -363,6 +378,7 @@ impl ErrorKind {
             "ERROR_KIND_CONFLICT" => Some(Self::Conflict),
             "ERROR_KIND_INVALID" => Some(Self::Invalid),
             "ERROR_KIND_UNAVAILABLE" => Some(Self::Unavailable),
+            "ERROR_KIND_CONTRACT_VIOLATION" => Some(Self::ContractViolation),
             _ => None,
         }
     }

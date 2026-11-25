@@ -120,6 +120,7 @@ message UpdateValuesRequest {
     scopes: ["https://www.googleapis.com/auth/spreadsheets"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "UpdateValues"
+    result_required: ["updated_range"]
     connections: ["user_oauth", "domain_delegation"]
     resource_template: "spreadsheets/{spreadsheet_id}"
     semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "spreadsheet" version: 1}
@@ -167,6 +168,7 @@ message AppendValuesRequest {
     scopes: ["https://www.googleapis.com/auth/spreadsheets"]
     credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
     method_name: "AppendValues"
+    result_required: ["updates.updated_range"]
     connections: ["user_oauth", "domain_delegation"]
     resource_template: "spreadsheets/{spreadsheet_id}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "spreadsheet" version: 1}

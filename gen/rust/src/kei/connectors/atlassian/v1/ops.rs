@@ -9,7 +9,7 @@
 // The file is a byproduct of protoc-gen-kei-ops: edit the templates, not
 // this file.
 
-use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
+use crate::connection::{Class, HttpConnection, Op, OperationError, Path, PathKind, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
 use crate::kei::connectors::atlassian::v1::{CreateConfluencePageRequest, CreateConfluencePageResponse, CreateJiraCommentRequest, CreateJiraCommentResponse, CreateJiraIssueRequest, CreateJiraIssueResponse, GetConfluencePageRequest, GetConfluencePageResponse, GetJiraIssueRequest, GetJiraIssueResponse, ListConfluencePagesRequest, ListConfluencePagesResponse, SearchJiraIssuesRequest, SearchJiraIssuesResponse};
 
@@ -120,6 +120,11 @@ const ERRORS_CREATE_CONFLUENCE_PAGE: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_CREATE_CONFLUENCE_PAGE: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Num },
+    Path { proto: "space_id", json: "spaceId", kind: PathKind::Str },
+];
+
 const ERRORS_GET_CONFLUENCE_PAGE: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
@@ -194,6 +199,11 @@ const ERRORS_CREATE_JIRA_COMMENT: &[ErrorMapping] = &[
     },
 ];
 
+const RESULT_REQUIRED_CREATE_JIRA_COMMENT: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Str },
+    Path { proto: "body", json: "body", kind: PathKind::Msg },
+];
+
 const ERRORS_CREATE_JIRA_ISSUE: &[ErrorMapping] = &[
     ErrorMapping {
         status: 400,
@@ -215,6 +225,11 @@ const ERRORS_CREATE_JIRA_ISSUE: &[ErrorMapping] = &[
         kind: ErrorKind::RateLimited as i32,
         retryable: true,
     },
+];
+
+const RESULT_REQUIRED_CREATE_JIRA_ISSUE: &[Path] = &[
+    Path { proto: "id", json: "id", kind: PathKind::Str },
+    Path { proto: "key", json: "key", kind: PathKind::Str },
 ];
 
 const ERRORS_GET_JIRA_ISSUE: &[ErrorMapping] = &[
@@ -310,7 +325,7 @@ impl AtlassianOperations for AtlassianQueries {
         if let Some(err) = map_error(&OP_CREATE_CONFLUENCE_PAGE, out.status, &ERRORS_CREATE_CONFLUENCE_PAGE) {
             return Err(err);
         }
-        let resp: CreateConfluencePageResponse = decode_response(OP_CREATE_CONFLUENCE_PAGE.id, &out.body, None)?;
+        let resp: CreateConfluencePageResponse = decode_response(OP_CREATE_CONFLUENCE_PAGE.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_CONFLUENCE_PAGE, None)?;
         Ok(resp)
     }
     /// get_confluence_page runs atlassian.confluence.pages.get (GET /wiki/api/v2/pages/{page_id}).
@@ -332,7 +347,7 @@ impl AtlassianOperations for AtlassianQueries {
         if let Some(err) = map_error(&OP_GET_CONFLUENCE_PAGE, out.status, &ERRORS_GET_CONFLUENCE_PAGE) {
             return Err(err);
         }
-        let resp: GetConfluencePageResponse = decode_response(OP_GET_CONFLUENCE_PAGE.id, &out.body, None)?;
+        let resp: GetConfluencePageResponse = decode_response(OP_GET_CONFLUENCE_PAGE.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// list_confluence_pages runs atlassian.confluence.pages.list (GET /wiki/api/v2/spaces/{space_id}/pages).
@@ -356,7 +371,7 @@ impl AtlassianOperations for AtlassianQueries {
         if let Some(err) = map_error(&OP_LIST_CONFLUENCE_PAGES, out.status, &ERRORS_LIST_CONFLUENCE_PAGES) {
             return Err(err);
         }
-        let resp: ListConfluencePagesResponse = decode_response(OP_LIST_CONFLUENCE_PAGES.id, &out.body, Some("results"))?;
+        let resp: ListConfluencePagesResponse = decode_response(OP_LIST_CONFLUENCE_PAGES.id, out.status, &out.body, &[], Some("results"))?;
         Ok(resp)
     }
     /// create_jira_comment runs atlassian.jira.issues.comments.create (POST /rest/api/3/issue/{issue_key}/comment).
@@ -380,7 +395,7 @@ impl AtlassianOperations for AtlassianQueries {
         if let Some(err) = map_error(&OP_CREATE_JIRA_COMMENT, out.status, &ERRORS_CREATE_JIRA_COMMENT) {
             return Err(err);
         }
-        let resp: CreateJiraCommentResponse = decode_response(OP_CREATE_JIRA_COMMENT.id, &out.body, None)?;
+        let resp: CreateJiraCommentResponse = decode_response(OP_CREATE_JIRA_COMMENT.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_JIRA_COMMENT, None)?;
         Ok(resp)
     }
     /// create_jira_issue runs atlassian.jira.issues.create (POST /rest/api/3/issue).
@@ -402,7 +417,7 @@ impl AtlassianOperations for AtlassianQueries {
         if let Some(err) = map_error(&OP_CREATE_JIRA_ISSUE, out.status, &ERRORS_CREATE_JIRA_ISSUE) {
             return Err(err);
         }
-        let resp: CreateJiraIssueResponse = decode_response(OP_CREATE_JIRA_ISSUE.id, &out.body, None)?;
+        let resp: CreateJiraIssueResponse = decode_response(OP_CREATE_JIRA_ISSUE.id, out.status, &out.body, &RESULT_REQUIRED_CREATE_JIRA_ISSUE, None)?;
         Ok(resp)
     }
     /// get_jira_issue runs atlassian.jira.issues.get (GET /rest/api/3/issue/{issue_key}).
@@ -423,7 +438,7 @@ impl AtlassianOperations for AtlassianQueries {
         if let Some(err) = map_error(&OP_GET_JIRA_ISSUE, out.status, &ERRORS_GET_JIRA_ISSUE) {
             return Err(err);
         }
-        let resp: GetJiraIssueResponse = decode_response(OP_GET_JIRA_ISSUE.id, &out.body, None)?;
+        let resp: GetJiraIssueResponse = decode_response(OP_GET_JIRA_ISSUE.id, out.status, &out.body, &[], None)?;
         Ok(resp)
     }
     /// search_jira_issues runs atlassian.jira.issues.search (POST /rest/api/3/search/jql).
@@ -447,7 +462,7 @@ impl AtlassianOperations for AtlassianQueries {
         if let Some(err) = map_error(&OP_SEARCH_JIRA_ISSUES, out.status, &ERRORS_SEARCH_JIRA_ISSUES) {
             return Err(err);
         }
-        let mut resp: SearchJiraIssuesResponse = decode_response(OP_SEARCH_JIRA_ISSUES.id, &out.body, Some("issues"))?;
+        let mut resp: SearchJiraIssuesResponse = decode_response(OP_SEARCH_JIRA_ISSUES.id, out.status, &out.body, &[], Some("issues"))?;
         if resp.next_page_token.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "next_page_token") {
                 resp.next_page_token = Some(cursor);

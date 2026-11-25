@@ -155,6 +155,7 @@ var specPutContents = &connection.HTTPSpec{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 	},
+	ResultRequired: []string{"content.sha"},
 }
 
 var specCreateBlob = &connection.HTTPSpec{
@@ -175,6 +176,7 @@ var specCreateBlob = &connection.HTTPSpec{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 	},
+	ResultRequired: []string{"sha"},
 }
 
 var specCreateCommit = &connection.HTTPSpec{
@@ -196,6 +198,7 @@ var specCreateCommit = &connection.HTTPSpec{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 	},
+	ResultRequired: []string{"sha"},
 }
 
 var specCreateRef = &connection.HTTPSpec{
@@ -216,6 +219,7 @@ var specCreateRef = &connection.HTTPSpec{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 	},
+	ResultRequired: []string{"ref", "object.sha"},
 }
 
 var specGetRef = &connection.HTTPSpec{
@@ -254,6 +258,7 @@ var specUpdateRef = &connection.HTTPSpec{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 	},
+	ResultRequired: []string{"ref", "object.sha"},
 }
 
 var specCreateTree = &connection.HTTPSpec{
@@ -274,6 +279,7 @@ var specCreateTree = &connection.HTTPSpec{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 	},
+	ResultRequired: []string{"sha"},
 }
 
 var specCreateIssueComment = &connection.HTTPSpec{
@@ -294,6 +300,7 @@ var specCreateIssueComment = &connection.HTTPSpec{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 	},
+	ResultRequired: []string{"id"},
 }
 
 var specCreateIssue = &connection.HTTPSpec{
@@ -314,6 +321,7 @@ var specCreateIssue = &connection.HTTPSpec{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 	},
+	ResultRequired: []string{"id", "number"},
 }
 
 var specGetIssue = &connection.HTTPSpec{
@@ -371,6 +379,7 @@ var specUpdateIssue = &connection.HTTPSpec{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 	},
+	ResultRequired: []string{"id", "number"},
 }
 
 var specCreatePullRequest = &connection.HTTPSpec{
@@ -394,6 +403,7 @@ var specCreatePullRequest = &connection.HTTPSpec{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 	},
+	ResultRequired: []string{"id", "number"},
 }
 
 var specGetPullRequest = &connection.HTTPSpec{
@@ -452,6 +462,7 @@ var specCreateReview = &connection.HTTPSpec{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 	},
+	ResultRequired: []string{"id", "state"},
 }
 
 var specListReviews = &connection.HTTPSpec{
@@ -496,6 +507,7 @@ var specUpdatePullRequest = &connection.HTTPSpec{
 		{Status: 409, Kind: contracts.ErrorKind_ERROR_KIND_CONFLICT},
 		{Status: 422, Kind: contracts.ErrorKind_ERROR_KIND_INVALID},
 	},
+	ResultRequired: []string{"id", "number"},
 }
 
 var specGetRepository = &connection.HTTPSpec{

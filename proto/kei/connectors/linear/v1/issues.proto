@@ -103,6 +103,7 @@ message CreateIssueRequest {
       "  }\n"
       "}\n"
     method_name: "CreateIssue"
+    result_required: ["success", "issue.id", "issue.identifier"]
     connections: ["user_oauth", "api_key"]
     resource_template: "teams/{team_id}"
     semantics: {action: SEMANTIC_ACTION_CREATE resource_type: "issue" version: 1}
@@ -191,6 +192,7 @@ message UpdateIssueRequest {
       "  }\n"
       "}\n"
     method_name: "UpdateIssue"
+    result_required: ["success", "issue.id", "issue.identifier"]
     connections: ["user_oauth", "api_key"]
     resource_template: "issues/{id}"
     semantics: {action: SEMANTIC_ACTION_UPDATE resource_type: "issue" version: 1}

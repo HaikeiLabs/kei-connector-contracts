@@ -312,6 +312,16 @@ func goSpec(op *model.Operation, opVar string, im *goImports) string {
 	if f := opt.GetNextCursorField(); f != "" {
 		fmt.Fprintf(&b, "NextCursorField: %s,\n", strconv.Quote(f))
 	}
+	if rr := opt.GetResultRequired(); len(rr) > 0 {
+		b.WriteString("ResultRequired: []string{")
+		for i, p := range rr {
+			if i > 0 {
+				b.WriteString(", ")
+			}
+			b.WriteString(strconv.Quote(p))
+		}
+		b.WriteString("},\n")
+	}
 	b.WriteString("}")
 	return b.String()
 }

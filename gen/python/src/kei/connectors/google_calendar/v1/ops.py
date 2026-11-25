@@ -29,6 +29,7 @@ _SPEC_CREATE_EVENT = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "status"],
 }
 OP_GET_EVENT = Op(id="google_calendar.events.get", op_class=OpClass.READ, destructive=False, resource_template="calendars/{calendar_id}", method_name="GetEvent", connections=("user_oauth",), transport=Transport.HTTP)
 _SPEC_GET_EVENT = {
@@ -62,6 +63,7 @@ _SPEC_UPDATE_EVENT = {
     "graphql_document": "",
     "cursor_field": "",
     "next_cursor_field": "",
+    "result_required": ["id", "status"],
 }
 
 class GoogleCalendarOperations(Protocol):
