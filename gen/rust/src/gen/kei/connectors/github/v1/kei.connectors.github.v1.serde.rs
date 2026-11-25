@@ -1371,6 +1371,9 @@ impl serde::Serialize for CreateIssueRequest {
         if self.body.is_some() {
             len += 1;
         }
+        if !self.labels.is_empty() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.CreateIssueRequest", len)?;
         if !self.owner.is_empty() {
             struct_ser.serialize_field("owner", &self.owner)?;
@@ -1383,6 +1386,9 @@ impl serde::Serialize for CreateIssueRequest {
         }
         if let Some(v) = self.body.as_ref() {
             struct_ser.serialize_field("body", v)?;
+        }
+        if !self.labels.is_empty() {
+            struct_ser.serialize_field("labels", &self.labels)?;
         }
         struct_ser.end()
     }
@@ -1398,6 +1404,7 @@ impl<'de> serde::Deserialize<'de> for CreateIssueRequest {
             "repository",
             "title",
             "body",
+            "labels",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -1406,6 +1413,7 @@ impl<'de> serde::Deserialize<'de> for CreateIssueRequest {
             Repository,
             Title,
             Body,
+            Labels,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -1432,6 +1440,7 @@ impl<'de> serde::Deserialize<'de> for CreateIssueRequest {
                             "repository" => Ok(GeneratedField::Repository),
                             "title" => Ok(GeneratedField::Title),
                             "body" => Ok(GeneratedField::Body),
+                            "labels" => Ok(GeneratedField::Labels),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -1455,6 +1464,7 @@ impl<'de> serde::Deserialize<'de> for CreateIssueRequest {
                 let mut repository__ = None;
                 let mut title__ = None;
                 let mut body__ = None;
+                let mut labels__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Owner => {
@@ -1481,6 +1491,12 @@ impl<'de> serde::Deserialize<'de> for CreateIssueRequest {
                             }
                             body__ = map_.next_value()?;
                         }
+                        GeneratedField::Labels => {
+                            if labels__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("labels"));
+                            }
+                            labels__ = Some(map_.next_value()?);
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -1491,6 +1507,7 @@ impl<'de> serde::Deserialize<'de> for CreateIssueRequest {
                     repository: repository__.unwrap_or_default(),
                     title: title__.unwrap_or_default(),
                     body: body__,
+                    labels: labels__.unwrap_or_default(),
                 })
             }
         }
@@ -1956,6 +1973,12 @@ impl serde::Serialize for CreatePullRequestResponse {
         if !self.labels.is_empty() {
             len += 1;
         }
+        if !self.diff_url.is_empty() {
+            len += 1;
+        }
+        if !self.patch_url.is_empty() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.CreatePullRequestResponse", len)?;
         if self.id != 0 {
             #[allow(clippy::needless_borrow)]
@@ -1991,6 +2014,12 @@ impl serde::Serialize for CreatePullRequestResponse {
         if !self.labels.is_empty() {
             struct_ser.serialize_field("labels", &self.labels)?;
         }
+        if !self.diff_url.is_empty() {
+            struct_ser.serialize_field("diffUrl", &self.diff_url)?;
+        }
+        if !self.patch_url.is_empty() {
+            struct_ser.serialize_field("patchUrl", &self.patch_url)?;
+        }
         struct_ser.end()
     }
 }
@@ -2013,6 +2042,10 @@ impl<'de> serde::Deserialize<'de> for CreatePullRequestResponse {
             "author",
             "user",
             "labels",
+            "diff_url",
+            "diffUrl",
+            "patch_url",
+            "patchUrl",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -2027,6 +2060,8 @@ impl<'de> serde::Deserialize<'de> for CreatePullRequestResponse {
             Base,
             Author,
             Labels,
+            DiffUrl,
+            PatchUrl,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -2059,6 +2094,8 @@ impl<'de> serde::Deserialize<'de> for CreatePullRequestResponse {
                             "base" => Ok(GeneratedField::Base),
                             "user" | "author" => Ok(GeneratedField::Author),
                             "labels" => Ok(GeneratedField::Labels),
+                            "diffUrl" | "diff_url" => Ok(GeneratedField::DiffUrl),
+                            "patchUrl" | "patch_url" => Ok(GeneratedField::PatchUrl),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -2088,6 +2125,8 @@ impl<'de> serde::Deserialize<'de> for CreatePullRequestResponse {
                 let mut base__ = None;
                 let mut author__ = None;
                 let mut labels__ = None;
+                let mut diff_url__ = None;
+                let mut patch_url__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Id => {
@@ -2154,6 +2193,18 @@ impl<'de> serde::Deserialize<'de> for CreatePullRequestResponse {
                             }
                             labels__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::DiffUrl => {
+                            if diff_url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("diffUrl"));
+                            }
+                            diff_url__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::PatchUrl => {
+                            if patch_url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("patchUrl"));
+                            }
+                            patch_url__ = Some(map_.next_value()?);
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -2170,6 +2221,8 @@ impl<'de> serde::Deserialize<'de> for CreatePullRequestResponse {
                     base: base__,
                     author: author__,
                     labels: labels__.unwrap_or_default(),
+                    diff_url: diff_url__.unwrap_or_default(),
+                    patch_url: patch_url__.unwrap_or_default(),
                 })
             }
         }
@@ -3601,6 +3654,12 @@ impl serde::Serialize for GetPullRequestResponse {
         if !self.labels.is_empty() {
             len += 1;
         }
+        if !self.diff_url.is_empty() {
+            len += 1;
+        }
+        if !self.patch_url.is_empty() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.GetPullRequestResponse", len)?;
         if self.id != 0 {
             #[allow(clippy::needless_borrow)]
@@ -3642,6 +3701,12 @@ impl serde::Serialize for GetPullRequestResponse {
         if !self.labels.is_empty() {
             struct_ser.serialize_field("labels", &self.labels)?;
         }
+        if !self.diff_url.is_empty() {
+            struct_ser.serialize_field("diffUrl", &self.diff_url)?;
+        }
+        if !self.patch_url.is_empty() {
+            struct_ser.serialize_field("patchUrl", &self.patch_url)?;
+        }
         struct_ser.end()
     }
 }
@@ -3667,6 +3732,10 @@ impl<'de> serde::Deserialize<'de> for GetPullRequestResponse {
             "author",
             "user",
             "labels",
+            "diff_url",
+            "diffUrl",
+            "patch_url",
+            "patchUrl",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -3683,6 +3752,8 @@ impl<'de> serde::Deserialize<'de> for GetPullRequestResponse {
             Base,
             Author,
             Labels,
+            DiffUrl,
+            PatchUrl,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -3717,6 +3788,8 @@ impl<'de> serde::Deserialize<'de> for GetPullRequestResponse {
                             "base" => Ok(GeneratedField::Base),
                             "user" | "author" => Ok(GeneratedField::Author),
                             "labels" => Ok(GeneratedField::Labels),
+                            "diffUrl" | "diff_url" => Ok(GeneratedField::DiffUrl),
+                            "patchUrl" | "patch_url" => Ok(GeneratedField::PatchUrl),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -3748,6 +3821,8 @@ impl<'de> serde::Deserialize<'de> for GetPullRequestResponse {
                 let mut base__ = None;
                 let mut author__ = None;
                 let mut labels__ = None;
+                let mut diff_url__ = None;
+                let mut patch_url__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Id => {
@@ -3826,6 +3901,18 @@ impl<'de> serde::Deserialize<'de> for GetPullRequestResponse {
                             }
                             labels__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::DiffUrl => {
+                            if diff_url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("diffUrl"));
+                            }
+                            diff_url__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::PatchUrl => {
+                            if patch_url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("patchUrl"));
+                            }
+                            patch_url__ = Some(map_.next_value()?);
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -3844,6 +3931,8 @@ impl<'de> serde::Deserialize<'de> for GetPullRequestResponse {
                     base: base__,
                     author: author__,
                     labels: labels__.unwrap_or_default(),
+                    diff_url: diff_url__.unwrap_or_default(),
+                    patch_url: patch_url__.unwrap_or_default(),
                 })
             }
         }
@@ -5738,6 +5827,9 @@ impl serde::Serialize for ListPullsRequest {
         if self.page.is_some() {
             len += 1;
         }
+        if self.state.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.ListPullsRequest", len)?;
         if !self.owner.is_empty() {
             struct_ser.serialize_field("owner", &self.owner)?;
@@ -5750,6 +5842,9 @@ impl serde::Serialize for ListPullsRequest {
         }
         if let Some(v) = self.page.as_ref() {
             struct_ser.serialize_field("page", v)?;
+        }
+        if let Some(v) = self.state.as_ref() {
+            struct_ser.serialize_field("state", v)?;
         }
         struct_ser.end()
     }
@@ -5766,6 +5861,7 @@ impl<'de> serde::Deserialize<'de> for ListPullsRequest {
             "per_page",
             "perPage",
             "page",
+            "state",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -5774,6 +5870,7 @@ impl<'de> serde::Deserialize<'de> for ListPullsRequest {
             Repository,
             PerPage,
             Page,
+            State,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -5800,6 +5897,7 @@ impl<'de> serde::Deserialize<'de> for ListPullsRequest {
                             "repository" => Ok(GeneratedField::Repository),
                             "perPage" | "per_page" => Ok(GeneratedField::PerPage),
                             "page" => Ok(GeneratedField::Page),
+                            "state" => Ok(GeneratedField::State),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -5823,6 +5921,7 @@ impl<'de> serde::Deserialize<'de> for ListPullsRequest {
                 let mut repository__ = None;
                 let mut per_page__ = None;
                 let mut page__ = None;
+                let mut state__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Owner => {
@@ -5853,6 +5952,12 @@ impl<'de> serde::Deserialize<'de> for ListPullsRequest {
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
+                        GeneratedField::State => {
+                            if state__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("state"));
+                            }
+                            state__ = map_.next_value()?;
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -5863,6 +5968,7 @@ impl<'de> serde::Deserialize<'de> for ListPullsRequest {
                     repository: repository__.unwrap_or_default(),
                     per_page: per_page__,
                     page: page__,
+                    state: state__,
                 })
             }
         }
@@ -5986,6 +6092,327 @@ impl<'de> serde::Deserialize<'de> for ListPullsResponse {
         deserializer.deserialize_struct("kei.connectors.github.v1.ListPullsResponse", FIELDS, GeneratedVisitor)
     }
 }
+impl serde::Serialize for ListWorkflowRunsByWorkflowRequest {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.owner.is_empty() {
+            len += 1;
+        }
+        if !self.repository.is_empty() {
+            len += 1;
+        }
+        if !self.workflow_id.is_empty() {
+            len += 1;
+        }
+        if self.per_page.is_some() {
+            len += 1;
+        }
+        if self.page.is_some() {
+            len += 1;
+        }
+        if self.branch.is_some() {
+            len += 1;
+        }
+        if self.event.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.ListWorkflowRunsByWorkflowRequest", len)?;
+        if !self.owner.is_empty() {
+            struct_ser.serialize_field("owner", &self.owner)?;
+        }
+        if !self.repository.is_empty() {
+            struct_ser.serialize_field("repository", &self.repository)?;
+        }
+        if !self.workflow_id.is_empty() {
+            struct_ser.serialize_field("workflowId", &self.workflow_id)?;
+        }
+        if let Some(v) = self.per_page.as_ref() {
+            struct_ser.serialize_field("perPage", v)?;
+        }
+        if let Some(v) = self.page.as_ref() {
+            struct_ser.serialize_field("page", v)?;
+        }
+        if let Some(v) = self.branch.as_ref() {
+            struct_ser.serialize_field("branch", v)?;
+        }
+        if let Some(v) = self.event.as_ref() {
+            struct_ser.serialize_field("event", v)?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListWorkflowRunsByWorkflowRequest {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "owner",
+            "repository",
+            "workflow_id",
+            "workflowId",
+            "per_page",
+            "perPage",
+            "page",
+            "branch",
+            "event",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            Owner,
+            Repository,
+            WorkflowId,
+            PerPage,
+            Page,
+            Branch,
+            Event,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "owner" => Ok(GeneratedField::Owner),
+                            "repository" => Ok(GeneratedField::Repository),
+                            "workflowId" | "workflow_id" => Ok(GeneratedField::WorkflowId),
+                            "perPage" | "per_page" => Ok(GeneratedField::PerPage),
+                            "page" => Ok(GeneratedField::Page),
+                            "branch" => Ok(GeneratedField::Branch),
+                            "event" => Ok(GeneratedField::Event),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListWorkflowRunsByWorkflowRequest;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.ListWorkflowRunsByWorkflowRequest")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListWorkflowRunsByWorkflowRequest, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut owner__ = None;
+                let mut repository__ = None;
+                let mut workflow_id__ = None;
+                let mut per_page__ = None;
+                let mut page__ = None;
+                let mut branch__ = None;
+                let mut event__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::Owner => {
+                            if owner__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("owner"));
+                            }
+                            owner__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::Repository => {
+                            if repository__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("repository"));
+                            }
+                            repository__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::WorkflowId => {
+                            if workflow_id__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("workflowId"));
+                            }
+                            workflow_id__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::PerPage => {
+                            if per_page__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("perPage"));
+                            }
+                            per_page__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::Page => {
+                            if page__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("page"));
+                            }
+                            page__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::Branch => {
+                            if branch__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("branch"));
+                            }
+                            branch__ = map_.next_value()?;
+                        }
+                        GeneratedField::Event => {
+                            if event__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("event"));
+                            }
+                            event__ = map_.next_value()?;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListWorkflowRunsByWorkflowRequest {
+                    owner: owner__.unwrap_or_default(),
+                    repository: repository__.unwrap_or_default(),
+                    workflow_id: workflow_id__.unwrap_or_default(),
+                    per_page: per_page__,
+                    page: page__,
+                    branch: branch__,
+                    event: event__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.ListWorkflowRunsByWorkflowRequest", FIELDS, GeneratedVisitor)
+    }
+}
+impl serde::Serialize for ListWorkflowRunsByWorkflowResponse {
+    #[allow(deprecated)]
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut len = 0;
+        if !self.workflow_runs.is_empty() {
+            len += 1;
+        }
+        if self.next_page.is_some() {
+            len += 1;
+        }
+        let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.ListWorkflowRunsByWorkflowResponse", len)?;
+        if !self.workflow_runs.is_empty() {
+            struct_ser.serialize_field("workflowRuns", &self.workflow_runs)?;
+        }
+        if let Some(v) = self.next_page.as_ref() {
+            #[allow(clippy::needless_borrow)]
+            #[allow(clippy::needless_borrows_for_generic_args)]
+            struct_ser.serialize_field("nextPage", ToString::to_string(&v).as_str())?;
+        }
+        struct_ser.end()
+    }
+}
+impl<'de> serde::Deserialize<'de> for ListWorkflowRunsByWorkflowResponse {
+    #[allow(deprecated)]
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        const FIELDS: &[&str] = &[
+            "workflow_runs",
+            "workflowRuns",
+            "next_page",
+            "nextPage",
+        ];
+
+        #[allow(clippy::enum_variant_names)]
+        enum GeneratedField {
+            WorkflowRuns,
+            NextPage,
+            __SkipField__,
+        }
+        impl<'de> serde::Deserialize<'de> for GeneratedField {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<GeneratedField, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                struct GeneratedVisitor;
+
+                impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+                    type Value = GeneratedField;
+
+                    fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                        write!(formatter, "expected one of: {:?}", &FIELDS)
+                    }
+
+                    #[allow(unused_variables)]
+                    fn visit_str<E>(self, value: &str) -> std::result::Result<GeneratedField, E>
+                    where
+                        E: serde::de::Error,
+                    {
+                        match value {
+                            "workflowRuns" | "workflow_runs" => Ok(GeneratedField::WorkflowRuns),
+                            "nextPage" | "next_page" => Ok(GeneratedField::NextPage),
+                            _ => Ok(GeneratedField::__SkipField__),
+                        }
+                    }
+                }
+                deserializer.deserialize_identifier(GeneratedVisitor)
+            }
+        }
+        struct GeneratedVisitor;
+        impl<'de> serde::de::Visitor<'de> for GeneratedVisitor {
+            type Value = ListWorkflowRunsByWorkflowResponse;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("struct kei.connectors.github.v1.ListWorkflowRunsByWorkflowResponse")
+            }
+
+            fn visit_map<V>(self, mut map_: V) -> std::result::Result<ListWorkflowRunsByWorkflowResponse, V::Error>
+                where
+                    V: serde::de::MapAccess<'de>,
+            {
+                let mut workflow_runs__ = None;
+                let mut next_page__ = None;
+                while let Some(k) = map_.next_key()? {
+                    match k {
+                        GeneratedField::WorkflowRuns => {
+                            if workflow_runs__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("workflowRuns"));
+                            }
+                            workflow_runs__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::NextPage => {
+                            if next_page__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("nextPage"));
+                            }
+                            next_page__ = 
+                                map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
+                            ;
+                        }
+                        GeneratedField::__SkipField__ => {
+                            let _ = map_.next_value::<serde::de::IgnoredAny>()?;
+                        }
+                    }
+                }
+                Ok(ListWorkflowRunsByWorkflowResponse {
+                    workflow_runs: workflow_runs__.unwrap_or_default(),
+                    next_page: next_page__,
+                })
+            }
+        }
+        deserializer.deserialize_struct("kei.connectors.github.v1.ListWorkflowRunsByWorkflowResponse", FIELDS, GeneratedVisitor)
+    }
+}
 impl serde::Serialize for ListWorkflowRunsRequest {
     #[allow(deprecated)]
     fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
@@ -6006,6 +6433,12 @@ impl serde::Serialize for ListWorkflowRunsRequest {
         if self.page.is_some() {
             len += 1;
         }
+        if self.branch.is_some() {
+            len += 1;
+        }
+        if self.event.is_some() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.ListWorkflowRunsRequest", len)?;
         if !self.owner.is_empty() {
             struct_ser.serialize_field("owner", &self.owner)?;
@@ -6018,6 +6451,12 @@ impl serde::Serialize for ListWorkflowRunsRequest {
         }
         if let Some(v) = self.page.as_ref() {
             struct_ser.serialize_field("page", v)?;
+        }
+        if let Some(v) = self.branch.as_ref() {
+            struct_ser.serialize_field("branch", v)?;
+        }
+        if let Some(v) = self.event.as_ref() {
+            struct_ser.serialize_field("event", v)?;
         }
         struct_ser.end()
     }
@@ -6034,6 +6473,8 @@ impl<'de> serde::Deserialize<'de> for ListWorkflowRunsRequest {
             "per_page",
             "perPage",
             "page",
+            "branch",
+            "event",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -6042,6 +6483,8 @@ impl<'de> serde::Deserialize<'de> for ListWorkflowRunsRequest {
             Repository,
             PerPage,
             Page,
+            Branch,
+            Event,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -6068,6 +6511,8 @@ impl<'de> serde::Deserialize<'de> for ListWorkflowRunsRequest {
                             "repository" => Ok(GeneratedField::Repository),
                             "perPage" | "per_page" => Ok(GeneratedField::PerPage),
                             "page" => Ok(GeneratedField::Page),
+                            "branch" => Ok(GeneratedField::Branch),
+                            "event" => Ok(GeneratedField::Event),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -6091,6 +6536,8 @@ impl<'de> serde::Deserialize<'de> for ListWorkflowRunsRequest {
                 let mut repository__ = None;
                 let mut per_page__ = None;
                 let mut page__ = None;
+                let mut branch__ = None;
+                let mut event__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Owner => {
@@ -6121,6 +6568,18 @@ impl<'de> serde::Deserialize<'de> for ListWorkflowRunsRequest {
                                 map_.next_value::<::std::option::Option<::pbjson::private::NumberDeserialize<_>>>()?.map(|x| x.0)
                             ;
                         }
+                        GeneratedField::Branch => {
+                            if branch__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("branch"));
+                            }
+                            branch__ = map_.next_value()?;
+                        }
+                        GeneratedField::Event => {
+                            if event__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("event"));
+                            }
+                            event__ = map_.next_value()?;
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -6131,6 +6590,8 @@ impl<'de> serde::Deserialize<'de> for ListWorkflowRunsRequest {
                     repository: repository__.unwrap_or_default(),
                     per_page: per_page__,
                     page: page__,
+                    branch: branch__,
+                    event: event__,
                 })
             }
         }
@@ -7922,6 +8383,12 @@ impl serde::Serialize for UpdatePullRequestResponse {
         if !self.labels.is_empty() {
             len += 1;
         }
+        if !self.diff_url.is_empty() {
+            len += 1;
+        }
+        if !self.patch_url.is_empty() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.UpdatePullRequestResponse", len)?;
         if self.id != 0 {
             #[allow(clippy::needless_borrow)]
@@ -7963,6 +8430,12 @@ impl serde::Serialize for UpdatePullRequestResponse {
         if !self.labels.is_empty() {
             struct_ser.serialize_field("labels", &self.labels)?;
         }
+        if !self.diff_url.is_empty() {
+            struct_ser.serialize_field("diffUrl", &self.diff_url)?;
+        }
+        if !self.patch_url.is_empty() {
+            struct_ser.serialize_field("patchUrl", &self.patch_url)?;
+        }
         struct_ser.end()
     }
 }
@@ -7988,6 +8461,10 @@ impl<'de> serde::Deserialize<'de> for UpdatePullRequestResponse {
             "author",
             "user",
             "labels",
+            "diff_url",
+            "diffUrl",
+            "patch_url",
+            "patchUrl",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -8004,6 +8481,8 @@ impl<'de> serde::Deserialize<'de> for UpdatePullRequestResponse {
             Base,
             Author,
             Labels,
+            DiffUrl,
+            PatchUrl,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -8038,6 +8517,8 @@ impl<'de> serde::Deserialize<'de> for UpdatePullRequestResponse {
                             "base" => Ok(GeneratedField::Base),
                             "user" | "author" => Ok(GeneratedField::Author),
                             "labels" => Ok(GeneratedField::Labels),
+                            "diffUrl" | "diff_url" => Ok(GeneratedField::DiffUrl),
+                            "patchUrl" | "patch_url" => Ok(GeneratedField::PatchUrl),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -8069,6 +8550,8 @@ impl<'de> serde::Deserialize<'de> for UpdatePullRequestResponse {
                 let mut base__ = None;
                 let mut author__ = None;
                 let mut labels__ = None;
+                let mut diff_url__ = None;
+                let mut patch_url__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Id => {
@@ -8147,6 +8630,18 @@ impl<'de> serde::Deserialize<'de> for UpdatePullRequestResponse {
                             }
                             labels__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::DiffUrl => {
+                            if diff_url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("diffUrl"));
+                            }
+                            diff_url__ = Some(map_.next_value()?);
+                        }
+                        GeneratedField::PatchUrl => {
+                            if patch_url__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("patchUrl"));
+                            }
+                            patch_url__ = Some(map_.next_value()?);
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -8165,6 +8660,8 @@ impl<'de> serde::Deserialize<'de> for UpdatePullRequestResponse {
                     base: base__,
                     author: author__,
                     labels: labels__.unwrap_or_default(),
+                    diff_url: diff_url__.unwrap_or_default(),
+                    patch_url: patch_url__.unwrap_or_default(),
                 })
             }
         }
@@ -8588,6 +9085,12 @@ impl serde::Serialize for WorkflowRunSummary {
         if !self.html_url.is_empty() {
             len += 1;
         }
+        if self.actor.is_some() {
+            len += 1;
+        }
+        if !self.head_sha.is_empty() {
+            len += 1;
+        }
         let mut struct_ser = serializer.serialize_struct("kei.connectors.github.v1.WorkflowRunSummary", len)?;
         if self.id != 0 {
             #[allow(clippy::needless_borrow)]
@@ -8609,6 +9112,12 @@ impl serde::Serialize for WorkflowRunSummary {
         if !self.html_url.is_empty() {
             struct_ser.serialize_field("htmlUrl", &self.html_url)?;
         }
+        if let Some(v) = self.actor.as_ref() {
+            struct_ser.serialize_field("actor", v)?;
+        }
+        if !self.head_sha.is_empty() {
+            struct_ser.serialize_field("head_sha", &self.head_sha)?;
+        }
         struct_ser.end()
     }
 }
@@ -8627,6 +9136,8 @@ impl<'de> serde::Deserialize<'de> for WorkflowRunSummary {
             "conclusion",
             "html_url",
             "htmlUrl",
+            "actor",
+            "head_sha",
         ];
 
         #[allow(clippy::enum_variant_names)]
@@ -8637,6 +9148,8 @@ impl<'de> serde::Deserialize<'de> for WorkflowRunSummary {
             Status,
             Conclusion,
             HtmlUrl,
+            Actor,
+            HeadSha,
             __SkipField__,
         }
         impl<'de> serde::Deserialize<'de> for GeneratedField {
@@ -8665,6 +9178,8 @@ impl<'de> serde::Deserialize<'de> for WorkflowRunSummary {
                             "status" => Ok(GeneratedField::Status),
                             "conclusion" => Ok(GeneratedField::Conclusion),
                             "htmlUrl" | "html_url" => Ok(GeneratedField::HtmlUrl),
+                            "actor" => Ok(GeneratedField::Actor),
+                            "head_sha" => Ok(GeneratedField::HeadSha),
                             _ => Ok(GeneratedField::__SkipField__),
                         }
                     }
@@ -8690,6 +9205,8 @@ impl<'de> serde::Deserialize<'de> for WorkflowRunSummary {
                 let mut status__ = None;
                 let mut conclusion__ = None;
                 let mut html_url__ = None;
+                let mut actor__ = None;
+                let mut head_sha__ = None;
                 while let Some(k) = map_.next_key()? {
                     match k {
                         GeneratedField::Id => {
@@ -8730,6 +9247,18 @@ impl<'de> serde::Deserialize<'de> for WorkflowRunSummary {
                             }
                             html_url__ = Some(map_.next_value()?);
                         }
+                        GeneratedField::Actor => {
+                            if actor__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("actor"));
+                            }
+                            actor__ = map_.next_value()?;
+                        }
+                        GeneratedField::HeadSha => {
+                            if head_sha__.is_some() {
+                                return Err(serde::de::Error::duplicate_field("head_sha"));
+                            }
+                            head_sha__ = Some(map_.next_value()?);
+                        }
                         GeneratedField::__SkipField__ => {
                             let _ = map_.next_value::<serde::de::IgnoredAny>()?;
                         }
@@ -8742,6 +9271,8 @@ impl<'de> serde::Deserialize<'de> for WorkflowRunSummary {
                     status: status__.unwrap_or_default(),
                     conclusion: conclusion__,
                     html_url: html_url__.unwrap_or_default(),
+                    actor: actor__,
+                    head_sha: head_sha__.unwrap_or_default(),
                 })
             }
         }

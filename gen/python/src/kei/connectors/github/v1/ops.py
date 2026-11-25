@@ -13,7 +13,18 @@ _SPEC_LIST_WORKFLOW_RUNS = {
     "op": OP_LIST_WORKFLOW_RUNS,
     "method": "GET",
     "path_template": "/repos/{owner}/{repository}/actions/runs",
-    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "per_page", "in": "query", "multi_segment": False, "wire": "per_page"}, {"field": "page", "in": "query", "multi_segment": False, "wire": "page"}],
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "per_page", "in": "query", "multi_segment": False, "wire": "per_page"}, {"field": "page", "in": "query", "multi_segment": False, "wire": "page"}, {"field": "branch", "in": "query", "multi_segment": False, "wire": "branch"}, {"field": "event", "in": "query", "multi_segment": False, "wire": "event"}],
+    "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
+    "graphql_document": "",
+    "cursor_field": "page",
+    "next_cursor_field": "next_page",
+}
+OP_LIST_WORKFLOW_RUNS_BY_WORKFLOW = Op(id="github.actions.workflows.runs.list", op_class=OpClass.READ, destructive=False, resource_template="repos/{owner}/{repository}", method_name="ListWorkflowRunsByWorkflow", connections=("user_oauth", "pat"), transport=Transport.HTTP)
+_SPEC_LIST_WORKFLOW_RUNS_BY_WORKFLOW = {
+    "op": OP_LIST_WORKFLOW_RUNS_BY_WORKFLOW,
+    "method": "GET",
+    "path_template": "/repos/{owner}/{repository}/actions/workflows/{workflow_id}/runs",
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "workflow_id", "in": "path", "multi_segment": False, "wire": "workflow_id"}, {"field": "per_page", "in": "query", "multi_segment": False, "wire": "per_page"}, {"field": "page", "in": "query", "multi_segment": False, "wire": "page"}, {"field": "branch", "in": "query", "multi_segment": False, "wire": "branch"}, {"field": "event", "in": "query", "multi_segment": False, "wire": "event"}],
     "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
     "graphql_document": "",
     "cursor_field": "page",
@@ -123,7 +134,7 @@ _SPEC_CREATE_ISSUE = {
     "op": OP_CREATE_ISSUE,
     "method": "POST",
     "path_template": "/repos/{owner}/{repository}/issues",
-    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "title", "in": "body", "multi_segment": False, "wire": "title"}, {"field": "body", "in": "body", "multi_segment": False, "wire": "body"}],
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "title", "in": "body", "multi_segment": False, "wire": "title"}, {"field": "body", "in": "body", "multi_segment": False, "wire": "body"}, {"field": "labels", "in": "body", "multi_segment": False, "wire": "labels"}],
     "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}, {"kind": "conflict", "retryable": False, "status": 409}, {"kind": "invalid", "retryable": False, "status": 422}],
     "graphql_document": "",
     "cursor_field": "",
@@ -189,7 +200,7 @@ _SPEC_LIST_PULLS = {
     "op": OP_LIST_PULLS,
     "method": "GET",
     "path_template": "/repos/{owner}/{repository}/pulls",
-    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "per_page", "in": "query", "multi_segment": False, "wire": "per_page"}, {"field": "page", "in": "query", "multi_segment": False, "wire": "page"}],
+    "params": [{"field": "owner", "in": "path", "multi_segment": False, "wire": "owner"}, {"field": "repository", "in": "path", "multi_segment": False, "wire": "repository"}, {"field": "per_page", "in": "query", "multi_segment": False, "wire": "per_page"}, {"field": "page", "in": "query", "multi_segment": False, "wire": "page"}, {"field": "state", "in": "query", "multi_segment": False, "wire": "state"}],
     "errors": [{"kind": "unauthorized", "retryable": False, "status": 401}, {"kind": "forbidden", "retryable": False, "status": 403}, {"kind": "not_found", "retryable": False, "status": 404}, {"kind": "rate_limited", "retryable": True, "status": 429}],
     "graphql_document": "",
     "cursor_field": "page",
@@ -243,6 +254,8 @@ _SPEC_GET_REPOSITORY = {
 class GithubOperations(Protocol):
     async def list_workflow_runs(self, req: actions_pb2.ListWorkflowRunsRequest) -> actions_pb2.ListWorkflowRunsResponse:
         ...
+    async def list_workflow_runs_by_workflow(self, req: actions_pb2.ListWorkflowRunsByWorkflowRequest) -> actions_pb2.ListWorkflowRunsByWorkflowResponse:
+        ...
     async def list_check_runs(self, req: checks_pb2.ListCheckRunsRequest) -> checks_pb2.ListCheckRunsResponse:
         ...
     async def put_contents(self, req: contents_pb2.PutContentsRequest) -> contents_pb2.PutContentsResponse:
@@ -292,6 +305,9 @@ class GithubQueries:
 
     async def list_workflow_runs(self, req: actions_pb2.ListWorkflowRunsRequest) -> actions_pb2.ListWorkflowRunsResponse:
         return await call_http(self._conn, _SPEC_LIST_WORKFLOW_RUNS, req, actions_pb2.ListWorkflowRunsResponse)
+
+    async def list_workflow_runs_by_workflow(self, req: actions_pb2.ListWorkflowRunsByWorkflowRequest) -> actions_pb2.ListWorkflowRunsByWorkflowResponse:
+        return await call_http(self._conn, _SPEC_LIST_WORKFLOW_RUNS_BY_WORKFLOW, req, actions_pb2.ListWorkflowRunsByWorkflowResponse)
 
     async def list_check_runs(self, req: checks_pb2.ListCheckRunsRequest) -> checks_pb2.ListCheckRunsResponse:
         return await call_http(self._conn, _SPEC_LIST_CHECK_RUNS, req, checks_pb2.ListCheckRunsResponse)

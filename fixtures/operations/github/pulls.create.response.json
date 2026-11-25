@@ -4,6 +4,8 @@
   "title": "Synthetic new pull request",
   "state": "open",
   "html_url": "https://example.invalid/example-org/example-repo/pull/43",
+  "diff_url": "https://example.invalid/example-org/example-repo/pull/43.diff",
+  "patch_url": "https://example.invalid/example-org/example-repo/pull/43.patch",
   "draft": true,
   "head": {
     "ref": "feature/x"

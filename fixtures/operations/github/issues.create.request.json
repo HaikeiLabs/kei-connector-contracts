@@ -2,5 +2,6 @@
   "owner": "example-org",
   "repository": "example-repo",
   "title": "Synthetic new issue",
-  "body": "Synthetic body text"
+  "body": "Synthetic body text",
+  "labels": ["synthetic-label"]
 }

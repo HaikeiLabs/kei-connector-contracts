@@ -1,0 +1,20 @@
+{
+  "total_count": 1,
+  "workflow_runs": [
+    {
+      "id": 9007199254741001,
+      "name": "synthetic-ci",
+      "head_branch": "feature/x",
+      "status": "completed",
+      "conclusion": null,
+      "actor": {
+        "id": 9007199254741003,
+        "login": "example-user"
+      },
+      "head_sha": "synthetic-head-sha-1",
+      "html_url": "https://example.invalid/example-org/example-repo/actions/runs/9007199254741001",
+      "node_id": "synthetic-node-id-4"
+    }
+  ],
+  "next_page": 2
+}

@@ -12,27 +12,28 @@ import (
 // Mock implements Operations with one function field per operation, for
 // tests. Calling an operation whose field is nil returns an error.
 type Mock struct {
-	ListWorkflowRunsFunc   func(ctx context.Context, req *github.ListWorkflowRunsRequest) (*github.ListWorkflowRunsResponse, error)
-	ListCheckRunsFunc      func(ctx context.Context, req *github.ListCheckRunsRequest) (*github.ListCheckRunsResponse, error)
-	PutContentsFunc        func(ctx context.Context, req *github.PutContentsRequest) (*github.PutContentsResponse, error)
-	CreateBlobFunc         func(ctx context.Context, req *github.CreateBlobRequest) (*github.CreateBlobResponse, error)
-	CreateCommitFunc       func(ctx context.Context, req *github.CreateCommitRequest) (*github.CreateCommitResponse, error)
-	CreateRefFunc          func(ctx context.Context, req *github.CreateRefRequest) (*github.CreateRefResponse, error)
-	GetRefFunc             func(ctx context.Context, req *github.GetRefRequest) (*github.GetRefResponse, error)
-	UpdateRefFunc          func(ctx context.Context, req *github.UpdateRefRequest) (*github.UpdateRefResponse, error)
-	CreateTreeFunc         func(ctx context.Context, req *github.CreateTreeRequest) (*github.CreateTreeResponse, error)
-	CreateIssueCommentFunc func(ctx context.Context, req *github.CreateIssueCommentRequest) (*github.CreateIssueCommentResponse, error)
-	CreateIssueFunc        func(ctx context.Context, req *github.CreateIssueRequest) (*github.CreateIssueResponse, error)
-	GetIssueFunc           func(ctx context.Context, req *github.GetIssueRequest) (*github.GetIssueResponse, error)
-	ListIssuesFunc         func(ctx context.Context, req *github.ListIssuesRequest) (*github.ListIssuesResponse, error)
-	UpdateIssueFunc        func(ctx context.Context, req *github.UpdateIssueRequest) (*github.UpdateIssueResponse, error)
-	CreatePullRequestFunc  func(ctx context.Context, req *github.CreatePullRequestRequest) (*github.CreatePullRequestResponse, error)
-	GetPullRequestFunc     func(ctx context.Context, req *github.GetPullRequestRequest) (*github.GetPullRequestResponse, error)
-	ListPullsFunc          func(ctx context.Context, req *github.ListPullsRequest) (*github.ListPullsResponse, error)
-	CreateReviewFunc       func(ctx context.Context, req *github.CreatePullReviewRequest) (*github.CreatePullReviewResponse, error)
-	ListReviewsFunc        func(ctx context.Context, req *github.ListPullReviewsRequest) (*github.ListPullReviewsResponse, error)
-	UpdatePullRequestFunc  func(ctx context.Context, req *github.UpdatePullRequestRequest) (*github.UpdatePullRequestResponse, error)
-	GetRepositoryFunc      func(ctx context.Context, req *github.GetRepositoryRequest) (*github.GetRepositoryResponse, error)
+	ListWorkflowRunsFunc           func(ctx context.Context, req *github.ListWorkflowRunsRequest) (*github.ListWorkflowRunsResponse, error)
+	ListWorkflowRunsByWorkflowFunc func(ctx context.Context, req *github.ListWorkflowRunsByWorkflowRequest) (*github.ListWorkflowRunsByWorkflowResponse, error)
+	ListCheckRunsFunc              func(ctx context.Context, req *github.ListCheckRunsRequest) (*github.ListCheckRunsResponse, error)
+	PutContentsFunc                func(ctx context.Context, req *github.PutContentsRequest) (*github.PutContentsResponse, error)
+	CreateBlobFunc                 func(ctx context.Context, req *github.CreateBlobRequest) (*github.CreateBlobResponse, error)
+	CreateCommitFunc               func(ctx context.Context, req *github.CreateCommitRequest) (*github.CreateCommitResponse, error)
+	CreateRefFunc                  func(ctx context.Context, req *github.CreateRefRequest) (*github.CreateRefResponse, error)
+	GetRefFunc                     func(ctx context.Context, req *github.GetRefRequest) (*github.GetRefResponse, error)
+	UpdateRefFunc                  func(ctx context.Context, req *github.UpdateRefRequest) (*github.UpdateRefResponse, error)
+	CreateTreeFunc                 func(ctx context.Context, req *github.CreateTreeRequest) (*github.CreateTreeResponse, error)
+	CreateIssueCommentFunc         func(ctx context.Context, req *github.CreateIssueCommentRequest) (*github.CreateIssueCommentResponse, error)
+	CreateIssueFunc                func(ctx context.Context, req *github.CreateIssueRequest) (*github.CreateIssueResponse, error)
+	GetIssueFunc                   func(ctx context.Context, req *github.GetIssueRequest) (*github.GetIssueResponse, error)
+	ListIssuesFunc                 func(ctx context.Context, req *github.ListIssuesRequest) (*github.ListIssuesResponse, error)
+	UpdateIssueFunc                func(ctx context.Context, req *github.UpdateIssueRequest) (*github.UpdateIssueResponse, error)
+	CreatePullRequestFunc          func(ctx context.Context, req *github.CreatePullRequestRequest) (*github.CreatePullRequestResponse, error)
+	GetPullRequestFunc             func(ctx context.Context, req *github.GetPullRequestRequest) (*github.GetPullRequestResponse, error)
+	ListPullsFunc                  func(ctx context.Context, req *github.ListPullsRequest) (*github.ListPullsResponse, error)
+	CreateReviewFunc               func(ctx context.Context, req *github.CreatePullReviewRequest) (*github.CreatePullReviewResponse, error)
+	ListReviewsFunc                func(ctx context.Context, req *github.ListPullReviewsRequest) (*github.ListPullReviewsResponse, error)
+	UpdatePullRequestFunc          func(ctx context.Context, req *github.UpdatePullRequestRequest) (*github.UpdatePullRequestResponse, error)
+	GetRepositoryFunc              func(ctx context.Context, req *github.GetRepositoryRequest) (*github.GetRepositoryResponse, error)
 }
 
 var _ Operations = (*Mock)(nil)
@@ -43,6 +44,14 @@ func (m *Mock) ListWorkflowRuns(ctx context.Context, req *github.ListWorkflowRun
 		return nil, errors.New("githubops.Mock: ListWorkflowRunsFunc is not set")
 	}
 	return m.ListWorkflowRunsFunc(ctx, req)
+}
+
+// ListWorkflowRunsByWorkflow calls m.ListWorkflowRunsByWorkflowFunc.
+func (m *Mock) ListWorkflowRunsByWorkflow(ctx context.Context, req *github.ListWorkflowRunsByWorkflowRequest) (*github.ListWorkflowRunsByWorkflowResponse, error) {
+	if m.ListWorkflowRunsByWorkflowFunc == nil {
+		return nil, errors.New("githubops.Mock: ListWorkflowRunsByWorkflowFunc is not set")
+	}
+	return m.ListWorkflowRunsByWorkflowFunc(ctx, req)
 }
 
 // ListCheckRuns calls m.ListCheckRunsFunc.

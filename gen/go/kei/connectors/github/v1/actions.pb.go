@@ -39,13 +39,18 @@ const (
 )
 
 // ListWorkflowRunsRequest lists the workflow runs of a GitHub repository.
-// The contract models the page size and page number of the query parameters.
+// The contract models the branch and event filters and the page size and
+// page number of the query parameters.
 type ListWorkflowRunsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Owner         string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
-	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
-	PerPage       *int32                 `protobuf:"varint,3,opt,name=per_page,json=perPage,proto3,oneof" json:"per_page,omitempty"`
-	Page          *int32                 `protobuf:"varint,4,opt,name=page,proto3,oneof" json:"page,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Owner      string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	PerPage    *int32                 `protobuf:"varint,3,opt,name=per_page,json=perPage,proto3,oneof" json:"per_page,omitempty"`
+	Page       *int32                 `protobuf:"varint,4,opt,name=page,proto3,oneof" json:"page,omitempty"`
+	// A branch name; the provider matches the run's head_branch.
+	Branch *string `protobuf:"bytes,5,opt,name=branch,proto3,oneof" json:"branch,omitempty"`
+	// The event that triggered the run, such as push or pull_request.
+	Event         *string `protobuf:"bytes,6,opt,name=event,proto3,oneof" json:"event,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -108,16 +113,34 @@ func (x *ListWorkflowRunsRequest) GetPage() int32 {
 	return 0
 }
 
+func (x *ListWorkflowRunsRequest) GetBranch() string {
+	if x != nil && x.Branch != nil {
+		return *x.Branch
+	}
+	return ""
+}
+
+func (x *ListWorkflowRunsRequest) GetEvent() string {
+	if x != nil && x.Event != nil {
+		return *x.Event
+	}
+	return ""
+}
+
 // WorkflowRunSummary models the subset of each workflow run entry a list
 // response carries. It is filled by JSON unmarshal of the provider response.
 type WorkflowRunSummary struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	HeadBranch    string                 `protobuf:"bytes,3,opt,name=head_branch,json=headBranch,proto3" json:"head_branch,omitempty"`
-	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
-	Conclusion    *string                `protobuf:"bytes,5,opt,name=conclusion,proto3,oneof" json:"conclusion,omitempty"`
-	HtmlUrl       string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Id         int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name       string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	HeadBranch string                 `protobuf:"bytes,3,opt,name=head_branch,json=headBranch,proto3" json:"head_branch,omitempty"`
+	Status     string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"`
+	Conclusion *string                `protobuf:"bytes,5,opt,name=conclusion,proto3,oneof" json:"conclusion,omitempty"`
+	HtmlUrl    string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	// The account that triggered the run; absent when the account is gone.
+	Actor *User `protobuf:"bytes,7,opt,name=actor,proto3" json:"actor,omitempty"`
+	// The sha of the run's head commit.
+	HeadSha       string `protobuf:"bytes,8,opt,name=head_sha,proto3" json:"head_sha,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -194,6 +217,20 @@ func (x *WorkflowRunSummary) GetHtmlUrl() string {
 	return ""
 }
 
+func (x *WorkflowRunSummary) GetActor() *User {
+	if x != nil {
+		return x.Actor
+	}
+	return nil
+}
+
+func (x *WorkflowRunSummary) GetHeadSha() string {
+	if x != nil {
+		return x.HeadSha
+	}
+	return ""
+}
+
 // ListWorkflowRunsResponse wraps the workflow run entries of a list response.
 // The provider returns the entries under workflow_runs and a total_count that
 // the contract leaves unknown. next_page carries the next page number from
@@ -250,22 +287,181 @@ func (x *ListWorkflowRunsResponse) GetNextPage() int64 {
 	return 0
 }
 
+// ListWorkflowRunsByWorkflowRequest lists the workflow runs of one GitHub
+// workflow. The provider serves them under
+// /actions/workflows/{workflow_id}/runs, a separate path from the
+// repository-wide list.
+type ListWorkflowRunsByWorkflowRequest struct {
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Owner      string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	// The workflow's numeric id or its file name, such as ci.yml; the
+	// provider accepts both in this path.
+	WorkflowId string `protobuf:"bytes,3,opt,name=workflow_id,json=workflowId,proto3" json:"workflow_id,omitempty"`
+	PerPage    *int32 `protobuf:"varint,4,opt,name=per_page,json=perPage,proto3,oneof" json:"per_page,omitempty"`
+	Page       *int32 `protobuf:"varint,5,opt,name=page,proto3,oneof" json:"page,omitempty"`
+	// A branch name; the provider matches the run's head_branch.
+	Branch *string `protobuf:"bytes,6,opt,name=branch,proto3,oneof" json:"branch,omitempty"`
+	// The event that triggered the run, such as push or pull_request.
+	Event         *string `protobuf:"bytes,7,opt,name=event,proto3,oneof" json:"event,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWorkflowRunsByWorkflowRequest) Reset() {
+	*x = ListWorkflowRunsByWorkflowRequest{}
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWorkflowRunsByWorkflowRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWorkflowRunsByWorkflowRequest) ProtoMessage() {}
+
+func (x *ListWorkflowRunsByWorkflowRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWorkflowRunsByWorkflowRequest.ProtoReflect.Descriptor instead.
+func (*ListWorkflowRunsByWorkflowRequest) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_actions_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ListWorkflowRunsByWorkflowRequest) GetOwner() string {
+	if x != nil {
+		return x.Owner
+	}
+	return ""
+}
+
+func (x *ListWorkflowRunsByWorkflowRequest) GetRepository() string {
+	if x != nil {
+		return x.Repository
+	}
+	return ""
+}
+
+func (x *ListWorkflowRunsByWorkflowRequest) GetWorkflowId() string {
+	if x != nil {
+		return x.WorkflowId
+	}
+	return ""
+}
+
+func (x *ListWorkflowRunsByWorkflowRequest) GetPerPage() int32 {
+	if x != nil && x.PerPage != nil {
+		return *x.PerPage
+	}
+	return 0
+}
+
+func (x *ListWorkflowRunsByWorkflowRequest) GetPage() int32 {
+	if x != nil && x.Page != nil {
+		return *x.Page
+	}
+	return 0
+}
+
+func (x *ListWorkflowRunsByWorkflowRequest) GetBranch() string {
+	if x != nil && x.Branch != nil {
+		return *x.Branch
+	}
+	return ""
+}
+
+func (x *ListWorkflowRunsByWorkflowRequest) GetEvent() string {
+	if x != nil && x.Event != nil {
+		return *x.Event
+	}
+	return ""
+}
+
+// ListWorkflowRunsByWorkflowResponse wraps the workflow run entries of one
+// workflow's list response. next_page carries the next page number from the
+// Link header. It is filled by JSON unmarshal of the provider response.
+type ListWorkflowRunsByWorkflowResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	WorkflowRuns  []*WorkflowRunSummary  `protobuf:"bytes,1,rep,name=workflow_runs,json=workflowRuns,proto3" json:"workflow_runs,omitempty"`
+	NextPage      *int64                 `protobuf:"varint,2,opt,name=next_page,json=nextPage,proto3,oneof" json:"next_page,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListWorkflowRunsByWorkflowResponse) Reset() {
+	*x = ListWorkflowRunsByWorkflowResponse{}
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListWorkflowRunsByWorkflowResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListWorkflowRunsByWorkflowResponse) ProtoMessage() {}
+
+func (x *ListWorkflowRunsByWorkflowResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_kei_connectors_github_v1_actions_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListWorkflowRunsByWorkflowResponse.ProtoReflect.Descriptor instead.
+func (*ListWorkflowRunsByWorkflowResponse) Descriptor() ([]byte, []int) {
+	return file_kei_connectors_github_v1_actions_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ListWorkflowRunsByWorkflowResponse) GetWorkflowRuns() []*WorkflowRunSummary {
+	if x != nil {
+		return x.WorkflowRuns
+	}
+	return nil
+}
+
+func (x *ListWorkflowRunsByWorkflowResponse) GetNextPage() int64 {
+	if x != nil && x.NextPage != nil {
+		return *x.NextPage
+	}
+	return 0
+}
+
 var File_kei_connectors_github_v1_actions_proto protoreflect.FileDescriptor
 
 const file_kei_connectors_github_v1_actions_proto_rawDesc = "" +
 	"\n" +
-	"&kei/connectors/github/v1/actions.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\"\x9e\x03\n" +
+	"&kei/connectors/github/v1/actions.proto\x12\x18kei.connectors.github.v1\x1a\x1ekei/contracts/v1/options.proto\x1a$kei/connectors/github/v1/pulls.proto\"\xeb\x03\n" +
 	"\x17ListWorkflowRunsRequest\x12\x1c\n" +
 	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
 	"\n" +
 	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
 	"repository\x12\x1e\n" +
 	"\bper_page\x18\x03 \x01(\x05H\x00R\aperPage\x88\x01\x01\x12\x17\n" +
-	"\x04page\x18\x04 \x01(\x05H\x01R\x04page\x88\x01\x01:\xed\x01\x92\x82\x19\xe8\x01\n" +
+	"\x04page\x18\x04 \x01(\x05H\x01R\x04page\x88\x01\x01\x12\x1b\n" +
+	"\x06branch\x18\x05 \x01(\tH\x02R\x06branch\x88\x01\x01\x12\x19\n" +
+	"\x05event\x18\x06 \x01(\tH\x03R\x05event\x88\x01\x01:\xed\x01\x92\x82\x19\xe8\x01\n" +
 	"\x18github.actions.runs.list\x12\x06github\x18\x01*\x03GET2(/repos/{owner}/{repository}/actions/runs:\factions:read@\x01J\x10ListWorkflowRunsR\n" +
 	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x12\b\x01\x12\fworkflow_run\x18\x01\x92\x01\x04page\x9a\x01\tnext_pageB\v\n" +
 	"\t_per_pageB\a\n" +
-	"\x05_page\"\xc0\x01\n" +
+	"\x05_pageB\t\n" +
+	"\a_branchB\b\n" +
+	"\x06_event\"\x92\x02\n" +
 	"\x12WorkflowRunSummary\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x1f\n" +
@@ -275,9 +471,33 @@ const file_kei_connectors_github_v1_actions_proto_rawDesc = "" +
 	"\n" +
 	"conclusion\x18\x05 \x01(\tH\x00R\n" +
 	"conclusion\x88\x01\x01\x12\x19\n" +
-	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrlB\r\n" +
+	"\bhtml_url\x18\x06 \x01(\tR\ahtmlUrl\x124\n" +
+	"\x05actor\x18\a \x01(\v2\x1e.kei.connectors.github.v1.UserR\x05actor\x12\x1a\n" +
+	"\bhead_sha\x18\b \x01(\tR\bhead_shaB\r\n" +
 	"\v_conclusion\"\x9d\x01\n" +
 	"\x18ListWorkflowRunsResponse\x12Q\n" +
+	"\rworkflow_runs\x18\x01 \x03(\v2,.kei.connectors.github.v1.WorkflowRunSummaryR\fworkflowRuns\x12 \n" +
+	"\tnext_page\x18\x02 \x01(\x03H\x00R\bnextPage\x88\x01\x01B\f\n" +
+	"\n" +
+	"_next_page\"\xca\x04\n" +
+	"!ListWorkflowRunsByWorkflowRequest\x12\x1c\n" +
+	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
+	"\n" +
+	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"repository\x12'\n" +
+	"\vworkflow_id\x18\x03 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
+	"workflowId\x12\x1e\n" +
+	"\bper_page\x18\x04 \x01(\x05H\x00R\aperPage\x88\x01\x01\x12\x17\n" +
+	"\x04page\x18\x05 \x01(\x05H\x01R\x04page\x88\x01\x01\x12\x1b\n" +
+	"\x06branch\x18\x06 \x01(\tH\x02R\x06branch\x88\x01\x01\x12\x19\n" +
+	"\x05event\x18\a \x01(\tH\x03R\x05event\x88\x01\x01:\x99\x02\x92\x82\x19\x94\x02\n" +
+	"\"github.actions.workflows.runs.list\x12\x06github\x18\x01*\x03GET2@/repos/{owner}/{repository}/actions/workflows/{workflow_id}/runs:\factions:read@\x01J\x1aListWorkflowRunsByWorkflowR\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x12\b\x01\x12\fworkflow_run\x18\x01\x92\x01\x04page\x9a\x01\tnext_pageB\v\n" +
+	"\t_per_pageB\a\n" +
+	"\x05_pageB\t\n" +
+	"\a_branchB\b\n" +
+	"\x06_event\"\xa7\x01\n" +
+	"\"ListWorkflowRunsByWorkflowResponse\x12Q\n" +
 	"\rworkflow_runs\x18\x01 \x03(\v2,.kei.connectors.github.v1.WorkflowRunSummaryR\fworkflowRuns\x12 \n" +
 	"\tnext_page\x18\x02 \x01(\x03H\x00R\bnextPage\x88\x01\x01B\f\n" +
 	"\n" +
@@ -295,19 +515,24 @@ func file_kei_connectors_github_v1_actions_proto_rawDescGZIP() []byte {
 	return file_kei_connectors_github_v1_actions_proto_rawDescData
 }
 
-var file_kei_connectors_github_v1_actions_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_kei_connectors_github_v1_actions_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_kei_connectors_github_v1_actions_proto_goTypes = []any{
-	(*ListWorkflowRunsRequest)(nil),  // 0: kei.connectors.github.v1.ListWorkflowRunsRequest
-	(*WorkflowRunSummary)(nil),       // 1: kei.connectors.github.v1.WorkflowRunSummary
-	(*ListWorkflowRunsResponse)(nil), // 2: kei.connectors.github.v1.ListWorkflowRunsResponse
+	(*ListWorkflowRunsRequest)(nil),            // 0: kei.connectors.github.v1.ListWorkflowRunsRequest
+	(*WorkflowRunSummary)(nil),                 // 1: kei.connectors.github.v1.WorkflowRunSummary
+	(*ListWorkflowRunsResponse)(nil),           // 2: kei.connectors.github.v1.ListWorkflowRunsResponse
+	(*ListWorkflowRunsByWorkflowRequest)(nil),  // 3: kei.connectors.github.v1.ListWorkflowRunsByWorkflowRequest
+	(*ListWorkflowRunsByWorkflowResponse)(nil), // 4: kei.connectors.github.v1.ListWorkflowRunsByWorkflowResponse
+	(*User)(nil), // 5: kei.connectors.github.v1.User
 }
 var file_kei_connectors_github_v1_actions_proto_depIdxs = []int32{
-	1, // 0: kei.connectors.github.v1.ListWorkflowRunsResponse.workflow_runs:type_name -> kei.connectors.github.v1.WorkflowRunSummary
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	5, // 0: kei.connectors.github.v1.WorkflowRunSummary.actor:type_name -> kei.connectors.github.v1.User
+	1, // 1: kei.connectors.github.v1.ListWorkflowRunsResponse.workflow_runs:type_name -> kei.connectors.github.v1.WorkflowRunSummary
+	1, // 2: kei.connectors.github.v1.ListWorkflowRunsByWorkflowResponse.workflow_runs:type_name -> kei.connectors.github.v1.WorkflowRunSummary
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_kei_connectors_github_v1_actions_proto_init() }
@@ -315,16 +540,19 @@ func file_kei_connectors_github_v1_actions_proto_init() {
 	if File_kei_connectors_github_v1_actions_proto != nil {
 		return
 	}
+	file_kei_connectors_github_v1_pulls_proto_init()
 	file_kei_connectors_github_v1_actions_proto_msgTypes[0].OneofWrappers = []any{}
 	file_kei_connectors_github_v1_actions_proto_msgTypes[1].OneofWrappers = []any{}
 	file_kei_connectors_github_v1_actions_proto_msgTypes[2].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_actions_proto_msgTypes[3].OneofWrappers = []any{}
+	file_kei_connectors_github_v1_actions_proto_msgTypes[4].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_kei_connectors_github_v1_actions_proto_rawDesc), len(file_kei_connectors_github_v1_actions_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

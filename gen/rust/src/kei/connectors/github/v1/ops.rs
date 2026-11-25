@@ -11,7 +11,7 @@
 
 use crate::connection::{Class, HttpConnection, Op, OperationError, Transport, decode_response, map_error, next_cursor_from_link, render_path};
 use crate::kei::contracts::v1::{ErrorKind, ErrorMapping};
-use crate::kei::connectors::github::v1::{CreateBlobRequest, CreateBlobResponse, CreateCommitRequest, CreateCommitResponse, CreateIssueCommentRequest, CreateIssueCommentResponse, CreateIssueRequest, CreateIssueResponse, CreatePullRequestRequest, CreatePullRequestResponse, CreatePullReviewRequest, CreatePullReviewResponse, CreateRefRequest, CreateRefResponse, CreateTreeRequest, CreateTreeResponse, GetIssueRequest, GetIssueResponse, GetPullRequestRequest, GetPullRequestResponse, GetRefRequest, GetRefResponse, GetRepositoryRequest, GetRepositoryResponse, ListCheckRunsRequest, ListCheckRunsResponse, ListIssuesRequest, ListIssuesResponse, ListPullReviewsRequest, ListPullReviewsResponse, ListPullsRequest, ListPullsResponse, ListWorkflowRunsRequest, ListWorkflowRunsResponse, PutContentsRequest, PutContentsResponse, UpdateIssueRequest, UpdateIssueResponse, UpdatePullRequestRequest, UpdatePullRequestResponse, UpdateRefRequest, UpdateRefResponse};
+use crate::kei::connectors::github::v1::{CreateBlobRequest, CreateBlobResponse, CreateCommitRequest, CreateCommitResponse, CreateIssueCommentRequest, CreateIssueCommentResponse, CreateIssueRequest, CreateIssueResponse, CreatePullRequestRequest, CreatePullRequestResponse, CreatePullReviewRequest, CreatePullReviewResponse, CreateRefRequest, CreateRefResponse, CreateTreeRequest, CreateTreeResponse, GetIssueRequest, GetIssueResponse, GetPullRequestRequest, GetPullRequestResponse, GetRefRequest, GetRefResponse, GetRepositoryRequest, GetRepositoryResponse, ListCheckRunsRequest, ListCheckRunsResponse, ListIssuesRequest, ListIssuesResponse, ListPullReviewsRequest, ListPullReviewsResponse, ListPullsRequest, ListPullsResponse, ListWorkflowRunsByWorkflowRequest, ListWorkflowRunsByWorkflowResponse, ListWorkflowRunsRequest, ListWorkflowRunsResponse, PutContentsRequest, PutContentsResponse, UpdateIssueRequest, UpdateIssueResponse, UpdatePullRequestRequest, UpdatePullRequestResponse, UpdateRefRequest, UpdateRefResponse};
 
 /// Operation descriptor for github.actions.runs.list, for authorization and audit: the
 /// capability a policy grants is connector:github.actions.runs.list.
@@ -21,6 +21,18 @@ pub const OP_LIST_WORKFLOW_RUNS: Op = Op {
     destructive: false,
     resource_template: "repos/{owner}/{repository}",
     method_name: "ListWorkflowRuns",
+    connections: &["user_oauth", "pat"],
+    transport: Transport::Http,
+};
+
+/// Operation descriptor for github.actions.workflows.runs.list, for authorization and audit: the
+/// capability a policy grants is connector:github.actions.workflows.runs.list.
+pub const OP_LIST_WORKFLOW_RUNS_BY_WORKFLOW: Op = Op {
+    id: "github.actions.workflows.runs.list",
+    class: Class::Read,
+    destructive: false,
+    resource_template: "repos/{owner}/{repository}",
+    method_name: "ListWorkflowRunsByWorkflow",
     connections: &["user_oauth", "pat"],
     transport: Transport::Http,
 };
@@ -266,6 +278,29 @@ pub const OP_GET_REPOSITORY: Op = Op {
 };
 
 const ERRORS_LIST_WORKFLOW_RUNS: &[ErrorMapping] = &[
+    ErrorMapping {
+        status: 401,
+        kind: ErrorKind::Unauthorized as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 403,
+        kind: ErrorKind::Forbidden as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 404,
+        kind: ErrorKind::NotFound as i32,
+        retryable: false,
+    },
+    ErrorMapping {
+        status: 429,
+        kind: ErrorKind::RateLimited as i32,
+        retryable: true,
+    },
+];
+
+const ERRORS_LIST_WORKFLOW_RUNS_BY_WORKFLOW: &[ErrorMapping] = &[
     ErrorMapping {
         status: 401,
         kind: ErrorKind::Unauthorized as i32,
@@ -874,6 +909,8 @@ const ERRORS_GET_REPOSITORY: &[ErrorMapping] = &[
 pub trait GithubOperations {
     /// list_workflow_runs runs github.actions.runs.list (GET /repos/{owner}/{repository}/actions/runs).
     async fn list_workflow_runs(&self, req: ListWorkflowRunsRequest) -> Result<ListWorkflowRunsResponse, OperationError>;
+    /// list_workflow_runs_by_workflow runs github.actions.workflows.runs.list (GET /repos/{owner}/{repository}/actions/workflows/{workflow_id}/runs).
+    async fn list_workflow_runs_by_workflow(&self, req: ListWorkflowRunsByWorkflowRequest) -> Result<ListWorkflowRunsByWorkflowResponse, OperationError>;
     /// list_check_runs runs github.checks.runs.list (GET /repos/{owner}/{repository}/commits/{ref}/check-runs).
     async fn list_check_runs(&self, req: ListCheckRunsRequest) -> Result<ListCheckRunsResponse, OperationError>;
     /// put_contents runs github.contents.put (PUT /repos/{owner}/{repository}/contents/{path}).
@@ -935,6 +972,8 @@ impl GithubOperations for GithubQueries {
         let mut query_values: Vec<(String, String)> = Vec::new();
         if let Some(v) = req.per_page { query_values.push(("per_page".to_string(), v.to_string())); }
         if let Some(v) = req.page { query_values.push(("page".to_string(), v.to_string())); }
+        if let Some(v) = &req.branch { query_values.push(("branch".to_string(), v.clone())); }
+        if let Some(v) = &req.event { query_values.push(("event".to_string(), v.clone())); }
         let out = self
             .conn
             .do_request("GET", &path, &query_values, None)
@@ -944,6 +983,39 @@ impl GithubOperations for GithubQueries {
             return Err(err);
         }
         let mut resp: ListWorkflowRunsResponse = decode_response(OP_LIST_WORKFLOW_RUNS.id, &out.body, Some("workflowRuns"))?;
+        if resp.next_page.is_none() {
+            if let Some(cursor) = next_cursor_from_link(&out.headers, "page") {
+                resp.next_page = cursor.parse::<i64>().ok();
+            }
+        }
+        Ok(resp)
+    }
+    /// list_workflow_runs_by_workflow runs github.actions.workflows.runs.list (GET /repos/{owner}/{repository}/actions/workflows/{workflow_id}/runs).
+    async fn list_workflow_runs_by_workflow(&self, req: ListWorkflowRunsByWorkflowRequest) -> Result<ListWorkflowRunsByWorkflowResponse, OperationError> {
+        let mut path_values: Vec<(&str, &str)> = Vec::new();
+        path_values.push(("owner", req.owner.as_str()));
+        path_values.push(("repository", req.repository.as_str()));
+        path_values.push(("workflow_id", req.workflow_id.as_str()));
+        let path = render_path(
+            "/repos/{owner}/{repository}/actions/workflows/{workflow_id}/runs",
+            &path_values,
+            &[],
+        )
+        .map_err(|e| OperationError::wrap(OP_LIST_WORKFLOW_RUNS_BY_WORKFLOW.id, format!("render path: {e}")))?;
+        let mut query_values: Vec<(String, String)> = Vec::new();
+        if let Some(v) = req.per_page { query_values.push(("per_page".to_string(), v.to_string())); }
+        if let Some(v) = req.page { query_values.push(("page".to_string(), v.to_string())); }
+        if let Some(v) = &req.branch { query_values.push(("branch".to_string(), v.clone())); }
+        if let Some(v) = &req.event { query_values.push(("event".to_string(), v.clone())); }
+        let out = self
+            .conn
+            .do_request("GET", &path, &query_values, None)
+            .await
+            .map_err(|e| OperationError::wrap(OP_LIST_WORKFLOW_RUNS_BY_WORKFLOW.id, e.to_string()))?;
+        if let Some(err) = map_error(&OP_LIST_WORKFLOW_RUNS_BY_WORKFLOW, out.status, &ERRORS_LIST_WORKFLOW_RUNS_BY_WORKFLOW) {
+            return Err(err);
+        }
+        let mut resp: ListWorkflowRunsByWorkflowResponse = decode_response(OP_LIST_WORKFLOW_RUNS_BY_WORKFLOW.id, &out.body, Some("workflowRuns"))?;
         if resp.next_page.is_none() {
             if let Some(cursor) = next_cursor_from_link(&out.headers, "page") {
                 resp.next_page = cursor.parse::<i64>().ok();
@@ -1207,6 +1279,7 @@ impl GithubOperations for GithubQueries {
         let mut body = serde_json::Map::new();
         body.insert("title".to_string(), serde_json::Value::String(req.title.clone()));
         if let Some(v) = &req.body { body.insert("body".to_string(), serde_json::Value::String(v.clone())); }
+        body.insert("labels".to_string(), serde_json::Value::Array(req.labels.iter().map(|v| serde_json::Value::String(v.clone())).collect()));
         let body_bytes = serde_json::to_vec(&body).map_err(|e| OperationError::wrap(OP_CREATE_ISSUE.id, e.to_string()))?;
         let out = self
             .conn
@@ -1364,6 +1437,7 @@ impl GithubOperations for GithubQueries {
         let mut query_values: Vec<(String, String)> = Vec::new();
         if let Some(v) = req.per_page { query_values.push(("per_page".to_string(), v.to_string())); }
         if let Some(v) = req.page { query_values.push(("page".to_string(), v.to_string())); }
+        if let Some(v) = &req.state { query_values.push(("state".to_string(), v.clone())); }
         let out = self
             .conn
             .do_request("GET", &path, &query_values, None)

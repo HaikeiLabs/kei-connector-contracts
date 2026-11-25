@@ -102,19 +102,22 @@ func (x *GetPullRequestRequest) GetPullNumber() int64 {
 // GetPullRequestResponse models the subset of the GitHub pull request payload
 // the contract needs. It is filled by JSON unmarshal of the provider response.
 type GetPullRequestResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Number        int64                  `protobuf:"varint,2,opt,name=number,proto3" json:"number,omitempty"`
-	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
-	State         string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
-	Body          *string                `protobuf:"bytes,5,opt,name=body,proto3,oneof" json:"body,omitempty"`
-	HtmlUrl       string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
-	Draft         bool                   `protobuf:"varint,7,opt,name=draft,proto3" json:"draft,omitempty"`
-	MergedAt      *string                `protobuf:"bytes,8,opt,name=merged_at,json=mergedAt,proto3,oneof" json:"merged_at,omitempty"`
-	Head          *PullRef               `protobuf:"bytes,9,opt,name=head,proto3" json:"head,omitempty"`
-	Base          *PullRef               `protobuf:"bytes,10,opt,name=base,proto3" json:"base,omitempty"`
-	Author        *User                  `protobuf:"bytes,11,opt,name=author,json=user,proto3" json:"author,omitempty"`
-	Labels        []*Label               `protobuf:"bytes,12,rep,name=labels,proto3" json:"labels,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Id       int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Number   int64                  `protobuf:"varint,2,opt,name=number,proto3" json:"number,omitempty"`
+	Title    string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	State    string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	Body     *string                `protobuf:"bytes,5,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	HtmlUrl  string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	Draft    bool                   `protobuf:"varint,7,opt,name=draft,proto3" json:"draft,omitempty"`
+	MergedAt *string                `protobuf:"bytes,8,opt,name=merged_at,json=mergedAt,proto3,oneof" json:"merged_at,omitempty"`
+	Head     *PullRef               `protobuf:"bytes,9,opt,name=head,proto3" json:"head,omitempty"`
+	Base     *PullRef               `protobuf:"bytes,10,opt,name=base,proto3" json:"base,omitempty"`
+	Author   *User                  `protobuf:"bytes,11,opt,name=author,json=user,proto3" json:"author,omitempty"`
+	Labels   []*Label               `protobuf:"bytes,12,rep,name=labels,proto3" json:"labels,omitempty"`
+	// The .diff and .patch renderings of the pull request.
+	DiffUrl       string `protobuf:"bytes,13,opt,name=diff_url,json=diffUrl,proto3" json:"diff_url,omitempty"`
+	PatchUrl      string `protobuf:"bytes,14,opt,name=patch_url,json=patchUrl,proto3" json:"patch_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -231,6 +234,20 @@ func (x *GetPullRequestResponse) GetLabels() []*Label {
 		return x.Labels
 	}
 	return nil
+}
+
+func (x *GetPullRequestResponse) GetDiffUrl() string {
+	if x != nil {
+		return x.DiffUrl
+	}
+	return ""
+}
+
+func (x *GetPullRequestResponse) GetPatchUrl() string {
+	if x != nil {
+		return x.PatchUrl
+	}
+	return ""
 }
 
 // PullRef models the branch side of a pull request.
@@ -385,13 +402,16 @@ func (x *Label) GetName() string {
 }
 
 // ListPullsRequest lists the pull requests of a GitHub repository. The
-// contract models the page size and page number of the query parameters.
+// contract models the state filter and the page size and page number of the
+// query parameters.
 type ListPullsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Owner         string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
-	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
-	PerPage       *int32                 `protobuf:"varint,3,opt,name=per_page,json=perPage,proto3,oneof" json:"per_page,omitempty"`
-	Page          *int32                 `protobuf:"varint,4,opt,name=page,proto3,oneof" json:"page,omitempty"`
+	state      protoimpl.MessageState `protogen:"open.v1"`
+	Owner      string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
+	Repository string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
+	PerPage    *int32                 `protobuf:"varint,3,opt,name=per_page,json=perPage,proto3,oneof" json:"per_page,omitempty"`
+	Page       *int32                 `protobuf:"varint,4,opt,name=page,proto3,oneof" json:"page,omitempty"`
+	// open, closed or all.
+	State         *string `protobuf:"bytes,5,opt,name=state,proto3,oneof" json:"state,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -452,6 +472,13 @@ func (x *ListPullsRequest) GetPage() int32 {
 		return *x.Page
 	}
 	return 0
+}
+
+func (x *ListPullsRequest) GetState() string {
+	if x != nil && x.State != nil {
+		return *x.State
+	}
+	return ""
 }
 
 // PullRequestSummary models the subset of each pull request entry a list
@@ -735,17 +762,20 @@ func (x *CreatePullRequestRequest) GetDraft() bool {
 // CreatePullRequestResponse models the opened pull request. It is filled by
 // JSON unmarshal of the provider response.
 type CreatePullRequestResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Number        int64                  `protobuf:"varint,2,opt,name=number,proto3" json:"number,omitempty"`
-	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
-	State         string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
-	HtmlUrl       string                 `protobuf:"bytes,5,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
-	Draft         bool                   `protobuf:"varint,6,opt,name=draft,proto3" json:"draft,omitempty"`
-	Head          *PullRef               `protobuf:"bytes,7,opt,name=head,proto3" json:"head,omitempty"`
-	Base          *PullRef               `protobuf:"bytes,8,opt,name=base,proto3" json:"base,omitempty"`
-	Author        *User                  `protobuf:"bytes,9,opt,name=author,json=user,proto3" json:"author,omitempty"`
-	Labels        []*Label               `protobuf:"bytes,10,rep,name=labels,proto3" json:"labels,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Id      int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Number  int64                  `protobuf:"varint,2,opt,name=number,proto3" json:"number,omitempty"`
+	Title   string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	State   string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	HtmlUrl string                 `protobuf:"bytes,5,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	Draft   bool                   `protobuf:"varint,6,opt,name=draft,proto3" json:"draft,omitempty"`
+	Head    *PullRef               `protobuf:"bytes,7,opt,name=head,proto3" json:"head,omitempty"`
+	Base    *PullRef               `protobuf:"bytes,8,opt,name=base,proto3" json:"base,omitempty"`
+	Author  *User                  `protobuf:"bytes,9,opt,name=author,json=user,proto3" json:"author,omitempty"`
+	Labels  []*Label               `protobuf:"bytes,10,rep,name=labels,proto3" json:"labels,omitempty"`
+	// The .diff and .patch renderings of the pull request.
+	DiffUrl       string `protobuf:"bytes,11,opt,name=diff_url,json=diffUrl,proto3" json:"diff_url,omitempty"`
+	PatchUrl      string `protobuf:"bytes,12,opt,name=patch_url,json=patchUrl,proto3" json:"patch_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -850,6 +880,20 @@ func (x *CreatePullRequestResponse) GetLabels() []*Label {
 	return nil
 }
 
+func (x *CreatePullRequestResponse) GetDiffUrl() string {
+	if x != nil {
+		return x.DiffUrl
+	}
+	return ""
+}
+
+func (x *CreatePullRequestResponse) GetPatchUrl() string {
+	if x != nil {
+		return x.PatchUrl
+	}
+	return ""
+}
+
 // UpdatePullRequestRequest edits an open pull request. Every field is
 // optional: the provider applies a partial update. The provider answers a
 // PATCH with the full pull payload, so the operation reuses the read
@@ -950,19 +994,22 @@ func (x *UpdatePullRequestRequest) GetBase() string {
 // answers a PATCH with the full payload. It is filled by JSON unmarshal of
 // the provider response.
 type UpdatePullRequestResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Number        int64                  `protobuf:"varint,2,opt,name=number,proto3" json:"number,omitempty"`
-	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
-	State         string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
-	Body          *string                `protobuf:"bytes,5,opt,name=body,proto3,oneof" json:"body,omitempty"`
-	HtmlUrl       string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
-	Draft         bool                   `protobuf:"varint,7,opt,name=draft,proto3" json:"draft,omitempty"`
-	MergedAt      *string                `protobuf:"bytes,8,opt,name=merged_at,json=mergedAt,proto3,oneof" json:"merged_at,omitempty"`
-	Head          *PullRef               `protobuf:"bytes,9,opt,name=head,proto3" json:"head,omitempty"`
-	Base          *PullRef               `protobuf:"bytes,10,opt,name=base,proto3" json:"base,omitempty"`
-	Author        *User                  `protobuf:"bytes,11,opt,name=author,json=user,proto3" json:"author,omitempty"`
-	Labels        []*Label               `protobuf:"bytes,12,rep,name=labels,proto3" json:"labels,omitempty"`
+	state    protoimpl.MessageState `protogen:"open.v1"`
+	Id       int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Number   int64                  `protobuf:"varint,2,opt,name=number,proto3" json:"number,omitempty"`
+	Title    string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
+	State    string                 `protobuf:"bytes,4,opt,name=state,proto3" json:"state,omitempty"`
+	Body     *string                `protobuf:"bytes,5,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	HtmlUrl  string                 `protobuf:"bytes,6,opt,name=html_url,json=htmlUrl,proto3" json:"html_url,omitempty"`
+	Draft    bool                   `protobuf:"varint,7,opt,name=draft,proto3" json:"draft,omitempty"`
+	MergedAt *string                `protobuf:"bytes,8,opt,name=merged_at,json=mergedAt,proto3,oneof" json:"merged_at,omitempty"`
+	Head     *PullRef               `protobuf:"bytes,9,opt,name=head,proto3" json:"head,omitempty"`
+	Base     *PullRef               `protobuf:"bytes,10,opt,name=base,proto3" json:"base,omitempty"`
+	Author   *User                  `protobuf:"bytes,11,opt,name=author,json=user,proto3" json:"author,omitempty"`
+	Labels   []*Label               `protobuf:"bytes,12,rep,name=labels,proto3" json:"labels,omitempty"`
+	// The .diff and .patch renderings of the pull request.
+	DiffUrl       string `protobuf:"bytes,13,opt,name=diff_url,json=diffUrl,proto3" json:"diff_url,omitempty"`
+	PatchUrl      string `protobuf:"bytes,14,opt,name=patch_url,json=patchUrl,proto3" json:"patch_url,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1079,6 +1126,20 @@ func (x *UpdatePullRequestResponse) GetLabels() []*Label {
 		return x.Labels
 	}
 	return nil
+}
+
+func (x *UpdatePullRequestResponse) GetDiffUrl() string {
+	if x != nil {
+		return x.DiffUrl
+	}
+	return ""
+}
+
+func (x *UpdatePullRequestResponse) GetPatchUrl() string {
+	if x != nil {
+		return x.PatchUrl
+	}
+	return ""
 }
 
 // ListPullReviewsRequest lists the reviews of a pull request. The contract
@@ -1480,7 +1541,7 @@ const file_kei_connectors_github_v1_pulls_proto_rawDesc = "" +
 	"pullNumber:\xd5\x01\x92\x82\x19\xd0\x01\n" +
 	"\x10github.pulls.get\x12\x06github\x18\x01*\x03GET2//repos/{owner}/{repository}/pulls/{pull_number}:\n" +
 	"pulls:read@\x01J\x0eGetPullRequestR\n" +
-	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x12\b\x01\x12\fpull_request\x18\x01\"\xcc\x03\n" +
+	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x12\b\x01\x12\fpull_request\x18\x01\"\x84\x04\n" +
 	"\x16GetPullRequestResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
@@ -1494,7 +1555,9 @@ const file_kei_connectors_github_v1_pulls_proto_rawDesc = "" +
 	"\x04base\x18\n" +
 	" \x01(\v2!.kei.connectors.github.v1.PullRefR\x04base\x124\n" +
 	"\x06author\x18\v \x01(\v2\x1e.kei.connectors.github.v1.UserR\x04user\x127\n" +
-	"\x06labels\x18\f \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labelsB\a\n" +
+	"\x06labels\x18\f \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labels\x12\x19\n" +
+	"\bdiff_url\x18\r \x01(\tR\adiffUrl\x12\x1b\n" +
+	"\tpatch_url\x18\x0e \x01(\tR\bpatchUrlB\a\n" +
 	"\x05_bodyB\f\n" +
 	"\n" +
 	"_merged_at\"\x1b\n" +
@@ -1505,19 +1568,21 @@ const file_kei_connectors_github_v1_pulls_proto_rawDesc = "" +
 	"\x05login\x18\x02 \x01(\tR\x05login\"+\n" +
 	"\x05Label\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\"\x80\x03\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\"\xa5\x03\n" +
 	"\x10ListPullsRequest\x12\x1c\n" +
 	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
 	"\n" +
 	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
 	"repository\x12\x1e\n" +
 	"\bper_page\x18\x03 \x01(\x05H\x00R\aperPage\x88\x01\x01\x12\x17\n" +
-	"\x04page\x18\x04 \x01(\x05H\x01R\x04page\x88\x01\x01:\xd6\x01\x92\x82\x19\xd1\x01\n" +
+	"\x04page\x18\x04 \x01(\x05H\x01R\x04page\x88\x01\x01\x12\x19\n" +
+	"\x05state\x18\x05 \x01(\tH\x02R\x05state\x88\x01\x01:\xd6\x01\x92\x82\x19\xd1\x01\n" +
 	"\x11github.pulls.list\x12\x06github\x18\x01*\x03GET2!/repos/{owner}/{repository}/pulls:\n" +
 	"pulls:read@\x01J\tListPullsR\n" +
 	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01\x8a\x01\x12\b\x01\x12\fpull_request\x18\x01\x92\x01\x04page\x9a\x01\tnext_pageB\v\n" +
 	"\t_per_pageB\a\n" +
-	"\x05_page\"\x98\x03\n" +
+	"\x05_pageB\b\n" +
+	"\x06_state\"\x98\x03\n" +
 	"\x12PullRequestSummary\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
@@ -1550,7 +1615,7 @@ const file_kei_connectors_github_v1_pulls_proto_rawDesc = "" +
 	"\x13github.pulls.create\x12\x06github\x18\x02*\x04POST2!/repos/{owner}/{repository}/pulls:\vpulls:write@\x01J\x11CreatePullRequestR\n" +
 	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01b\x05\b\x99\x03\x10\x05b\x05\b\xa6\x03\x10\x06\x8a\x01\x12\b\x02\x12\fpull_request\x18\x01B\a\n" +
 	"\x05_bodyB\b\n" +
-	"\x06_draft\"\xfd\x02\n" +
+	"\x06_draft\"\xb5\x03\n" +
 	"\x19CreatePullRequestResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
@@ -1562,7 +1627,9 @@ const file_kei_connectors_github_v1_pulls_proto_rawDesc = "" +
 	"\x04base\x18\b \x01(\v2!.kei.connectors.github.v1.PullRefR\x04base\x124\n" +
 	"\x06author\x18\t \x01(\v2\x1e.kei.connectors.github.v1.UserR\x04user\x127\n" +
 	"\x06labels\x18\n" +
-	" \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labels\"\x86\x04\n" +
+	" \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labels\x12\x19\n" +
+	"\bdiff_url\x18\v \x01(\tR\adiffUrl\x12\x1b\n" +
+	"\tpatch_url\x18\f \x01(\tR\bpatchUrl\"\x86\x04\n" +
 	"\x18UpdatePullRequestRequest\x12\x1c\n" +
 	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
 	"\n" +
@@ -1579,7 +1646,7 @@ const file_kei_connectors_github_v1_pulls_proto_rawDesc = "" +
 	"\x06_titleB\a\n" +
 	"\x05_bodyB\b\n" +
 	"\x06_stateB\a\n" +
-	"\x05_base\"\xcf\x03\n" +
+	"\x05_base\"\x87\x04\n" +
 	"\x19UpdatePullRequestResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x16\n" +
 	"\x06number\x18\x02 \x01(\x03R\x06number\x12\x14\n" +
@@ -1593,7 +1660,9 @@ const file_kei_connectors_github_v1_pulls_proto_rawDesc = "" +
 	"\x04base\x18\n" +
 	" \x01(\v2!.kei.connectors.github.v1.PullRefR\x04base\x124\n" +
 	"\x06author\x18\v \x01(\v2\x1e.kei.connectors.github.v1.UserR\x04user\x127\n" +
-	"\x06labels\x18\f \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labelsB\a\n" +
+	"\x06labels\x18\f \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labels\x12\x19\n" +
+	"\bdiff_url\x18\r \x01(\tR\adiffUrl\x12\x1b\n" +
+	"\tpatch_url\x18\x0e \x01(\tR\bpatchUrlB\a\n" +
 	"\x05_bodyB\f\n" +
 	"\n" +
 	"_merged_at\"\xd6\x03\n" +

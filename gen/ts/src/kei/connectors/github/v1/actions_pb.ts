@@ -21,17 +21,20 @@
 import type { GenFile, GenMessage } from "@bufbuild/protobuf/codegenv2";
 import { fileDesc, messageDesc } from "@bufbuild/protobuf/codegenv2";
 import { file_kei_contracts_v1_options } from "../../../contracts/v1/options_pb.js";
+import type { User } from "./pulls_pb.js";
+import { file_kei_connectors_github_v1_pulls } from "./pulls_pb.js";
 import type { Message } from "@bufbuild/protobuf";
 
 /**
  * Describes the file kei/connectors/github/v1/actions.proto.
  */
 export const file_kei_connectors_github_v1_actions: GenFile = /*@__PURE__*/
-  fileDesc("CiZrZWkvY29ubmVjdG9ycy9naXRodWIvdjEvYWN0aW9ucy5wcm90bxIYa2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxIvwCChdMaXN0V29ya2Zsb3dSdW5zUmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIVCghwZXJfcGFnZRgDIAEoBUgAiAEBEhEKBHBhZ2UYBCABKAVIAYgBATrtAZKCGegBChhnaXRodWIuYWN0aW9ucy5ydW5zLmxpc3QSBmdpdGh1YhgBKgNHRVQyKC9yZXBvcy97b3duZXJ9L3tyZXBvc2l0b3J5fS9hY3Rpb25zL3J1bnM6DGFjdGlvbnM6cmVhZEABShBMaXN0V29ya2Zsb3dSdW5zUgp1c2VyX29hdXRoUgNwYXRaGnJlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9YgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBigESCAESDHdvcmtmbG93X3J1bhgBkgEEcGFnZZoBCW5leHRfcGFnZUILCglfcGVyX3BhZ2VCBwoFX3BhZ2UijQEKEldvcmtmbG93UnVuU3VtbWFyeRIKCgJpZBgBIAEoAxIMCgRuYW1lGAIgASgJEhMKC2hlYWRfYnJhbmNoGAMgASgJEg4KBnN0YXR1cxgEIAEoCRIXCgpjb25jbHVzaW9uGAUgASgJSACIAQESEAoIaHRtbF91cmwYBiABKAlCDQoLX2NvbmNsdXNpb24ihQEKGExpc3RXb3JrZmxvd1J1bnNSZXNwb25zZRJDCg13b3JrZmxvd19ydW5zGAEgAygLMiwua2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxLldvcmtmbG93UnVuU3VtbWFyeRIWCgluZXh0X3BhZ2UYAiABKANIAIgBAUIMCgpfbmV4dF9wYWdlQlZaVGdpdGh1Yi5jb20vSGFpa2VpTGFicy9rZWktY29ubmVjdG9yLWNvbnRyYWN0cy9nZW4vZ28va2VpL2Nvbm5lY3RvcnMvZ2l0aHViL3YxO2dpdGh1YmIGcHJvdG8z", [file_kei_contracts_v1_options]);
+  fileDesc("CiZrZWkvY29ubmVjdG9ycy9naXRodWIvdjEvYWN0aW9ucy5wcm90bxIYa2VpLmNvbm5lY3RvcnMuZ2l0aHViLnYxIroDChdMaXN0V29ya2Zsb3dSdW5zUmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIVCghwZXJfcGFnZRgDIAEoBUgAiAEBEhEKBHBhZ2UYBCABKAVIAYgBARITCgZicmFuY2gYBSABKAlIAogBARISCgVldmVudBgGIAEoCUgDiAEBOu0BkoIZ6AEKGGdpdGh1Yi5hY3Rpb25zLnJ1bnMubGlzdBIGZ2l0aHViGAEqA0dFVDIoL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L2FjdGlvbnMvcnVuczoMYWN0aW9uczpyZWFkQAFKEExpc3RXb3JrZmxvd1J1bnNSCnVzZXJfb2F1dGhSA3BhdFoacmVwb3Mve293bmVyfS97cmVwb3NpdG9yeX1iBQiRAxACYgUIkwMQA2IFCJQDEAFiBwitAxAEGAGKARIIARIMd29ya2Zsb3dfcnVuGAGSAQRwYWdlmgEJbmV4dF9wYWdlQgsKCV9wZXJfcGFnZUIHCgVfcGFnZUIJCgdfYnJhbmNoQggKBl9ldmVudCLYAQoSV29ya2Zsb3dSdW5TdW1tYXJ5EgoKAmlkGAEgASgDEgwKBG5hbWUYAiABKAkSEwoLaGVhZF9icmFuY2gYAyABKAkSDgoGc3RhdHVzGAQgASgJEhcKCmNvbmNsdXNpb24YBSABKAlIAIgBARIQCghodG1sX3VybBgGIAEoCRItCgVhY3RvchgHIAEoCzIeLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5Vc2VyEhoKCGhlYWRfc2hhGAggASgJUghoZWFkX3NoYUINCgtfY29uY2x1c2lvbiKFAQoYTGlzdFdvcmtmbG93UnVuc1Jlc3BvbnNlEkMKDXdvcmtmbG93X3J1bnMYASADKAsyLC5rZWkuY29ubmVjdG9ycy5naXRodWIudjEuV29ya2Zsb3dSdW5TdW1tYXJ5EhYKCW5leHRfcGFnZRgCIAEoA0gAiAEBQgwKCl9uZXh0X3BhZ2UijQQKIUxpc3RXb3JrZmxvd1J1bnNCeVdvcmtmbG93UmVxdWVzdBIVCgVvd25lchgBIAEoCUIGooIZAggBEhoKCnJlcG9zaXRvcnkYAiABKAlCBqKCGQIIARIbCgt3b3JrZmxvd19pZBgDIAEoCUIGooIZAggBEhUKCHBlcl9wYWdlGAQgASgFSACIAQESEQoEcGFnZRgFIAEoBUgBiAEBEhMKBmJyYW5jaBgGIAEoCUgCiAEBEhIKBWV2ZW50GAcgASgJSAOIAQE6mQKSghmUAgoiZ2l0aHViLmFjdGlvbnMud29ya2Zsb3dzLnJ1bnMubGlzdBIGZ2l0aHViGAEqA0dFVDJAL3JlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9L2FjdGlvbnMvd29ya2Zsb3dzL3t3b3JrZmxvd19pZH0vcnVuczoMYWN0aW9uczpyZWFkQAFKGkxpc3RXb3JrZmxvd1J1bnNCeVdvcmtmbG93Ugp1c2VyX29hdXRoUgNwYXRaGnJlcG9zL3tvd25lcn0ve3JlcG9zaXRvcnl9YgUIkQMQAmIFCJMDEANiBQiUAxABYgcIrQMQBBgBigESCAESDHdvcmtmbG93X3J1bhgBkgEEcGFnZZoBCW5leHRfcGFnZUILCglfcGVyX3BhZ2VCBwoFX3BhZ2VCCQoHX2JyYW5jaEIICgZfZXZlbnQijwEKIkxpc3RXb3JrZmxvd1J1bnNCeVdvcmtmbG93UmVzcG9uc2USQwoNd29ya2Zsb3dfcnVucxgBIAMoCzIsLmtlaS5jb25uZWN0b3JzLmdpdGh1Yi52MS5Xb3JrZmxvd1J1blN1bW1hcnkSFgoJbmV4dF9wYWdlGAIgASgDSACIAQFCDAoKX25leHRfcGFnZUJWWlRnaXRodWIuY29tL0hhaWtlaUxhYnMva2VpLWNvbm5lY3Rvci1jb250cmFjdHMvZ2VuL2dvL2tlaS9jb25uZWN0b3JzL2dpdGh1Yi92MTtnaXRodWJiBnByb3RvMw", [file_kei_contracts_v1_options, file_kei_connectors_github_v1_pulls]);
 
 /**
  * ListWorkflowRunsRequest lists the workflow runs of a GitHub repository.
- * The contract models the page size and page number of the query parameters.
+ * The contract models the branch and event filters and the page size and
+ * page number of the query parameters.
  *
  * @generated from message kei.connectors.github.v1.ListWorkflowRunsRequest
  */
@@ -55,6 +58,20 @@ export type ListWorkflowRunsRequest = Message<"kei.connectors.github.v1.ListWork
    * @generated from field: optional int32 page = 4;
    */
   page?: number | undefined;
+
+  /**
+   * A branch name; the provider matches the run's head_branch.
+   *
+   * @generated from field: optional string branch = 5;
+   */
+  branch?: string | undefined;
+
+  /**
+   * The event that triggered the run, such as push or pull_request.
+   *
+   * @generated from field: optional string event = 6;
+   */
+  event?: string | undefined;
 };
 
 /**
@@ -100,6 +117,20 @@ export type WorkflowRunSummary = Message<"kei.connectors.github.v1.WorkflowRunSu
    * @generated from field: string html_url = 6;
    */
   htmlUrl: string;
+
+  /**
+   * The account that triggered the run; absent when the account is gone.
+   *
+   * @generated from field: kei.connectors.github.v1.User actor = 7;
+   */
+  actor?: User | undefined;
+
+  /**
+   * The sha of the run's head commit.
+   *
+   * @generated from field: string head_sha = 8 [json_name = "head_sha"];
+   */
+  headSha: string;
 };
 
 /**
@@ -135,4 +166,89 @@ export type ListWorkflowRunsResponse = Message<"kei.connectors.github.v1.ListWor
  */
 export const ListWorkflowRunsResponseSchema: GenMessage<ListWorkflowRunsResponse> = /*@__PURE__*/
   messageDesc(file_kei_connectors_github_v1_actions, 2);
+
+/**
+ * ListWorkflowRunsByWorkflowRequest lists the workflow runs of one GitHub
+ * workflow. The provider serves them under
+ * /actions/workflows/{workflow_id}/runs, a separate path from the
+ * repository-wide list.
+ *
+ * @generated from message kei.connectors.github.v1.ListWorkflowRunsByWorkflowRequest
+ */
+export type ListWorkflowRunsByWorkflowRequest = Message<"kei.connectors.github.v1.ListWorkflowRunsByWorkflowRequest"> & {
+  /**
+   * @generated from field: string owner = 1;
+   */
+  owner: string;
+
+  /**
+   * @generated from field: string repository = 2;
+   */
+  repository: string;
+
+  /**
+   * The workflow's numeric id or its file name, such as ci.yml; the
+   * provider accepts both in this path.
+   *
+   * @generated from field: string workflow_id = 3;
+   */
+  workflowId: string;
+
+  /**
+   * @generated from field: optional int32 per_page = 4;
+   */
+  perPage?: number | undefined;
+
+  /**
+   * @generated from field: optional int32 page = 5;
+   */
+  page?: number | undefined;
+
+  /**
+   * A branch name; the provider matches the run's head_branch.
+   *
+   * @generated from field: optional string branch = 6;
+   */
+  branch?: string | undefined;
+
+  /**
+   * The event that triggered the run, such as push or pull_request.
+   *
+   * @generated from field: optional string event = 7;
+   */
+  event?: string | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ListWorkflowRunsByWorkflowRequest.
+ * Use `create(ListWorkflowRunsByWorkflowRequestSchema)` to create a new message.
+ */
+export const ListWorkflowRunsByWorkflowRequestSchema: GenMessage<ListWorkflowRunsByWorkflowRequest> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_actions, 3);
+
+/**
+ * ListWorkflowRunsByWorkflowResponse wraps the workflow run entries of one
+ * workflow's list response. next_page carries the next page number from the
+ * Link header. It is filled by JSON unmarshal of the provider response.
+ *
+ * @generated from message kei.connectors.github.v1.ListWorkflowRunsByWorkflowResponse
+ */
+export type ListWorkflowRunsByWorkflowResponse = Message<"kei.connectors.github.v1.ListWorkflowRunsByWorkflowResponse"> & {
+  /**
+   * @generated from field: repeated kei.connectors.github.v1.WorkflowRunSummary workflow_runs = 1;
+   */
+  workflowRuns: WorkflowRunSummary[];
+
+  /**
+   * @generated from field: optional int64 next_page = 2;
+   */
+  nextPage?: bigint | undefined;
+};
+
+/**
+ * Describes the message kei.connectors.github.v1.ListWorkflowRunsByWorkflowResponse.
+ * Use `create(ListWorkflowRunsByWorkflowResponseSchema)` to create a new message.
+ */
+export const ListWorkflowRunsByWorkflowResponseSchema: GenMessage<ListWorkflowRunsByWorkflowResponse> = /*@__PURE__*/
+  messageDesc(file_kei_connectors_github_v1_actions, 4);
 

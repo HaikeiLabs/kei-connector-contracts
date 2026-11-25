@@ -1,4 +1,5 @@
 from kei.contracts.v1 import options_pb2 as _options_pb2
+from kei.connectors.github.v1 import pulls_pb2 as _pulls_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
@@ -8,34 +9,68 @@ from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class ListWorkflowRunsRequest(_message.Message):
-    __slots__ = ("owner", "repository", "per_page", "page")
+    __slots__ = ("owner", "repository", "per_page", "page", "branch", "event")
     OWNER_FIELD_NUMBER: _ClassVar[int]
     REPOSITORY_FIELD_NUMBER: _ClassVar[int]
     PER_PAGE_FIELD_NUMBER: _ClassVar[int]
     PAGE_FIELD_NUMBER: _ClassVar[int]
+    BRANCH_FIELD_NUMBER: _ClassVar[int]
+    EVENT_FIELD_NUMBER: _ClassVar[int]
     owner: str
     repository: str
     per_page: int
     page: int
-    def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., per_page: _Optional[int] = ..., page: _Optional[int] = ...) -> None: ...
+    branch: str
+    event: str
+    def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., per_page: _Optional[int] = ..., page: _Optional[int] = ..., branch: _Optional[str] = ..., event: _Optional[str] = ...) -> None: ...
 
 class WorkflowRunSummary(_message.Message):
-    __slots__ = ("id", "name", "head_branch", "status", "conclusion", "html_url")
+    __slots__ = ("id", "name", "head_branch", "status", "conclusion", "html_url", "actor", "head_sha")
     ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     HEAD_BRANCH_FIELD_NUMBER: _ClassVar[int]
     STATUS_FIELD_NUMBER: _ClassVar[int]
     CONCLUSION_FIELD_NUMBER: _ClassVar[int]
     HTML_URL_FIELD_NUMBER: _ClassVar[int]
+    ACTOR_FIELD_NUMBER: _ClassVar[int]
+    HEAD_SHA_FIELD_NUMBER: _ClassVar[int]
     id: int
     name: str
     head_branch: str
     status: str
     conclusion: str
     html_url: str
-    def __init__(self, id: _Optional[int] = ..., name: _Optional[str] = ..., head_branch: _Optional[str] = ..., status: _Optional[str] = ..., conclusion: _Optional[str] = ..., html_url: _Optional[str] = ...) -> None: ...
+    actor: _pulls_pb2.User
+    head_sha: str
+    def __init__(self, id: _Optional[int] = ..., name: _Optional[str] = ..., head_branch: _Optional[str] = ..., status: _Optional[str] = ..., conclusion: _Optional[str] = ..., html_url: _Optional[str] = ..., actor: _Optional[_Union[_pulls_pb2.User, _Mapping]] = ..., head_sha: _Optional[str] = ...) -> None: ...
 
 class ListWorkflowRunsResponse(_message.Message):
+    __slots__ = ("workflow_runs", "next_page")
+    WORKFLOW_RUNS_FIELD_NUMBER: _ClassVar[int]
+    NEXT_PAGE_FIELD_NUMBER: _ClassVar[int]
+    workflow_runs: _containers.RepeatedCompositeFieldContainer[WorkflowRunSummary]
+    next_page: int
+    def __init__(self, workflow_runs: _Optional[_Iterable[_Union[WorkflowRunSummary, _Mapping]]] = ..., next_page: _Optional[int] = ...) -> None: ...
+
+class ListWorkflowRunsByWorkflowRequest(_message.Message):
+    __slots__ = ("owner", "repository", "workflow_id", "per_page", "page", "branch", "event")
+    OWNER_FIELD_NUMBER: _ClassVar[int]
+    REPOSITORY_FIELD_NUMBER: _ClassVar[int]
+    WORKFLOW_ID_FIELD_NUMBER: _ClassVar[int]
+    PER_PAGE_FIELD_NUMBER: _ClassVar[int]
+    PAGE_FIELD_NUMBER: _ClassVar[int]
+    BRANCH_FIELD_NUMBER: _ClassVar[int]
+    EVENT_FIELD_NUMBER: _ClassVar[int]
+    owner: str
+    repository: str
+    workflow_id: str
+    per_page: int
+    page: int
+    branch: str
+    event: str
+    def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., workflow_id: _Optional[str] = ..., per_page: _Optional[int] = ..., page: _Optional[int] = ..., branch: _Optional[str] = ..., event: _Optional[str] = ...) -> None: ...
+
+class ListWorkflowRunsByWorkflowResponse(_message.Message):
     __slots__ = ("workflow_runs", "next_page")
     WORKFLOW_RUNS_FIELD_NUMBER: _ClassVar[int]
     NEXT_PAGE_FIELD_NUMBER: _ClassVar[int]

@@ -108,8 +108,15 @@ var fixtureCases = []fixtureCase{
 		request:   func() proto.Message { return &githubv1.GetPullRequestRequest{} },
 		response:  func() proto.Message { return &githubv1.GetPullRequestResponse{} },
 		spotCheck: func(t *testing.T, resp proto.Message) {
-			if got := resp.(*githubv1.GetPullRequestResponse).GetNumber(); got != 42 {
+			pull := resp.(*githubv1.GetPullRequestResponse)
+			if got := pull.GetNumber(); got != 42 {
 				t.Errorf("number = %d, want 42", got)
+			}
+			if got := pull.GetDiffUrl(); got != "https://example.invalid/example-org/example-repo/pull/42.diff" {
+				t.Errorf("diff_url = %q, want the .diff URL", got)
+			}
+			if got := pull.GetPatchUrl(); got != "https://example.invalid/example-org/example-repo/pull/42.patch" {
+				t.Errorf("patch_url = %q, want the .patch URL", got)
 			}
 		},
 	},
@@ -140,6 +147,30 @@ var fixtureCases = []fixtureCase{
 			}
 			if got := runs.GetWorkflowRuns()[0].GetId(); got != 9007199254741001 {
 				t.Errorf("workflow_runs[0].id = %d, want 9007199254741001 (int64 must not go through float64)", got)
+			}
+			if got := runs.GetWorkflowRuns()[0].GetActor().GetLogin(); got != "example-user" {
+				t.Errorf("workflow_runs[0].actor.login = %q, want example-user", got)
+			}
+			if got := runs.GetWorkflowRuns()[0].GetHeadSha(); got != "synthetic-head-sha-1" {
+				t.Errorf("workflow_runs[0].head_sha = %q, want the synthetic sha", got)
+			}
+		},
+	},
+	{
+		op:        "github.actions.workflows.runs.list",
+		connector: "github",
+		request:   func() proto.Message { return &githubv1.ListWorkflowRunsByWorkflowRequest{} },
+		response:  func() proto.Message { return &githubv1.ListWorkflowRunsByWorkflowResponse{} },
+		spotCheck: func(t *testing.T, resp proto.Message) {
+			runs := resp.(*githubv1.ListWorkflowRunsByWorkflowResponse)
+			if got := len(runs.GetWorkflowRuns()); got != 1 {
+				t.Errorf("len(workflow_runs) = %d, want 1", got)
+			}
+			if got := runs.GetWorkflowRuns()[0].GetActor().GetLogin(); got != "example-user" {
+				t.Errorf("workflow_runs[0].actor.login = %q, want example-user", got)
+			}
+			if got := runs.GetWorkflowRuns()[0].GetHeadSha(); got != "synthetic-head-sha-1" {
+				t.Errorf("workflow_runs[0].head_sha = %q, want the synthetic sha", got)
 			}
 		},
 	},

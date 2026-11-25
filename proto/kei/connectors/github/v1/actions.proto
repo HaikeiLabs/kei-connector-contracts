@@ -18,16 +18,22 @@ syntax = "proto3";
 package kei.connectors.github.v1;
 
 import "kei/contracts/v1/options.proto";
+import "kei/connectors/github/v1/pulls.proto";
 
 option go_package = "github.com/HaikeiLabs/kei-connector-contracts/gen/go/kei/connectors/github/v1;github";
 
 // ListWorkflowRunsRequest lists the workflow runs of a GitHub repository.
-// The contract models the page size and page number of the query parameters.
+// The contract models the branch and event filters and the page size and
+// page number of the query parameters.
 message ListWorkflowRunsRequest {
   string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
   string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
   optional int32 per_page = 3;
   optional int32 page = 4;
+  // A branch name; the provider matches the run's head_branch.
+  optional string branch = 5;
+  // The event that triggered the run, such as push or pull_request.
+  optional string event = 6;
 
   option (kei.contracts.v1.operation) = {
     id: "github.actions.runs.list"
@@ -61,6 +67,10 @@ message WorkflowRunSummary {
   string status = 4;
   optional string conclusion = 5;
   string html_url = 6;
+  // The account that triggered the run; absent when the account is gone.
+  User actor = 7;
+  // The sha of the run's head commit.
+  string head_sha = 8 [json_name = "head_sha"];
 }
 
 // ListWorkflowRunsResponse wraps the workflow run entries of a list response.
@@ -68,6 +78,54 @@ message WorkflowRunSummary {
 // the contract leaves unknown. next_page carries the next page number from
 // the Link header. It is filled by JSON unmarshal of the provider response.
 message ListWorkflowRunsResponse {
+  repeated WorkflowRunSummary workflow_runs = 1;
+  optional int64 next_page = 2;
+}
+
+// ListWorkflowRunsByWorkflowRequest lists the workflow runs of one GitHub
+// workflow. The provider serves them under
+// /actions/workflows/{workflow_id}/runs, a separate path from the
+// repository-wide list.
+message ListWorkflowRunsByWorkflowRequest {
+  string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  // The workflow's numeric id or its file name, such as ci.yml; the
+  // provider accepts both in this path.
+  string workflow_id = 3 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
+  optional int32 per_page = 4;
+  optional int32 page = 5;
+  // A branch name; the provider matches the run's head_branch.
+  optional string branch = 6;
+  // The event that triggered the run, such as push or pull_request.
+  optional string event = 7;
+
+  option (kei.contracts.v1.operation) = {
+    id: "github.actions.workflows.runs.list"
+    connector: "github"
+    class: OPERATION_CLASS_READ
+    http_method: "GET"
+    path_template: "/repos/{owner}/{repository}/actions/workflows/{workflow_id}/runs"
+    scopes: ["actions:read"]
+    credential_placement: CREDENTIAL_PLACEMENT_HEADER_BEARER
+    method_name: "ListWorkflowRunsByWorkflow"
+    connections: ["user_oauth", "pat"]
+    resource_template: "repos/{owner}/{repository}"
+    cursor_field: "page"
+    next_cursor_field: "next_page"
+    semantics: {action: SEMANTIC_ACTION_READ resource_type: "workflow_run" version: 1}
+    errors: [
+      {status: 401 kind: ERROR_KIND_UNAUTHORIZED},
+      {status: 403 kind: ERROR_KIND_FORBIDDEN},
+      {status: 404 kind: ERROR_KIND_NOT_FOUND},
+      {status: 429 kind: ERROR_KIND_RATE_LIMITED retryable: true}
+    ]
+  };
+}
+
+// ListWorkflowRunsByWorkflowResponse wraps the workflow run entries of one
+// workflow's list response. next_page carries the next page number from the
+// Link header. It is filled by JSON unmarshal of the provider response.
+message ListWorkflowRunsByWorkflowResponse {
   repeated WorkflowRunSummary workflow_runs = 1;
   optional int64 next_page = 2;
 }

@@ -63,6 +63,9 @@ message GetPullRequestResponse {
   PullRef base = 10;
   User author = 11 [json_name = "user"];
   repeated Label labels = 12;
+  // The .diff and .patch renderings of the pull request.
+  string diff_url = 13;
+  string patch_url = 14;
 }
 
 // PullRef models the branch side of a pull request.
@@ -83,12 +86,15 @@ message Label {
 }
 
 // ListPullsRequest lists the pull requests of a GitHub repository. The
-// contract models the page size and page number of the query parameters.
+// contract models the state filter and the page size and page number of the
+// query parameters.
 message ListPullsRequest {
   string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
   string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
   optional int32 per_page = 3;
   optional int32 page = 4;
+  // open, closed or all.
+  optional string state = 5;
 
   option (kei.contracts.v1.operation) = {
     id: "github.pulls.list"
@@ -187,6 +193,9 @@ message CreatePullRequestResponse {
   PullRef base = 8;
   User author = 9 [json_name = "user"];
   repeated Label labels = 10;
+  // The .diff and .patch renderings of the pull request.
+  string diff_url = 11;
+  string patch_url = 12;
 }
 
 // UpdatePullRequestRequest edits an open pull request. Every field is
@@ -241,6 +250,9 @@ message UpdatePullRequestResponse {
   PullRef base = 10;
   User author = 11 [json_name = "user"];
   repeated Label labels = 12;
+  // The .diff and .patch renderings of the pull request.
+  string diff_url = 13;
+  string patch_url = 14;
 }
 
 // ListPullReviewsRequest lists the reviews of a pull request. The contract
