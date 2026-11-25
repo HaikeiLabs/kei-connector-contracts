@@ -117,13 +117,15 @@ message ListIssuesResponse {
 }
 
 // CreateIssueRequest creates an issue in a GitHub repository. The title is
-// the provider's only required field; the contract models the body alongside
-// it.
+// the provider's only required field; the contract models the body and the
+// labels alongside it. labels are label names; the provider creates the
+// missing ones.
 message CreateIssueRequest {
   string owner = 1 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
   string repository = 2 [(kei.contracts.v1.param) = {in: PARAM_IN_PATH}];
   string title = 3;
   optional string body = 4;
+  repeated string labels = 5;
 
   option (kei.contracts.v1.operation) = {
     id: "github.issues.create"

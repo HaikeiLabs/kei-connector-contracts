@@ -5,6 +5,8 @@
   "state": "open",
   "body": null,
   "html_url": "https://example.invalid/example-org/example-repo/pull/42",
+  "diff_url": "https://example.invalid/example-org/example-repo/pull/42.diff",
+  "patch_url": "https://example.invalid/example-org/example-repo/pull/42.patch",
   "draft": false,
   "merged_at": null,
   "node_id": "synthetic-node-id-2"

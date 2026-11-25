@@ -449,6 +449,28 @@
           "response": "kei.connectors.github.v1.ListWorkflowRunsResponse"
         },
         {
+          "id": "github.actions.workflows.runs.list",
+          "class": "read",
+          "destructive": false,
+          "deprecated": false,
+          "replaced_by": "",
+          "scopes": [
+            "actions:read"
+          ],
+          "connections": [
+            "user_oauth",
+            "pat"
+          ],
+          "resource_template": "repos/{owner}/{repository}",
+          "semantics": {
+            "action": "read",
+            "resource_type": "workflow_run",
+            "version": 1
+          },
+          "request": "kei.connectors.github.v1.ListWorkflowRunsByWorkflowRequest",
+          "response": "kei.connectors.github.v1.ListWorkflowRunsByWorkflowResponse"
+        },
+        {
           "id": "github.checks.runs.list",
           "class": "read",
           "destructive": false,

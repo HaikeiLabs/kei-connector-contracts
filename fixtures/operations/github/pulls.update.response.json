@@ -5,6 +5,8 @@
   "state": "open",
   "body": null,
   "html_url": "https://example.invalid/example-org/example-repo/pull/43",
+  "diff_url": "https://example.invalid/example-org/example-repo/pull/43.diff",
+  "patch_url": "https://example.invalid/example-org/example-repo/pull/43.patch",
   "draft": false,
   "merged_at": null,
   "head": {

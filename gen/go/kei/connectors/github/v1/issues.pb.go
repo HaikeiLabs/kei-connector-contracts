@@ -426,14 +426,16 @@ func (x *ListIssuesResponse) GetIssues() []*IssueSummary {
 }
 
 // CreateIssueRequest creates an issue in a GitHub repository. The title is
-// the provider's only required field; the contract models the body alongside
-// it.
+// the provider's only required field; the contract models the body and the
+// labels alongside it. labels are label names; the provider creates the
+// missing ones.
 type CreateIssueRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Owner         string                 `protobuf:"bytes,1,opt,name=owner,proto3" json:"owner,omitempty"`
 	Repository    string                 `protobuf:"bytes,2,opt,name=repository,proto3" json:"repository,omitempty"`
 	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
 	Body          *string                `protobuf:"bytes,4,opt,name=body,proto3,oneof" json:"body,omitempty"`
+	Labels        []string               `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -494,6 +496,13 @@ func (x *CreateIssueRequest) GetBody() string {
 		return *x.Body
 	}
 	return ""
+}
+
+func (x *CreateIssueRequest) GetLabels() []string {
+	if x != nil {
+		return x.Labels
+	}
+	return nil
 }
 
 // CreateIssueResponse models the created issue. It is filled by JSON
@@ -971,14 +980,15 @@ const file_kei_connectors_github_v1_issues_proto_rawDesc = "" +
 	"\x06labels\x18\b \x03(\v2\x1f.kei.connectors.github.v1.LabelR\x06labelsB\a\n" +
 	"\x05_body\"T\n" +
 	"\x12ListIssuesResponse\x12>\n" +
-	"\x06issues\x18\x01 \x03(\v2&.kei.connectors.github.v1.IssueSummaryR\x06issues\"\xf6\x02\n" +
+	"\x06issues\x18\x01 \x03(\v2&.kei.connectors.github.v1.IssueSummaryR\x06issues\"\x8e\x03\n" +
 	"\x12CreateIssueRequest\x12\x1c\n" +
 	"\x05owner\x18\x01 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\x05owner\x12&\n" +
 	"\n" +
 	"repository\x18\x02 \x01(\tB\x06\xa2\x82\x19\x02\b\x01R\n" +
 	"repository\x12\x14\n" +
 	"\x05title\x18\x03 \x01(\tR\x05title\x12\x17\n" +
-	"\x04body\x18\x04 \x01(\tH\x00R\x04body\x88\x01\x01:\xe1\x01\x92\x82\x19\xdc\x01\n" +
+	"\x04body\x18\x04 \x01(\tH\x00R\x04body\x88\x01\x01\x12\x16\n" +
+	"\x06labels\x18\x05 \x03(\tR\x06labels:\xe1\x01\x92\x82\x19\xdc\x01\n" +
 	"\x14github.issues.create\x12\x06github\x18\x02*\x04POST2\"/repos/{owner}/{repository}/issues:\fissues:write@\x01J\vCreateIssueR\n" +
 	"user_oauthR\x03patZ\x1arepos/{owner}/{repository}b\x05\b\x91\x03\x10\x02b\x05\b\x93\x03\x10\x03b\x05\b\x94\x03\x10\x01b\a\b\xad\x03\x10\x04\x18\x01b\x05\b\x99\x03\x10\x05b\x05\b\xa6\x03\x10\x06\x8a\x01\v\b\x02\x12\x05issue\x18\x01\xa2\x01\x02id\xa2\x01\x06numberB\a\n" +
 	"\x05_body\"\x95\x02\n" +

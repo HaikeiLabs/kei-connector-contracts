@@ -77,16 +77,18 @@ class ListIssuesResponse(_message.Message):
     def __init__(self, issues: _Optional[_Iterable[_Union[IssueSummary, _Mapping]]] = ...) -> None: ...
 
 class CreateIssueRequest(_message.Message):
-    __slots__ = ("owner", "repository", "title", "body")
+    __slots__ = ("owner", "repository", "title", "body", "labels")
     OWNER_FIELD_NUMBER: _ClassVar[int]
     REPOSITORY_FIELD_NUMBER: _ClassVar[int]
     TITLE_FIELD_NUMBER: _ClassVar[int]
     BODY_FIELD_NUMBER: _ClassVar[int]
+    LABELS_FIELD_NUMBER: _ClassVar[int]
     owner: str
     repository: str
     title: str
     body: str
-    def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., title: _Optional[str] = ..., body: _Optional[str] = ...) -> None: ...
+    labels: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, owner: _Optional[str] = ..., repository: _Optional[str] = ..., title: _Optional[str] = ..., body: _Optional[str] = ..., labels: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class CreateIssueResponse(_message.Message):
     __slots__ = ("id", "number", "title", "state", "body", "html_url", "author", "labels")

@@ -14,6 +14,7 @@ Source: [`connector.proto`](../../proto/kei/connectors/github/v1/connector.proto
 | Id | Method | Path or GraphQL | Class | Destructive | Connections | Resource template |
 | --- | --- | --- | --- | --- | --- | --- |
 | `github.actions.runs.list` | `GET` | `/repos/{owner}/{repository}/actions/runs` | `read` | false | `user_oauth`, `pat` | `repos/{owner}/{repository}` |
+| `github.actions.workflows.runs.list` | `GET` | `/repos/{owner}/{repository}/actions/workflows/{workflow_id}/runs` | `read` | false | `user_oauth`, `pat` | `repos/{owner}/{repository}` |
 | `github.contents.put` | `PUT` | `/repos/{owner}/{repository}/contents/{path}` | `write` | false | `user_oauth`, `pat` | `repos/{owner}/{repository}` |
 | `github.git.blobs.create` | `POST` | `/repos/{owner}/{repository}/git/blobs` | `write` | false | `user_oauth`, `pat` | `repos/{owner}/{repository}` |
 | `github.git.commits.create` | `POST` | `/repos/{owner}/{repository}/git/commits` | `write` | false | `user_oauth`, `pat` | `repos/{owner}/{repository}` |

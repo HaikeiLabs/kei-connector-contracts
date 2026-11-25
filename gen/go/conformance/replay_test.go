@@ -185,6 +185,60 @@ func TestGeneratedHTTP_Replay(t *testing.T) {
 			},
 		},
 		{
+			op: "github.pulls.list", connector: "github",
+			serve:  unwrapArray("pulls"), // GitHub returns a bare JSON array
+			method: "GET", path: "/repos/example-org/example-repo/pulls",
+			query: url.Values{"state": {"open"}, "per_page": {"30"}, "page": {"1"}},
+			call: func(ctx context.Context, conn connection.HTTP, t *testing.T) (proto.Message, error) {
+				req := &githubv1.ListPullsRequest{}
+				loadRequest(t, "github", "github.pulls.list", req)
+				return githubops.New(conn).ListPulls(ctx, req)
+			},
+			check: func(t *testing.T, m proto.Message) {
+				if n := len(m.(*githubv1.ListPullsResponse).GetPulls()); n != 1 {
+					t.Fatalf("pulls = %d, want 1", n)
+				}
+			},
+		},
+		{
+			op: "github.issues.create", connector: "github",
+			method: "POST", path: "/repos/example-org/example-repo/issues",
+			body: `{"body":"Synthetic body text","labels":["synthetic-label"],"title":"Synthetic new issue"}`,
+			call: func(ctx context.Context, conn connection.HTTP, t *testing.T) (proto.Message, error) {
+				req := &githubv1.CreateIssueRequest{}
+				loadRequest(t, "github", "github.issues.create", req)
+				return githubops.New(conn).CreateIssue(ctx, req)
+			},
+			check: func(t *testing.T, m proto.Message) {
+				if got := m.(*githubv1.CreateIssueResponse).GetNumber(); got != 42 {
+					t.Fatalf("number = %d, want 42", got)
+				}
+			},
+		},
+		{
+			op: "github.actions.workflows.runs.list", connector: "github",
+			serve:  unwrapArray("workflow_runs"), // GitHub returns a bare JSON array
+			method: "GET", path: "/repos/example-org/example-repo/actions/workflows/ci.yml/runs",
+			query: url.Values{"branch": {"main"}, "event": {"push"}, "per_page": {"30"}, "page": {"1"}},
+			call: func(ctx context.Context, conn connection.HTTP, t *testing.T) (proto.Message, error) {
+				req := &githubv1.ListWorkflowRunsByWorkflowRequest{}
+				loadRequest(t, "github", "github.actions.workflows.runs.list", req)
+				return githubops.New(conn).ListWorkflowRunsByWorkflow(ctx, req)
+			},
+			check: func(t *testing.T, m proto.Message) {
+				runs := m.(*githubv1.ListWorkflowRunsByWorkflowResponse).GetWorkflowRuns()
+				if len(runs) != 1 {
+					t.Fatalf("workflow_runs = %d, want 1", len(runs))
+				}
+				if got := runs[0].GetActor().GetLogin(); got != "example-user" {
+					t.Fatalf("actor.login = %q, want example-user", got)
+				}
+				if got := runs[0].GetHeadSha(); got != "synthetic-head-sha-1" {
+					t.Fatalf("head_sha = %q, want the synthetic sha", got)
+				}
+			},
+		},
+		{
 			op: "http_api.records.list", connector: "http_api",
 			method: "GET", path: "/contacts", query: url.Values{"limit": {"2"}},
 			call: func(ctx context.Context, conn connection.HTTP, t *testing.T) (proto.Message, error) {

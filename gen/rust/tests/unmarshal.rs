@@ -37,8 +37,9 @@ use haikeilabs_connector_contracts::kei::connectors::github::v1::{
     CreateIssueResponse as GhCreateIssueResponse, CreatePullRequestResponse,
     CreatePullReviewResponse, CreateRefResponse, CreateTreeResponse, GetIssueResponse,
     GetPullRequestResponse, GetRefResponse, GetRepositoryResponse, ListCheckRunsResponse,
-    ListIssuesResponse, ListPullReviewsResponse, ListPullsResponse, ListWorkflowRunsResponse,
-    PutContentsResponse, UpdateIssueResponse, UpdatePullRequestResponse, UpdateRefResponse,
+    ListIssuesResponse, ListPullReviewsResponse, ListPullsResponse,
+    ListWorkflowRunsByWorkflowResponse, ListWorkflowRunsResponse, PutContentsResponse,
+    UpdateIssueResponse, UpdatePullRequestResponse, UpdateRefResponse,
 };
 use haikeilabs_connector_contracts::kei::connectors::gmail::v1::{
     CreateDraftResponse, GetMessageResponse, ListMessagesResponse,
@@ -118,11 +119,19 @@ fn fixtures_unmarshal() {
         "notes.txt"
     );
 
-    // github.pulls.get — spot: number 42.
+    // github.pulls.get — spot: number 42 and the diff/patch URLs.
     let resp: GetPullRequestResponse =
         serde_json::from_str(&fixture("github", "pulls.get.response.json"))
             .expect("github.pulls.get response unmarshals");
     assert_eq!(resp.number, 42);
+    assert_eq!(
+        resp.diff_url,
+        "https://example.invalid/example-org/example-repo/pull/42.diff"
+    );
+    assert_eq!(
+        resp.patch_url,
+        "https://example.invalid/example-org/example-repo/pull/42.patch"
+    );
 
     // github.pulls.list — spot: head/base refs, author login, labels, the
     // >2^53 id, and the next_page cursor.
@@ -140,12 +149,46 @@ fn fixtures_unmarshal() {
     assert_eq!(pull.id, 9007199254740999, "int64 must not go through f64");
     assert_eq!(resp.next_page, Some(2));
 
-    // github.actions.runs.list — spot: head_branch and the >2^53 run id.
+    // github.actions.runs.list — spot: head_branch, the >2^53 run id, the
+    // actor login, and head_sha.
     let resp: ListWorkflowRunsResponse =
         serde_json::from_str(&fixture("github", "actions.runs.list.response.json"))
             .expect("github.actions.runs.list response unmarshals");
     assert_eq!(resp.workflow_runs[0].head_branch, "feature/x");
     assert_eq!(resp.workflow_runs[0].id, 9007199254741001);
+    assert_eq!(
+        resp.workflow_runs[0]
+            .actor
+            .as_ref()
+            .expect("actor present")
+            .login,
+        "example-user"
+    );
+    assert_eq!(
+        resp.workflow_runs[0].head_sha,
+        "synthetic-head-sha-1"
+    );
+
+    // github.actions.workflows.runs.list — spot: the filtered run's actor
+    // login and head_sha.
+    let resp: ListWorkflowRunsByWorkflowResponse = serde_json::from_str(&fixture(
+        "github",
+        "actions.workflows.runs.list.response.json",
+    ))
+    .expect("github.actions.workflows.runs.list response unmarshals");
+    assert_eq!(resp.workflow_runs.len(), 1);
+    assert_eq!(
+        resp.workflow_runs[0]
+            .actor
+            .as_ref()
+            .expect("actor present")
+            .login,
+        "example-user"
+    );
+    assert_eq!(
+        resp.workflow_runs[0].head_sha,
+        "synthetic-head-sha-1"
+    );
 
     // github.issues.create — spot: number, author login, labels.
     let resp: GhCreateIssueResponse =

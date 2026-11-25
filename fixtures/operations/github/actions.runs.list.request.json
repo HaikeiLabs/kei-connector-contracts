@@ -1,6 +1,8 @@
 {
   "owner": "example-org",
   "repository": "example-repo",
+  "branch": "main",
+  "event": "push",
   "per_page": 30,
   "page": 1
 }
