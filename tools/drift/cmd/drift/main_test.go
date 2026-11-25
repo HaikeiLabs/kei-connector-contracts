@@ -25,7 +25,7 @@ import (
 
 const testManifest = `{
   "schema": "kei.connector-manifest/v1",
-  "contracts_version": "v0.20.3",
+  "contracts_version": "v0.21.0",
   "connectors": [
     {
       "id": "github",
