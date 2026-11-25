@@ -4,15 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "haikeilabs-connector-contracts"
-version = "0.20.2"
+version = "0.20.3"
 description = "Generated connector operation contracts"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
+dependencies = ["protobuf>=7.36.2,<8"]
 
 [project.urls]
 Repository = "https://github.com/HaikeiLabs/kei-connector-contracts"
-dependencies = ["protobuf>=7.36.2,<8"]
 
 [project.optional-dependencies]
 # The http_connection adapter wraps an httpx.AsyncClient. Everything else in
